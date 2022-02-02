@@ -9,6 +9,7 @@
   - [Manually](#manually "Manually")
 - [Script Templates](#script-templates "Script Templates")
 - [Getting Started](#getting-started "Getting Started")
+  - [Samples](#samples "Samples")
 - [Dependencies](#dependencies "Dependencies")
 
 # Overview
@@ -18,8 +19,12 @@ Easy AI was created to allow for easily creating intelligent agents in Unity wit
 # Features
 
 - Three types of agents allowing for movement either by directly moving the transform, using a character controller, or using a rigidbody.
+  - Transform agents will move directly towards a position without colliding and do not have any gravity.
+  - Character agents move using a character controller where gravity is calculated and applied. They will collide with objects but do not push them.
+  - Rigidbody agents move using a rigidbody with gravity automatically applied. They collide with and push objects.
 - Agents will automatically collect all sensors, actuators, and minds attached to them meaning you do not need to worry about forgetting to assign any references in the inspector.
 - An agent manager handles all agents which allows for limiting how many agents are updated during a single frame meaning you can use Easy AI even if you have a lot of agents in the scene or your computer is older.
+  - Agent movement is kept smooth regardless of agent thinking limits ensuring everything runs smoothly.
 - A built in messaging system which allows for displaying messages on the GUI for ease of seeing exactly what your agents are performing at any given moment.
 - The built in GUI allows for selecting every agent, sensor, and actuator in the scene so you can see their exact details and messages.
 - Several included cameras.
@@ -40,17 +45,18 @@ You can install Easy AI either through the package manager or by manually downlo
 *Note this method requires you have GIT installed on your computer.*
 
 1. Click the "Code" button above and under "Clone", copy the https URL.
-2. Open your Unity project and go to "Window > Package Manager" and hit the "+" icon in the top left of the Package Manager window followed by "Add package from git URL..." and paste in the link you copied in step one.
+2. Open your Unity project and go to "Window > Package Manager" and hit the "+" icon in the top left of the Package Manager window followed by "Add package from git URL..." and paste in the link you copied in step one. This will automatically install the [Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.1/manual/index.html "Input System") dependency.
 
 ## Manually
 
 1. Click the "Code" button above and click "Download ZIP".
 2. Extract the ZIP file.
-3. Open your Unity project and go to "Window > Package Manager" and hit the "+" icon in the top left of the Package Manager window followed by "Add package from disk..." and navigate to the extracted package where you must select the "package.json" file.
+3. Open your Unity project and go to "Window > Package Manager" and hit the "+" icon in the top left of the Package Manager window followed by "Add package from disk..." and navigate to the extracted package where you must select the "package.json" file. This should automatically install the [Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.1/manual/index.html "Input System") dependency, however, only the package manager method has been tested, so if may need to be manually installed.
+   1. Alternatively, you could simply add all ".cs" files into anywhere in your "Assets" folder. If you choose to do so this way, you will have to manually install the [Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.1/manual/index.html "Input System") dependency. 
 
 # Getting Started
 
-- For samples, go [here](https://github.com/StevenRice99/Easy-AI-Samples "Easy AI Samples"), download, and add the files to your project. This scene demonstrates the three included types of agents and how they move compared to each other and has a few sample scripts all of which are fully documented in the same directory.
+- *This library is under active development as I expand it as needed for a class myself, and thus I do not plan on writing detailed documentation here until it is stabilized. However, source code will be fully documented until then making it easy to understand what various components do.*
 - The general workflow for Easy AI is as follows:
   - Sensors generate percepts which are sent to the agent.
   - Percepts are passed to the mind of the agent of processing where it decides on actions to take.
@@ -60,13 +66,17 @@ You can install Easy AI either through the package manager or by manually downlo
   - Add your sensors and percepts to either this agent or any of its child objects where they will automatically be linked when the application is run.
   - Cameras can be added in the same way with "Easy AI > Cameras" in the hierarchy.
 
+## Samples
+
+For samples, go [here](https://github.com/StevenRice99/Easy-AI-Samples "Easy AI Samples"), download, and add the files to your project. These can simply be added into your "Assets" anywhere you like. This sample scene demonstrates the three included types of agents and how they move compared to each other and has a few sample scripts all of which are fully documented in the same directory.
+
 # Script Templates
 
 Although you can simply create a new script in Unity and change it to inherit from sensor, actuator, mind, or performance measure, you can add a few more files to allow for you to right click in the project explorer and go to "Create > Easy AI" followed by the type of script you used to create. These need to be added manually outside of the package to work. To install these script templates:
 1. Go [here](https://github.com/StevenRice99/Easy-AI-Script-Templates "Easy AI Script Templates").
 2. Click the "Code" button above and click "Download ZIP".
 3. Extract the ZIP file.
-4. Copy "ScriptTemplates" and "ScriptTemplates.meta" directly into the "Assets" folder of your Unity project.
+4. Copy the "ScriptTemplates" folder and "ScriptTemplates.meta" directly into the root of your "Assets" folder of your Unity project.
 5. If Unity is running, restart it and the script templates will be working.
 
 # Dependencies
