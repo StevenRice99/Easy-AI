@@ -1,4 +1,4 @@
-﻿# Easy AI
+# Easy AI
 
 **Easily create basic artificial intelligence in Unity.**
 
@@ -50,7 +50,7 @@ You can install Easy AI either through the package manager or by manually downlo
 
 # Getting Started
 
-- For a sample scene, in the project explorer go to "Packages > Easy AI > Samples > Easy AI Sample Scene". This scene demonstrates the three included types of agents and how they move compared to each other and has a few sample scripts all of which are fully documented in the same directory.
+- For samples, go [here](https://github.com/StevenRice99/Easy-AI-Samples "Easy AI Samples"), download, and add the files to your project. This scene demonstrates the three included types of agents and how they move compared to each other and has a few sample scripts all of which are fully documented in the same directory.
 - The general workflow for Easy AI is as follows:
   - Sensors generate percepts which are sent to the agent.
   - Percepts are passed to the mind of the agent of processing where it decides on actions to take.
