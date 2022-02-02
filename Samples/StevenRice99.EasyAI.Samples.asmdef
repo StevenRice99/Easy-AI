@@ -1,0 +1,6 @@
+{
+	"name": "StevenRice99.EasyAI.Samples",
+	"references": [
+		"StevenRice99.EasyAI.Runtime"
+	]
+}

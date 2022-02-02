@@ -1,0 +1,24 @@
+{
+  "name": "com.stevenrice.easyai",
+  "version": "1.0.0",
+  "displayName": "Easy AI",
+  "description": "Easily create basic artificial intelligence in Unity.",
+  "documentationUrl": "",
+  "changelogUrl": "",
+  "licensesUrl": "",
+  "dependencies": {
+    "com.unity.inputsystem": "1.3.0"
+  },
+  "keywords": [
+    "Easy",
+    "AI",
+    "Artificial",
+    "Intelligence"
+  ],
+  "author": {
+    "name": "Steven Rice",
+    "email": "TheStevenRice@Gmail.com",
+    "url": "https://stevenrice.ca"
+  },
+  "type": "library"
+}
