@@ -20,12 +20,12 @@ public abstract class Agent : MonoBehaviour
 
     [SerializeField]
     [Min(0)]
-    [Tooltip("How fast the agent's movement can accelerate. Set to zero for instantaneous accelerate.")]
+    [Tooltip("How fast the agent's movement can accelerate. Set to zero for instantaneous acceleration.")]
     protected float moveAcceleration;
 
     [SerializeField]
     [Min(0)]
-    [Tooltip("How fast the agent's rotation can accelerate Set to zero for instantaneous accelerate.")]
+    [Tooltip("How fast the agent's rotation can accelerate Set to zero for instantaneous acceleration.")]
     protected float lookAcceleration;
 
     /// <summary>
@@ -234,6 +234,7 @@ public abstract class Agent : MonoBehaviour
     public void StopMoveToTarget()
     {
         MovingToTarget = false;
+        MoveVelocity = 0;
     }
 
     /// <summary>
@@ -275,6 +276,7 @@ public abstract class Agent : MonoBehaviour
     public void StopLookAtTarget()
     {
         LookingToTarget = false;
+        LookVelocity = 0;
     }
 
     /// <summary>
@@ -506,20 +508,23 @@ public abstract class Agent : MonoBehaviour
             return;
         }
 
-        // Calculate how fast we can look this frame.
-        CalculateLookSpeed();
-
         // Look towards the target.
         Quaternion rotation = Visuals.rotation;
-        Quaternion lastRotation = rotation;
+
+        if (Quaternion.LookRotation(Vector3.RotateTowards(visuals.forward, target - visuals.position, float.MaxValue, 0)) == rotation)
+        {
+            DidLook = false;
+            LookVelocity = 0;
+            return;
+        }
+
+        // Calculate how fast we can look this frame.
+        LookVelocity = lookAcceleration <= 0 ? lookSpeed : Mathf.Clamp(LookVelocity + lookAcceleration * Time.deltaTime, 0, lookSpeed);
+
         rotation = Quaternion.LookRotation(Vector3.RotateTowards(visuals.forward, target - visuals.position, LookVelocity * Time.deltaTime, 0.0f));
         Visuals.rotation = rotation;
-        DidLook = rotation != lastRotation;
-
-        if (DidLook)
-        {
-            AddMessage($"Looked towards {LookTarget}.");
-        }
+        DidLook = true;
+        AddMessage($"Looked towards {LookTarget}.");
     }
 
     protected virtual void OnEnable()
@@ -549,7 +554,7 @@ public abstract class Agent : MonoBehaviour
         catch { }
     }
 
-    protected void CalculateMoveVelocity()
+    protected void CalculateMoveVelocity(float deltaTime)
     {
         if (moveAcceleration <= 0)
         {
@@ -557,18 +562,7 @@ public abstract class Agent : MonoBehaviour
             return;
         }
 
-        MoveVelocity = Mathf.Clamp(MoveVelocity + moveAcceleration, 0, moveSpeed);
-    }
-
-    private void CalculateLookSpeed()
-    {
-        if (lookAcceleration <= 0)
-        {
-            LookVelocity = lookSpeed;
-            return;
-        }
-
-        LookVelocity = Mathf.Clamp(LookVelocity + lookAcceleration, 0, lookSpeed);
+        MoveVelocity = Mathf.Clamp(MoveVelocity + moveAcceleration * deltaTime, 0, moveSpeed);
     }
 
     /// <summary>

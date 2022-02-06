@@ -38,7 +38,7 @@ public class RigidbodyAgent : Agent
         if (MovingToTarget)
         {
             // Calculate how fast we can move this frame.
-            CalculateMoveVelocity();
+            CalculateMoveVelocity(Time.fixedDeltaTime);
                 
             Vector3 position = transform.position;
             _rigidbody.AddForce(Vector3.MoveTowards(position, MoveTarget, MoveVelocity * Time.fixedDeltaTime) - position, ForceMode.VelocityChange);

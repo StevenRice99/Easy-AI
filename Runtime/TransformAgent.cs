@@ -19,7 +19,7 @@ public class TransformAgent : Agent
         }
             
         // Calculate how fast we can move this frame.
-        CalculateMoveVelocity();
+        CalculateMoveVelocity(Time.deltaTime);
 
         // Move towards the target position.
         Vector3 position = transform.position;

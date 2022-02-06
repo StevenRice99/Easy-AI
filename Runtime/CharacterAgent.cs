@@ -44,7 +44,7 @@ public class CharacterAgent : TransformAgent
         if (MovingToTarget)
         {
             // Calculate how fast we can move this frame.
-            CalculateMoveVelocity();
+            CalculateMoveVelocity(Time.deltaTime);
                 
             Vector3 position = transform.position;
             _characterController.Move(Vector3.MoveTowards(position, MoveTarget, MoveVelocity * Time.deltaTime) - position);

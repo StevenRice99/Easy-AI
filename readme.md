@@ -1,4 +1,4 @@
-# Easy AI
+﻿# Easy AI
 
 **Easily create basic artificial intelligence in Unity.**
 
