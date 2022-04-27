@@ -8,7 +8,7 @@ public class CharacterAgent : TransformAgent
     /// <summary>
     /// This agent's character controller.
     /// </summary>
-    private CharacterController _characterController;
+    protected CharacterController CharacterController;
 
     /// <summary>
     /// Used to manually apply gravity.
@@ -20,10 +20,10 @@ public class CharacterAgent : TransformAgent
         base.Start();
             
         // Get the character controller.
-        _characterController = GetComponent<CharacterController>();
-        if (_characterController == null)
+        CharacterController = GetComponent<CharacterController>();
+        if (CharacterController == null)
         {
-            _characterController = gameObject.AddComponent<CharacterController>();
+            CharacterController = gameObject.AddComponent<CharacterController>();
         }
     }
 
@@ -32,39 +32,22 @@ public class CharacterAgent : TransformAgent
     /// </summary>
     public override void Move()
     {
-        if (_characterController == null)
+        if (CharacterController == null)
         {
             return;
         }
         
-        // Get the agent's position prior to any movement.
-        Vector3 lastPosition = transform.position;
-            
-        // If the agent should not be moving, still call to move so gravity is applied.
-        if (MovingToTarget)
-        {
-            // Calculate how fast we can move this frame.
-            CalculateMoveVelocity(Time.deltaTime);
-                
-            Vector3 position = transform.position;
-            _characterController.Move(Vector3.MoveTowards(position, MoveTarget, MoveVelocity * Time.deltaTime) - position);
-        }
-
         // Reset gravity if grounded.
-        if (_characterController.isGrounded)
+        if (CharacterController.isGrounded)
         {
             _velocityY = 0;
         }
         
         // Apply gravity.
         _velocityY += Physics.gravity.y * Time.deltaTime;
-        _characterController.Move(new Vector3(0, _velocityY, 0));
 
-        DidMove = transform.position != lastPosition;
-            
-        if (DidMove)
-        {
-            AddMessage($"Moved towards {MoveTarget}.");
-        }
+        CalculateMoveVelocity(Time.deltaTime);
+        Vector2 scaled = MoveVelocity * Time.deltaTime;
+        CharacterController.Move(new Vector3(scaled.x, _velocityY, scaled.y));
     }
 }

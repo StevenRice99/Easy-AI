@@ -39,7 +39,7 @@ public class LookAtAgentCamera : MonoBehaviour
         }
             
         // Determine where to look at.
-        Vector3 target = agent.Visuals == null ? agent.Position : agent.Visuals.position;
+        Vector3 target = agent.Visuals == null ? agent.transform.position : agent.Visuals.position;
         target = new Vector3(target.x, target.y + offset, target.z);
 
         // Look instantly.

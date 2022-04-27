@@ -6,7 +6,7 @@ public abstract class PerformanceMeasure : IntelligenceComponent
     /// <summary>
     /// The last performance value.
     /// </summary>
-    private float performance;
+    private float _performance;
         
     /// <summary>
     /// Calculate and return the performance value.
@@ -16,10 +16,10 @@ public abstract class PerformanceMeasure : IntelligenceComponent
     {
         if (Agent != null)
         {
-            performance = CalculatePerformance();
+            _performance = CalculatePerformance();
         }
 
-        return performance;
+        return _performance;
     }
         
     /// <summary>

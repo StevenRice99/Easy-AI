@@ -1,6 +1,7 @@
 {
 	"name": "StevenRice99.EasyAI.Runtime",
 	"references": [
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Unity.Mathematics"
     ]
 }

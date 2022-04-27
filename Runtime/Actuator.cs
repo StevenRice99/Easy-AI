@@ -27,13 +27,14 @@ public abstract class Actuator : IntelligenceComponent
             AddMessage($"Finished action {action}.");
         }
 
-        if (actionsComplete == 0)
+        switch (actionsComplete)
         {
-            AddMessage("Finished no actions.");
-        }
-        else if (actionsComplete > 1)
-        {
-            AddMessage($"Finished {actionsComplete} actions.");
+            case 0:
+                AddMessage("Finished no actions.");
+                break;
+            case > 1:
+                AddMessage($"Finished {actionsComplete} actions.");
+                break;
         }
     }
         

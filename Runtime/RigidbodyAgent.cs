@@ -8,51 +8,40 @@ public class RigidbodyAgent : Agent
     /// <summary>
     /// This agent's rigidbody.
     /// </summary>
-    private Rigidbody _rigidbody;
+    protected Rigidbody Rigidbody;
 
     protected override void Start()
     {
+        base.Start();
+        
         // Get the rigidbody.
-        _rigidbody = GetComponent<Rigidbody>();
-        if (_rigidbody == null)
+        Rigidbody = GetComponent<Rigidbody>();
+        if (Rigidbody == null)
         {
-            _rigidbody = gameObject.AddComponent<Rigidbody>();
+            Rigidbody = gameObject.AddComponent<Rigidbody>();
+        }
+
+        if (Rigidbody == null)
+        {
+            return;
         }
 
         // Since rotation is all done with the root visuals transform, freeze rigidbody rotation.
-        if (_rigidbody != null)
-        {
-            _rigidbody.freezeRotation = true;
-        }
+        Rigidbody.freezeRotation = true;
+        Rigidbody.drag = 0;
+        Rigidbody.angularDrag = 0;
+        Rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
+        Rigidbody.isKinematic = false;
     }
         
     public override void Move()
     {
-        if (_rigidbody == null)
+        if (Rigidbody == null)
         {
             return;
         }
         
-        Vector3 lastPosition = transform.position;
-        
-        if (MovingToTarget)
-        {
-            // Calculate how fast we can move this frame.
-            CalculateMoveVelocity(Time.fixedDeltaTime);
-                
-            Vector3 position = transform.position;
-            _rigidbody.AddForce(Vector3.MoveTowards(position, MoveTarget, MoveVelocity * Time.fixedDeltaTime) - position, ForceMode.VelocityChange);
-        }
-        else
-        {
-            MoveVelocity = 0;
-        }
-            
-        DidMove = transform.position != lastPosition;
-            
-        if (DidMove)
-        {
-            AddMessage($"Moved towards {MoveTarget}.");
-        }
+        CalculateMoveVelocity(Time.fixedDeltaTime);
+        Rigidbody.velocity = new Vector3(MoveVelocity.x, Rigidbody.velocity.y, MoveVelocity.y);
     }
 }

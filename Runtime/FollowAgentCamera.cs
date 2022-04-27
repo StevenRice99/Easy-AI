@@ -36,6 +36,9 @@ public class FollowAgentCamera : MonoBehaviour
     /// </summary>
     private Camera _camera;
 
+    /// <summary>
+    /// Depth relative to the height.
+    /// </summary>
     private float _ratio;
 
     private void Start()
