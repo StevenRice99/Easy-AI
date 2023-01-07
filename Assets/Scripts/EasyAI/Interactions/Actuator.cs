@@ -13,12 +13,12 @@ namespace EasyAI.Interactions
         /// Attempt to act on each type of action from the agent.
         /// </summary>
         /// <param name="actions">The actions the agent wants to perform.</param>
-        public void Act(IEnumerable<Action> actions)
+        public void Act(IEnumerable<AgentAction> actions)
         {
             int actionsComplete = 0;
             
             // Ensure only actions which are not yet complete (by another actuator) are attempted.
-            foreach (Action action in actions.Where(a => !a.Complete))
+            foreach (AgentAction action in actions.Where(a => !a.Complete))
             {
                 action.Complete = Act(action);
                 if (!action.Complete)
@@ -44,8 +44,8 @@ namespace EasyAI.Interactions
         /// <summary>
         /// Implement how the actuator will act to any given action, if at all.
         /// </summary>
-        /// <param name="action">The action the agent wants to perform.</param>
+        /// <param name="agentAction">The action the agent wants to perform.</param>
         /// <returns>True if the action has been completed, false if it has not been acted upon or it is not yet complete.</returns>
-        protected abstract bool Act(Action action);
+        protected abstract bool Act(AgentAction agentAction);
     }
 }

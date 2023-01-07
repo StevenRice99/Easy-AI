@@ -14,7 +14,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
-using Action = EasyAI.Interactions.Action;
 using Sensor = EasyAI.Interactions.Sensor;
 
 namespace EasyAI
@@ -1439,11 +1438,6 @@ namespace EasyAI
         private static void AgentGizmos(Agent agent)
         {
             agent.DisplayGizmos();
-        
-            if (agent.SelectedMind != null)
-            {
-                agent.SelectedMind.DisplayGizmos();
-            }
 
             if (agent.Actuators != null)
             {
@@ -1753,7 +1747,7 @@ namespace EasyAI
             {
                 // Button to select an agent.
                 y = NextItem(y, h, p);
-                if (!GuiButton(x, y, w, h, $"{agent.name} - {agent}" + (agent.SelectedMind == null ? string.Empty : $" - {agent.SelectedMind}")))
+                if (!GuiButton(x, y, w, h, $"{agent.name} - {agent}"))
                 {
                     continue;
                 }
@@ -1797,7 +1791,7 @@ namespace EasyAI
             }
             
             y = NextItem(y, h, p);
-            int length = 7 + SelectedAgent.MovesData.Count;
+            int length = 6 + SelectedAgent.MovesData.Count;
             if (Agents.Count > 1)
             {
                 length++;
@@ -1809,11 +1803,6 @@ namespace EasyAI
             }
 
             if (SelectedAgent.State == null)
-            {
-                length--;
-            }
-
-            if (SelectedAgent.SelectedMind == null)
             {
                 length--;
             }
@@ -1848,13 +1837,6 @@ namespace EasyAI
             if (SelectedAgent.State != null)
             {
                 GuiLabel(x, y, w, h, p, $"State: {SelectedAgent.State}");
-                y = NextItem(y, h, p);
-            }
-        
-            Mind mind = SelectedAgent.SelectedMind;
-            if (mind != null)
-            {
-                GuiLabel(x, y, w, h, p, $"Mind: {mind}");
                 y = NextItem(y, h, p);
             }
         
@@ -1894,12 +1876,6 @@ namespace EasyAI
 
             // Display any custom details implemented for the agent.
             y = SelectedAgent.DisplayDetails(x, y, w, h, p);
-        
-            // Display any custom details implemented for the mind.
-            if (mind != null)
-            {
-                y = SelectedAgent.SelectedMind.DisplayDetails(x, y, w, h, p);
-            }
 
             // Display all sensors for the agent.
             if (SelectedAgent.Sensors.Length > 0 && SelectedAgent.Actuators.Length > 0)
@@ -2009,7 +1985,7 @@ namespace EasyAI
             }
 
             // Display all actions.
-            Action[] actions = SelectedAgent.Actions?.Where(a => a != null).ToArray();
+            AgentAction[] actions = SelectedAgent.Actions?.Where(a => a != null).ToArray();
             if (actions is not { Length: > 0 })
             {
                 return;
@@ -2020,7 +1996,7 @@ namespace EasyAI
 
             GuiLabel(x, y, w, h, p, actions.Length == 1 ? "1 Action" : $"{actions.Length} Actions");
 
-            foreach (Action action in actions)
+            foreach (AgentAction action in actions)
             {
                 string msg = action.DetailsDisplay();
                 y = NextItem(y, h, p);

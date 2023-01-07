@@ -5,7 +5,7 @@ namespace EasyAI.Interactions
     /// <summary>
     /// Base class for actions which will be performed by actuators.
     /// </summary>
-    public abstract class Action : DataPiece
+    public abstract class AgentAction : DataPiece
     {
         /// <summary>
         /// If the action has been completed or not.

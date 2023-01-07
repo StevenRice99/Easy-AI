@@ -1,6 +1,8 @@
-﻿using A2.Agents;
+﻿using System.Collections.Generic;
+using A2.Agents;
 using A2.Managers;
 using EasyAI.Agents;
+using EasyAI.Interactions;
 using EasyAI.Thinking;
 using UnityEngine;
 
@@ -9,27 +11,28 @@ namespace A2.States
     /// <summary>
     /// State for microbes that are seeking food.
     /// </summary>
-    [CreateAssetMenu(menuName = "A2/States/Microbe Seeking Food State")]
+    [CreateAssetMenu(menuName = "A2/States/Microbe Seeking Food State", fileName = "Microbe Seeking Food State")]
     public class MicrobeSeekingFoodState : State
     {
         /// <summary>
         /// Called when an agent first enters this state.
         /// </summary>
         /// <param name="agent">The agent.</param>
-        public override void Enter(Agent agent)
+        public override ICollection<AgentAction> Enter(Agent agent)
         {
             agent.AddMessage("Starting to search for food.");
+            return null;
         }
 
         /// <summary>
         /// Called when an agent is in this state.
         /// </summary>
         /// <param name="agent">The agent.</param>
-        public override void Execute(Agent agent)
+        public override ICollection<AgentAction> Execute(Agent agent)
         {
             if (agent is not Microbe microbe)
             {
-                return;
+                return null;
             }
 
             // If the microbe is not tracking another microbe to eat yet, search for one.
@@ -45,41 +48,43 @@ namespace A2.States
                 
                 if (agent.MovesData.Count > 0)
                 {
-                    return;
+                    return null;
                 }
 
                 agent.ClearMoveData();
                 agent.Wander = true;
-                return;
+                return null;
             }
 
             // If close enough to eat the microbe it is tracking, eat it.
             if (Vector3.Distance(microbe.transform.position, microbe.TargetMicrobe.transform.position) <= MicrobeManager.MicrobeManagerSingleton.MicrobeInteractRadius)
             {
                 microbe.FireEvent(microbe.TargetMicrobe, (int) MicrobeManager.MicrobeEvents.Eaten);
-                return;
+                return null;
             }
             
             // Otherwise move towards the microbe it is tracking.
             agent.AddMessage($"Hunting {microbe.TargetMicrobe.name}.");
             agent.SetMoveData(Agent.MoveType.Pursuit, microbe.TargetMicrobe.transform);
             agent.FireEvent(microbe.TargetMicrobe, (int) MicrobeManager.MicrobeEvents.Hunted);
+            return null;
         }
 
         /// <summary>
         /// Called when an agent exits this state.
         /// </summary>
         /// <param name="agent">The agent.</param>
-        public override void Exit(Agent agent)
+        public override ICollection<AgentAction> Exit(Agent agent)
         {
             if (agent is not Microbe microbe)
             {
-                return;
+                return null;
             }
 
             // Ensure the target microbe is null.
             microbe.TargetMicrobe = null;
             agent.AddMessage("No longer searching for food.");
+            return null;
         }
     }
 }

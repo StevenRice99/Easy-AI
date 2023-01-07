@@ -7,31 +7,37 @@ using EasyAI.Interactions;
 using EasyAI.Thinking;
 using UnityEngine;
 
-namespace A1.Minds
+namespace A1.States
 {
-    /// <summary>
-    /// Mind to control the cleaner agent.
-    /// </summary>
-    public class CleanerMind : Mind
+    [CreateAssetMenu(menuName = "A1/States/Cleaner Global State", fileName = "Cleaner Global State")]
+    public class CleanerGlobalState : State
     {
-        /// <summary>
-        /// Decide whether the current floor tile needs to be cleaned, to move towards a dirty floor time, or to prepare for tiles to become dirty.
-        /// </summary>
-        /// <returns>A CleanAction if the current floor tile should be cleaned, null otherwise.</returns>
-        public override Action[] Think()
+        public override ICollection<AgentAction> Enter(Agent agent)
+        {
+            agent.AddMessage("Starting cleaning!");
+            return null;
+        }
+
+        public override ICollection<AgentAction> Execute(Agent agent)
         {
             // Determine if the current floor tile needs to be cleaned.
-            Floor floorToClean = CanClean(Agent.Percepts);
+            Floor floorToClean = CanClean(agent.Percepts);
             if (floorToClean != null)
             {
                 // Stop movement and start cleaning the current floor tile.
-                AddMessage("Cleaning current floor tile.");
-                Agent.ClearMoveData();
-                return new Action[] { new CleanAction { Floor = floorToClean } };
+                agent.AddMessage("Cleaning current floor tile.");
+                agent.ClearMoveData();
+                return new AgentAction[] { new CleanAgentAction { Floor = floorToClean } };
             }
 
             // Otherwise determine where to move which will be the closest floor with the highest dirt level or the weighted midpoint.
-            Agent.SetMoveData(Agent.MoveType.Seek,DetermineLocationToMove(Agent.Percepts));
+            agent.SetMoveData(Agent.MoveType.Seek,DetermineLocationToMove(agent));
+            return null;
+        }
+
+        public override ICollection<AgentAction> Exit(Agent agent)
+        {
+            agent.AddMessage("Done cleaning!");
             return null;
         }
 
@@ -48,12 +54,12 @@ namespace A1.Minds
         /// <summary>
         /// Determine where the cleaner agent should move to.
         /// </summary>
-        /// <param name="percepts">The percepts which the agent's sensors sensed.</param>
+        /// <param name="agent">The agent.</param>
         /// <returns>The position of the closest dirtiest floor tile or the weighted midpoint if all floor tiles are clean.</returns>
-        private Vector3 DetermineLocationToMove(IEnumerable<Percept> percepts)
+        private static Vector3 DetermineLocationToMove(Agent agent)
         {
             // If there are no floors detected, simply return (0, 0, 0) which should never happen but just to be safe.
-            FloorsPercept[] dirtPercepts = percepts.OfType<FloorsPercept>().ToArray();
+            FloorsPercept[] dirtPercepts = agent.Percepts.OfType<FloorsPercept>().ToArray();
             if (dirtPercepts.Length == 0)
             {
                 return Vector3.zero;
@@ -82,9 +88,11 @@ namespace A1.Minds
                 }
             }
 
+            Vector3 position = agent.transform.position;
+
             // If there are dirty floor tiles, return the position of the closest one.
             return dirty.Count > 0
-                ? NearestPosition(dirty)
+                ? NearestPosition(position, dirty)
                 // Else if there are tiles more likely to get dirty than others, return the weighted midpoint.
                 : likelyToGetDirty.Count > 0
                     ? CalculateMidPoint(all, likelyToGetDirty)
@@ -95,11 +103,12 @@ namespace A1.Minds
         /// <summary>
         /// Find the closest floor tile position to the cleaner agent.
         /// </summary>
+        /// <param name="position">The position of the agent.</param>
         /// <param name="positions">The floor tile positions to search through.</param>
         /// <returns>The closest floor tile position to the cleaner agent.</returns>
-        private Vector3 NearestPosition(IReadOnlyCollection<Vector3> positions)
+        private static Vector3 NearestPosition(Vector3 position, IReadOnlyCollection<Vector3> positions)
         {
-            return positions.Count == 0 ? Vector3.zero : positions.OrderBy(p => Vector3.Distance(Agent.transform.position, p)).First();
+            return positions.Count == 0 ? Vector3.zero : positions.OrderBy(p => Vector3.Distance(position, p)).First();
         }
 
         /// <summary>

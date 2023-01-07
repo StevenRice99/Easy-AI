@@ -32,12 +32,12 @@ namespace A1.Actuators
         /// <summary>
         /// Clean a floor tile.
         /// </summary>
-        /// <param name="action"></param>
+        /// <param name="agentAction"></param>
         /// <returns>True if the floor tile has finished being cleaned, false otherwise.</returns>
-        protected override bool Act(Action action)
+        protected override bool Act(AgentAction agentAction)
         {
             // Only act if there is a clean action.
-            if (action is not CleanAction cleanAction)
+            if (agentAction is not CleanAgentAction cleanAction)
             {
                 StopCleaning();
                 return false;

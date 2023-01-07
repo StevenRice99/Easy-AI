@@ -1,7 +1,9 @@
-﻿using A2.Agents;
+﻿using System.Collections.Generic;
+using A2.Agents;
 using A2.Managers;
 using EasyAI;
 using EasyAI.Agents;
+using EasyAI.Interactions;
 using EasyAI.Thinking;
 using UnityEngine;
 
@@ -10,20 +12,18 @@ namespace A2.States
     /// <summary>
     /// The global state which microbes are always in.
     /// </summary>
-    [CreateAssetMenu(menuName = "A2/States/Microbe Global State")]
+    [CreateAssetMenu(menuName = "A2/States/Microbe Global State", fileName = "Microbe Global State")]
     public class MicrobeGlobalState : State
     {
         /// <summary>
         /// Called when an agent is in this state.
         /// </summary>
         /// <param name="agent">The agent.</param>
-        public override void Execute(Agent agent)
+        public override ICollection<AgentAction> Execute(Agent agent)
         {
-            base.Execute(agent);
-
             if (agent is not Microbe microbe)
             {
-                return;
+                return null;
             }
 
             // Determine if the microbe's hunger should increase.
@@ -37,11 +37,11 @@ namespace A2.States
             {
                 if (microbe.State.GetType() == typeof(MicrobeSeekingFoodState))
                 {
-                    return;
+                    return null;
                 }
                 microbe.State = AgentManager.Lookup(typeof(MicrobeSeekingFoodState));
                 microbe.SetStateVisual(microbe.State);
-                return;
+                return null;
             }
 
             // If the microbe is an adult, look for either a made or a pickup.
@@ -52,22 +52,22 @@ namespace A2.States
                 {
                     if (microbe.State.GetType() == typeof(MicrobeSeekingMateState))
                     {
-                        return;
+                        return null;
                     }
                     microbe.State = AgentManager.Lookup(typeof(MicrobeSeekingMateState));
                     microbe.SetStateVisual(microbe.State);
-                    return;
+                    return null;
                 }
 
                 // Lastly, if the microbe is not hungry, is an adult, and has mated, set the microbe to look for pickups.
                 if (microbe.State.GetType() == typeof(MicrobeSeekingPickupState))
                 {
-                    return;
+                    return null;
                 }
                 
                 microbe.State = AgentManager.Lookup(typeof(MicrobeSeekingPickupState));
                 microbe.SetStateVisual(microbe.State);
-                return;
+                return null;
             }
 
             // If the microbe is being hunted, evade it.
@@ -75,20 +75,21 @@ namespace A2.States
             {
                 if (microbe.State.GetType() == typeof(MicrobeEvadeState))
                 {
-                    return;
+                    return null;
                 }
                 microbe.State = AgentManager.Lookup(typeof(MicrobeEvadeState));
                 microbe.SetStateVisual(microbe.State);
-                return;
+                return null;
             }
             
             // Otherwise the microbe goes to sleep.
             if (microbe.State.GetType() == typeof(MicrobeWanderingState))
             {
-                return;
+                return null;
             }
             microbe.State = AgentManager.Lookup(typeof(MicrobeWanderingState));
             microbe.SetStateVisual(microbe.State);
+            return null;
         }
         
         /// <summary>

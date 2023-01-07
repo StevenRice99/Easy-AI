@@ -5,7 +5,7 @@ namespace A1.Actions
     /// <summary>
     /// Action to clean a given floor tile.
     /// </summary>
-    public class CleanAction : Action
+    public class CleanAgentAction : AgentAction
     {
         /// <summary>
         /// The floor to clean.

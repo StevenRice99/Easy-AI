@@ -6,7 +6,6 @@ using EasyAI.Navigation;
 using EasyAI.Thinking;
 using EasyAI.Utility;
 using UnityEngine;
-using Action = EasyAI.Interactions.Action;
 
 namespace EasyAI.Agents
 {
@@ -253,16 +252,6 @@ namespace EasyAI.Agents
         public float Performance { get; private set; }
 
         /// <summary>
-        /// Get the currently selected mind of the agent.
-        /// </summary>
-        public Mind SelectedMind => Minds is { Length: > 0 } ? Minds[_selectedMindIndex] : null;
-    
-        /// <summary>
-        /// The mind of this agent.
-        /// </summary>
-        public Mind[] Minds { get; private set; }
-
-        /// <summary>
         /// The sensors of this agent.
         /// </summary>
         public Sensor[] Sensors { get; private set; }
@@ -280,7 +269,7 @@ namespace EasyAI.Agents
         /// <summary>
         /// The actions of this agent.
         /// </summary>
-        public Action[] Actions { get; private set; }
+        public AgentAction[] Actions { get; private set; }
 
         /// <summary>
         /// The root transform that holds the visuals for this agent used to rotate the agent towards its look target.
@@ -556,28 +545,6 @@ namespace EasyAI.Agents
         }
 
         /// <summary>
-        /// Assign a mind to this agent.
-        /// </summary>
-        /// <param name="type">The type of mind to assign.</param>
-        public void AssignMind(Type type)
-        {
-            if (Minds == null || Minds.Length == 0 || type == null)
-            {
-                _selectedMindIndex = 0;
-                return;
-            }
-
-            Mind mind = Minds.FirstOrDefault(m => m.GetType() == type);
-            if (mind == null)
-            {
-                _selectedMindIndex = 0;
-                return;
-            }
-
-            _selectedMindIndex = Minds.ToList().IndexOf(mind);
-        }
-
-        /// <summary>
         /// Assign a performance measure to this agent.
         /// </summary>
         /// <param name="performanceMeasure">The performance measure to assign.</param>
@@ -641,54 +608,53 @@ namespace EasyAI.Agents
         /// </summary>
         public virtual void Perform()
         {
+            // Sense the agent's surroundings.
+            Sense();
+
+            List<AgentAction> actions = new();
+            
             if (globalState != null)
             {
-                globalState.Execute(this);
+                ICollection<AgentAction> decided = globalState.Execute(this);
+                if (decided != null)
+                {
+                    actions.AddRange(decided);
+                }
             }
 
             if (state != null)
             {
-                state.Execute(this);
-            }
-
-            // Can only sense, think, and act if there is a mind attached.
-            if (Minds is { Length: > 0 })
-            {
-                // Sense the agent's surroundings.
-                Sense();
-                
-                // Have the mind make decisions on what actions to take.
-                Action[] decisions = Minds[_selectedMindIndex].Think();
-            
-                // If new decisions were made, update the actions to be them.
-                if (decisions != null)
+                ICollection<AgentAction> decided = state.Execute(this);
+                if (decided != null)
                 {
-                    // Remove any null actions.
-                    List<Action> updated = decisions.Where(a => a != null).ToList();
-
-                    // If there were previous actions, keep actions of types which were not in the current decisions.
-                    if (Actions != null)
-                    {
-                        foreach (Action action in Actions)
-                        {
-                            if (action == null)
-                            {
-                                continue;
-                            }
-            
-                            if (!updated.Exists(a => a.GetType() == action.GetType()))
-                            {
-                                updated.Add(action);
-                            }
-                        }
-                    }
-        
-                    Actions = updated.ToArray();
+                    actions.AddRange(decided);
                 }
-
-                // Act on the actions.
-                Act();
             }
+            
+            // Remove any null actions.
+            actions = actions.Where(a => a != null).ToList();
+
+            // If there were previous actions, keep actions of types which were not in the current decisions.
+            if (Actions != null)
+            {
+                foreach (AgentAction action in Actions)
+                {
+                    if (action == null)
+                    {
+                        continue;
+                    }
+    
+                    if (!actions.Exists(a => a.GetType() == action.GetType()))
+                    {
+                        actions.Add(action);
+                    }
+                }
+            }
+    
+            Actions = actions.ToArray();
+
+            // Act on the actions.
+            Act();
 
             // After all actions are performed, calculate the agent's new performance.
             if (PerformanceMeasure != null)
@@ -726,15 +692,6 @@ namespace EasyAI.Agents
             _wanderForward = go.transform;
             _wanderForward.parent = _wanderRoot;
             _wanderForward.localPosition = new(0, 0, 1);
-        
-            // Find all minds.
-            List<Mind> minds = GetComponents<Mind>().ToList();
-            minds.AddRange(GetComponentsInChildren<Mind>());
-            Minds = minds.Distinct().ToArray();
-            foreach (Mind mind in minds)
-            {
-                mind.Agent = this;
-            }
             
             // Find the performance measure.
             PerformanceMeasure = GetComponent<PerformanceMeasure>();
@@ -1096,7 +1053,7 @@ namespace EasyAI.Agents
                 actuator.Act(Actions);
             }
 
-            foreach (Action action in Actions)
+            foreach (AgentAction action in Actions)
             {
                 if (action.Complete)
                 {
