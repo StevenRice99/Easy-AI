@@ -1,6 +1,6 @@
-﻿using EasyAI.Interactions;
+﻿using EasyAI.AgentActions;
 
-namespace A1.Actions
+namespace A1.AgentActions
 {
     /// <summary>
     /// Action to clean a given floor tile.

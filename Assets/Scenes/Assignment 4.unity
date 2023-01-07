@@ -5919,7 +5919,7 @@ MonoBehaviour:
   restVelocity: 0.1
   lookSpeed: 0
   maxWanderTurn: 30
-  globalState: {fileID: 11400000, guid: 50f1bd8bb45a94946943f387d12e0f2c, type: 2}
+  globalState: {fileID: 0}
   state: {fileID: 0}
   sightHeight: 0
 --- !u!54 &1658188432

@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using EasyAI.AgentActions;
 using EasyAI.Agents;
-using EasyAI.Interactions;
 using EasyAI.Utility;
 using UnityEngine;
 

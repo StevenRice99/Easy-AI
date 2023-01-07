@@ -1,6 +1,6 @@
 ﻿using EasyAI.Utility;
 
-namespace EasyAI.Interactions
+namespace EasyAI.AgentActions
 {
     /// <summary>
     /// Base class for actions which will be performed by actuators.

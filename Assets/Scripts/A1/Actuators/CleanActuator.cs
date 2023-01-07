@@ -1,5 +1,6 @@
-﻿using A1.Actions;
-using EasyAI.Interactions;
+﻿using A1.AgentActions;
+using EasyAI.Actuators;
+using EasyAI.AgentActions;
 using UnityEngine;
 
 namespace A1.Actuators

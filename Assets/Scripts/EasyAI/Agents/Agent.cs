@@ -1,11 +1,15 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using EasyAI.Interactions;
+using EasyAI.Actuators;
+using EasyAI.AgentActions;
 using EasyAI.Navigation;
+using EasyAI.Percepts;
 using EasyAI.Thinking;
 using EasyAI.Utility;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
+using Sensor = EasyAI.Sensors.Sensor;
 
 namespace EasyAI.Agents
 {
@@ -148,8 +152,8 @@ namespace EasyAI.Agents
         public float maxWanderTurn = 30;
 
         [SerializeField]
-        [Tooltip("The global state the agent is in. Initialize it with the global state to start it.")]
-        private State globalState;
+        [Tooltip("The global state the agent is in. Initialize it with the global state to start it. If left empty the agent will have manual right-click-to-move controls.")]
+        private State mind;
     
         [SerializeField]
         [Tooltip("The current state the agent is in. Initialize it with the state to start in.")]
@@ -163,21 +167,21 @@ namespace EasyAI.Agents
         /// <summary>
         /// The global state the agent is in.
         /// </summary>
-        public State GlobalState
+        public State Mind
         {
-            get => globalState;
+            get => mind;
             set
             {
-                if (globalState != null)
+                if (mind != null)
                 {
-                    globalState.Exit(this);
+                    mind.Exit(this);
                 }
 
-                globalState = value;
+                mind = value;
 
-                if (globalState != null)
+                if (mind != null)
                 {
-                    globalState.Enter(this);
+                    mind.Enter(this);
                 }
             }
         }
@@ -259,7 +263,7 @@ namespace EasyAI.Agents
         /// <summary>
         /// The percepts of this agent.
         /// </summary>
-        public Percept[] Percepts { get; private set; }
+        public PerceivedData[] Data { get; private set; }
 
         /// <summary>
         /// The actuators of this agent.
@@ -613,12 +617,20 @@ namespace EasyAI.Agents
 
             List<AgentAction> actions = new();
             
-            if (globalState != null)
+            if (mind != null)
             {
-                ICollection<AgentAction> decided = globalState.Execute(this);
+                ICollection<AgentAction> decided = mind.Execute(this);
                 if (decided != null)
                 {
                     actions.AddRange(decided);
+                }
+            }
+            else
+            {
+                if (AgentManager.Singleton.SelectedAgent == this && Mouse.current.rightButton.wasPressedThisFrame && Physics.Raycast(AgentManager.Singleton.selectedCamera.ScreenPointToRay(new(Mouse.current.position.x.ReadValue(), Mouse.current.position.y.ReadValue(), 0)), out RaycastHit hit, Mathf.Infinity, AgentManager.Singleton.groundLayers | AgentManager.Singleton.obstacleLayers))
+                {
+                    ClearMoveData();
+                    Navigate(hit.point);
                 }
             }
 
@@ -787,9 +799,9 @@ namespace EasyAI.Agents
             Setup();
         
             // Enter its global and normal states if they are set.
-            if (globalState != null)
+            if (mind != null)
             {
-                globalState.Enter(this);
+                mind.Enter(this);
             }
 
             if (state != null)
@@ -1004,7 +1016,7 @@ namespace EasyAI.Agents
         /// <returns>True if either the global state or normal state handles the event, false otherwise.</returns>
         private bool HandleEvent(AIEvent aiEvent)
         {
-            return state != null && state.HandleEvent(this, aiEvent) || globalState != null && globalState.HandleEvent(this, aiEvent);
+            return state != null && state.HandleEvent(this, aiEvent) || mind != null && mind.HandleEvent(this, aiEvent);
         }
 
         /// <summary>
@@ -1012,20 +1024,20 @@ namespace EasyAI.Agents
         /// </summary>
         private void Sense()
         {
-            List<Percept> perceptsRead = new();
+            List<PerceivedData> perceptsRead = new();
             int sensed = 0;
             
             // Read from every sensor.
             foreach (Sensor sensor in Sensors)
             {
-                Percept percept = sensor.Read();
-                if (percept == null)
+                PerceivedData data = sensor.Read();
+                if (data == null)
                 {
                     continue;
                 }
 
-                AddMessage($"Perceived {percept} from sensor {sensor}.");
-                perceptsRead.Add(percept);
+                AddMessage($"Perceived {data} from sensor {sensor}.");
+                perceptsRead.Add(data);
                 sensed++;
             }
         
@@ -1034,7 +1046,7 @@ namespace EasyAI.Agents
                 AddMessage($"Perceived {sensed} percepts.");
             }
 
-            Percepts = perceptsRead.ToArray();
+            Data = perceptsRead.ToArray();
         }
 
         /// <summary>

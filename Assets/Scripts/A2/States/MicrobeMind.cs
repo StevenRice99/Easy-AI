@@ -2,8 +2,8 @@
 using A2.Agents;
 using A2.Managers;
 using EasyAI;
+using EasyAI.AgentActions;
 using EasyAI.Agents;
-using EasyAI.Interactions;
 using EasyAI.Thinking;
 using UnityEngine;
 
@@ -12,8 +12,8 @@ namespace A2.States
     /// <summary>
     /// The global state which microbes are always in.
     /// </summary>
-    [CreateAssetMenu(menuName = "A2/States/Microbe Global State", fileName = "Microbe Global State")]
-    public class MicrobeGlobalState : State
+    [CreateAssetMenu(menuName = "A2/States/Microbe Mind", fileName = "Microbe Mind")]
+    public class MicrobeMind : State
     {
         /// <summary>
         /// Called when an agent is in this state.

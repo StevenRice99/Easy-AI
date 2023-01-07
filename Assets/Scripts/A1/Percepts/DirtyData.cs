@@ -1,11 +1,11 @@
-﻿using EasyAI.Interactions;
+﻿using EasyAI.Percepts;
 
 namespace A1.Percepts
 {
     /// <summary>
     /// Hold the dirt state of the current tile the agent is on.
     /// </summary>
-    public class DirtyPercept : Percept
+    public class DirtyData : PerceivedData
     {
         /// <summary>
         /// The floor closest to the agent.
@@ -18,9 +18,9 @@ namespace A1.Percepts
         public bool IsDirty => Floor != null && Floor.State >= Floor.DirtLevel.Dirty;
 
         /// <summary>
-        /// Display the details of the percept.
+        /// Display the details of the percepts.
         /// </summary>
-        /// <returns>String with the details of the percept.</returns>
+        /// <returns>String with the details of the percepts.</returns>
         public override string DetailsDisplay()
         {
             return IsDirty ? "Dirty." : "Clean.";

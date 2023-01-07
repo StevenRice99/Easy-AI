@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using A2.Agents;
+using EasyAI.AgentActions;
 using EasyAI.Agents;
-using EasyAI.Interactions;
 using EasyAI.Thinking;
 using UnityEngine;
 

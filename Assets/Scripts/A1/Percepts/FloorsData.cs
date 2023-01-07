@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using EasyAI.Interactions;
+using EasyAI.Percepts;
 using UnityEngine;
 
 namespace A1.Percepts
@@ -7,7 +7,7 @@ namespace A1.Percepts
     /// <summary>
     /// Hold positions, dirt levels, and if they are likely to get dirty for all floor tiles in the scene.
     /// </summary>
-    public class FloorsPercept : Percept
+    public class FloorsData : PerceivedData
     {
         /// <summary>
         /// Positions of all floor tiles.
@@ -25,9 +25,9 @@ namespace A1.Percepts
         public bool[] LikelyToGetDirty;
 
         /// <summary>
-        /// Display the details of the percept.
+        /// Display the details of the percepts.
         /// </summary>
-        /// <returns>String with the details of the percept.</returns>
+        /// <returns>String with the details of the percepts.</returns>
         public override string DetailsDisplay()
         {
             int dirtyCount = Dirty.Count(dirty => dirty);

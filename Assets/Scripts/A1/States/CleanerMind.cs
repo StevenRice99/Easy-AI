@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using A1.Actions;
+using A1.AgentActions;
 using A1.Percepts;
+using EasyAI.AgentActions;
 using EasyAI.Agents;
-using EasyAI.Interactions;
+using EasyAI.Percepts;
 using EasyAI.Thinking;
 using UnityEngine;
 
 namespace A1.States
 {
-    [CreateAssetMenu(menuName = "A1/States/Cleaner Global State", fileName = "Cleaner Global State")]
-    public class CleanerGlobalState : State
+    [CreateAssetMenu(menuName = "A1/States/Cleaner Mind", fileName = "Cleaner Mind")]
+    public class CleanerMind : State
     {
         public override ICollection<AgentAction> Enter(Agent agent)
         {
@@ -21,7 +22,7 @@ namespace A1.States
         public override ICollection<AgentAction> Execute(Agent agent)
         {
             // Determine if the current floor tile needs to be cleaned.
-            Floor floorToClean = CanClean(agent.Percepts);
+            Floor floorToClean = CanClean(agent.Data);
             if (floorToClean != null)
             {
                 // Stop movement and start cleaning the current floor tile.
@@ -46,9 +47,9 @@ namespace A1.States
         /// </summary>
         /// <param name="percepts">The percepts which the agent's sensors sensed.</param>
         /// <returns>The current floor if it was detected as needing to be cleaned, null otherwise.</returns>
-        private static Floor CanClean(IEnumerable<Percept> percepts)
+        private static Floor CanClean(IEnumerable<PerceivedData> percepts)
         {
-            return percepts.OfType<DirtyPercept>().ToArray().FirstOrDefault(p => p.IsDirty)?.Floor;
+            return percepts.OfType<DirtyData>().ToArray().FirstOrDefault(p => p.IsDirty)?.Floor;
         }
 
         /// <summary>
@@ -59,7 +60,7 @@ namespace A1.States
         private static Vector3 DetermineLocationToMove(Agent agent)
         {
             // If there are no floors detected, simply return (0, 0, 0) which should never happen but just to be safe.
-            FloorsPercept[] dirtPercepts = agent.Percepts.OfType<FloorsPercept>().ToArray();
+            FloorsData[] dirtPercepts = agent.Data.OfType<FloorsData>().ToArray();
             if (dirtPercepts.Length == 0)
             {
                 return Vector3.zero;
@@ -70,7 +71,7 @@ namespace A1.States
             List<Vector3> likelyToGetDirty = new();
 
             // Build lists.
-            foreach (FloorsPercept dirtPercept in dirtPercepts)
+            foreach (FloorsData dirtPercept in dirtPercepts)
             {
                 for (int i = 0; i < dirtPercept.Positions.Length; i++)
                 {

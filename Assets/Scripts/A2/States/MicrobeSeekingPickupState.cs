@@ -2,8 +2,8 @@
 using System.Linq;
 using A2.Agents;
 using A2.Pickups;
+using EasyAI.AgentActions;
 using EasyAI.Agents;
-using EasyAI.Interactions;
 using EasyAI.Thinking;
 using UnityEngine;
 

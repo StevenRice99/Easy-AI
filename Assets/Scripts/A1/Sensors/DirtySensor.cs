@@ -2,7 +2,8 @@
 using System.Linq;
 using A1.Managers;
 using A1.Percepts;
-using EasyAI.Interactions;
+using EasyAI.Percepts;
+using EasyAI.Sensors;
 using UnityEngine;
 
 namespace A1.Sensors
@@ -15,8 +16,8 @@ namespace A1.Sensors
         /// <summary>
         /// Sense the dirt state of the current tile the agent is on.
         /// </summary>
-        /// <returns>A DirtyPercept with the dirt state of the current tile the agent is on.</returns>
-        protected override Percept Sense()
+        /// <returns>A DirtyData with the dirt state of the current tile the agent is on.</returns>
+        protected override PerceivedData Sense()
         {
             // Get all floors. If there is none, return null as there was nothing sensed.
             List<Floor> floors = CleanerAgentManager.CleanerAgentManagerSingleton.Floors;
@@ -27,13 +28,13 @@ namespace A1.Sensors
             }
 
             // Create the percept with the dirt level of the closest floor.
-            DirtyPercept percept = new()
+            DirtyData data = new()
             {
                 Floor = floors.OrderBy(f => Vector3.Distance(Agent.transform.position, f.transform.position)).First()
             };
             
-            AddMessage(percept.IsDirty ? "Current floor tile is dirty." : "Current floor tile is not dirty.");
-            return percept;
+            AddMessage(data.IsDirty ? "Current floor tile is dirty." : "Current floor tile is not dirty.");
+            return data;
         }
     }
 }

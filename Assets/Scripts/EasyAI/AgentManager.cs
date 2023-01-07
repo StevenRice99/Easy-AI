@@ -3,10 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using EasyAI.Actuators;
+using EasyAI.AgentActions;
 using EasyAI.Agents;
 using EasyAI.Cameras;
-using EasyAI.Interactions;
 using EasyAI.Navigation.Nodes;
+using EasyAI.Percepts;
 using EasyAI.Thinking;
 using EasyAI.Utility;
 using UnityEditor;
@@ -14,7 +16,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
-using Sensor = EasyAI.Interactions.Sensor;
+using Sensor = EasyAI.Sensors.Sensor;
 
 namespace EasyAI
 {
@@ -1797,7 +1799,7 @@ namespace EasyAI
                 length++;
             }
 
-            if (SelectedAgent.GlobalState == null)
+            if (SelectedAgent.Mind == null)
             {
                 length--;
             }
@@ -1828,9 +1830,9 @@ namespace EasyAI
             GuiLabel(x, y, w, h, p, $"Type: {SelectedAgent}");
             y = NextItem(y, h, p);
         
-            if (SelectedAgent.GlobalState != null)
+            if (SelectedAgent.Mind != null)
             {
-                GuiLabel(x, y, w, h, p, $"Global State: {SelectedAgent.GlobalState}");
+                GuiLabel(x, y, w, h, p, $"Global State: {SelectedAgent.Mind}");
                 y = NextItem(y, h, p);
             }
         
@@ -1968,15 +1970,15 @@ namespace EasyAI
             }
             
             // Display all percepts.
-            Percept[] percepts = SelectedAgent.Percepts.Where(percept => percept != null).ToArray();
-            if (percepts.Length > 0)
+            PerceivedData[] data = SelectedAgent.Data.Where(percept => percept != null).ToArray();
+            if (data.Length > 0)
             {
                 y = NextItem(y, h, p);
-                GuiBox(x, y, w, h, p, 1 + percepts.Length);
+                GuiBox(x, y, w, h, p, 1 + data.Length);
             
-                GuiLabel(x, y, w, h, p, percepts.Length == 1 ? "1 Percept" :$"{percepts.Length} Percepts");
+                GuiLabel(x, y, w, h, p, data.Length == 1 ? "1 Percept" :$"{data.Length} Percepts");
 
-                foreach (Percept percept in percepts)
+                foreach (PerceivedData percept in data)
                 {
                     string msg = percept.DetailsDisplay();
                     y = NextItem(y, h, p);
