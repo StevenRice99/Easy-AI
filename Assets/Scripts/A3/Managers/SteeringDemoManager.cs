@@ -6,6 +6,7 @@ namespace A3.Managers
 {
     public class SteeringDemoManager : AgentManager
     {
+        [Header("Steering Demo Parameters")]
         [SerializeField]
         [Tooltip("The objects to list controls for the agent to move in relation to.")]
         private Transform[] targets;

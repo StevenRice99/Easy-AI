@@ -17,10 +17,7 @@ namespace A1.Managers
         /// </summary>
         public static CleanerAgentManager CleanerAgentManagerSingleton => Singleton as CleanerAgentManager;
 
-        [SerializeField]
-        [Tooltip("The prefab for the cleaning agent that will be spawned in.")]
-        private GameObject cleanerAgentPrefab;
-
+        [Header("Cleaner Parameters")]
         [SerializeField]
         [Tooltip("How many floor sections will be generated.")]
         private Vector2 floorSize = new(3, 1);
@@ -44,7 +41,13 @@ namespace A1.Managers
         [Range(0, 1)]
         [Tooltip("The percentage chance that a floor section will increase in dirt level during dirt generation.")]
         private float chanceDirty;
+        
+        [Header("Prefabs")]
+        [SerializeField]
+        [Tooltip("The prefab for the cleaning agent that will be spawned in.")]
+        private GameObject cleanerAgentPrefab;
 
+        [Header("Floor Materials")]
         [SerializeField]
         [Tooltip("The material applied to normal floor sections when they are clean.")]
         private Material materialCleanNormal;

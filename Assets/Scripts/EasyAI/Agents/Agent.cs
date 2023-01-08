@@ -296,7 +296,7 @@ namespace EasyAI.Agents
         public override void DisplayGizmos()
         {
             Vector3 position = transform.position;
-            position.y += AgentManager.Singleton.navigationVisualOffset;
+            position.y += AgentManager.NavigationVisualOffset;
 
             if (Path == null || Path.Count == 0)
             {

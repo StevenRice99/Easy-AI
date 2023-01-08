@@ -201,7 +201,7 @@ namespace EasyAI
         /// Active - Only lines for connections being used by agents are drawn.
         /// Selected - Only lines for the connections being used by the selected agent are drawn.
         /// </summary>
-        public enum NavigationState : byte
+        public enum PathState : byte
         {
             Off,
             All,
@@ -235,6 +235,11 @@ namespace EasyAI
         private const float ClosedSize = 70;
 
         /// <summary>
+        /// How much to visually offset navigation by so it does not clip into the ground.
+        /// </summary>
+        public const float NavigationVisualOffset = 0.1f;
+
+        /// <summary>
         /// The singleton agent manager.
         /// </summary>
         public static AgentManager Singleton;
@@ -249,56 +254,7 @@ namespace EasyAI
         /// </summary>
         private static Material _lineMaterial;
 
-        [SerializeField]
-        [Min(0)]
-        [Tooltip("The maximum number of agents which can be updated in a single frame. Set to zero to be unlimited.")]
-        private int maxAgentsPerUpdate;
-
-        [SerializeField]
-        [Min(0)]
-        [Tooltip("The maximum number of messages any component can hold.")]
-        private int maxMessages = 100;
-        
-        [SerializeField]
-        [Min(0)]
-        [Tooltip("How wide the details list is. Set to zero to disable details list rendering.")]
-        private float detailsWidth = 500;
-        
-        [SerializeField]
-        [Min(0)]
-        [Tooltip("How wide the controls list is. Set to zero to disable controls list rendering.")]
-        private float controlsWidth = 120;
-    
-        [SerializeField]
-        [Tooltip(
-            "Determine what gizmos lines are drawn.\n" +
-            "Off - No lines are drawn.\n" +
-            "All - Every line from every agent, sensor, and actuator is drawn.\n" +
-            "Selected - If an agent is selected, only it and its sensors and actuators are drawn. If an individual sensor or actuator is selected, only it is drawn."
-        )]
-        private GizmosState gizmos = GizmosState.Selected;
-    
-        [SerializeField]
-        [Tooltip(
-            "Determine what navigation lines are drawn.\n" +
-            "Off - No lines are drawn.\n" +
-            "All - Every line for every connection is drawn.\n" +
-            "Active - Only lines for connections being used by agents are drawn.\n"+
-            "Selected - Only lines for the connections being used by the selected agent are drawn."
-        )]
-        private NavigationState navigation = NavigationState.Selected;
-
-        [Tooltip(
-            "Determine what mode messages are stored in.\n" +
-            "All - All messages are captured.\n" +
-            "Compact - All messages are captured, but, duplicate messages that appear immediately after each other will be merged into only a single instance of the message.\n" +
-            "Unique - No messages will be duplicated with the prior instance of the message being removed from its list when an identical message is added again."
-        )]
-        public MessagingMode messageMode = MessagingMode.Compact;
-
-        [Tooltip("The currently selected camera. Set this to start with that camera active. Leaving empty will default to the first camera by alphabetic order.")]
-        public Camera selectedCamera;
-
+        [Header("Navigation")]
         [Tooltip("Which layers can nodes be placed on.")]
         public LayerMask groundLayers;
 
@@ -313,18 +269,70 @@ namespace EasyAI
         [Tooltip("How wide is the agent radius for connecting nodes to ensure enough space for movement.")]
         public float navigationRadius;
 
-        [Min(0)]
-        [Tooltip("How much to visually offset navigation by so it does not clip into the ground.")]
-        public float navigationVisualOffset = 0.1f;
-
         [SerializeField]
         [Min(0)]
-        [Tooltip("How much height difference can there be between string pulls, set to zero for no limit.")]
+        [Tooltip(
+            "How much height difference can there be between string pulls, set to zero for no limit.\n" +
+            "Increase this value if generated paths are being generated between too high of slopes/stairs."
+        )]
         private float pullMaxDifference;
 
         [SerializeField]
         [Tooltip("Read and use a pre-generated navigation lookup table instead of generating it at start.")]
         private bool lookupTable;
+
+        [Header("Performance")]
+        [SerializeField]
+        [Min(0)]
+        [Tooltip("The maximum number of agents which can be updated in a single frame. Set to zero to be unlimited.")]
+        private int maxAgentsPerUpdate;
+
+        [SerializeField]
+        [Min(0)]
+        [Tooltip("The maximum number of messages any component can hold.")]
+        private int maxMessages = 100;
+        
+        [Header("UI")]
+        [SerializeField]
+        [Min(0)]
+        [Tooltip("How wide the details list is. Set to zero to disable details list rendering.")]
+        private float detailsWidth = 500;
+        
+        [SerializeField]
+        [Min(0)]
+        [Tooltip("How wide the controls list is. Set to zero to disable controls list rendering.")]
+        private float controlsWidth = 120;
+
+        [Tooltip(
+            "Determine what mode messages are stored in.\n" +
+            "All - All messages are captured.\n" +
+            "Compact - All messages are captured, but, duplicate messages that appear immediately after each other will be merged into only a single instance of the message.\n" +
+            "Unique - No messages will be duplicated with the prior instance of the message being removed from its list when an identical message is added again."
+        )]
+        public MessagingMode messageMode = MessagingMode.Compact;
+    
+        [Header("Visualization")]
+        [Tooltip("The currently selected camera. Set this to start with that camera active. Leaving empty will default to the first camera by alphabetic order.")]
+        public Camera selectedCamera;
+        
+        [SerializeField]
+        [Tooltip(
+            "Determine what gizmos lines are drawn.\n" +
+            "Off - No lines are drawn.\n" +
+            "All - Every line from every agent, sensor, and actuator is drawn.\n" +
+            "Selected - If an agent is selected, only it and its sensors and actuators are drawn. If an individual sensor or actuator is selected, only it is drawn."
+        )]
+        private GizmosState gizmos = GizmosState.Selected;
+    
+        [SerializeField]
+        [Tooltip(
+            "Determine what path lines are drawn.\n" +
+            "Off - No lines are drawn.\n" +
+            "All - Every line for every connection is drawn.\n" +
+            "Active - Only lines for connections being used by agents are drawn.\n"+
+            "Selected - Only lines for the connections being used by the selected agent are drawn."
+        )]
+        private PathState paths = PathState.Selected;
 
         /// <summary>
         /// Getter for the maximum number of messages any component can hold.
@@ -1077,13 +1085,13 @@ namespace EasyAI
         /// </summary>
         public void ChangeNavigationState()
         {
-            if (navigation == NavigationState.Selected)
+            if (paths == PathState.Selected)
             {
-                navigation = NavigationState.Off;
+                paths = PathState.Off;
                 return;
             }
 
-            navigation++;
+            paths++;
         }
 
         /// <summary>
@@ -1513,25 +1521,25 @@ namespace EasyAI
             GL.Begin(GL.LINES);
 
             // Render navigation nodes if either all or only active nodes should be shown.
-            if (navigation is not NavigationState.Off)
+            if (paths is not PathState.Off)
             {
                 // Render all nodes as white if they should be.
-                if (navigation == NavigationState.All)
+                if (paths == PathState.All)
                 {
                     GL.Color(Color.white);
                     foreach (Connection connection in Connections)
                     {
                         Vector3 a = connection.A;
-                        a.y += navigationVisualOffset;
+                        a.y += NavigationVisualOffset;
                         Vector3 b = connection.B;
-                        b.y += navigationVisualOffset;
+                        b.y += NavigationVisualOffset;
                         GL.Vertex(a);
                         GL.Vertex(b);
                     }
                 }
 
                 // Render active nodes in green for either all agents or only the selected agent.
-                if (navigation is not NavigationState.Selected)
+                if (paths is not PathState.Selected)
                 {
                     GL.Color(Color.green);
                     foreach (Agent agent in Agents.Where(agent => agent.Path != null && agent.Path.Count != 0))
@@ -2117,11 +2125,11 @@ namespace EasyAI
             {
                 // Button to change navigation mode.
                 y = NextItem(y, h, p);
-                if (GuiButton(x, y, w, h, navigation switch
+                if (GuiButton(x, y, w, h, paths switch
                     {
-                        NavigationState.Off => "Nodes: Off",
-                        NavigationState.Active => "Nodes: Active",
-                        NavigationState.All => "Nodes: All",
+                        PathState.Off => "Nodes: Off",
+                        PathState.Active => "Nodes: Active",
+                        PathState.All => "Nodes: All",
                         _ => "Nodes: Selected"
                     }))
                 {

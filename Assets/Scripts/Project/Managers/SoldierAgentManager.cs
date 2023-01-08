@@ -16,6 +16,7 @@ namespace Project.Managers
         /// </summary>
         public static SoldierAgentManager SoldierAgentManagerSingleton => Singleton as SoldierAgentManager;
 
+        [Header("Soldier Parameters")]
         [SerializeField]
         [Range(1, 15)]
         [Tooltip("How many soldiers to have on each team.")]
@@ -57,10 +58,12 @@ namespace Project.Managers
         [Tooltip("How loud the audio is.")]
         public float volume;
 
+        [Header("Prefabs")]
         [SerializeField]
         [Tooltip("The prefab for soldiers.")]
         private GameObject soldierPrefab;
 
+        [Header("Materials")]
         [Tooltip("The material to apply to the red soldiers.")]
         public Material red;
 

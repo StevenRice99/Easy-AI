@@ -43,91 +43,8 @@ namespace A2.Managers
         /// Access to the singleton directly as a microbe manager.
         /// </summary>
         public static MicrobeManager MicrobeManagerSingleton => Singleton as MicrobeManager;
-        
-        [SerializeField]
-        [Tooltip("Prefab for the microbes.")]
-        private GameObject microbePrefab;
 
-        [SerializeField]
-        [Tooltip("Prefab for the fertility pickup.")]
-        private GameObject fertilityPickupPrefab;
-
-        [SerializeField]
-        [Tooltip("Prefab for the never hungry pickup.")]
-        private GameObject neverHungryPickupPrefab;
-
-        [SerializeField]
-        [Tooltip("Prefab for the offspring pickup.")]
-        private GameObject offspringPickupPrefab;
-
-        [SerializeField]
-        [Tooltip("Prefab for the rejuvenate pickup.")]
-        private GameObject rejuvenatePickupPrefab;
-
-        [SerializeField]
-        [Tooltip("Prefab for the spawn particles object.")]
-        private GameObject spawnParticlesPrefab;
-
-        [SerializeField]
-        [Tooltip("Prefab for the death particles object.")]
-        private GameObject deathParticlesPrefab;
-
-        [SerializeField]
-        [Tooltip("Prefab for the mate particles object.")]
-        private GameObject mateParticlesPrefab;
-
-        [SerializeField]
-        [Tooltip("Prefab for the pickup particles object.")]
-        private GameObject pickupParticlesPrefab;
-
-        [SerializeField]
-        [Tooltip("Material to apply to the floor.")]
-        private Material floorMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply for red microbes.")]
-        private Material redMicrobeMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply for orange microbes.")]
-        private Material orangeMicrobeMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply for yellow microbes.")]
-        private Material yellowMicrobeMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply for green microbes.")]
-        private Material greenMicrobeMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply for blue microbes.")]
-        private Material blueMicrobeMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply for purple microbes.")]
-        private Material purpleMicrobeMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply for pink microbes.")]
-        private Material pinkMicrobeMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply to the microbe state indicator when sleeping.")]
-        private Material sleepingIndicatorMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply to the microbe state indicator when seeking food.")]
-        private Material foodIndicatorMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply to the microbe state indicator when seeking a mate.")]
-        private Material mateIndicatorMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply to the microbe state indicator when seeking a pickup.")]
-        private Material pickupIndicatorMaterial;
-
+        [Header("Microbe Parameters")]
         [SerializeField]
         [Tooltip("The hunger to start microbes at.")]
         private int startingHunger = -100;
@@ -215,6 +132,92 @@ namespace A2.Managers
         [Min(0)]
         [Tooltip("The chance that a microbe will increase in hunger every tick.")]
         public float hungerChance = 0.05f;
+        
+        [Header("Prefabs")]
+        [SerializeField]
+        [Tooltip("Prefab for the microbes.")]
+        private GameObject microbePrefab;
+
+        [SerializeField]
+        [Tooltip("Prefab for the fertility pickup.")]
+        private GameObject fertilityPickupPrefab;
+
+        [SerializeField]
+        [Tooltip("Prefab for the never hungry pickup.")]
+        private GameObject neverHungryPickupPrefab;
+
+        [SerializeField]
+        [Tooltip("Prefab for the offspring pickup.")]
+        private GameObject offspringPickupPrefab;
+
+        [SerializeField]
+        [Tooltip("Prefab for the rejuvenate pickup.")]
+        private GameObject rejuvenatePickupPrefab;
+
+        [SerializeField]
+        [Tooltip("Prefab for the spawn particles object.")]
+        private GameObject spawnParticlesPrefab;
+
+        [SerializeField]
+        [Tooltip("Prefab for the death particles object.")]
+        private GameObject deathParticlesPrefab;
+
+        [SerializeField]
+        [Tooltip("Prefab for the mate particles object.")]
+        private GameObject mateParticlesPrefab;
+
+        [SerializeField]
+        [Tooltip("Prefab for the pickup particles object.")]
+        private GameObject pickupParticlesPrefab;
+
+        [Header("Materials")]
+        [SerializeField]
+        [Tooltip("Material to apply to the floor.")]
+        private Material floorMaterial;
+
+        [SerializeField]
+        [Tooltip("Material to apply for red microbes.")]
+        private Material redMicrobeMaterial;
+
+        [SerializeField]
+        [Tooltip("Material to apply for orange microbes.")]
+        private Material orangeMicrobeMaterial;
+
+        [SerializeField]
+        [Tooltip("Material to apply for yellow microbes.")]
+        private Material yellowMicrobeMaterial;
+
+        [SerializeField]
+        [Tooltip("Material to apply for green microbes.")]
+        private Material greenMicrobeMaterial;
+
+        [SerializeField]
+        [Tooltip("Material to apply for blue microbes.")]
+        private Material blueMicrobeMaterial;
+
+        [SerializeField]
+        [Tooltip("Material to apply for purple microbes.")]
+        private Material purpleMicrobeMaterial;
+
+        [SerializeField]
+        [Tooltip("Material to apply for pink microbes.")]
+        private Material pinkMicrobeMaterial;
+
+        [SerializeField]
+        [Tooltip("Material to apply to the microbe state indicator when sleeping.")]
+        private Material sleepingIndicatorMaterial;
+
+        [SerializeField]
+        [Tooltip("Material to apply to the microbe state indicator when seeking food.")]
+        private Material foodIndicatorMaterial;
+
+        [SerializeField]
+        [Tooltip("Material to apply to the microbe state indicator when seeking a mate.")]
+        private Material mateIndicatorMaterial;
+
+        [SerializeField]
+        [Tooltip("Material to apply to the microbe state indicator when seeking a pickup.")]
+        private Material pickupIndicatorMaterial;
 
         /// <summary>
         /// The hunger restored from eating a microbe.
