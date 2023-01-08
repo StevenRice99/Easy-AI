@@ -60,14 +60,12 @@ namespace A2.States
             // If there are no microbes in detection range to mate with, roam.
             if (microbe.TargetMicrobe == null)
             {
-                agent.AddMessage("Cannot find a mate, wandering.");
-                if (agent.MovesData.Count > 0)
+                agent.AddMessage("Cannot find a mate, roaming.");
+                if (agent.MovesData.Count <= 0)
                 {
-                    return null;
+                    agent.SetMoveData(Agent.MoveType.Seek, Random.insideUnitCircle * MicrobeManager.MicrobeManagerSingleton.FloorRadius);
                 }
 
-                agent.ClearMoveData();
-                agent.Wander = true;
                 return null;
             }
 

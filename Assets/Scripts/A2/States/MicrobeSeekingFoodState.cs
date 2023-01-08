@@ -44,15 +44,13 @@ namespace A2.States
             // If there are no microbes in detection range to eat, roam.
             if (microbe.TargetMicrobe == null)
             {
-                agent.AddMessage("Cannot find any food, wandering.");
+                agent.AddMessage("Cannot find any food, roaming.");
                 
-                if (agent.MovesData.Count > 0)
+                if (agent.MovesData.Count <= 0)
                 {
-                    return null;
+                    agent.SetMoveData(Agent.MoveType.Seek, Random.insideUnitCircle * MicrobeManager.MicrobeManagerSingleton.FloorRadius);
                 }
 
-                agent.ClearMoveData();
-                agent.Wander = true;
                 return null;
             }
 

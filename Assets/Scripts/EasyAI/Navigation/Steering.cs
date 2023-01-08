@@ -88,19 +88,6 @@ namespace EasyAI.Navigation
         }
 
         /// <summary>
-        /// Wander - Randomly adjust forward angle.
-        /// Based upon the implementation detailed in Dr. Goodwin's "Steering Behaviours" slides on slide 19.
-        /// </summary>
-        /// <param name="currentAngle">The current rotation angle of the agent.</param>
-        /// <param name="maxWanderTurn">The maximum degrees which the rotation can be adjusted by.</param>
-        /// <returns>The new angle the agent should point towards for its wander.</returns>
-        public static float Wander(float currentAngle, float maxWanderTurn)
-        {
-            // Since each random call gives a value from [0.0, 1.0], this is a binomial distribution so values closer to zero are more likely.
-            return currentAngle + (Random.value - Random.value) * maxWanderTurn;
-        }
-
-        /// <summary>
         /// Face - Face towards a target position.
         /// Custom implementation, not directly based off of any existing code in either Buckland's book or Dr. Goodwin's slides.
         /// Given that Vector2 does not have any RotateTowards method, this method is the only to use Vector3 values.

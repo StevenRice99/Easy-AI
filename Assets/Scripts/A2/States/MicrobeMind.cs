@@ -83,11 +83,11 @@ namespace A2.States
             }
             
             // Otherwise the microbe goes to sleep.
-            if (microbe.State.GetType() == typeof(MicrobeWanderingState))
+            if (microbe.State.GetType() == typeof(MicrobeRoamingState))
             {
                 return null;
             }
-            microbe.State = AgentManager.Lookup(typeof(MicrobeWanderingState));
+            microbe.State = AgentManager.Lookup(typeof(MicrobeRoamingState));
             microbe.SetStateVisual(microbe.State);
             return null;
         }

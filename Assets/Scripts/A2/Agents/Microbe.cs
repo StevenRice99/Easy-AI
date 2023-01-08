@@ -155,7 +155,7 @@ namespace A2.Agents
                 return;
             }
             
-            if (state as MicrobeWanderingState)
+            if (state as MicrobeRoamingState)
             {
                 stateVisualization.material = MicrobeManager.MicrobeManagerSingleton.SleepingIndicatorMaterial;
                 return;

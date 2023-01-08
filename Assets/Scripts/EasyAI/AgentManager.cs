@@ -1814,11 +1814,6 @@ namespace EasyAI
                 length--;
             }
 
-            if (SelectedAgent.Wander && SelectedAgent.MovesData.Count == 0)
-            {
-                length++;
-            }
-
             // Display all agent details.
             GuiBox(x, y, w, h, p, length);
             if (Agents.Count > 1)
@@ -1865,12 +1860,6 @@ namespace EasyAI
                 string pos = moveData.Transform != null ? $" ({pos3.x}, {pos3.z})" : $" ({moveData.Position.x}, {moveData.Position.y})";
                 y = NextItem(y, h, p);
                 GuiLabel(x, y, w, h, p, $"{moveType}{toFrom}{pos}");
-            }
-
-            if (SelectedAgent.Wander && SelectedAgent.MovesData.Count == 0)
-            {
-                y = NextItem(y, h, p);
-                GuiLabel(x, y, w, h, p, "Wandering.");
             }
         
             y = NextItem(y, h, p);
@@ -2146,7 +2135,7 @@ namespace EasyAI
                 foreach (Camera cam in Cameras)
                 {
                     y = NextItem(y, h, p);
-                    if (GUI.Button(new(x, y, w, h), cam.name))
+                    if (GuiButton(x, y, w, h, cam.name))
                     {
                         SwitchCamera(cam);
                     }
@@ -2157,7 +2146,7 @@ namespace EasyAI
             {
                 // Display button to go to the next scene.
                 y = NextItem(y, h, p);
-                if (GUI.Button(new(x, y, w, h), "Next Scene"))
+                if (GuiButton(x, y, w, h, "Next Scene"))
                 {
                     NextScene();
                 }
@@ -2166,7 +2155,7 @@ namespace EasyAI
                 {
                     // Display button to go to the previous scene.
                     y = NextItem(y, h, p);
-                    if (GUI.Button(new(x, y, w, h), "Last Scene"))
+                    if (GuiButton(x, y, w, h, "Last Scene"))
                     {
                         LastScene();
                     }

@@ -5195,7 +5195,7 @@ GameObject:
   - component: {fileID: 2801934450942198308}
   - component: {fileID: 4693799808093474120}
   m_Layer: 0
-  m_Name: Cleaner Agent
+  m_Name: Cleaner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

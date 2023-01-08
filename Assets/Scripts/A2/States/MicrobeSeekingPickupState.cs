@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using A2.Agents;
+using A2.Managers;
 using A2.Pickups;
 using EasyAI.AgentActions;
 using EasyAI.Agents;
@@ -50,14 +51,12 @@ namespace A2.States
             // If there are no pickups in detection range, roam.
             if (microbe.TargetPickup == null)
             {
-                agent.AddMessage("Cannot find any pickups, wandering.");
-                if (agent.MovesData.Count > 0)
+                agent.AddMessage("Cannot find any pickups, roaming.");
+                if (agent.MovesData.Count <= 0)
                 {
-                    return null;
+                    agent.SetMoveData(Agent.MoveType.Seek, Random.insideUnitCircle * MicrobeManager.MicrobeManagerSingleton.FloorRadius);
                 }
 
-                agent.ClearMoveData();
-                agent.Wander = true;
                 return null;
             }
             
