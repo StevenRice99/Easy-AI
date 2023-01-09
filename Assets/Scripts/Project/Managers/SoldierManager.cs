@@ -9,81 +9,160 @@ using UnityEngine;
 
 namespace Project.Managers
 {
-    public class SoldierAgentManager : AgentManager
+    /// <summary>
+    /// Manager for soldiers.
+    /// </summary>
+    public class SoldierManager : Manager
     {
         /// <summary>
         /// Getter to cast the AgentManager singleton into a SoldierAgentManager.
         /// </summary>
-        public static SoldierAgentManager SoldierAgentManagerSingleton => Singleton as SoldierAgentManager;
+        public static SoldierManager SoldierSingleton => Singleton as SoldierManager;
+
+        /// <summary>
+        /// How much health each soldier has.
+        /// </summary>
+        public static int Health => SoldierSingleton.health;
+
+        /// <summary>
+        /// How many seconds soldiers need to wait to respawn.
+        /// </summary>
+        public static float Respawn => SoldierSingleton.respawn;
+
+        /// <summary>
+        /// How many seconds before a pickup can be used again.
+        /// </summary>
+        public static float PickupTimer => SoldierSingleton.pickupTimer;
+
+        /// <summary>
+        /// How many seconds before an old seen or hear enemy is removed from memory.
+        /// </summary>
+        public static float MemoryTime => SoldierSingleton.memoryTime;
+
+        /// <summary>
+        /// At what health is a soldier considered at low health.
+        /// </summary>
+        public static float LowHealth => SoldierSingleton.lowHealth;
+
+        /// <summary>
+        /// The maximum amount of time a soldier can wait before deciding on a new position to move to.
+        /// </summary>
+        public static float MaxWaitTime => SoldierSingleton.maxWaitTime;
+
+        /// <summary>
+        /// How close in units is an enemy considered close.
+        /// </summary>
+        public static float DistanceClose => SoldierSingleton.distanceClose;
+
+        /// <summary>
+        /// How far in units is an enemy considered far.
+        /// </summary>
+        public static float DistanceFar => SoldierSingleton.distanceFar;
+
+        /// <summary>
+        /// How loud the audio is.
+        /// </summary>
+        public static float Volume => SoldierSingleton.volume;
+
+        /// <summary>
+        /// The material to apply to the red soldiers.
+        /// </summary>
+        public static Material Red => SoldierSingleton.red;
+
+        /// <summary>
+        /// The material to apply to the blue soldiers.
+        /// </summary>
+        public static Material Blue => SoldierSingleton.blue;
 
         [Header("Soldier Parameters")]
-        [SerializeField]
-        [Range(1, 15)]
         [Tooltip("How many soldiers to have on each team.")]
+        [Range(1, 15)]
+        [SerializeField]
         private int soldiersPerTeam = 1;
 
-        [Min(1)]
         [Tooltip("How much health each soldier has.")]
-        public int health = 100;
-
-        [Min(0)]
-        [Tooltip("How many seconds soldiers need to wait to respawn.")]
-        public float respawn = 10;
-
-        [Min(0)]
-        [Tooltip("How many seconds before a pickup can be used again.")]
-        public float pickupTimer = 10;
-
-        [Min(0)]
-        [Tooltip("How many seconds before an old seen or hear enemy is removed from memory.")]
-        public float memoryTime = 5;
-
         [Min(1)]
+        [SerializeField]
+        private int health = 100;
+
+        [Tooltip("How many seconds soldiers need to wait to respawn.")]
+        [Min(0)]
+        [SerializeField]
+        private float respawn = 10;
+
+        [Tooltip("How many seconds before a pickup can be used again.")]
+        [Min(0)]
+        [SerializeField]
+        private float pickupTimer = 10;
+
+        [Tooltip("How many seconds before an old seen or hear enemy is removed from memory.")]
+        [Min(0)]
+        [SerializeField]
+        private float memoryTime = 5;
+
         [Tooltip("At what health is a soldier considered at low health.")]
-        public int lowHealth = 50;
+        [Min(1)]
+        [SerializeField]
+        private int lowHealth = 50;
 
-        [Min(0)]
         [Tooltip("The maximum amount of time a soldier can wait before deciding on a new position to move to.")]
-        public float maxWaitTime = 5;
-
         [Min(0)]
+        [SerializeField]
+        private float maxWaitTime = 5;
+
         [Tooltip("How close in units is an enemy considered close.")]
-        public float distanceClose = 10;
-
         [Min(0)]
-        [Tooltip("How far in units is an enemy considered far.")]
-        public float distanceFar = 20;
+        [SerializeField]
+        private float distanceClose = 10;
 
-        [Range(0, 1)]
+        [Tooltip("How far in units is an enemy considered far.")]
+        [Min(0)]
+        [SerializeField]
+        private float distanceFar = 20;
+
         [Tooltip("How loud the audio is.")]
-        public float volume;
+        [Range(0, 1)]
+        [SerializeField]
+        private float volume;
 
         [Header("Prefabs")]
-        [SerializeField]
         [Tooltip("The prefab for soldiers.")]
+        [SerializeField]
         private GameObject soldierPrefab;
 
         [Header("Materials")]
         [Tooltip("The material to apply to the red soldiers.")]
-        public Material red;
+        [SerializeField]
+        private Material red;
 
         [Tooltip("The material to apply to the blue soldiers.")]
-        public Material blue;
+        [SerializeField]
+        private Material blue;
+        
+        /// <summary>
+        /// The flags captured by the red team.
+        /// </summary>
+        public int ScoreRed { get; set; }
+        
+        /// <summary>
+        /// The flags captured by the blue team.
+        /// </summary>
+        public int ScoreBlue { get; set; }
+        
+        /// <summary>
+        /// The total kills by the red team.
+        /// </summary>
+        public int KillsRed { get; set; }
+        
+        /// <summary>
+        /// The total kills by the blue team.
+        /// </summary>
+        public int KillsBlue { get; set; }
         
         /// <summary>
         /// The spawn points for soldiers.
         /// </summary>
         public SpawnPoint[] SpawnPoints { get; private set; }
-
-        /// <summary>
-        /// All strategic positions for soldiers to use.
-        /// </summary>
-        private StrategicPoint[] _strategicPoints;
-
-        /// <summary>
-        /// All health and weapon pickups.
-        /// </summary>
-        private HealthWeaponPickup[] _healthWeaponPickups;
         
         /// <summary>
         /// Soldiers ordered by how well they are performing.
@@ -109,26 +188,16 @@ namespace Project.Managers
         /// What the least deaths by a single soldier is.
         /// </summary>
         public int LeastDeaths { get; private set; }
-        
+
         /// <summary>
-        /// The flags captured by the red team.
+        /// All strategic positions for soldiers to use.
         /// </summary>
-        public int ScoreRed { get; set; }
-        
+        private StrategicPoint[] _strategicPoints;
+
         /// <summary>
-        /// The flags captured by the blue team.
+        /// All health and weapon pickups.
         /// </summary>
-        public int ScoreBlue { get; set; }
-        
-        /// <summary>
-        /// The total kills by the red team.
-        /// </summary>
-        public int KillsRed { get; set; }
-        
-        /// <summary>
-        /// The total kills by the blue team.
-        /// </summary>
-        public int KillsBlue { get; set; }
+        private HealthWeaponPickup[] _healthWeaponPickups;
 
         /// <summary>
         /// If the cameras should lock to the best player or not.

@@ -4,11 +4,15 @@ using UnityEngine;
 
 namespace A3.Managers
 {
-    public class SteeringDemoManager : AgentManager
+    /// <summary>
+    /// Manager that displays some buttons in its controls move the selected agent to various objects.
+    /// </summary>
+    [DisallowMultipleComponent]
+    public class SteeringDemoManager : Manager
     {
         [Header("Steering Demo Parameters")]
-        [SerializeField]
         [Tooltip("The objects to list controls for the agent to move in relation to.")]
+        [SerializeField]
         private Transform[] targets;
         
         /// <summary>

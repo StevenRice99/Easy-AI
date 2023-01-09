@@ -26,7 +26,8 @@ namespace EasyAI
     /// <summary>
     /// Singleton to handle agents and GUI rendering. Must be exactly one of this or an extension of this present in every scene.
     /// </summary>
-    public class AgentManager : MonoBehaviour
+    [DisallowMultipleComponent]
+    public class Manager : MonoBehaviour
     {
         /// <summary>
         /// Class to hold data for each node during A* pathfinding.
@@ -314,7 +315,7 @@ namespace EasyAI
         /// <summary>
         /// The singleton agent manager.
         /// </summary>
-        protected static AgentManager Singleton;
+        protected static Manager Singleton;
     
         /// <summary>
         /// All registered states.

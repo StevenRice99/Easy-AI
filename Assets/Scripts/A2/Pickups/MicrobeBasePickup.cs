@@ -20,7 +20,7 @@ namespace A2.Pickups
         private void Update()
         {
             // Get all microbes near to this pickup.
-            Microbe[] microbes = AgentManager.CurrentAgents.Where(a => Vector3.Distance(a.transform.position, transform.position) <= MicrobeManager.MicrobeInteractRadius).Cast<Microbe>().ToArray();
+            Microbe[] microbes = Manager.CurrentAgents.Where(a => Vector3.Distance(a.transform.position, transform.position) <= MicrobeManager.MicrobeInteractRadius).Cast<Microbe>().ToArray();
             if (microbes.Length == 0)
             {
                 return;

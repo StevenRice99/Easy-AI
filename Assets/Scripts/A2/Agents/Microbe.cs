@@ -206,16 +206,16 @@ namespace A2.Agents
         /// <returns>The updated Y position after all custom rendering has been done.</returns>
         public override float DisplayDetails(float x, float y, float w, float h, float p)
         {
-            y = AgentManager.NextItem(y, h, p);
-            AgentManager.GuiBox(x, y, w, h, p, 3);
+            y = Manager.NextItem(y, h, p);
+            Manager.GuiBox(x, y, w, h, p, 3);
 
-            AgentManager.GuiLabel(x, y, w, h, p, $"Hunger: {Hunger} | " + (IsHungry ? "Hungry" : "Not Hungry"));
-            y = AgentManager.NextItem(y, h, p);
+            Manager.GuiLabel(x, y, w, h, p, $"Hunger: {Hunger} | " + (IsHungry ? "Hungry" : "Not Hungry"));
+            y = Manager.NextItem(y, h, p);
 
-            AgentManager.GuiLabel(x, y, w, h, p, $"Lifespan: {ElapsedLifespan} / {LifeSpan} | " + (IsAdult ? "Adult" : "Infant"));
-            y = AgentManager.NextItem(y, h, p);
+            Manager.GuiLabel(x, y, w, h, p, $"Lifespan: {ElapsedLifespan} / {LifeSpan} | " + (IsAdult ? "Adult" : "Infant"));
+            y = Manager.NextItem(y, h, p);
             
-            AgentManager.GuiLabel(x, y, w, h, p, $"Mating: " + (DidMate ? "Already Mated" : IsAdult && !IsHungry ? TargetMicrobe == null ? "Searching for mate" : $"With {TargetMicrobe.name}" : "No"));
+            Manager.GuiLabel(x, y, w, h, p, $"Mating: " + (DidMate ? "Already Mated" : IsAdult && !IsHungry ? TargetMicrobe == null ? "Searching for mate" : $"With {TargetMicrobe.name}" : "No"));
             
             return y;
         }

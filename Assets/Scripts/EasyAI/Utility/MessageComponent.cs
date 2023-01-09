@@ -49,19 +49,19 @@ namespace EasyAI.Utility
         /// <param name="message">The message to add.</param>
         public virtual void AddMessage(string message)
         {
-            AgentManager.AddGlobalMessage($"{name} - {message}");
+            Manager.AddGlobalMessage($"{name} - {message}");
             
-            switch (AgentManager.MessageMode)
+            switch (Manager.MessageMode)
             {
-                case AgentManager.MessagingMode.Compact when Messages.Count > 0 && Messages[0] == message:
+                case Manager.MessagingMode.Compact when Messages.Count > 0 && Messages[0] == message:
                     return;
-                case AgentManager.MessagingMode.Unique:
+                case Manager.MessagingMode.Unique:
                     Messages = Messages.Where(m => m != message).ToList();
                     break;
             }
 
             Messages.Insert(0, message);
-            if (Messages.Count > AgentManager.MaxMessages)
+            if (Messages.Count > Manager.MaxMessages)
             {
                 Messages.RemoveAt(Messages.Count - 1);
             }

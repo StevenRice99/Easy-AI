@@ -15,7 +15,7 @@ namespace EasyAI.Editor
         [MenuItem("GameObject/Easy AI/Agents/Transform Agent", false, 0)]
         private static void CreateTransformAgent(MenuCommand menuCommand)
         {
-            FinishCreation(menuCommand, AgentManager.CreateTransformAgent());
+            FinishCreation(menuCommand, Manager.CreateTransformAgent());
         }
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace EasyAI.Editor
         [MenuItem("GameObject/Easy AI/Agents/Character Agent", false, 0)]
         private static void CreateCharacterAgent(MenuCommand menuCommand)
         {
-            FinishCreation(menuCommand, AgentManager.CreateCharacterAgent());
+            FinishCreation(menuCommand, Manager.CreateCharacterAgent());
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace EasyAI.Editor
         [MenuItem("GameObject/Easy AI/Agents/Rigidbody Agent", false, 0)]
         private static void CreateRigidbodyAgent(MenuCommand menuCommand)
         {
-            FinishCreation(menuCommand, AgentManager.CreateRigidbodyAgent());
+            FinishCreation(menuCommand, Manager.CreateRigidbodyAgent());
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace EasyAI.Editor
         [MenuItem("GameObject/Easy AI/Cameras/All", false, 0)]
         private static void CreateAllCameras()
         {
-            AgentManager.CreateAllCameras();
+            Manager.CreateAllCameras();
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace EasyAI.Editor
         [MenuItem("GameObject/Easy AI/Cameras/Follow Camera", false, 0)]
         private static void CreateFollowAgentCamera()
         {
-            AgentManager.CreateFollowAgentCamera();
+            Manager.CreateFollowAgentCamera();
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace EasyAI.Editor
         [MenuItem("GameObject/Easy AI/Cameras/Look At Camera", false, 0)]
         private static void CreateLookAtAgentCamera()
         {
-            AgentManager.CreateLookAtAgentCamera();
+            Manager.CreateLookAtAgentCamera();
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace EasyAI.Editor
         [MenuItem("GameObject/Easy AI/Cameras/Track Camera", false, 0)]
         private static void CreateTrackAgentCamera()
         {
-            AgentManager.CreateTrackAgentCamera();
+            Manager.CreateTrackAgentCamera();
         }
 
         /// <summary>

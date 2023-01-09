@@ -12,7 +12,8 @@ namespace A2.Managers
     /// <summary>
     /// Agent manager with additional fields for handling microbes for assignment two.
     /// </summary>
-    public class MicrobeManager : AgentManager
+    [DisallowMultipleComponent]
+    public class MicrobeManager : Manager
     {
         /// <summary>
         /// Identifier for the type (color) of microbes.

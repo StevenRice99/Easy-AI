@@ -130,7 +130,7 @@ namespace EasyAI.Navigation.Nodes
                 for (int z = 0; z < RangeZ; z++)
                 {
                     float2 pos = GetRealPosition(x, z);
-                    _data[x, z] = Physics.Raycast(new(pos.x, floorCeiling.y, pos.y), Vector3.down, out RaycastHit hit, floorCeiling.y - floorCeiling.x, AgentManager.GroundLayers | AgentManager.ObstacleLayers) && (AgentManager.GroundLayers.value & (1 << hit.transform.gameObject.layer)) > 0
+                    _data[x, z] = Physics.Raycast(new(pos.x, floorCeiling.y, pos.y), Vector3.down, out RaycastHit hit, floorCeiling.y - floorCeiling.x, Manager.GroundLayers | Manager.ObstacleLayers) && (Manager.GroundLayers.value & (1 << hit.transform.gameObject.layer)) > 0
                         ? Open
                         : Closed;
                 }
@@ -144,8 +144,8 @@ namespace EasyAI.Navigation.Nodes
             {
                 // Run the node generator.
                 generator.NodeArea = this;
-                _oldNodeDistance = AgentManager.NodeDistance;
-                AgentManager.NodeDistance = generator.SetNodeDistance();
+                _oldNodeDistance = Manager.NodeDistance;
+                Manager.NodeDistance = generator.SetNodeDistance();
                 generator.Generate();
 
                 // Form connections between nodes.
@@ -161,15 +161,15 @@ namespace EasyAI.Navigation.Nodes
 
                         // Ensure the nodes are in range to form a connection.
                         float d = Vector3.Distance(_nodes[x], _nodes[z]);
-                        if (AgentManager.NodeDistance > 0 && d > AgentManager.NodeDistance)
+                        if (Manager.NodeDistance > 0 && d > Manager.NodeDistance)
                         {
                             continue;
                         }
 
                         // Ensure the nodes have line of sight on each other.
-                        if (AgentManager.NavigationRadius <= 0)
+                        if (Manager.NavigationRadius <= 0)
                         {
-                            if (Physics.Linecast(_nodes[x], _nodes[z], AgentManager.ObstacleLayers))
+                            if (Physics.Linecast(_nodes[x], _nodes[z], Manager.ObstacleLayers))
                             {
                                 continue;
                             }
@@ -177,29 +177,29 @@ namespace EasyAI.Navigation.Nodes
                         else
                         {
                             Vector3 p1 = _nodes[x];
-                            p1.y += AgentManager.NavigationRadius;
+                            p1.y += Manager.NavigationRadius;
                             Vector3 p2 = _nodes[z];
-                            p2.y += AgentManager.NavigationRadius;
+                            p2.y += Manager.NavigationRadius;
                             Vector3 direction = (p2 - p1).normalized;
-                            if (Physics.SphereCast(p1, AgentManager.NavigationRadius, direction, out _, d, AgentManager.ObstacleLayers))
+                            if (Physics.SphereCast(p1, Manager.NavigationRadius, direction, out _, d, Manager.ObstacleLayers))
                             {
                                 continue;
                             }
                         }
 
                         // Ensure there is not already an entry for this connection in the list.
-                        if (AgentManager.Connections.Any(c => c.A == _nodes[x] && c.B == _nodes[z] || c.A == _nodes[z] && c.B == _nodes[x]))
+                        if (Manager.Connections.Any(c => c.A == _nodes[x] && c.B == _nodes[z] || c.A == _nodes[z] && c.B == _nodes[x]))
                         {
                             continue;
                         }
                 
                         // Add the connection to the list.
-                        AgentManager.Connections.Add(new(_nodes[x], _nodes[z]));
+                        Manager.Connections.Add(new(_nodes[x], _nodes[z]));
                     }
                 }
             }
 
-            AgentManager.NodeDistance = _oldNodeDistance;
+            Manager.NodeDistance = _oldNodeDistance;
 
             // Cleanup all generators.
             foreach (NodeGenerator g in generators)
@@ -271,7 +271,7 @@ namespace EasyAI.Navigation.Nodes
             // Get the position of the node.
             float2 pos = GetRealPosition(x, z);
             float y = floorCeiling.x;
-            if (Physics.Raycast(new(pos.x, floorCeiling.y, pos.y), Vector3.down, out RaycastHit hit, floorCeiling.y - floorCeiling.x, AgentManager.GroundLayers))
+            if (Physics.Raycast(new(pos.x, floorCeiling.y, pos.y), Vector3.down, out RaycastHit hit, floorCeiling.y - floorCeiling.x, Manager.GroundLayers))
             {
                 y = hit.point.y;
             }
@@ -283,9 +283,9 @@ namespace EasyAI.Navigation.Nodes
                 _nodes.Add(v);
             }
 
-            if (!AgentManager.Nodes.Contains(v))
+            if (!Manager.Nodes.Contains(v))
             {
-                AgentManager.Nodes.Add(v);
+                Manager.Nodes.Add(v);
             }
         }
 

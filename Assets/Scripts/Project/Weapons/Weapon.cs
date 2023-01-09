@@ -113,7 +113,7 @@ namespace Project.Weapons
             // Add and play the audio.
             AudioSource impact = impactObj.AddComponent<AudioSource>();
             impact.clip = impactSound;
-            impact.volume = SoldierAgentManager.SoldierAgentManagerSingleton.volume / numImpacts;
+            impact.volume = SoldierManager.Volume / numImpacts;
             impact.spatialBlend = 1;
             impact.dopplerLevel = _shootSound.dopplerLevel;
             impact.spread = _shootSound.spread;
@@ -232,7 +232,7 @@ namespace Project.Weapons
         {
             // Ensure volume is good.
             _shootSound = GetComponent<AudioSource>();
-            _shootSound.volume = SoldierAgentManager.SoldierAgentManagerSingleton.volume;
+            _shootSound.volume = SoldierManager.Volume;
         }
 
         /// <summary>

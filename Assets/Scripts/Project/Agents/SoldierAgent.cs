@@ -218,34 +218,34 @@ namespace Project.Agents
         /// <returns>The updated Y position after all custom rendering has been done.</returns>
         public override float DisplayDetails(float x, float y, float w, float h, float p)
         {
-            y = AgentManager.NextItem(y, h, p);
-            AgentManager.GuiBox(x, y, w, h, p, 13);
+            y = Manager.NextItem(y, h, p);
+            Manager.GuiBox(x, y, w, h, p, 13);
             
             // Display overall flags captured for each team.
-            AgentManager.GuiLabel(x, y, w, h, p, $"Team Captures - Red: {SoldierAgentManager.SoldierAgentManagerSingleton.ScoreRed} | Blue: {SoldierAgentManager.SoldierAgentManagerSingleton.ScoreBlue}");
-            y = AgentManager.NextItem(y, h, p);
+            Manager.GuiLabel(x, y, w, h, p, $"Team Captures - Red: {SoldierManager.SoldierSingleton.ScoreRed} | Blue: {SoldierManager.SoldierSingleton.ScoreBlue}");
+            y = Manager.NextItem(y, h, p);
             
             // Display overall kills for each team.
-            AgentManager.GuiLabel(x, y, w, h, p, $"Team Kills - Red: {SoldierAgentManager.SoldierAgentManagerSingleton.KillsRed} | Blue: {SoldierAgentManager.SoldierAgentManagerSingleton.KillsBlue}");
-            y = AgentManager.NextItem(y, h, p);
+            Manager.GuiLabel(x, y, w, h, p, $"Team Kills - Red: {SoldierManager.SoldierSingleton.KillsRed} | Blue: {SoldierManager.SoldierSingleton.KillsBlue}");
+            y = Manager.NextItem(y, h, p);
             
-            AgentManager.GuiLabel(x, y, w, h, p, "--------------------------------------------------------------------------------------------------------------------------");
-            y = AgentManager.NextItem(y, h, p);
+            Manager.GuiLabel(x, y, w, h, p, "--------------------------------------------------------------------------------------------------------------------------");
+            y = Manager.NextItem(y, h, p);
 
             // Display the position of this soldier relative to all others.
-            AgentManager.GuiLabel(x, y, w, h, p, $"Soldier Performance: {SoldierAgentManager.SoldierAgentManagerSingleton.Sorted.IndexOf(this) + 1} / {SoldierAgentManager.SoldierAgentManagerSingleton.Sorted.Count}");
-            y = AgentManager.NextItem(y, h, p);
+            Manager.GuiLabel(x, y, w, h, p, $"Soldier Performance: {SoldierManager.SoldierSingleton.Sorted.IndexOf(this) + 1} / {SoldierManager.SoldierSingleton.Sorted.Count}");
+            y = Manager.NextItem(y, h, p);
 
             // Display the role of this soldier.
-            AgentManager.GuiLabel(x, y, w, h, p, Role == SoliderRole.Dead ? "Respawning" : $"Role: {Role}");
-            y = AgentManager.NextItem(y, h, p);
+            Manager.GuiLabel(x, y, w, h, p, Role == SoliderRole.Dead ? "Respawning" : $"Role: {Role}");
+            y = Manager.NextItem(y, h, p);
 
             // Display the health of this soldier.
-            AgentManager.GuiLabel(x, y, w, h, p, $"Health: {Health} / {SoldierAgentManager.SoldierAgentManagerSingleton.health}");
-            y = AgentManager.NextItem(y, h, p);
+            Manager.GuiLabel(x, y, w, h, p, $"Health: {Health} / {SoldierManager.Health}");
+            y = Manager.NextItem(y, h, p);
 
             // Display the weapon this soldier is using.
-            AgentManager.GuiLabel(x, y, w, h, p, Role == SoliderRole.Dead ? "Weapon: None" : WeaponIndex switch
+            Manager.GuiLabel(x, y, w, h, p, Role == SoliderRole.Dead ? "Weapon: None" : WeaponIndex switch
             {
                 (int) WeaponChoices.MachineGun => $"Weapon: Machine Gun | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].maxAmmo}",
                 (int) WeaponChoices.Shotgun => $"Weapon: Shotgun | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].maxAmmo}",
@@ -253,31 +253,31 @@ namespace Project.Agents
                 (int) WeaponChoices.RocketLauncher => $"Weapon: Rocket Launcher | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].maxAmmo}",
                 _ => "Weapon: Pistol"
             });
-            y = AgentManager.NextItem(y, h, p);
+            y = Manager.NextItem(y, h, p);
             
             // Display the enemy this soldier is fighting.
-            AgentManager.GuiLabel(x, y, w, h, p, Target == null || Target.Value.Enemy == null ? "Fighting: Nobody" : $"Fighting: {Target.Value.Enemy.name}");
-            y = AgentManager.NextItem(y, h, p);
+            Manager.GuiLabel(x, y, w, h, p, Target == null || Target.Value.Enemy == null ? "Fighting: Nobody" : $"Fighting: {Target.Value.Enemy.name}");
+            y = Manager.NextItem(y, h, p);
 
             // Display all enemies this soldier has detected.
             int visible = EnemiesDetected.Count(e => e.Visible);
-            AgentManager.GuiLabel(x, y, w, h, p, $"See: {visible} | Hear: {EnemiesDetected.Count - visible}");
-            y = AgentManager.NextItem(y, h, p);
+            Manager.GuiLabel(x, y, w, h, p, $"See: {visible} | Hear: {EnemiesDetected.Count - visible}");
+            y = Manager.NextItem(y, h, p);
 
             // Display how many flag captures this soldier has.
-            AgentManager.GuiLabel(x, y, w, h, p, $"Captures: {Captures} | Most: {SoldierAgentManager.SoldierAgentManagerSingleton.MostCaptures}");
-            y = AgentManager.NextItem(y, h, p);
+            Manager.GuiLabel(x, y, w, h, p, $"Captures: {Captures} | Most: {SoldierManager.SoldierSingleton.MostCaptures}");
+            y = Manager.NextItem(y, h, p);
 
             // Display how many flag returns this soldier has.
-            AgentManager.GuiLabel(x, y, w, h, p, $"Returns: {Returns} | Most: {SoldierAgentManager.SoldierAgentManagerSingleton.MostReturns}");
-            y = AgentManager.NextItem(y, h, p);
+            Manager.GuiLabel(x, y, w, h, p, $"Returns: {Returns} | Most: {SoldierManager.SoldierSingleton.MostReturns}");
+            y = Manager.NextItem(y, h, p);
 
             // Display how many kills this soldier has.
-            AgentManager.GuiLabel(x, y, w, h, p, $"Kills: {Kills} | Most: {SoldierAgentManager.SoldierAgentManagerSingleton.MostKills}");
-            y = AgentManager.NextItem(y, h, p);
+            Manager.GuiLabel(x, y, w, h, p, $"Kills: {Kills} | Most: {SoldierManager.SoldierSingleton.MostKills}");
+            y = Manager.NextItem(y, h, p);
             
             // Display how many deaths this soldier has.
-            AgentManager.GuiLabel(x, y, w, h, p, $"Deaths: {Deaths} | Least: {SoldierAgentManager.SoldierAgentManagerSingleton.LeastDeaths}");
+            Manager.GuiLabel(x, y, w, h, p, $"Deaths: {Deaths} | Least: {SoldierManager.SoldierSingleton.LeastDeaths}");
             
             return y;
         }
@@ -353,15 +353,15 @@ namespace Project.Agents
 
             if (RedTeam)
             {
-                SoldierAgentManager.SoldierAgentManagerSingleton.KillsRed++;
+                SoldierManager.SoldierSingleton.KillsRed++;
             }
             else
             {
-                SoldierAgentManager.SoldierAgentManagerSingleton.KillsBlue++;
+                SoldierManager.SoldierSingleton.KillsBlue++;
             }
 
             // Reassign team roles as a team member has died.
-            SoldierAgentManager.SoldierAgentManagerSingleton.UpdateSorted();
+            SoldierManager.SoldierSingleton.UpdateSorted();
 
             // Start the respawn counter.
             StopAllCoroutines();
@@ -414,7 +414,7 @@ namespace Project.Agents
                 return;
             }
 
-            Health = SoldierAgentManager.SoldierAgentManagerSingleton.health;
+            Health = SoldierManager.Health;
         }
 
         /// <summary>
@@ -465,7 +465,7 @@ namespace Project.Agents
         public void Spawn()
         {
             // Get spawn points on their side of the map.
-            SpawnPoint[] points = SoldierAgentManager.SoldierAgentManagerSingleton.SpawnPoints.Where(p => p.redTeam == RedTeam).ToArray();
+            SpawnPoint[] points = SoldierManager.SoldierSingleton.SpawnPoints.Where(p => p.redTeam == RedTeam).ToArray();
             
             // Get all open spawn points.
             SpawnPoint[] open = points.Where(p => p.Open).ToArray();
@@ -503,7 +503,7 @@ namespace Project.Agents
                 weapon.Replenish();
             }
             
-            SoldierAgentManager.SoldierAgentManagerSingleton.UpdateSorted();
+            SoldierManager.SoldierSingleton.UpdateSorted();
         }
 
         /// <summary>
@@ -512,7 +512,7 @@ namespace Project.Agents
         /// <returns>All enemies in line of sight.</returns>
         public IEnumerable<SoldierAgent> SeeEnemies()
         {
-            return GetEnemies().Where(enemy => !Physics.Linecast(headPosition.position, enemy.headPosition.position, AgentManager.ObstacleLayers)).ToArray();
+            return GetEnemies().Where(enemy => !Physics.Linecast(headPosition.position, enemy.headPosition.position, Manager.ObstacleLayers)).ToArray();
         }
 
         protected override void Start()
@@ -550,7 +550,7 @@ namespace Project.Agents
             // Assign team colors.
             foreach (MeshRenderer meshRenderer in colorVisuals)
             {
-                meshRenderer.material = RedTeam ? SoldierAgentManager.SoldierAgentManagerSingleton.red : SoldierAgentManager.SoldierAgentManagerSingleton.blue;
+                meshRenderer.material = RedTeam ? SoldierManager.Red : SoldierManager.Blue;
             }
             
             // Spawn in.
@@ -596,9 +596,9 @@ namespace Project.Agents
                 
                 default:
                     // If the soldier has low health, move to a health pack to heal.
-                    if (Health <= SoldierAgentManager.SoldierAgentManagerSingleton.lowHealth)
+                    if (Health <= SoldierManager.LowHealth)
                     {
-                        Vector3? destination = SoldierAgentManager.SoldierAgentManagerSingleton.GetHealth(transform.position);
+                        Vector3? destination = SoldierManager.SoldierSingleton.GetHealth(transform.position);
                         if (destination != null)
                         {
                             if (Navigate(destination.Value))
@@ -615,9 +615,9 @@ namespace Project.Agents
                     if (Target is not { Visible: true })
                     {
                         // If not at full health, move to a health pack to heal.
-                        if (Health < SoldierAgentManager.SoldierAgentManagerSingleton.health)
+                        if (Health < SoldierManager.Health)
                         {
-                            Vector3? destination = SoldierAgentManager.SoldierAgentManagerSingleton.GetHealth(transform.position);
+                            Vector3? destination = SoldierManager.SoldierSingleton.GetHealth(transform.position);
                             if (destination != null)
                             {
                                 if (Navigate(destination.Value))
@@ -638,7 +638,7 @@ namespace Project.Agents
                                 continue;
                             }
                             
-                            Vector3? destination = SoldierAgentManager.SoldierAgentManagerSingleton.GetWeapon(transform.position, w);
+                            Vector3? destination = SoldierManager.SoldierSingleton.GetWeapon(transform.position, w);
                             if (destination == null)
                             {
                                 continue;
@@ -671,7 +671,7 @@ namespace Project.Agents
                     if (_findNewPoint || (Role == SoliderRole.Attacker && Target is { Visible: true }))
                     {
                         _findNewPoint = false;
-                        if (Navigate(SoldierAgentManager.SoldierAgentManagerSingleton.GetPoint(RedTeam, Role == SoliderRole.Defender)))
+                        if (Navigate(SoldierManager.SoldierSingleton.GetPoint(RedTeam, Role == SoliderRole.Defender)))
                         {
                             AddMessage(Role == SoliderRole.Attacker ? "Moving to offensive position." : "Moving to defensive position.");
                         }
@@ -727,7 +727,7 @@ namespace Project.Agents
             float distance = Vector3.Distance(shootPosition.position, Target.Value.Position);
             
             // Target is far away, use long range weapons.
-            if (distance >= SoldierAgentManager.SoldierAgentManagerSingleton.distanceFar)
+            if (distance >= SoldierManager.DistanceFar)
             {
                 // Defenders use the sniper first.
                 if (Role == SoliderRole.Defender)
@@ -762,7 +762,7 @@ namespace Project.Agents
             }
 
             // If close range, all roles use close-range weapons first.
-            if (distance <= SoldierAgentManager.SoldierAgentManagerSingleton.distanceClose)
+            if (distance <= SoldierManager.DistanceClose)
             {
                 AddMessage("Close target, prioritizing shotgun.");
                 
@@ -844,7 +844,7 @@ namespace Project.Agents
             MoveVelocity = Vector2.zero;
             
             // Wait to spawn.
-            yield return new WaitForSeconds(SoldierAgentManager.SoldierAgentManagerSingleton.respawn);
+            yield return new WaitForSeconds(SoldierManager.Respawn);
             
             // Spawn the soldier.
             Spawn();
@@ -952,7 +952,7 @@ namespace Project.Agents
                 EnemiesDetected[i].DeltaTime += DeltaTime;
                 
                 // If the detected enemy is too old or they have died, remove it.
-                if (EnemiesDetected[i].DeltaTime > SoldierAgentManager.SoldierAgentManagerSingleton.memoryTime || EnemiesDetected[i].Enemy.Role == SoliderRole.Dead)
+                if (EnemiesDetected[i].DeltaTime > SoldierManager.MemoryTime || EnemiesDetected[i].Enemy.Role == SoliderRole.Dead)
                 {
                     EnemiesDetected.RemoveAt(i--);
                 }
@@ -993,7 +993,7 @@ namespace Project.Agents
         /// <returns>Nothing.</returns>
         private IEnumerator PointDelay()
         {
-            yield return new WaitForSeconds(Random.Range(0, SoldierAgentManager.SoldierAgentManagerSingleton.maxWaitTime));
+            yield return new WaitForSeconds(Random.Range(0, SoldierManager.MaxWaitTime));
             _findNewPoint = true;
             _pointDelay = null;
         }

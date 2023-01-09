@@ -39,7 +39,7 @@ namespace A2.States
                 {
                     return null;
                 }
-                microbe.State = AgentManager.Lookup(typeof(MicrobeSeekingFoodState));
+                microbe.State = Manager.Lookup(typeof(MicrobeSeekingFoodState));
                 microbe.SetStateVisual(microbe.State);
                 return null;
             }
@@ -54,7 +54,7 @@ namespace A2.States
                     {
                         return null;
                     }
-                    microbe.State = AgentManager.Lookup(typeof(MicrobeSeekingMateState));
+                    microbe.State = Manager.Lookup(typeof(MicrobeSeekingMateState));
                     microbe.SetStateVisual(microbe.State);
                     return null;
                 }
@@ -65,7 +65,7 @@ namespace A2.States
                     return null;
                 }
                 
-                microbe.State = AgentManager.Lookup(typeof(MicrobeSeekingPickupState));
+                microbe.State = Manager.Lookup(typeof(MicrobeSeekingPickupState));
                 microbe.SetStateVisual(microbe.State);
                 return null;
             }
@@ -77,7 +77,7 @@ namespace A2.States
                 {
                     return null;
                 }
-                microbe.State = AgentManager.Lookup(typeof(MicrobeEvadeState));
+                microbe.State = Manager.Lookup(typeof(MicrobeEvadeState));
                 microbe.SetStateVisual(microbe.State);
                 return null;
             }
@@ -87,7 +87,7 @@ namespace A2.States
             {
                 return null;
             }
-            microbe.State = AgentManager.Lookup(typeof(MicrobeRoamingState));
+            microbe.State = Manager.Lookup(typeof(MicrobeRoamingState));
             microbe.SetStateVisual(microbe.State);
             return null;
         }

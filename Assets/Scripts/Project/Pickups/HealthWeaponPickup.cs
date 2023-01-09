@@ -49,7 +49,7 @@ namespace Project.Pickups
             // If it was a health pickup, heal if the soldier is not at full health.
             if (weaponIndex < 0)
             {
-                if (soldier.Health >= SoldierAgentManager.SoldierAgentManagerSingleton.health)
+                if (soldier.Health >= SoldierManager.Health)
                 {
                     return;
                 }
@@ -102,7 +102,7 @@ namespace Project.Pickups
             Ready = false;
             ToggleMeshes();
             
-            yield return new WaitForSeconds(SoldierAgentManager.SoldierAgentManagerSingleton.pickupTimer);
+            yield return new WaitForSeconds(SoldierManager.PickupTimer);
             
             Ready = true;
             ToggleMeshes();

@@ -11,9 +11,9 @@ namespace Project
     {
         private void Update()
         {
-            if (AgentManager.SelectedCamera != null)
+            if (Manager.SelectedCamera != null)
             {
-                transform.position = AgentManager.SelectedCamera.transform.position;
+                transform.position = Manager.SelectedCamera.transform.position;
             }
         }
     }

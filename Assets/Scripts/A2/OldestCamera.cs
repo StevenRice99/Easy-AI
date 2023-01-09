@@ -47,20 +47,20 @@ namespace A2
         private void LateUpdate()
         {
             // Get the microbe to look towards.
-            Microbe[] microbes = AgentManager.CurrentAgents.Cast<Microbe>().ToArray();
+            Microbe[] microbes = Manager.CurrentAgents.Cast<Microbe>().ToArray();
             if (microbes.Length > 0)
             {
                 Microbe microbe = microbes.OrderByDescending(m => m.ElapsedLifespan).ThenByDescending(m => m.LifeSpan).First();
                 _target = (microbe.Visuals == null ? microbe.transform : microbe.Visuals).position;
 
-                if (AgentManager.SelectedCamera == _camera && AgentManager.CurrentlySelectedAgent != microbe)
+                if (Manager.SelectedCamera == _camera && Manager.CurrentlySelectedAgent != microbe)
                 {
-                    AgentManager.SetSelectedAgent(microbe);
+                    Manager.SetSelectedAgent(microbe);
                 }
             }
             
             // Allow for zooming in if this is the selected camera.
-            if (AgentManager.SelectedCamera == _camera)
+            if (Manager.SelectedCamera == _camera)
             {
                 Vector2 scroll = Mouse.current.scroll.ReadValue();
                 height -= scroll.y * Time.unscaledDeltaTime;

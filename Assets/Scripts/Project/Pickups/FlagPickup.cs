@@ -65,7 +65,7 @@ namespace Project.Pickups
             {
                 soldier.Returns++;
                 soldier.AddMessage("Returned the flag.");
-                SoldierAgentManager.SoldierAgentManagerSingleton.UpdateSorted();
+                SoldierManager.SoldierSingleton.UpdateSorted();
             }
 
             // Reset the flag.
@@ -155,11 +155,11 @@ namespace Project.Pickups
             // Add the point to the given team.
             if (redFlag)
             {
-                SoldierAgentManager.SoldierAgentManagerSingleton.ScoreBlue++;
+                SoldierManager.SoldierSingleton.ScoreBlue++;
             }
             else
             {
-                SoldierAgentManager.SoldierAgentManagerSingleton.ScoreRed++;
+                SoldierManager.SoldierSingleton.ScoreRed++;
             }
 
             // Add the capture to the player.
@@ -171,7 +171,7 @@ namespace Project.Pickups
             ReturnFlag(null);
             soldier.AssignRoles();
             
-            SoldierAgentManager.SoldierAgentManagerSingleton.UpdateSorted();
+            SoldierManager.SoldierSingleton.UpdateSorted();
         }
 
         /// <summary>
