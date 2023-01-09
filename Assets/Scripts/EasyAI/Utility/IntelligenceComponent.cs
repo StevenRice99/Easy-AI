@@ -60,7 +60,7 @@ namespace EasyAI.Utility
         {
             if (Agent == null)
             {
-                AgentManager.Singleton.RefreshAgents();
+                AgentManager.RefreshAgents();
             }
         }
     }

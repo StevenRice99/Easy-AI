@@ -16,6 +16,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using Sensor = EasyAI.Sensors.Sensor;
 
 namespace EasyAI
@@ -243,6 +244,70 @@ namespace EasyAI
         /// The singleton agent manager.
         /// </summary>
         public static AgentManager Singleton;
+
+        /// <summary>
+        /// Which layers can nodes be placed on.
+        /// </summary>
+        public static LayerMask GroundLayers => Singleton.groundLayers;
+
+        /// <summary>
+        /// Which layers are obstacles that nodes cannot be placed on.
+        /// </summary>
+        public static LayerMask ObstacleLayers => Singleton.obstacleLayers;
+
+        /// <summary>
+        /// How far nodes can connect between with zero meaning no limit.
+        /// </summary>
+        public static float NodeDistance
+        {
+            get => Singleton.nodeDistance;
+            set => Singleton.nodeDistance = value;
+        }
+
+        /// <summary>
+        /// How wide is the agent radius for connecting nodes to ensure enough space for movement.
+        /// </summary>
+        public static float NavigationRadius => Singleton.navigationRadius;
+
+        /// <summary>
+        /// The maximum number of messages any component can hold.
+        /// </summary>
+        public static int MaxMessages => Singleton.maxMessages;
+
+        /// <summary>
+        /// If the scene is currently playing or not.
+        /// </summary>
+        public static bool Playing => !Singleton._stepping && Time.timeScale > 0;
+
+        /// <summary>
+        /// The currently selected agent.
+        /// </summary>
+        public static Agent CurrentlySelectedAgent => Singleton.SelectedAgent;
+
+        /// <summary>
+        /// The global messages.
+        /// </summary>
+        public static List<string> GlobalMessages => Singleton._globalMessages;
+
+        /// <summary>
+        /// Determine what mode messages are stored in.
+        /// </summary>
+        public static MessagingMode MessageMode => Singleton._messageMode;
+
+        /// <summary>
+        /// The currently selected camera.
+        /// </summary>
+        public static Camera SelectedCamera => Singleton.selectedCamera;
+
+        /// <summary>
+        /// All agents in the scene.
+        /// </summary>
+        public static List<Agent> CurrentAgents => Singleton.Agents;
+
+        /// <summary>
+        /// List of all navigation nodes.
+        /// </summary>
+        public static List<Vector3> Nodes => Singleton._nodes;
     
         /// <summary>
         /// All registered states.
@@ -250,57 +315,101 @@ namespace EasyAI
         private static readonly Dictionary<Type, State> RegisteredStates = new();
 
         /// <summary>
+        /// Cached shader value for use with line rendering.
+        /// </summary>
+        private static readonly int SrcBlend = Shader.PropertyToID("_SrcBlend");
+
+        /// <summary>
+        /// Cached shader value for use with line rendering.
+        /// </summary>
+        private static readonly int DstBlend = Shader.PropertyToID("_DstBlend");
+
+        /// <summary>
+        /// Cached shader value for use with line rendering.
+        /// </summary>
+        private static readonly int Cull = Shader.PropertyToID("_Cull");
+
+        /// <summary>
+        /// Cached shader value for use with line rendering.
+        /// </summary>
+        private static readonly int ZWrite = Shader.PropertyToID("_ZWrite");
+
+        /// <summary>
         /// The auto-generated material for displaying lines.
         /// </summary>
         private static Material _lineMaterial;
 
+        /// <summary>
+        /// List of all navigation connections. TODO
+        /// </summary>
+        public readonly List<Connection> Connections = new();
+    
+        /// <summary>
+        /// List of all navigation nodes.
+        /// </summary>
+        private readonly List<Vector3> _nodes = new();
+
+        /// <summary>
+        /// The currently selected agent.
+        /// </summary>
+        protected Agent SelectedAgent;
+
+        /// <summary>
+        /// All agents in the scene.
+        /// </summary>
+        protected List<Agent> Agents { get; private set; } = new();
+        
         [Header("Navigation")]
         [Tooltip("Which layers can nodes be placed on.")]
-        public LayerMask groundLayers;
+        [SerializeField]
+        private LayerMask groundLayers;
 
         [Tooltip("Which layers are obstacles that nodes cannot be placed on.")]
-        public LayerMask obstacleLayers;
-
-        [Min(0)]
-        [Tooltip("How far nodes can connect between with zero meaning no limit.")]
-        public float nodeDistance;
-
-        [Min(0)]
-        [Tooltip("How wide is the agent radius for connecting nodes to ensure enough space for movement.")]
-        public float navigationRadius;
-
         [SerializeField]
+        private LayerMask obstacleLayers;
+
+        [Tooltip("How far nodes can connect between with zero meaning no limit.")]
         [Min(0)]
+        [SerializeField]
+        private float nodeDistance;
+
+        [Tooltip("How wide is the agent radius for connecting nodes to ensure enough space for movement.")]
+        [Min(0)]
+        [SerializeField]
+        private float navigationRadius;
+
         [Tooltip(
             "How much height difference can there be between string pulls, set to zero for no limit.\n" +
             "Increase this value if generated paths are being generated between too high of slopes/stairs."
         )]
+        [Min(0)]
+        [SerializeField]
         private float pullMaxDifference;
 
-        [SerializeField]
         [Tooltip("Read and use a pre-generated navigation lookup table instead of generating it at start.")]
+        [SerializeField]
         private bool lookupTable;
 
         [Header("Performance")]
-        [SerializeField]
-        [Min(0)]
         [Tooltip("The maximum number of agents which can be updated in a single frame. Set to zero to be unlimited.")]
+        [Min(0)]
+        [SerializeField]
         private int maxAgentsPerUpdate;
 
-        [SerializeField]
-        [Min(0)]
         [Tooltip("The maximum number of messages any component can hold.")]
+        [Min(0)]
+        [SerializeField]
         private int maxMessages = 100;
         
         [Header("UI")]
-        [SerializeField]
-        [Min(0)]
         [Tooltip("How wide the details list is. Set to zero to disable details list rendering.")]
+        [Min(0)]
+        [SerializeField]
         private float detailsWidth = 500;
         
-        [SerializeField]
-        [Min(0)]
         [Tooltip("How wide the controls list is. Set to zero to disable controls list rendering.")]
+        [Min(0)]
+        [SerializeField]
         private float controlsWidth = 120;
 
         [Tooltip(
@@ -309,11 +418,12 @@ namespace EasyAI
             "Compact - All messages are captured, but, duplicate messages that appear immediately after each other will be merged into only a single instance of the message.\n" +
             "Unique - No messages will be duplicated with the prior instance of the message being removed from its list when an identical message is added again."
         )]
-        public MessagingMode messageMode = MessagingMode.Compact;
+        private MessagingMode _messageMode = MessagingMode.Compact;
     
         [Header("Visualization")]
         [Tooltip("The currently selected camera. Set this to start with that camera active. Leaving empty will default to the first camera by alphabetic order.")]
-        public Camera selectedCamera;
+        [SerializeField]
+        private Camera selectedCamera;
         
         [SerializeField]
         [Tooltip(
@@ -335,44 +445,14 @@ namespace EasyAI
         private PathState paths = PathState.Selected;
 
         /// <summary>
-        /// Getter for the maximum number of messages any component can hold.
+        /// All cameras in the scene.
         /// </summary>
-        public int MaxMessages => maxMessages;
-
-        /// <summary>
-        /// If the scene is currently playing or not.
-        /// </summary>
-        public bool Playing => !_stepping && Time.timeScale > 0;
+        private Camera[] _cameras = Array.Empty<Camera>();
         
         /// <summary>
         /// The global messages.
         /// </summary>
-        public List<string> GlobalMessages { get; private set; } = new();
-
-        /// <summary>
-        /// The currently selected agent.
-        /// </summary>
-        public Agent SelectedAgent { get; private set; }
-
-        /// <summary>
-        /// All agents in the scene.
-        /// </summary>
-        public List<Agent> Agents { get; private set; } = new();
-
-        /// <summary>
-        /// All cameras in the scene.
-        /// </summary>
-        public Camera[] Cameras { get; protected set; } = Array.Empty<Camera>();
-    
-        /// <summary>
-        /// List of all navigation nodes.
-        /// </summary>
-        public readonly List<Vector3> Nodes = new();
-
-        /// <summary>
-        /// List of all navigation connections.
-        /// </summary>
-        public readonly List<Connection> Connections = new();
+        private List<string> _globalMessages = new();
 
         /// <summary>
         /// All agents which move during an update tick.
@@ -418,26 +498,6 @@ namespace EasyAI
         /// The navigation lookup table.
         /// </summary>
         private NavigationLookup[] _navigationTable;
-
-        /// <summary>
-        /// Cached shader value for use with line rendering.
-        /// </summary>
-        private static readonly int SrcBlend = Shader.PropertyToID("_SrcBlend");
-
-        /// <summary>
-        /// Cached shader value for use with line rendering.
-        /// </summary>
-        private static readonly int DstBlend = Shader.PropertyToID("_DstBlend");
-
-        /// <summary>
-        /// Cached shader value for use with line rendering.
-        /// </summary>
-        private static readonly int Cull = Shader.PropertyToID("_Cull");
-
-        /// <summary>
-        /// Cached shader value for use with line rendering.
-        /// </summary>
-        private static readonly int ZWrite = Shader.PropertyToID("_ZWrite");
 
         /// <summary>
         /// Create a transform agent.
@@ -592,12 +652,12 @@ namespace EasyAI
         /// <param name="position">The starting position.</param>
         /// <param name="goal">The end goal position.</param>
         /// <returns>A list of the points to move to to reach the goal destination.</returns>
-        public List<Vector3> LookupPath(Vector3 position, Vector3 goal)
+        public static List<Vector3> LookupPath(Vector3 position, Vector3 goal)
         {
             // Check if there is a direct line of sight so we can skip pathing and just move directly towards the goal.
-            if (navigationRadius <= 0)
+            if (Singleton.navigationRadius <= 0)
             {
-                if (!Physics.Linecast(position, goal, obstacleLayers))
+                if (!Physics.Linecast(position, goal, Singleton.obstacleLayers))
                 {
                     return new() { goal };
                 }
@@ -605,17 +665,17 @@ namespace EasyAI
             else
             {
                 Vector3 p1 = position;
-                p1.y += navigationRadius;
+                p1.y += Singleton.navigationRadius;
                 Vector3 p2 = goal;
-                p2.y += navigationRadius;
-                if (!Physics.SphereCast(p1, navigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(p1, p2), obstacleLayers))
+                p2.y += Singleton.navigationRadius;
+                if (!Physics.SphereCast(p1, Singleton.navigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(p1, p2), Singleton.obstacleLayers))
                 {
                     return new() { goal };
                 }
             }
         
             // If there are no nodes in the lookup table simply return the end goal position.
-            if (Nodes.Count == 0)
+            if (Singleton._nodes.Count == 0)
             {
                 return new() { goal };
             }
@@ -639,7 +699,7 @@ namespace EasyAI
                 try
                 {
                     // Get the next node to move to.
-                    NavigationLookup lookup = _navigationTable.First(l => l.Current == nodePosition && l.Goal == nodeGoal);
+                    NavigationLookup lookup = Singleton._navigationTable.First(l => l.Current == nodePosition && l.Goal == nodeGoal);
                 
                     // If the node is the goal destination, all nodes in the path have been finished so stop the loop.
                     if (lookup.Next == nodeGoal)
@@ -691,10 +751,10 @@ namespace EasyAI
         /// </summary>
         /// <param name="position">The position to find the nearest node to.</param>
         /// <returns></returns>
-        private Vector3 Nearest(Vector3 position)
+        private static Vector3 Nearest(Vector3 position)
         {
             // Order all nodes by distance to the position.
-            List<Vector3> potential = Nodes.OrderBy(n => Vector3.Distance(n, position)).ToList();
+            List<Vector3> potential = Singleton._nodes.OrderBy(n => Vector3.Distance(n, position)).ToList();
             foreach (Vector3 node in potential)
             {
                 // If the node is directly at the position, return it.
@@ -704,9 +764,9 @@ namespace EasyAI
                 }
             
                 // Otherwise if there is a line of sight to the node, return it.
-                if (navigationRadius <= 0)
+                if (Singleton.navigationRadius <= 0)
                 {
-                    if (!Physics.Linecast(position, node, obstacleLayers))
+                    if (!Physics.Linecast(position, node, Singleton.obstacleLayers))
                     {
                         return node;
                     }
@@ -715,10 +775,10 @@ namespace EasyAI
                 }
 
                 Vector3 p1 = position;
-                p1.y += navigationRadius;
+                p1.y += Singleton.navigationRadius;
                 Vector3 p2 = node;
-                p2.y += navigationRadius;
-                if (!Physics.SphereCast(p1, navigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(p1, p2), obstacleLayers))
+                p2.y += Singleton.navigationRadius;
+                if (!Physics.SphereCast(p1, Singleton.navigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(p1, p2), Singleton.obstacleLayers))
                 {
                     return node;
                 }
@@ -732,7 +792,7 @@ namespace EasyAI
         /// Shorten a path.
         /// </summary>
         /// <param name="path">The path to shorten.</param>
-        private void StringPull(IList<Vector3> path)
+        private static void StringPull(IList<Vector3> path)
         {
             // Loop through every point in the path less two as there must be at least two points in a path.
             for (int i = 0; i < path.Count - 2; i++)
@@ -741,15 +801,15 @@ namespace EasyAI
                 for (int j = i + 2; j < path.Count; j++)
                 {
                     // Do not string pull for multi-level paths as these could skip over objects that require stairs.
-                    if (Math.Abs(path[i].y - path[j].y) > pullMaxDifference)
+                    if (Math.Abs(path[i].y - path[j].y) > Singleton.pullMaxDifference)
                     {
                         continue;
                     }
                 
                     // If a node can be skipped as there is line of sight without it, remove it.
-                    if (navigationRadius <= 0)
+                    if (Singleton.navigationRadius <= 0)
                     {
-                        if (!Physics.Linecast(path[i], path[j], obstacleLayers))
+                        if (!Physics.Linecast(path[i], path[j], Singleton.obstacleLayers))
                         {
                             path.RemoveAt(j-- - 1);
                         }
@@ -758,10 +818,10 @@ namespace EasyAI
                     }
 
                     Vector3 p1 = path[i];
-                    p1.y += navigationRadius;
+                    p1.y += Singleton.navigationRadius;
                     Vector3 p2 = path[j];
-                    p2.y += navigationRadius;
-                    if (!Physics.SphereCast(p1, navigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(p1, p2), obstacleLayers))
+                    p2.y += Singleton.navigationRadius;
+                    if (!Physics.SphereCast(p1, Singleton.navigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(p1, p2), Singleton.obstacleLayers))
                     {
                         path.RemoveAt(j-- - 1);
                     }
@@ -789,11 +849,11 @@ namespace EasyAI
         /// Set the currently selected agent.
         /// </summary>
         /// <param name="agent">The agent to select.</param>
-        public void SetSelectedAgent(Agent agent)
+        public static void SetSelectedAgent(Agent agent)
         {
-            _selectedComponent = null;
-            SelectedAgent = agent;
-            _state = GuiState.Agent;
+            Singleton._selectedComponent = null;
+            Singleton.SelectedAgent = agent;
+            Singleton._state = GuiState.Agent;
         }
 
         /// <summary>
@@ -844,9 +904,9 @@ namespace EasyAI
         /// <summary>
         /// Setup all agents again.
         /// </summary>
-        public void RefreshAgents()
+        public static void RefreshAgents()
         {
-            foreach (Agent agent in Agents)
+            foreach (Agent agent in Singleton.Agents)
             {
                 agent.Setup();
             }
@@ -924,21 +984,21 @@ namespace EasyAI
         /// Add a message to the global message list.
         /// </summary>
         /// <param name="message">The message to add.</param>
-        public void AddGlobalMessage(string message)
+        public static void AddGlobalMessage(string message)
         {
-            switch (messageMode)
+            switch (Singleton._messageMode)
             {
-                case MessagingMode.Compact when GlobalMessages.Count > 0 && GlobalMessages[0] == message:
+                case MessagingMode.Compact when Singleton._globalMessages.Count > 0 && Singleton._globalMessages[0] == message:
                     return;
                 case MessagingMode.Unique:
-                    GlobalMessages = GlobalMessages.Where(m => m != message).ToList();
+                    Singleton._globalMessages = Singleton._globalMessages.Where(m => m != message).ToList();
                     break;
             }
 
-            GlobalMessages.Insert(0, message);
-            if (GlobalMessages.Count > Singleton.MaxMessages)
+            Singleton._globalMessages.Insert(0, message);
+            if (Singleton._globalMessages.Count > MaxMessages)
             {
-                GlobalMessages.RemoveAt(GlobalMessages.Count - 1);
+                Singleton._globalMessages.RemoveAt(Singleton._globalMessages.Count - 1);
             }
         }
 
@@ -946,23 +1006,23 @@ namespace EasyAI
         /// Register an agent with the agent manager.
         /// </summary>
         /// <param name="agent">The agent to add.</param>
-        public void AddAgent(Agent agent)
+        public static void AddAgent(Agent agent)
         {
             // Ensure the agent is only added once.
-            if (Agents.Contains(agent))
+            if (Singleton.Agents.Contains(agent))
             {
                 return;
             }
             
             // Add to their movement handling list.
-            Agents.Add(agent);
+            Singleton.Agents.Add(agent);
             switch (agent)
             {
                 case TransformAgent updateAgent:
-                    _updateAgents.Add(updateAgent);
+                    Singleton._updateAgents.Add(updateAgent);
                     break;
                 case RigidbodyAgent fixedUpdateAgent:
-                    _fixedUpdateAgents.Add(fixedUpdateAgent);
+                    Singleton._fixedUpdateAgents.Add(fixedUpdateAgent);
                     break;
             }
             
@@ -974,24 +1034,24 @@ namespace EasyAI
         /// Remove an agent from the agent manager.
         /// </summary>
         /// <param name="agent">The agent to remove.</param>
-        public void RemoveAgent(Agent agent)
+        public static void RemoveAgent(Agent agent)
         {
             // This should always be true as agents are added at their creation but check just in case.
-            if (!Agents.Contains(agent))
+            if (!Singleton.Agents.Contains(agent))
             {
                 return;
             }
 
             // Remove the agent and update the current index accordingly so no agents are skipped in Update.
-            int index = Agents.IndexOf(agent);
-            Agents.Remove(agent);
-            if (_currentAgentIndex > index)
+            int index = Singleton.Agents.IndexOf(agent);
+            Singleton.Agents.Remove(agent);
+            if (Singleton._currentAgentIndex > index)
             {
-                _currentAgentIndex--;
+                Singleton._currentAgentIndex--;
             }
-            if (_currentAgentIndex < 0 || _currentAgentIndex >= Agents.Count)
+            if (Singleton._currentAgentIndex < 0 || Singleton._currentAgentIndex >= Singleton.Agents.Count)
             {
-                _currentAgentIndex = 0;
+                Singleton._currentAgentIndex = 0;
             }
 
             // Remove from their movement handling list.
@@ -999,18 +1059,18 @@ namespace EasyAI
             {
                 case TransformAgent updateAgent:
                 {
-                    if (_updateAgents.Contains(updateAgent))
+                    if (Singleton._updateAgents.Contains(updateAgent))
                     {
-                        _updateAgents.Remove(updateAgent);
+                        Singleton._updateAgents.Remove(updateAgent);
                     }
 
                     break;
                 }
                 case RigidbodyAgent fixedUpdateAgent:
                 {
-                    if (_fixedUpdateAgents.Contains(fixedUpdateAgent))
+                    if (Singleton._fixedUpdateAgents.Contains(fixedUpdateAgent))
                     {
-                        _fixedUpdateAgents.Remove(fixedUpdateAgent);
+                        Singleton._fixedUpdateAgents.Remove(fixedUpdateAgent);
                     }
 
                     break;
@@ -1024,34 +1084,34 @@ namespace EasyAI
         /// <summary>
         /// Sort all agents by name.
         /// </summary>
-        public void SortAgents()
+        public static void SortAgents()
         {
-            Agents = Agents.OrderBy(a => a.name).ToList();
+            Singleton.Agents = Singleton.Agents.OrderBy(a => a.name).ToList();
         }
 
         /// <summary>
         /// Find all cameras in the scene so buttons can be setup for them.
         /// </summary>
-        public void FindCameras()
+        public static void FindCameras()
         {
-            Cameras = FindObjectsOfType<Camera>().OrderBy(c => c.name).ToArray();
+            Singleton._cameras = FindObjectsOfType<Camera>().OrderBy(c => c.name).ToArray();
         }
 
         /// <summary>
         /// Change to the next messaging mode.
         /// </summary>
-        public void ChangeMessageMode()
+        public static void ChangeMessageMode()
         {
-            if (messageMode == MessagingMode.Unique)
+            if (Singleton._messageMode == MessagingMode.Unique)
             {
-                messageMode = MessagingMode.All;
+                Singleton._messageMode = MessagingMode.All;
             }
             else
             {
-                messageMode++;
+                Singleton._messageMode++;
             }
 
-            if (messageMode == MessagingMode.Unique)
+            if (Singleton._messageMode == MessagingMode.Unique)
             {
                 ClearMessages();
             }
@@ -1061,62 +1121,62 @@ namespace EasyAI
         /// Change the messaging mode.
         /// </summary>
         /// <param name="mode">The mode to change to.</param>
-        public void ChangeMessageMode(MessagingMode mode)
+        public static void ChangeMessageMode(MessagingMode mode)
         {
-            messageMode = mode;
+            Singleton._messageMode = mode;
         }
 
         /// <summary>
         /// Change to the next gizmos state.
         /// </summary>
-        public void ChangeGizmosState()
+        public static void ChangeGizmosState()
         {
-            if (gizmos == GizmosState.Selected)
+            if (Singleton.gizmos == GizmosState.Selected)
             {
-                gizmos = GizmosState.Off;
+                Singleton.gizmos = GizmosState.Off;
                 return;
             }
 
-            gizmos++;
+            Singleton.gizmos++;
         }
 
         /// <summary>
         /// Change to the next navigation state.
         /// </summary>
-        public void ChangeNavigationState()
+        public static void ChangeNavigationState()
         {
-            if (paths == PathState.Selected)
+            if (Singleton.paths == PathState.Selected)
             {
-                paths = PathState.Off;
+                Singleton.paths = PathState.Off;
                 return;
             }
 
-            paths++;
+            Singleton.paths++;
         }
 
         /// <summary>
         /// Change the gizmos state.
         /// </summary>
         /// <param name="state">The state to change to.</param>
-        public void ChangeGizmosState(GizmosState state)
+        public static void ChangeGizmosState(GizmosState state)
         {
-            gizmos = state;
+            Singleton.gizmos = state;
         }
 
         /// <summary>
         /// Step for a single frame.
         /// </summary>
-        public void Step()
+        public static void Step()
         {
-            StartCoroutine(StepOneFrame());
+            Singleton.StartCoroutine(StepOneFrame());
         }
 
         /// <summary>
         /// Clear all messages.
         /// </summary>
-        public void ClearMessages()
+        public static void ClearMessages()
         {
-            GlobalMessages.Clear();
+            Singleton._globalMessages.Clear();
             foreach (IntelligenceComponent component in FindObjectsOfType<IntelligenceComponent>())
             {
                 component.ClearMessages();
@@ -1127,11 +1187,11 @@ namespace EasyAI
         /// Switch to a camera.
         /// </summary>
         /// <param name="cam">The camera to switch to.</param>
-        public void SwitchCamera(Camera cam)
+        public static void SwitchCamera(Camera cam)
         {
-            selectedCamera = cam;
+            Singleton.selectedCamera = cam;
             cam.enabled = true;
-            foreach (Camera cam2 in Cameras)
+            foreach (Camera cam2 in Singleton._cameras)
             {
                 if (cam != cam2)
                 {
@@ -1179,7 +1239,7 @@ namespace EasyAI
                     Vector3 p = node.transform.position;
                     node.Finish();
                 
-                    foreach (Vector3 v in Nodes)
+                    foreach (Vector3 v in _nodes)
                     {
                         // Ensure the nodes are in range to form a connection.
                         float d = Vector3.Distance(p, v);
@@ -1219,15 +1279,15 @@ namespace EasyAI
                         Connections.Add(new(p, v));
                     }
                 
-                    Nodes.Add(p);
+                    _nodes.Add(p);
                 }
 
                 // If any nodes are not a part of any connections, remove them.
-                for (int i = 0; i < Nodes.Count; i++)
+                for (int i = 0; i < _nodes.Count; i++)
                 {
-                    if (!Connections.Any(c => c.A == Nodes[i] || c.B == Nodes[i]))
+                    if (!Connections.Any(c => c.A == _nodes[i] || c.B == _nodes[i]))
                     {
-                        Nodes.RemoveAt(i--);
+                        _nodes.RemoveAt(i--);
                     }
                 }
 
@@ -1235,10 +1295,10 @@ namespace EasyAI
                 List<NavigationLookup> table = new();
         
                 // Loop through all nodes.
-                for (int i = 0; i < Nodes.Count; i++)
+                for (int i = 0; i < _nodes.Count; i++)
                 {
                     // Loop through all nodes again so pathfinding can be done on each pair.
-                    for (int j = 0; j < Nodes.Count; j++)
+                    for (int j = 0; j < _nodes.Count; j++)
                     {
                         // Skip if each node is the same.
                         if (i == j)
@@ -1247,7 +1307,7 @@ namespace EasyAI
                         }
 
                         // Get the A* path from one node to another.
-                        List<Vector3> path = AStar(Nodes[i], Nodes[j]);
+                        List<Vector3> path = AStar(_nodes[i], _nodes[j]);
                     
                         // Skip if there was no path.
                         if (path.Count < 2)
@@ -1259,12 +1319,12 @@ namespace EasyAI
                         for (int k = 0; k < path.Count - 1; k++)
                         {
                             // Ensure there are no duplicates in the lookup table.
-                            if (path[k] == Nodes[j] || table.Any(t => t.Current == path[k] && t.Goal == Nodes[j] && t.Next == path[k + 1]))
+                            if (path[k] == _nodes[j] || table.Any(t => t.Current == path[k] && t.Goal == _nodes[j] && t.Next == path[k + 1]))
                             {
                                 continue;
                             }
 
-                            NavigationLookup lookup = new(path[k], Nodes[j], path[k + 1]);
+                            NavigationLookup lookup = new(path[k], _nodes[j], path[k + 1]);
                             table.Add(lookup);
                         }
                     }
@@ -1289,16 +1349,16 @@ namespace EasyAI
             {
                 SwitchCamera(selectedCamera);
             }
-            else if (Cameras.Length > 0)
+            else if (_cameras.Length > 0)
             {
-                SwitchCamera(Cameras[0]);
+                SwitchCamera(_cameras[0]);
             }
             else
             {
                 CreateFollowAgentCamera();
                 CreateTrackAgentCamera();
                 FindCameras();
-                SwitchCamera(Cameras[0]);
+                SwitchCamera(_cameras[0]);
             }
         }
 
@@ -1605,16 +1665,16 @@ namespace EasyAI
         /// <param name="y">Y rendering position. Update this with every component added and return it.</param>
         /// <param name="h">Height of components. In most cases this should remain unchanged.</param>
         /// <param name="p">Padding of components. In most cases this should remain unchanged.</param>
-        private void Render(float x, float y, float h, float p)
+        private static void Render(float x, float y, float h, float p)
         {
-            if (detailsWidth > 0)
+            if (Singleton.detailsWidth > 0)
             {
-                RenderDetails(x, y, detailsWidth, h, p);
+                RenderDetails(x, y, Singleton.detailsWidth, h, p);
             }
 
-            if (controlsWidth > 0)
+            if (Singleton.controlsWidth > 0)
             {
-                RenderControls(x, y, controlsWidth, h, p);
+                RenderControls(x, y, Singleton.controlsWidth, h, p);
             }
         }
 
@@ -1627,11 +1687,11 @@ namespace EasyAI
         /// <param name="h">Height of components. In most cases this should remain unchanged.</param>
         /// <param name="p">Padding of components. In most cases this should remain unchanged.</param>
         /// <returns>The updated Y position after all custom rendering has been done.</returns>
-        private float RenderMessageOptions(float x, float y, float w, float h, float p)
+        private static float RenderMessageOptions(float x, float y, float w, float h, float p)
         {
             // Button to change messaging mode.
             y = NextItem(y, h, p);
-            if (GuiButton(x, y, w / 2 - p, h, messageMode switch
+            if (GuiButton(x, y, w / 2 - p, h, Singleton._messageMode switch
                 {
                     MessagingMode.Compact => "Message Mode: Compact",
                     MessagingMode.All => "Message Mode: All",
@@ -1658,14 +1718,14 @@ namespace EasyAI
         /// <param name="w">Width of components. In most cases this should remain unchanged.</param>
         /// <param name="h">Height of components. In most cases this should remain unchanged.</param>
         /// <param name="p">Padding of components. In most cases this should remain unchanged.</param>
-        private void RenderDetails(float x, float y, float w, float h, float p)
+        private static void RenderDetails(float x, float y, float w, float h, float p)
         {
-            if (Agents.Count < 1)
+            if (Singleton.Agents.Count < 1)
             {
                 return;
             }
 
-            if (!_detailsOpen)
+            if (!Singleton._detailsOpen)
             {
                 w = ClosedSize;
             }
@@ -1676,38 +1736,38 @@ namespace EasyAI
             }
             
             // Button open/close details.
-            if (GuiButton(x, y, w, h, _detailsOpen ? "Close" : "Details"))
+            if (GuiButton(x, y, w, h, Singleton._detailsOpen ? "Close" : "Details"))
             {
-                _detailsOpen = !_detailsOpen;
+                Singleton._detailsOpen = !Singleton._detailsOpen;
             }
             
-            if (!_detailsOpen)
+            if (!Singleton._detailsOpen)
             {
                 return;
             }
 
-            if (SelectedAgent == null && _state == GuiState.Agent || _selectedComponent == null && _state == GuiState.Component)
+            if (Singleton.SelectedAgent == null && Singleton._state == GuiState.Agent || Singleton._selectedComponent == null && Singleton._state == GuiState.Component)
             {
-                _state = GuiState.Main;
+                Singleton._state = GuiState.Main;
             }
 
-            if (_state == GuiState.Main && Agents.Count == 1)
+            if (Singleton._state == GuiState.Main && Singleton.Agents.Count == 1)
             {
-                SelectedAgent = Agents[0];
-                _state = GuiState.Agent;
+                Singleton.SelectedAgent = Singleton.Agents[0];
+                Singleton._state = GuiState.Agent;
             }
 
             // Handle agent view rendering.
-            if (_state == GuiState.Agent)
+            if (Singleton._state == GuiState.Agent)
             {
                 // Can only go to the main view if there is more than one agent.
-                if (Agents.Count > 1)
+                if (Singleton.Agents.Count > 1)
                 {
                     // Button to go back to the main view.
                     y = NextItem(y, h, p);
                     if (GuiButton(x, y, w, h, "Back to Overview"))
                     {
-                        _state = GuiState.Main;
+                        Singleton._state = GuiState.Main;
                     }
                 }
                 
@@ -1717,13 +1777,13 @@ namespace EasyAI
             }
 
             // Handle components view rendering.
-            if (_state == GuiState.Components)
+            if (Singleton._state == GuiState.Components)
             {
                 // Button to go back to the agents view.
                 y = NextItem(y, h, p);
-                if (GuiButton(x, y, w, h, $"Back to {SelectedAgent.name}"))
+                if (GuiButton(x, y, w, h, $"Back to {Singleton.SelectedAgent.name}"))
                 {
-                    _state = GuiState.Agent;
+                    Singleton._state = GuiState.Agent;
                 }
                 else
                 {
@@ -1734,14 +1794,14 @@ namespace EasyAI
             }
 
             // Handle the component view.
-            if (_state == GuiState.Component)
+            if (Singleton._state == GuiState.Component)
             {
                 // Button to go back to the components view.
                 y = NextItem(y, h, p);
-                if (GuiButton(x, y, w, h, $"Back to {SelectedAgent.name} Sensors and Actuators"))
+                if (GuiButton(x, y, w, h, $"Back to {Singleton.SelectedAgent.name} Sensors and Actuators"))
                 {
-                    _selectedComponent = null;
-                    _state = GuiState.Components;
+                    Singleton._selectedComponent = null;
+                    Singleton._state = GuiState.Components;
                 }
                 
                 RenderComponent(x, y, w, h, p);
@@ -1751,9 +1811,9 @@ namespace EasyAI
             // Display all agents.
             y = NextItem(y, h, p);
             GuiBox(x, y, w, h, p, 1);
-            GuiLabel(x, y, w, h, p, $"{Agents.Count} Agents");
+            GuiLabel(x, y, w, h, p, $"{Singleton.Agents.Count} Agents");
 
-            foreach (Agent agent in Agents)
+            foreach (Agent agent in Singleton.Agents)
             {
                 // Button to select an agent.
                 y = NextItem(y, h, p);
@@ -1762,12 +1822,12 @@ namespace EasyAI
                     continue;
                 }
 
-                SelectedAgent = agent;
-                _state = GuiState.Agent;
+                Singleton.SelectedAgent = agent;
+                Singleton._state = GuiState.Agent;
             }
             
             // Display global messages.
-            if (GlobalMessages.Count == 0)
+            if (Singleton._globalMessages.Count == 0)
             {
                 return;
             }
@@ -1775,9 +1835,9 @@ namespace EasyAI
             y = RenderMessageOptions(x, y, w, h, p);
             
             y = NextItem(y, h, p);
-            GuiBox(x, y, w, h, p, GlobalMessages.Count);
+            GuiBox(x, y, w, h, p, Singleton._globalMessages.Count);
             
-            foreach (string message in GlobalMessages)
+            foreach (string message in Singleton._globalMessages)
             {
                 GuiLabel(x, y, w, h, p, message);
                 y = NextItem(y, h, p);
@@ -1792,67 +1852,67 @@ namespace EasyAI
         /// <param name="w">Width of components. In most cases this should remain unchanged.</param>
         /// <param name="h">Height of components. In most cases this should remain unchanged.</param>
         /// <param name="p">Padding of components. In most cases this should remain unchanged.</param>
-        private void RenderAgent(float x, float y, float w, float h, float p)
+        private static void RenderAgent(float x, float y, float w, float h, float p)
         {
-            if (SelectedAgent == null)
+            if (Singleton.SelectedAgent == null)
             {
-                _state = GuiState.Main;
+                Singleton._state = GuiState.Main;
                 return;
             }
             
             y = NextItem(y, h, p);
-            int length = 6 + SelectedAgent.MovesData.Count;
-            if (Agents.Count > 1)
+            int length = 6 + Singleton.SelectedAgent.MovesData.Count;
+            if (Singleton.Agents.Count > 1)
             {
                 length++;
             }
 
-            if (SelectedAgent.Mind == null)
+            if (Singleton.SelectedAgent.Mind == null)
             {
                 length--;
             }
 
-            if (SelectedAgent.State == null)
+            if (Singleton.SelectedAgent.State == null)
             {
                 length--;
             }
 
-            if (SelectedAgent.PerformanceMeasure == null)
+            if (Singleton.SelectedAgent.PerformanceMeasure == null)
             {
                 length--;
             }
 
             // Display all agent details.
             GuiBox(x, y, w, h, p, length);
-            if (Agents.Count > 1)
+            if (Singleton.Agents.Count > 1)
             {
-                GuiLabel(x, y, w, h, p, SelectedAgent.name);
+                GuiLabel(x, y, w, h, p, Singleton.SelectedAgent.name);
                 y = NextItem(y, h, p);
             }
 
-            GuiLabel(x, y, w, h, p, $"Type: {SelectedAgent}");
+            GuiLabel(x, y, w, h, p, $"Type: {Singleton.SelectedAgent}");
             y = NextItem(y, h, p);
         
-            if (SelectedAgent.Mind != null)
+            if (Singleton.SelectedAgent.Mind != null)
             {
-                GuiLabel(x, y, w, h, p, $"Global State: {SelectedAgent.Mind}");
+                GuiLabel(x, y, w, h, p, $"Global State: {Singleton.SelectedAgent.Mind}");
                 y = NextItem(y, h, p);
             }
         
-            if (SelectedAgent.State != null)
+            if (Singleton.SelectedAgent.State != null)
             {
-                GuiLabel(x, y, w, h, p, $"State: {SelectedAgent.State}");
+                GuiLabel(x, y, w, h, p, $"State: {Singleton.SelectedAgent.State}");
                 y = NextItem(y, h, p);
             }
         
-            if (SelectedAgent.PerformanceMeasure != null)
+            if (Singleton.SelectedAgent.PerformanceMeasure != null)
             {
-                GuiLabel(x, y, w, h, p, $"Performance: {SelectedAgent.Performance}");
+                GuiLabel(x, y, w, h, p, $"Performance: {Singleton.SelectedAgent.Performance}");
                 y = NextItem(y, h, p);
             }
         
-            GuiLabel(x, y, w, h, p, $"Position: {SelectedAgent.transform.position} | Velocity: {SelectedAgent.MoveVelocity.magnitude}");
-            foreach (Agent.MoveData moveData in SelectedAgent.MovesData)
+            GuiLabel(x, y, w, h, p, $"Position: {Singleton.SelectedAgent.transform.position} | Velocity: {Singleton.SelectedAgent.MoveVelocity.magnitude}");
+            foreach (Agent.MoveData moveData in Singleton.SelectedAgent.MovesData)
             {
                 string moveType = moveData.MoveType switch
                 {
@@ -1871,22 +1931,22 @@ namespace EasyAI
             }
         
             y = NextItem(y, h, p);
-            GuiLabel(x, y, w, h, p, $"Rotation: {SelectedAgent.Visuals.rotation.eulerAngles.y} Degrees" + (SelectedAgent.LookingToTarget ? $" | Looking to {SelectedAgent.LookTarget} at {SelectedAgent.lookSpeed} degrees/second." : string.Empty));
+            GuiLabel(x, y, w, h, p, $"Rotation: {Singleton.SelectedAgent.Visuals.rotation.eulerAngles.y} Degrees" + (Singleton.SelectedAgent.LookingToTarget ? $" | Looking to {Singleton.SelectedAgent.LookTarget} at {Singleton.SelectedAgent.lookSpeed} degrees/second." : string.Empty));
 
             // Display any custom details implemented for the agent.
-            y = SelectedAgent.DisplayDetails(x, y, w, h, p);
+            y = Singleton.SelectedAgent.DisplayDetails(x, y, w, h, p);
 
             // Display all sensors for the agent.
-            if (SelectedAgent.Sensors.Length > 0 && SelectedAgent.Actuators.Length > 0)
+            if (Singleton.SelectedAgent.Sensors.Length > 0 && Singleton.SelectedAgent.Actuators.Length > 0)
             {
                 y = NextItem(y, h, p);
                 if (GuiButton(x, y, w, h, "Sensors, Actuators, Percepts, and Actions"))
                 {
-                    _state = GuiState.Components;
+                    Singleton._state = GuiState.Components;
                 }
             }
 
-            if (!SelectedAgent.HasMessages)
+            if (!Singleton.SelectedAgent.HasMessages)
             {
                 return;
             }
@@ -1895,9 +1955,9 @@ namespace EasyAI
             y = RenderMessageOptions(x, y, w, h, p);
             
             y = NextItem(y, h, p);
-            GuiBox(x, y, w, h, p, SelectedAgent.MessageCount);
+            GuiBox(x, y, w, h, p, Singleton.SelectedAgent.MessageCount);
             
-            foreach (string message in SelectedAgent.Messages)
+            foreach (string message in Singleton.SelectedAgent.Messages)
             {
                 GuiLabel(x, y, w, h, p, message);
                 y = NextItem(y, h, p);
@@ -1912,25 +1972,25 @@ namespace EasyAI
         /// <param name="w">Width of components. In most cases this should remain unchanged.</param>
         /// <param name="h">Height of components. In most cases this should remain unchanged.</param>
         /// <param name="p">Padding of components. In most cases this should remain unchanged.</param>
-        private void RenderComponents(float x, float y, float w, float h, float p)
+        private static void RenderComponents(float x, float y, float w, float h, float p)
         {
-            if (SelectedAgent == null)
+            if (Singleton.SelectedAgent == null)
             {
-                _state = GuiState.Main;
+                Singleton._state = GuiState.Main;
                 return;
             }
             
             // List all sensors.
             y = NextItem(y, h, p);
             GuiBox(x, y, w, h, p, 1);
-            GuiLabel(x, y, w, h, p, SelectedAgent.Sensors.Length switch
+            GuiLabel(x, y, w, h, p, Singleton.SelectedAgent.Sensors.Length switch
             {
                 0 => "No Sensors",
                 1 => "1 Sensor",
-                _ => $"{SelectedAgent.Sensors.Length} Sensors"
+                _ => $"{Singleton.SelectedAgent.Sensors.Length} Sensors"
             });
 
-            foreach (Sensor sensor in SelectedAgent.Sensors)
+            foreach (Sensor sensor in Singleton.SelectedAgent.Sensors)
             {
                 // Button to select a sensor.
                 y = NextItem(y, h, p);
@@ -1939,21 +1999,21 @@ namespace EasyAI
                     continue;
                 }
 
-                _selectedComponent = sensor;
-                _state = GuiState.Component;
+                Singleton._selectedComponent = sensor;
+                Singleton._state = GuiState.Component;
             }
             
             // Display all actuators.
             y = NextItem(y, h, p);
             GuiBox(x, y, w, h, p, 1);
-            GuiLabel(x, y, w, h, p, SelectedAgent.Actuators.Length switch
+            GuiLabel(x, y, w, h, p, Singleton.SelectedAgent.Actuators.Length switch
             {
                 0 => "No Actuators",
                 1 => "1 Actuator",
-                _ => $"{SelectedAgent.Actuators.Length} Actuators"
+                _ => $"{Singleton.SelectedAgent.Actuators.Length} Actuators"
             });
             
-            foreach (Actuator actuator in SelectedAgent.Actuators)
+            foreach (Actuator actuator in Singleton.SelectedAgent.Actuators)
             {
                 // Button to select an actuator.
                 y = NextItem(y, h, p);
@@ -1962,29 +2022,29 @@ namespace EasyAI
                     continue;
                 }
 
-                _selectedComponent = actuator;
-                _state = GuiState.Component;
+                Singleton._selectedComponent = actuator;
+                Singleton._state = GuiState.Component;
             }
             
             // Display all percepts.
-            PerceivedData[] data = SelectedAgent.Data.Where(percept => percept != null).ToArray();
+            PerceivedData[] data = Singleton.SelectedAgent.Data.Where(d => d != null).ToArray();
             if (data.Length > 0)
             {
                 y = NextItem(y, h, p);
                 GuiBox(x, y, w, h, p, 1 + data.Length);
             
-                GuiLabel(x, y, w, h, p, data.Length == 1 ? "1 Percept" :$"{data.Length} Percepts");
+                GuiLabel(x, y, w, h, p, data.Length == 1 ? "1 Percepts" :$"{data.Length} Percepts");
 
-                foreach (PerceivedData percept in data)
+                foreach (PerceivedData d in data)
                 {
-                    string msg = percept.DetailsDisplay();
+                    string msg = d.DetailsDisplay();
                     y = NextItem(y, h, p);
-                    GuiLabel(x, y, w, h, p, percept + (string.IsNullOrWhiteSpace(msg) ? string.Empty : $": {msg}"));
+                    GuiLabel(x, y, w, h, p, d + (string.IsNullOrWhiteSpace(msg) ? string.Empty : $": {msg}"));
                 }
             }
 
             // Display all actions.
-            AgentAction[] actions = SelectedAgent.Actions?.Where(a => a != null).ToArray();
+            AgentAction[] actions = Singleton.SelectedAgent.Actions?.Where(a => a != null).ToArray();
             if (actions is not { Length: > 0 })
             {
                 return;
@@ -2011,24 +2071,24 @@ namespace EasyAI
         /// <param name="w">Width of components. In most cases this should remain unchanged.</param>
         /// <param name="h">Height of components. In most cases this should remain unchanged.</param>
         /// <param name="p">Padding of components. In most cases this should remain unchanged.</param>
-        private void RenderComponent(float x, float y, float w, float h, float p)
+        private static void RenderComponent(float x, float y, float w, float h, float p)
         {
-            if (_selectedComponent == null)
+            if (Singleton._selectedComponent == null)
             {
-                _state = GuiState.Components;
+                Singleton._state = GuiState.Components;
                 return;
             }
             
             // Display component details.
             y = NextItem(y, h, p);
             GuiBox(x, y, w, h, p, 1);
-            GuiLabel(x, y, w, h, p, $"{SelectedAgent.name} | {_selectedComponent}");
+            GuiLabel(x, y, w, h, p, $"{Singleton.SelectedAgent.name} | {Singleton._selectedComponent}");
             
             // Display any custom details implemented for the component.
-            y = _selectedComponent.DisplayDetails(x, y, w, h, p);
+            y = Singleton._selectedComponent.DisplayDetails(x, y, w, h, p);
             
             // Display component messages.
-            if (!_selectedComponent.HasMessages)
+            if (!Singleton._selectedComponent.HasMessages)
             {
                 return;
             }
@@ -2036,9 +2096,9 @@ namespace EasyAI
             y = RenderMessageOptions(x, y, w, h, p);
             
             y = NextItem(y, h, p);
-            GuiBox(x, y, w, h, p, _selectedComponent.MessageCount);
+            GuiBox(x, y, w, h, p, Singleton._selectedComponent.MessageCount);
 
-            foreach (string message in _selectedComponent.Messages)
+            foreach (string message in Singleton._selectedComponent.Messages)
             {
                 GuiLabel(x, y, w, h, p, message);
                 y = NextItem(y, h, p);
@@ -2053,19 +2113,19 @@ namespace EasyAI
         /// <param name="w">Width of components. In most cases this should remain unchanged.</param>
         /// <param name="h">Height of components. In most cases this should remain unchanged.</param>
         /// <param name="p">Padding of components. In most cases this should remain unchanged.</param>
-        private void RenderControls(float x, float y, float w, float h, float p)
+        private static void RenderControls(float x, float y, float w, float h, float p)
         {
-            if (!_controlsOpen)
+            if (!Singleton._controlsOpen)
             {
                 w = ClosedSize;
             }
         
-            if (Agents.Count == 0 && w + 4 * p > Screen.width)
+            if (Singleton.Agents.Count == 0 && w + 4 * p > Screen.width)
             {
                 w = Screen.width - 4 * p;
             }
 
-            if (Agents.Count > 0 && Screen.width < (_detailsOpen ? detailsWidth : ClosedSize) + controlsWidth + 5 * p)
+            if (Singleton.Agents.Count > 0 && Screen.width < (Singleton._detailsOpen ? Singleton.detailsWidth : ClosedSize) + Singleton.controlsWidth + 5 * p)
             {
                 return;
             }
@@ -2073,18 +2133,18 @@ namespace EasyAI
             x = Screen.width - x - w;
 
             // Button open/close controls.
-            if (GuiButton(x, y, w, h, _controlsOpen ? "Close" : "Controls"))
+            if (GuiButton(x, y, w, h, Singleton._controlsOpen ? "Close" : "Controls"))
             {
-                _controlsOpen = !_controlsOpen;
+                Singleton._controlsOpen = !Singleton._controlsOpen;
             }
             
-            if (!_controlsOpen)
+            if (!Singleton._controlsOpen)
             {
                 return;
             }
 
             y = NextItem(y, h, p);
-            y = CustomRendering(x, y, w, h, p);
+            y = Singleton.CustomRendering(x, y, w, h, p);
 
             // Button to pause or resume the scene.
             if (GuiButton(x, y, w, h, Playing ? "Pause" : "Resume"))
@@ -2111,7 +2171,7 @@ namespace EasyAI
         
             // Button to change gizmos mode.
             y = NextItem(y, h, p);
-            if (GuiButton(x, y, w, h, gizmos switch
+            if (GuiButton(x, y, w, h, Singleton.gizmos switch
                 {
                     GizmosState.Off => "Gizmos: Off",
                     GizmosState.Selected => "Gizmos: Selected",
@@ -2121,11 +2181,11 @@ namespace EasyAI
                 ChangeGizmosState();
             }
 
-            if (Connections.Count > 0)
+            if (Singleton.Connections.Count > 0)
             {
                 // Button to change navigation mode.
                 y = NextItem(y, h, p);
-                if (GuiButton(x, y, w, h, paths switch
+                if (GuiButton(x, y, w, h, Singleton.paths switch
                     {
                         PathState.Off => "Nodes: Off",
                         PathState.Active => "Nodes: Active",
@@ -2137,10 +2197,10 @@ namespace EasyAI
                 }
             }
 
-            if (Cameras.Length > 1)
+            if (Singleton._cameras.Length > 1)
             {
                 // Buttons to switch cameras.
-                foreach (Camera cam in Cameras)
+                foreach (Camera cam in Singleton._cameras)
                 {
                     y = NextItem(y, h, p);
                     if (GuiButton(x, y, w, h, cam.name))
@@ -2198,13 +2258,13 @@ namespace EasyAI
         /// Coroutine lasts for exactly one frame to step though each time step.
         /// </summary>
         /// <returns>Nothing.</returns>
-        private IEnumerator StepOneFrame()
+        private static IEnumerator StepOneFrame()
         {
-            _stepping = true;
+            Singleton._stepping = true;
             Resume();
             yield return 0;
             Pause();
-            _stepping = false;
+            Singleton._stepping = false;
         }
 
         /// <summary>
@@ -2372,19 +2432,19 @@ namespace EasyAI
                 );
 
                 // Ensure all nodes are added.
-                if (!Nodes.Contains(lookup.Current))
+                if (!_nodes.Contains(lookup.Current))
                 {
-                    Nodes.Add(lookup.Current);
+                    _nodes.Add(lookup.Current);
                 }
             
-                if (!Nodes.Contains(lookup.Goal))
+                if (!_nodes.Contains(lookup.Goal))
                 {
-                    Nodes.Add(lookup.Goal);
+                    _nodes.Add(lookup.Goal);
                 }
             
-                if (!Nodes.Contains(lookup.Next))
+                if (!_nodes.Contains(lookup.Next))
                 {
-                    Nodes.Add(lookup.Next);
+                    _nodes.Add(lookup.Next);
                 }
 
                 // Ensure a connection between the current and next nodes exists.

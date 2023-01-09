@@ -130,7 +130,7 @@ namespace EasyAI.Navigation.Nodes
                 for (int z = 0; z < RangeZ; z++)
                 {
                     float2 pos = GetRealPosition(x, z);
-                    _data[x, z] = Physics.Raycast(new(pos.x, floorCeiling.y, pos.y), Vector3.down, out RaycastHit hit, floorCeiling.y - floorCeiling.x, AgentManager.Singleton.groundLayers | AgentManager.Singleton.obstacleLayers) && (AgentManager.Singleton.groundLayers.value & (1 << hit.transform.gameObject.layer)) > 0
+                    _data[x, z] = Physics.Raycast(new(pos.x, floorCeiling.y, pos.y), Vector3.down, out RaycastHit hit, floorCeiling.y - floorCeiling.x, AgentManager.GroundLayers | AgentManager.ObstacleLayers) && (AgentManager.GroundLayers.value & (1 << hit.transform.gameObject.layer)) > 0
                         ? Open
                         : Closed;
                 }
@@ -144,8 +144,8 @@ namespace EasyAI.Navigation.Nodes
             {
                 // Run the node generator.
                 generator.NodeArea = this;
-                _oldNodeDistance = AgentManager.Singleton.nodeDistance;
-                AgentManager.Singleton.nodeDistance = generator.SetNodeDistance();
+                _oldNodeDistance = AgentManager.NodeDistance;
+                AgentManager.NodeDistance = generator.SetNodeDistance();
                 generator.Generate();
 
                 // Form connections between nodes.
@@ -161,15 +161,15 @@ namespace EasyAI.Navigation.Nodes
 
                         // Ensure the nodes are in range to form a connection.
                         float d = Vector3.Distance(_nodes[x], _nodes[z]);
-                        if (AgentManager.Singleton.nodeDistance > 0 && d > AgentManager.Singleton.nodeDistance)
+                        if (AgentManager.NodeDistance > 0 && d > AgentManager.NodeDistance)
                         {
                             continue;
                         }
 
                         // Ensure the nodes have line of sight on each other.
-                        if (AgentManager.Singleton.navigationRadius <= 0)
+                        if (AgentManager.NavigationRadius <= 0)
                         {
-                            if (Physics.Linecast(_nodes[x], _nodes[z], AgentManager.Singleton.obstacleLayers))
+                            if (Physics.Linecast(_nodes[x], _nodes[z], AgentManager.ObstacleLayers))
                             {
                                 continue;
                             }
@@ -177,11 +177,11 @@ namespace EasyAI.Navigation.Nodes
                         else
                         {
                             Vector3 p1 = _nodes[x];
-                            p1.y += AgentManager.Singleton.navigationRadius;
+                            p1.y += AgentManager.NavigationRadius;
                             Vector3 p2 = _nodes[z];
-                            p2.y += AgentManager.Singleton.navigationRadius;
+                            p2.y += AgentManager.NavigationRadius;
                             Vector3 direction = (p2 - p1).normalized;
-                            if (Physics.SphereCast(p1, AgentManager.Singleton.navigationRadius, direction, out _, d, AgentManager.Singleton.obstacleLayers))
+                            if (Physics.SphereCast(p1, AgentManager.NavigationRadius, direction, out _, d, AgentManager.ObstacleLayers))
                             {
                                 continue;
                             }
@@ -199,7 +199,7 @@ namespace EasyAI.Navigation.Nodes
                 }
             }
 
-            AgentManager.Singleton.nodeDistance = _oldNodeDistance;
+            AgentManager.NodeDistance = _oldNodeDistance;
 
             // Cleanup all generators.
             foreach (NodeGenerator g in generators)
@@ -271,7 +271,7 @@ namespace EasyAI.Navigation.Nodes
             // Get the position of the node.
             float2 pos = GetRealPosition(x, z);
             float y = floorCeiling.x;
-            if (Physics.Raycast(new(pos.x, floorCeiling.y, pos.y), Vector3.down, out RaycastHit hit, floorCeiling.y - floorCeiling.x, AgentManager.Singleton.groundLayers))
+            if (Physics.Raycast(new(pos.x, floorCeiling.y, pos.y), Vector3.down, out RaycastHit hit, floorCeiling.y - floorCeiling.x, AgentManager.GroundLayers))
             {
                 y = hit.point.y;
             }
@@ -283,9 +283,9 @@ namespace EasyAI.Navigation.Nodes
                 _nodes.Add(v);
             }
 
-            if (!AgentManager.Singleton.Nodes.Contains(v))
+            if (!AgentManager.Nodes.Contains(v))
             {
-                AgentManager.Singleton.Nodes.Add(v);
+                AgentManager.Nodes.Add(v);
             }
         }
 

@@ -49,9 +49,9 @@ namespace EasyAI.Utility
         /// <param name="message">The message to add.</param>
         public virtual void AddMessage(string message)
         {
-            AgentManager.Singleton.AddGlobalMessage($"{name} - {message}");
+            AgentManager.AddGlobalMessage($"{name} - {message}");
             
-            switch (AgentManager.Singleton.messageMode)
+            switch (AgentManager.MessageMode)
             {
                 case AgentManager.MessagingMode.Compact when Messages.Count > 0 && Messages[0] == message:
                     return;
@@ -61,7 +61,7 @@ namespace EasyAI.Utility
             }
 
             Messages.Insert(0, message);
-            if (Messages.Count > AgentManager.Singleton.MaxMessages)
+            if (Messages.Count > AgentManager.MaxMessages)
             {
                 Messages.RemoveAt(Messages.Count - 1);
             }

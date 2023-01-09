@@ -385,14 +385,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7158d8becec45b9ab424f32de69e108, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxAgentsPerUpdate: 0
-  maxMessages: 100
-  detailsWidth: 500
-  controlsWidth: 120
-  gizmos: 1
-  navigation: 3
-  messageMode: 1
-  selectedCamera: {fileID: 448259072}
   groundLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -401,15 +393,21 @@ MonoBehaviour:
     m_Bits: 0
   nodeDistance: 0
   navigationRadius: 0
-  navigationVisualOffset: 0.1
   pullMaxDifference: 0
   lookupTable: 0
-  cleanerAgentPrefab: {fileID: 5829531856079109815, guid: cff9a72f1eaaf4243837c2afdd1e5a3e, type: 3}
+  maxAgentsPerUpdate: 0
+  maxMessages: 100
+  detailsWidth: 500
+  controlsWidth: 120
+  selectedCamera: {fileID: 448259072}
+  gizmos: 1
+  paths: 3
   floorSize: {x: 5, y: 5}
   floorScale: 3
   likelyToGetDirtyChance: 0.15
   timeBetweenDirtGeneration: 8
   chanceDirty: 0.05
+  cleanerAgentPrefab: {fileID: 5829531856079109815, guid: cff9a72f1eaaf4243837c2afdd1e5a3e, type: 3}
   materialCleanNormal: {fileID: 2100000, guid: aa8e8bd4571316249991441dcbaeac6b, type: 2}
   materialCleanLikelyToGetDirty: {fileID: 2100000, guid: 44a0a939e3007bb4c813e5d5ddb6e00c, type: 2}
   materialDirty: {fileID: 2100000, guid: e791b9002174a32479f595195851bbd6, type: 2}

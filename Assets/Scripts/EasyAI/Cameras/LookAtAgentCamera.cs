@@ -28,12 +28,12 @@ namespace EasyAI.Cameras
         private void LateUpdate()
         {
             // Get the agent to look towards.
-            Agent agent = AgentManager.Singleton.SelectedAgent;
+            Agent agent = AgentManager.CurrentlySelectedAgent;
             if (agent == null)
             {
-                if (AgentManager.Singleton.Agents.Count > 0)
+                if (AgentManager.CurrentAgents.Count > 0)
                 {
-                    agent = AgentManager.Singleton.Agents[0];
+                    agent = AgentManager.CurrentAgents[0];
                 }
                 else
                 {

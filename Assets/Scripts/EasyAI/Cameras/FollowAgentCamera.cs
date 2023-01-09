@@ -62,12 +62,12 @@ namespace EasyAI.Cameras
         private void LateUpdate()
         {
             // Get the agent to look towards.
-            Agent agent = AgentManager.Singleton.SelectedAgent;
+            Agent agent = AgentManager.CurrentlySelectedAgent;
             if (agent == null)
             {
-                if (AgentManager.Singleton.Agents.Count > 0)
+                if (AgentManager.CurrentAgents.Count > 0)
                 {
-                    agent = AgentManager.Singleton.Agents[0];
+                    agent = AgentManager.CurrentAgents[0];
                 }
                 else
                 {
@@ -76,7 +76,7 @@ namespace EasyAI.Cameras
             }
         
             // Allow for zooming in if this is the selected camera.
-            if (AgentManager.Singleton.selectedCamera == _camera)
+            if (AgentManager.SelectedCamera == _camera)
             {
                 Vector2 scroll = Mouse.current.scroll.ReadValue();
                 if (_ratio >= 0)

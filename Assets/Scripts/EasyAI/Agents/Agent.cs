@@ -366,7 +366,7 @@ namespace EasyAI.Agents
                 return false;
             }
         
-            Path = AgentManager.Singleton.LookupPath(transform.position, goal);
+            Path = AgentManager.LookupPath(transform.position, goal);
             return true;
         }
     
@@ -513,7 +513,7 @@ namespace EasyAI.Agents
         {
             bool all = true;
             bool one = false;
-            foreach (bool result in AgentManager.Singleton.Agents.Where(a => a != this).Select(a => a.HandleEvent(new(eventId, this, details))))
+            foreach (bool result in AgentManager.CurrentAgents.Where(a => a != this).Select(a => a.HandleEvent(new(eventId, this, details))))
             {
                 if (result)
                 {
@@ -607,7 +607,7 @@ namespace EasyAI.Agents
             }
             else
             {
-                if (AgentManager.Singleton.SelectedAgent == this && Mouse.current.rightButton.wasPressedThisFrame && Physics.Raycast(AgentManager.Singleton.selectedCamera.ScreenPointToRay(new(Mouse.current.position.x.ReadValue(), Mouse.current.position.y.ReadValue(), 0)), out RaycastHit hit, Mathf.Infinity, AgentManager.Singleton.groundLayers | AgentManager.Singleton.obstacleLayers))
+                if (AgentManager.CurrentlySelectedAgent == this && Mouse.current.rightButton.wasPressedThisFrame && Physics.Raycast(AgentManager.SelectedCamera.ScreenPointToRay(new(Mouse.current.position.x.ReadValue(), Mouse.current.position.y.ReadValue(), 0)), out RaycastHit hit, Mathf.Infinity, AgentManager.GroundLayers | AgentManager.ObstacleLayers))
                 {
                     ClearMoveData();
                     Navigate(hit.point);
@@ -673,7 +673,7 @@ namespace EasyAI.Agents
         public void Setup()
         {
             // Register this agent with the manager.
-            AgentManager.Singleton.AddAgent(this);
+            AgentManager.AddAgent(this);
             
             // Find the performance measure.
             PerformanceMeasure = GetComponent<PerformanceMeasure>();
@@ -784,7 +784,7 @@ namespace EasyAI.Agents
         {
             try
             {
-                AgentManager.Singleton.AddAgent(this);
+                AgentManager.AddAgent(this);
             }
             catch
             {
@@ -796,7 +796,7 @@ namespace EasyAI.Agents
         {
             try
             {
-                AgentManager.Singleton.RemoveAgent(this);
+                AgentManager.RemoveAgent(this);
             }
             catch
             {
@@ -808,7 +808,7 @@ namespace EasyAI.Agents
         {
             try
             {
-                AgentManager.Singleton.RemoveAgent(this);
+                AgentManager.RemoveAgent(this);
             }
             catch
             {
@@ -840,9 +840,9 @@ namespace EasyAI.Agents
                 {
                     bool canReachEnd = false;
             
-                    if (AgentManager.Singleton.navigationRadius <= 0)
+                    if (AgentManager.NavigationRadius <= 0)
                     {
-                        if (!Physics.Linecast(transform.position, Path[^1], AgentManager.Singleton.obstacleLayers))
+                        if (!Physics.Linecast(transform.position, Path[^1], AgentManager.ObstacleLayers))
                         {
                             canReachEnd = true;
                         }
@@ -850,10 +850,10 @@ namespace EasyAI.Agents
                     else
                     {
                         Vector3 p1 = transform.position;
-                        p1.y += AgentManager.Singleton.navigationRadius;
+                        p1.y += AgentManager.NavigationRadius;
                         Vector3 p2 = Path[^1];
-                        p2.y += AgentManager.Singleton.navigationRadius;
-                        if (!Physics.SphereCast(p1, AgentManager.Singleton.navigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(p1, p2), AgentManager.Singleton.obstacleLayers))
+                        p2.y += AgentManager.NavigationRadius;
+                        if (!Physics.SphereCast(p1, AgentManager.NavigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(p1, p2), AgentManager.ObstacleLayers))
                         {
                             canReachEnd = true;
                         }

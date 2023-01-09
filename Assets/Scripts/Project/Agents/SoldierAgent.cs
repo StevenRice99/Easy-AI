@@ -512,7 +512,7 @@ namespace Project.Agents
         /// <returns>All enemies in line of sight.</returns>
         public IEnumerable<SoldierAgent> SeeEnemies()
         {
-            return GetEnemies().Where(enemy => !Physics.Linecast(headPosition.position, enemy.headPosition.position, AgentManager.Singleton.obstacleLayers)).ToArray();
+            return GetEnemies().Where(enemy => !Physics.Linecast(headPosition.position, enemy.headPosition.position, AgentManager.ObstacleLayers)).ToArray();
         }
 
         protected override void Start()
