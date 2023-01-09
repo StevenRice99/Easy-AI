@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using EasyAI.Managers;
 using EasyAI.Navigation.Nodes.Generators;
 using Unity.Mathematics;
 using UnityEngine;

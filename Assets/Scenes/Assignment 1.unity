@@ -367,7 +367,7 @@ GameObject:
   - component: {fileID: 460686381}
   - component: {fileID: 460686380}
   m_Layer: 0
-  m_Name: Cleaner Agent Manager
+  m_Name: Cleaner Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -385,6 +385,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7158d8becec45b9ab424f32de69e108, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mind: {fileID: 11400000, guid: 98f525b2c2195bb40be697efa5f08ece, type: 2}
+  seekAcceptableDistance: 0.1
+  fleeAcceptableDistance: 10
+  restVelocity: 0.1
+  navigationRadius: 0.5
+  sightHeight: 0
   groundLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -392,7 +398,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   nodeDistance: 0
-  navigationRadius: 0
   pullMaxDifference: 0
   lookupTable: 0
   maxAgentsPerUpdate: 0

@@ -2,6 +2,7 @@
 using A2.Managers;
 using EasyAI.AgentActions;
 using EasyAI.Agents;
+using EasyAI.Navigation;
 using EasyAI.Thinking;
 using UnityEngine;
 
@@ -33,7 +34,7 @@ namespace A2.States
             
             if (agent.MovesData.Count <= 0)
             {
-                agent.SetMoveData(Agent.MoveType.Seek, Random.insideUnitCircle * MicrobeManager.FloorRadius);
+                agent.Move(Steering.Behaviour.Seek, Random.insideUnitCircle * MicrobeManager.FloorRadius);
             }
 
             return null;

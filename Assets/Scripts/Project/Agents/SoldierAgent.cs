@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EasyAI;
 using EasyAI.Agents;
+using EasyAI.Managers;
 using Project.Managers;
 using Project.Pickups;
 using Project.Positions;
@@ -312,12 +313,12 @@ namespace Project.Agents
         /// <summary>
         /// Character controller movement.
         /// </summary>
-        public override void Move()
+        public override void MovementCalculations()
         {
             // Only move when the controller is enabled to avoid throwing an error as it needs to be disabled when dead.
             if (CharacterController != null && CharacterController.enabled)
             {
-                base.Move();
+                base.MovementCalculations();
             }
         }
         
@@ -414,7 +415,7 @@ namespace Project.Agents
             for (int i = 0; i < team.Length; i++)
             {
                 // Clear any current movement data.
-                team[i].ClearPath();
+                team[i].StopNavigating();
                 team[i]._findNewPoint = true;
                 
                 // The closest soldier to the enemy flag becomes the collector.
@@ -815,8 +816,8 @@ namespace Project.Agents
             // Clear data the soldier had.
             EnemiesDetected.Clear();
             Target = null;
-            ClearPath();
-            StopLookAtTarget();
+            StopNavigating();
+            StopLooking();
             MoveVelocity = Vector2.zero;
             
             // Wait to spawn.

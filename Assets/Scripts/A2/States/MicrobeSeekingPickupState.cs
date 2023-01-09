@@ -5,6 +5,7 @@ using A2.Managers;
 using A2.Pickups;
 using EasyAI.AgentActions;
 using EasyAI.Agents;
+using EasyAI.Navigation;
 using EasyAI.Thinking;
 using UnityEngine;
 
@@ -54,7 +55,7 @@ namespace A2.States
                 agent.AddMessage("Cannot find any pickups, roaming.");
                 if (agent.MovesData.Count <= 0)
                 {
-                    agent.SetMoveData(Agent.MoveType.Seek, Random.insideUnitCircle * MicrobeManager.FloorRadius);
+                    agent.Move(Steering.Behaviour.Seek, Random.insideUnitCircle * MicrobeManager.FloorRadius);
                 }
 
                 return null;
@@ -62,7 +63,7 @@ namespace A2.States
             
             // Otherwise move towards the pickup it is tracking.
             agent.AddMessage($"Moving to {microbe.TargetPickup.name}.");
-            agent.SetMoveData(Agent.MoveType.Seek, microbe.TargetPickup.transform);
+            agent.Move(Steering.Behaviour.Seek, microbe.TargetPickup.transform);
             return null;
         }
 

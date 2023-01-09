@@ -36,7 +36,7 @@ namespace EasyAI.Agents
             Rigidbody.isKinematic = false;
         }
         
-        public override void Move()
+        public override void MovementCalculations()
         {
             if (Rigidbody == null)
             {

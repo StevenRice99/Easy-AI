@@ -1,41 +1,44 @@
 using UnityEngine;
 
-public class Oscillator : MonoBehaviour
+namespace A3
 {
-    [SerializeField]
-    [Tooltip("How fast in meters per second should the oscillator move along the X axis.")]
-    private float speed;
-    
-    [SerializeField]
-    [Tooltip("The bounds in meters to limit the movement on the X axis.")]
-    private Vector2 bounds;
-
-    private bool _positive = true;
-
-    private void Update()
+    public class Oscillator : MonoBehaviour
     {
-        Vector3 position = transform.position;
+        [SerializeField]
+        [Tooltip("How fast in meters per second should the oscillator move along the X axis.")]
+        private float speed;
+    
+        [SerializeField]
+        [Tooltip("The bounds in meters to limit the movement on the X axis.")]
+        private Vector2 bounds;
 
-        float x;
-        if (_positive)
+        private bool _positive = true;
+
+        private void Update()
         {
-            x = position.x + speed * Time.deltaTime;
-            if (x >= bounds.y)
+            Vector3 position = transform.position;
+
+            float x;
+            if (_positive)
             {
-                x = bounds.y;
-                _positive = false;
+                x = position.x + speed * Time.deltaTime;
+                if (x >= bounds.y)
+                {
+                    x = bounds.y;
+                    _positive = false;
+                }
             }
-        }
-        else
-        {
-            x = position.x - speed * Time.deltaTime;
-            if (x <= bounds.x)
+            else
             {
-                x = bounds.x;
-                _positive = true;
+                x = position.x - speed * Time.deltaTime;
+                if (x <= bounds.x)
+                {
+                    x = bounds.x;
+                    _positive = true;
+                }
             }
-        }
         
-        transform.position = new(x, position.y, position.z);
+            transform.position = new(x, position.y, position.z);
+        }
     }
 }

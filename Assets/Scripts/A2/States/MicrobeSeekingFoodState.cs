@@ -3,6 +3,7 @@ using A2.Agents;
 using A2.Managers;
 using EasyAI.AgentActions;
 using EasyAI.Agents;
+using EasyAI.Navigation;
 using EasyAI.Thinking;
 using UnityEngine;
 
@@ -48,7 +49,7 @@ namespace A2.States
                 
                 if (agent.MovesData.Count <= 0)
                 {
-                    agent.SetMoveData(Agent.MoveType.Seek, Random.insideUnitCircle * MicrobeManager.FloorRadius);
+                    agent.Move(Steering.Behaviour.Seek, Random.insideUnitCircle * MicrobeManager.FloorRadius);
                 }
 
                 return null;
@@ -63,7 +64,7 @@ namespace A2.States
             
             // Otherwise move towards the microbe it is tracking.
             agent.AddMessage($"Hunting {microbe.TargetMicrobe.name}.");
-            agent.SetMoveData(Agent.MoveType.Pursuit, microbe.TargetMicrobe.transform);
+            agent.Move(Steering.Behaviour.Pursue, microbe.TargetMicrobe.transform);
             agent.FireEvent(microbe.TargetMicrobe, (int) MicrobeManager.MicrobeEvents.Hunted);
             return null;
         }

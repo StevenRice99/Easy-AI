@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EasyAI.Actuators;
 using EasyAI.AgentActions;
+using EasyAI.Managers;
 using EasyAI.Navigation;
 using EasyAI.Percepts;
 using EasyAI.Thinking;
@@ -18,55 +19,44 @@ namespace EasyAI.Agents
     public abstract class Agent : MessageComponent
     {
         /// <summary>
-        /// The various move types available for agents.
-        /// </summary>
-        public enum MoveType : byte
-        {
-            Seek,
-            Flee,
-            Pursuit,
-            Evade
-        }
-
-        /// <summary>
         /// Class to store all targets the agent is moving in relation to.
         /// </summary>
-        public class MoveData
+        public class Movement
         {
-            /// <summary>
-            /// Store the position which is only used if the transform is null.
-            /// </summary>
-            private readonly Vector2 _position;
-        
-            /// <summary>
-            /// How much time has elapsed since the last time this was called for predictive move types.
-            /// </summary>
-            public float DeltaTime { get; set; }
-        
-            /// <summary>
-            /// The last position this was in since 
-            /// </summary>
-            public Vector2 LastPosition { get; set; }
-        
-            /// <summary>
-            /// The movement vector for visualizing move data.
-            /// </summary>
-            public Vector2 MoveVector { get; set; } = Vector2.zero;
-        
             /// <summary>
             /// The move type so proper behaviours can be performed.
             /// </summary>
-            public MoveType MoveType { get; }
+            public readonly Steering.Behaviour Behaviour;
 
             /// <summary>
             /// The transform to move in relation to.
             /// </summary>
-            public Transform Transform { get; }
-        
+            public readonly Transform Transform;
+
             /// <summary>
             /// True if this move data was setup with a transform so if at any point the transform is destroyed this is removed as well.
             /// </summary>
-            public bool IsTransformTarget { get; }
+            public readonly bool IsTransformTarget;
+            
+            /// <summary>
+            /// Store the position which is only used if the transform is null.
+            /// </summary>
+            private readonly Vector2 _position;
+
+            /// <summary>
+            /// How much time has elapsed since the last time this was called for predictive move types.
+            /// </summary>
+            public float DeltaTime;
+
+            /// <summary>
+            /// The last position this was in since 
+            /// </summary>
+            public Vector2 LastPosition;
+        
+            /// <summary>
+            /// The movement vector for visualizing move data.
+            /// </summary>
+            public Vector2 MoveVector = Vector2.zero;
         
             /// <summary>
             /// Get the position of the transform if it has one otherwise the position it was set to have.
@@ -88,11 +78,11 @@ namespace EasyAI.Agents
             /// <summary>
             /// Create a move data for a transform.
             /// </summary>
-            /// <param name="moveType">The move type.</param>
+            /// <param name="behaviour">The move type.</param>
             /// <param name="transform">The transform.</param>
-            public MoveData(MoveType moveType, Transform transform)
+            public Movement(Steering.Behaviour behaviour, Transform transform)
             {
-                MoveType = moveType;
+                Behaviour = behaviour;
                 Transform = transform;
                 Vector3 pos3 = transform.position;
                 _position = new(pos3.x, pos3.z);
@@ -103,20 +93,20 @@ namespace EasyAI.Agents
             /// <summary>
             /// Create a move data for a position.
             /// </summary>
-            /// <param name="moveType">The move type.</param>
+            /// <param name="behaviour">The move type.</param>
             /// <param name="position">The position.</param>
-            public MoveData(MoveType moveType, Vector2 position)
+            public Movement(Steering.Behaviour behaviour, Vector2 position)
             {
                 // Since pursuit and evade are for moving objects and this is only with a static position,
                 // switch pursuit to seek and evade to flee.
-                moveType = moveType switch
+                behaviour = behaviour switch
                 {
-                    MoveType.Pursuit => MoveType.Seek,
-                    MoveType.Evade => MoveType.Flee,
-                    _ => moveType
+                    Steering.Behaviour.Pursue => Steering.Behaviour.Seek,
+                    Steering.Behaviour.Evade => Steering.Behaviour.Flee,
+                    _ => behaviour
                 };
 
-                MoveType = moveType;
+                Behaviour = behaviour;
                 Transform = null;
                 _position = position;
                 LastPosition = _position;
@@ -124,62 +114,21 @@ namespace EasyAI.Agents
             }
         }
     
-        [Min(0)]
+        [Tooltip("The current state the agent is in. Initialize it with the state to start in.")]
+        [SerializeField]
+        private State state;
+    
         [Tooltip("How fast this agent can move in units per second.")]
+        [Min(0)]
         public float moveSpeed = 10;
     
         [Min(0)]
-        [Tooltip("How fast this agent can increase in move speed in units per second.")]
+        [Tooltip("How fast this agent can increase in move speed in units per second. Set to zero for instant.")]
         public float moveAcceleration;
-
-        [Tooltip("How close an agent can be to a location its seeking or pursuing to declare it as reached?. Set negative for none.")]
-        public float seekAcceptableDistance = 0.1f;
-
-        [Tooltip("How far an agent can be to a location its fleeing or evading from to declare it as reached?. Set negative for none.")]
-        public float fleeAcceptableDistance = 10f;
-
-        [Min(0)]
-        [Tooltip("If the agent is not moving, ensure it comes to a complete stop when its velocity is less than this.")]
-        public float restVelocity = 0.1f;
     
+        [Tooltip("How fast this agent can look in degrees per second. Set to zero for instant.")]
         [Min(0)]
-        [Tooltip("How fast this agent can look in degrees per second.")]
         public float lookSpeed;
-
-        [SerializeField]
-        [Tooltip("The global state the agent is in. Initialize it with the global state to start it. If left empty the agent will have manual right-click-to-move controls.")]
-        private State mind;
-    
-        [SerializeField]
-        [Tooltip("The current state the agent is in. Initialize it with the state to start in.")]
-        private State state;
-
-        [SerializeField]
-        [Min(0)]
-        [Tooltip("The height to draw visuals looking from.")]
-        private float sightHeight;
-
-        /// <summary>
-        /// The global state the agent is in.
-        /// </summary>
-        public State Mind
-        {
-            get => mind;
-            set
-            {
-                if (mind != null)
-                {
-                    mind.Exit(this);
-                }
-
-                mind = value;
-
-                if (mind != null)
-                {
-                    mind.Enter(this);
-                }
-            }
-        }
 
         /// <summary>
         /// The state the agent is in.
@@ -189,8 +138,6 @@ namespace EasyAI.Agents
             get => state;
             set
             {
-                PreviousState = state;
-            
                 if (state != null)
                 {
                     state.Exit(this);
@@ -208,17 +155,12 @@ namespace EasyAI.Agents
         /// <summary>
         /// The path destination.
         /// </summary>
-        public Vector3? Destination => Path?[^1];
-
-        /// <summary>
-        /// The previous state the agent was in.
-        /// </summary>
-        public State PreviousState { get; private set; }
+        protected Vector3? Destination => Path?[^1];
 
         /// <summary>
         /// The current move velocity if move acceleration is being used as a Vector3.
         /// </summary>
-        public Vector3 MoveVelocity3 => new(MoveVelocity.x, 0, MoveVelocity.y);
+        protected Vector3 MoveVelocity3 => new(MoveVelocity.x, 0, MoveVelocity.y);
 
         /// <summary>
         /// The current move velocity if move acceleration is being used.
@@ -278,7 +220,7 @@ namespace EasyAI.Agents
         /// <summary>
         /// All movement the agent is doing without path finding.
         /// </summary>
-        public List<MoveData> MovesData { get; private set; } = new();
+        public List<Movement> MovesData { get; private set; } = new();
 
         /// <summary>
         /// The current path an agent is following.
@@ -301,15 +243,15 @@ namespace EasyAI.Agents
             if (Path == null || Path.Count == 0)
             {
                 // Display the movement vectors of all move types.
-                foreach (MoveData moveData in MovesData)
+                foreach (Movement moveData in MovesData)
                 {
                     // Assign different colors for different behaviours:
                     // Blue for seek, cyan for pursuit, red for flee, and orange for evade.
-                    GL.Color(moveData.MoveType switch
+                    GL.Color(moveData.Behaviour switch
                     {
-                        MoveType.Seek => Color.blue,
-                        MoveType.Pursuit => Color.cyan,
-                        MoveType.Flee => Color.red,
+                        Steering.Behaviour.Seek => Color.blue,
+                        Steering.Behaviour.Pursue => Color.cyan,
+                        Steering.Behaviour.Flee => Color.red,
                         _ => new(1f, 0.65f, 0f),
                     });
             
@@ -317,7 +259,7 @@ namespace EasyAI.Agents
                     GL.Vertex(position);
                     GL.Vertex(position + transform.rotation * (new Vector3(moveData.MoveVector.x, position.y, moveData.MoveVector.y).normalized * 2));
 
-                    if (moveData.MoveType is MoveType.Seek or MoveType.Flee)
+                    if (moveData.Behaviour is Steering.Behaviour.Seek or Steering.Behaviour.Flee)
                     {
                         continue;
                     }
@@ -343,9 +285,9 @@ namespace EasyAI.Agents
 
             // If the agent is looking towards a particular target (not just based on where it is moving), draw a line towards the target.
             GL.Color(Color.yellow);
-            if (sightHeight > 0)
+            if (Manager.SightHeight > 0)
             {
-                GL.Vertex(transform.position + new Vector3(0, sightHeight, 0));
+                GL.Vertex(transform.position + new Vector3(0, Manager.SightHeight, 0));
             }
             else
             {
@@ -373,7 +315,7 @@ namespace EasyAI.Agents
         /// <summary>
         /// Clear the path.
         /// </summary>
-        public void ClearPath()
+        public void StopNavigating()
         {
             Path = null;
         }
@@ -381,84 +323,84 @@ namespace EasyAI.Agents
         /// <summary>
         /// Set a transform to move based upon.
         /// </summary>
-        /// <param name="moveType">The move type.</param>
+        /// <param name="behaviour">The move type.</param>
         /// <param name="tr">The transform.</param>
-        public void SetMoveData(MoveType moveType, Transform tr)
+        public void Move(Steering.Behaviour behaviour, Transform tr)
         {
             MovesData.Clear();
-            AddMoveData(moveType, tr);
+            AddMove(behaviour, tr);
         }
 
         /// <summary>
         /// Set a position to move based upon.
         /// </summary>
-        /// <param name="moveType">The move type.</param>
+        /// <param name="behaviour">The move type.</param>
         /// <param name="pos">The position.</param>
-        public void SetMoveData(MoveType moveType, Vector3 pos)
+        public void Move(Steering.Behaviour behaviour, Vector3 pos)
         {
             MovesData.Clear();
-            AddMoveData(moveType, pos);
+            AddMove(behaviour, pos);
         }
 
         /// <summary>
         /// Set a position to move based upon.
         /// </summary>
-        /// <param name="moveType">The move type.</param>
+        /// <param name="behaviour">The move type.</param>
         /// <param name="pos">The position.</param>
-        public void SetMoveData(MoveType moveType, Vector2 pos)
+        public void Move(Steering.Behaviour behaviour, Vector2 pos)
         {
             MovesData.Clear();
-            AddMoveData(moveType, pos);
+            AddMove(behaviour, pos);
         }
     
         /// <summary>
         /// Add a transform to move based upon.
         /// </summary>
-        /// <param name="moveType">The move type.</param>
+        /// <param name="behaviour">The move type.</param>
         /// <param name="tr">The transform.</param>
-        public void AddMoveData(MoveType moveType, Transform tr)
+        public void AddMove(Steering.Behaviour behaviour, Transform tr)
         {
-            if (MovesData.Exists(m => m.MoveType == moveType && m.Transform == tr) || IsCompleteMove(moveType, new(transform.position.x, transform.position.z), new(tr.position.x, tr.position.z)))
+            if (MovesData.Exists(m => m.Behaviour == behaviour && m.Transform == tr) || Steering.MoveComplete(behaviour, new(transform.position.x, transform.position.z), new(tr.position.x, tr.position.z)))
             {
                 return;
             }
 
             Path = null;
-            RemoveMoveData(tr);
-            MovesData.Add(new(moveType, tr));
+            RemoveMove(tr);
+            MovesData.Add(new(behaviour, tr));
         }
 
         /// <summary>
         /// Add a position to move based upon.
         /// </summary>
-        /// <param name="moveType">The move type.</param>
+        /// <param name="behaviour">The move type.</param>
         /// <param name="pos">The position.</param>
-        public void AddMoveData(MoveType moveType, Vector3 pos)
+        public void AddMove(Steering.Behaviour behaviour, Vector3 pos)
         {
-            AddMoveData(moveType, new Vector2(pos.x, pos.z));
+            AddMove(behaviour, new Vector2(pos.x, pos.z));
         }
 
         /// <summary>
         /// Add a position to move based upon.
         /// </summary>
-        /// <param name="moveType">The move type.</param>
+        /// <param name="behaviour">The move type.</param>
         /// <param name="pos">The position.</param>
-        public void AddMoveData(MoveType moveType, Vector2 pos)
+        public void AddMove(Steering.Behaviour behaviour, Vector2 pos)
         {
-            if (MovesData.Exists(m => m.MoveType == moveType && m.Transform == null && m.Position == pos) || IsCompleteMove(moveType, new(transform.position.x, transform.position.z), pos))
+            if (MovesData.Exists(m => m.Behaviour == behaviour && m.Transform == null && m.Position == pos) || Steering.MoveComplete(behaviour, new(transform.position.x, transform.position.z), pos))
             {
                 return;
             }
         
             Path = null;
-            RemoveMoveData(pos);
-            MovesData.Add(new(moveType, pos));
+            RemoveMove(pos);
+            MovesData.Add(new(behaviour, pos));
         }
 
         /// <summary>
         /// Clear all move data.
         /// </summary>
-        public void ClearMoveData()
+        public void StopMoving()
         {
             MovesData.Clear();
         }
@@ -467,7 +409,7 @@ namespace EasyAI.Agents
         /// Remove move data for a transform.
         /// </summary>
         /// <param name="tr">The transform.</param>
-        public void RemoveMoveData(Transform tr)
+        private void RemoveMove(Transform tr)
         {
             MovesData = MovesData.Where(m => m.Transform != tr).ToList();
         }
@@ -476,16 +418,7 @@ namespace EasyAI.Agents
         /// Remove move data for a position.
         /// </summary>
         /// <param name="pos">The position.</param>
-        public void RemoveMoveData(Vector3 pos)
-        {
-            RemoveMoveData(new Vector2(pos.x, pos.z));
-        }
-
-        /// <summary>
-        /// Remove move data for a position.
-        /// </summary>
-        /// <param name="pos">The position.</param>
-        public void RemoveMoveData(Vector2 pos)
+        private void RemoveMove(Vector2 pos)
         {
             MovesData = MovesData.Where(m => m.Transform == null && m.Position != pos).ToList();
         }
@@ -529,19 +462,9 @@ namespace EasyAI.Agents
         }
 
         /// <summary>
-        /// Assign a performance measure to this agent.
-        /// </summary>
-        /// <param name="performanceMeasure">The performance measure to assign.</param>
-        public void AssignPerformanceMeasure(PerformanceMeasure performanceMeasure)
-        {
-            PerformanceMeasure = performanceMeasure;
-            ConfigurePerformanceMeasure();
-        }
-
-        /// <summary>
         /// Resume looking towards the look target currently assigned to the agent.
         /// </summary>
-        public void LookAtTarget()
+        public void Look()
         {
             LookingToTarget = LookTarget != transform.position;
         }
@@ -550,41 +473,33 @@ namespace EasyAI.Agents
         /// Set a target position for the agent to look towards.
         /// </summary>
         /// <param name="target">The target position to look to.</param>
-        public void LookAtTarget(Vector3 target)
+        public void Look(Vector3 target)
         {
             LookTarget = target;
-            LookAtTarget();
+            Look();
         }
 
         /// <summary>
         /// Set a target transform for the agent to look towards.
         /// </summary>
         /// <param name="target">The target transform to look to.</param>
-        public void LookAtTarget(Transform target)
+        public void Look(Transform target)
         {
             if (target == null)
             {
-                StopLookAtTarget();
+                StopLooking();
                 return;
             }
             
-            LookAtTarget(target.position);
+            Look(target.position);
         }
 
         /// <summary>
         /// Have the agent stop looking towards its look target.
         /// </summary>
-        public void StopLookAtTarget()
+        public void StopLooking()
         {
             LookingToTarget = false;
-        }
-
-        /// <summary>
-        /// Instantly stop all actions this agent is performing.
-        /// </summary>
-        public void StopAllActions()
-        {
-            Actions = null;
         }
 
         /// <summary>
@@ -597,9 +512,9 @@ namespace EasyAI.Agents
 
             List<AgentAction> actions = new();
             
-            if (mind != null)
+            if (Manager.Mind != null)
             {
-                ICollection<AgentAction> decided = mind.Execute(this);
+                ICollection<AgentAction> decided = Manager.Mind.Execute(this);
                 if (decided != null)
                 {
                     actions.AddRange(decided);
@@ -609,7 +524,7 @@ namespace EasyAI.Agents
             {
                 if (Manager.CurrentlySelectedAgent == this && Mouse.current.rightButton.wasPressedThisFrame && Physics.Raycast(Manager.SelectedCamera.ScreenPointToRay(new(Mouse.current.position.x.ReadValue(), Mouse.current.position.y.ReadValue(), 0)), out RaycastHit hit, Mathf.Infinity, Manager.GroundLayers | Manager.ObstacleLayers))
                 {
-                    ClearMoveData();
+                    StopMoving();
                     Navigate(hit.point);
                 }
             }
@@ -726,12 +641,12 @@ namespace EasyAI.Agents
         /// <summary>
         /// Implement movement behaviour.
         /// </summary>
-        public abstract void Move();
+        public abstract void MovementCalculations();
 
         /// <summary>
         /// Look towards the agent's look target.
         /// </summary>
-        public void Look()
+        public void LookCalculations()
         {
             Vector3 target;
         
@@ -760,7 +675,9 @@ namespace EasyAI.Agents
             }
 
             // Face towards the target.
-            Visuals.rotation = Steering.Face(Visuals.position, Visuals.forward, target, lookSpeed > 0 ? lookSpeed : Mathf.Infinity, Time.deltaTime, Visuals.rotation);
+            float maxSpeed = lookSpeed > 0 ? lookSpeed : Mathf.Infinity;
+            Vector3 rotation = Vector3.RotateTowards(Visuals.forward, target - Visuals.position, maxSpeed * Time.deltaTime, 0.0f);
+            Visuals.rotation = rotation == Vector3.zero || float.IsNaN(rotation.x) || float.IsNaN(rotation.y) || float.IsNaN(rotation.z) ? Visuals.rotation : Quaternion.LookRotation(rotation);
         }
 
         protected virtual void Start()
@@ -769,9 +686,9 @@ namespace EasyAI.Agents
             Setup();
         
             // Enter its global and normal states if they are set.
-            if (mind != null)
+            if (Manager.Mind != null)
             {
-                mind.Enter(this);
+                Manager.Mind.Enter(this);
             }
 
             if (state != null)
@@ -866,7 +783,7 @@ namespace EasyAI.Agents
                 }
 
                 // Remove path locations which have been satisfied in being reached.
-                while (Path.Count > 0 && Vector2.Distance(position, new(Path[0].x, Path[0].z)) <= seekAcceptableDistance)
+                while (Path.Count > 0 && Vector2.Distance(position, new(Path[0].x, Path[0].z)) <= Manager.SeekAcceptableDistance)
                 {
                     Path.RemoveAt(0);
                 }
@@ -898,8 +815,7 @@ namespace EasyAI.Agents
                     Vector2 target = MovesData[i].Position;
 
                     // If this was a transform movement and the transform is now gone or the move has been satisfied, remove it.
-                    if (MovesData[i].IsTransformTarget && MovesData[i].Transform == null ||
-                        IsCompleteMove(MovesData[i].MoveType, position, target))
+                    if (MovesData[i].IsTransformTarget && MovesData[i].Transform == null || Steering.MoveComplete(MovesData[i].Behaviour, position, target))
                     {
                         MovesData.RemoveAt(i--);
                         continue;
@@ -907,16 +823,9 @@ namespace EasyAI.Agents
 
                     // Increase the elapsed time for the move data.
                     MovesData[i].DeltaTime += deltaTime;
-
+                    
                     // Update the movement vector of the data based on its given move type.
-                    MovesData[i].MoveVector = MovesData[i].MoveType switch
-                    {
-                        MoveType.Seek => Steering.Seek(position, MoveVelocity, target, acceleration),
-                        MoveType.Flee => Steering.Flee(position, MoveVelocity, target, acceleration),
-                        MoveType.Pursuit => Steering.Pursuit(position, MoveVelocity, target, MovesData[i].LastPosition, acceleration, MovesData[i].DeltaTime),
-                        MoveType.Evade => Steering.Evade(position, MoveVelocity, target, MovesData[i].LastPosition, acceleration, MovesData[i].DeltaTime),
-                        _ => MovesData[i].MoveVector
-                    };
+                    MovesData[i].MoveVector = Steering.Move(MovesData[i].Behaviour, position, MoveVelocity, target, MovesData[i].LastPosition, acceleration, MovesData[i].DeltaTime);
 
                     // Add the newly calculated movement data to the movement vector for this time step.
                     movement += MovesData[i].MoveVector;
@@ -936,7 +845,7 @@ namespace EasyAI.Agents
                 MoveVelocity = Vector2.Lerp(MoveVelocity, Vector2.zero, acceleration * deltaTime);
             
                 // After reaching below a velocity threshold, set directly to zero.
-                if (MoveVelocity.magnitude < restVelocity)
+                if (MoveVelocity.magnitude < Manager.RestVelocity)
                 {
                     MoveVelocity = Vector2.zero;
                 }
@@ -955,26 +864,13 @@ namespace EasyAI.Agents
         }
 
         /// <summary>
-        /// Determine if a move data is complete.
-        /// </summary>
-        /// <param name="moveType">The move type.</param>
-        /// <param name="position">The agent position.</param>
-        /// <param name="target">The move data target position.</param>
-        /// <returns>True if the distance between the agent and the target is within or beyond their acceptable distance for completion.</returns>
-        private bool IsCompleteMove(MoveType moveType, Vector2 position, Vector2 target)
-        {
-            return moveType is MoveType.Seek or MoveType.Pursuit && seekAcceptableDistance >= 0 && Vector2.Distance(position, target) <= seekAcceptableDistance ||
-                   moveType is MoveType.Flee or MoveType.Evade && fleeAcceptableDistance >= 0 && Vector2.Distance(position, target) >= fleeAcceptableDistance;
-        }
-
-        /// <summary>
         /// Handle receiving an event.
         /// </summary>
         /// <param name="aiEvent">The event to handle.</param>
         /// <returns>True if either the global state or normal state handles the event, false otherwise.</returns>
         private bool HandleEvent(AIEvent aiEvent)
         {
-            return state != null && state.HandleEvent(this, aiEvent) || mind != null && mind.HandleEvent(this, aiEvent);
+            return state != null && state.HandleEvent(this, aiEvent) || Manager.Mind != null && Manager.Mind.HandleEvent(this, aiEvent);
         }
 
         /// <summary>

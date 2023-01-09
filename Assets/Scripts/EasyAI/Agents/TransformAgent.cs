@@ -10,7 +10,7 @@ namespace EasyAI.Agents
         /// <summary>
         /// Transform movement.
         /// </summary>
-        public override void Move()
+        public override void MovementCalculations()
         {
             CalculateMoveVelocity(Time.deltaTime);
             transform.position += MoveVelocity3 * DeltaTime;

@@ -1,4 +1,5 @@
 ﻿using EasyAI;
+using EasyAI.Managers;
 using UnityEngine;
 
 namespace Project

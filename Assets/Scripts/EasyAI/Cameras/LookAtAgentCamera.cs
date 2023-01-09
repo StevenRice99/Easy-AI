@@ -1,4 +1,5 @@
 ﻿using EasyAI.Agents;
+using EasyAI.Managers;
 using UnityEngine;
 
 namespace EasyAI.Cameras

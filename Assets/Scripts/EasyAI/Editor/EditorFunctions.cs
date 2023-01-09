@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using EasyAI.Managers;
+using UnityEditor;
 using UnityEngine;
 
 namespace EasyAI.Editor

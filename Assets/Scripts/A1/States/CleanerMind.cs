@@ -4,6 +4,7 @@ using A1.AgentActions;
 using A1.Percepts;
 using EasyAI.AgentActions;
 using EasyAI.Agents;
+using EasyAI.Navigation;
 using EasyAI.Percepts;
 using EasyAI.Thinking;
 using UnityEngine;
@@ -27,12 +28,12 @@ namespace A1.States
             {
                 // Stop movement and start cleaning the current floor tile.
                 agent.AddMessage("Cleaning current floor tile.");
-                agent.ClearMoveData();
+                agent.StopMoving();
                 return new AgentAction[] { new CleanAgentAction { Floor = floorToClean } };
             }
 
             // Otherwise determine where to move which will be the closest floor with the highest dirt level or the weighted midpoint.
-            agent.SetMoveData(Agent.MoveType.Seek,DetermineLocationToMove(agent));
+            agent.Move(Steering.Behaviour.Seek,DetermineLocationToMove(agent));
             return null;
         }
 

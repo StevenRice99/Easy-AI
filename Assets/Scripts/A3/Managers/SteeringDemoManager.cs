@@ -1,5 +1,7 @@
 ﻿using EasyAI;
 using EasyAI.Agents;
+using EasyAI.Managers;
+using EasyAI.Navigation;
 using UnityEngine;
 
 namespace A3.Managers
@@ -34,7 +36,7 @@ namespace A3.Managers
             // Display a button to stop this agent.
             if (GuiButton(x, y, w, h, $"Stop Moving"))
             {
-                SelectedAgent.ClearMoveData();
+                SelectedAgent.StopMoving();
             }
 
             // Display buttons to move in relation to all targets.
@@ -44,28 +46,28 @@ namespace A3.Managers
                 y = NextItem(y, h, p);
                 if (GuiButton(x, y, w, h, $"Seek {target.name}"))
                 {
-                    SelectedAgent.SetMoveData(Agent.MoveType.Seek, target);
+                    SelectedAgent.Move(Steering.Behaviour.Seek, target);
                 }
                 
                 // Pursue the target.
                 y = NextItem(y, h, p);
                 if (GuiButton(x, y, w, h, $"Pursue {target.name}"))
                 {
-                    SelectedAgent.SetMoveData(Agent.MoveType.Pursuit, target);
+                    SelectedAgent.Move(Steering.Behaviour.Pursue, target);
                 }
                 
                 // Flee the target.
                 y = NextItem(y, h, p);
                 if (GuiButton(x, y, w, h, $"Flee {target.name}"))
                 {
-                    SelectedAgent.SetMoveData(Agent.MoveType.Flee, target);
+                    SelectedAgent.Move(Steering.Behaviour.Flee, target);
                 }
                 
                 // Evade the target.
                 y = NextItem(y, h, p);
                 if (GuiButton(x, y, w, h, $"Evade {target.name}"))
                 {
-                    SelectedAgent.SetMoveData(Agent.MoveType.Evade, target);
+                    SelectedAgent.Move(Steering.Behaviour.Evade, target);
                 }
             }
             
@@ -73,14 +75,14 @@ namespace A3.Managers
             y = NextItem(y, h, p);
             if (GuiButton(x, y, w, h, "Seek Origin"))
             {
-                SelectedAgent.SetMoveData(Agent.MoveType.Seek, new Vector2(0, 0));
+                SelectedAgent.Move(Steering.Behaviour.Seek, new Vector2(0, 0));
             }
             
             // Seek back to the origin.
             y = NextItem(y, h, p);
             if (GuiButton(x, y, w, h, "Pursue Origin"))
             {
-                SelectedAgent.SetMoveData(Agent.MoveType.Pursuit, new Vector2(0, 0));
+                SelectedAgent.Move(Steering.Behaviour.Pursue, new Vector2(0, 0));
             }
 
             return NextItem(y, h, p);

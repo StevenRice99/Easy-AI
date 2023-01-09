@@ -1,6 +1,7 @@
 ﻿using A2.Agents;
 using A2.Managers;
 using EasyAI;
+using EasyAI.Managers;
 using UnityEngine;
 
 namespace A2.Pickups

@@ -2,6 +2,7 @@
 using A2.Agents;
 using EasyAI.AgentActions;
 using EasyAI.Agents;
+using EasyAI.Navigation;
 using EasyAI.Thinking;
 using UnityEngine;
 
@@ -35,12 +36,12 @@ namespace A2.States
             if (Vector3.Distance(microbe.transform.position, microbe.PursuerMicrobe.transform.position) > microbe.DetectionRange)
             {
                 agent.AddMessage("Have a feeling I am being hunted but don't know where they are.");
-                agent.ClearMoveData();
+                agent.StopMoving();
             }
             
             // Otherwise move towards the microbe it is tracking.
             agent.AddMessage($"Evading {microbe.PursuerMicrobe.name}.");
-            agent.SetMoveData(Agent.MoveType.Evade, microbe.PursuerMicrobe.transform);
+            agent.Move(Steering.Behaviour.Evade, microbe.PursuerMicrobe.transform);
             return null;
         }
 

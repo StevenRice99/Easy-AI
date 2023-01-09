@@ -2,6 +2,7 @@
 using System.Linq;
 using EasyAI;
 using EasyAI.Agents;
+using EasyAI.Managers;
 using Project.Agents;
 using Project.Pickups;
 using Project.Positions;
@@ -507,14 +508,14 @@ namespace Project.Managers
                 // Only perform for alive soldiers.
                 if (agent is not SoldierAgent { Alive: true } soldier)
                 {
-                    agent.StopLookAtTarget();
+                    agent.StopLooking();
                     continue;
                 }
 
                 // If the soldier has no target, reset its look angle.
                 if (soldier.Target == null)
                 {
-                    soldier.StopLookAtTarget();
+                    soldier.StopLooking();
                     soldier.headPosition.localRotation = Quaternion.identity;
                     soldier.weaponPosition.localRotation = Quaternion.identity;
                     continue;
@@ -522,7 +523,7 @@ namespace Project.Managers
 
                 // Otherwise, look towards the target.
                 Vector3 position = soldier.Target.Value.Position;
-                soldier.LookAtTarget(position);
+                soldier.Look(position);
                 soldier.headPosition.LookAt(position);
                 soldier.headPosition.localRotation = Quaternion.Euler(soldier.headPosition.localRotation.eulerAngles.x, 0, 0);
                 soldier.weaponPosition.LookAt(position);

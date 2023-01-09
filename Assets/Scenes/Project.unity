@@ -9264,7 +9264,7 @@ GameObject:
   - component: {fileID: 460686381}
   - component: {fileID: 460686382}
   m_Layer: 0
-  m_Name: Soldier Agent Manager
+  m_Name: Soldier Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9297,13 +9297,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 746a4623f8434214afb1e8af02c2a315, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxAgentsPerUpdate: 1
-  maxMessages: 100
-  detailsWidth: 500
-  controlsWidth: 120
-  gizmos: 2
-  navigation: 3
-  selectedCamera: {fileID: 1559026829}
+  mind: {fileID: 0}
+  seekAcceptableDistance: 0.1
+  fleeAcceptableDistance: 10
+  restVelocity: 0.1
+  navigationRadius: 0.5
+  sightHeight: 0
   groundLayers:
     serializedVersion: 2
     m_Bits: 8
@@ -9311,10 +9310,15 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   nodeDistance: 0
-  navigationRadius: 0.5
-  navigationVisualOffset: 0.1
   pullMaxDifference: 0
   lookupTable: 1
+  maxAgentsPerUpdate: 1
+  maxMessages: 100
+  detailsWidth: 500
+  controlsWidth: 120
+  selectedCamera: {fileID: 1559026829}
+  gizmos: 2
+  paths: 3
   soldiersPerTeam: 15
   health: 100
   respawn: 10

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using EasyAI.Managers;
 using UnityEngine;
 
 namespace EasyAI.Utility

@@ -4,6 +4,7 @@ using A2.Managers;
 using EasyAI;
 using EasyAI.AgentActions;
 using EasyAI.Agents;
+using EasyAI.Managers;
 using EasyAI.Thinking;
 using UnityEngine;
 

@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using EasyAI.Managers;
+using UnityEngine;
 
 namespace EasyAI.Navigation
 {
@@ -8,6 +10,68 @@ namespace EasyAI.Navigation
     /// </summary>
     public static class Steering
     {
+        /// <summary>
+        /// The various move types available for agents.
+        /// </summary>
+        public enum Behaviour : byte
+        {
+            Seek,
+            Flee,
+            Pursue,
+            Evade
+        }
+
+        /// <summary>
+        /// Perform a move.
+        /// </summary>
+        /// <param name="behaviour">The type of move.</param>
+        /// <param name="position">The position of the agent.</param>
+        /// <param name="velocity">The current velocity of the agent.</param>
+        /// <param name="targetCurrent">The current position of the target.</param>
+        /// <param name="targetLast">The last position of the target if needed.</param>
+        /// <param name="speed">The speed at which the agent can move.</param>
+        /// <param name="deltaTime">The time elapsed between when the target is in its current position and its previous if needed.</param>
+        /// <returns>Calculated movement.</returns>
+        public static Vector2 Move(Behaviour behaviour, Vector2 position, Vector2 velocity, Vector2 targetCurrent, Vector2 targetLast, float speed, float deltaTime)
+        {
+            switch (behaviour)
+            {
+                case Behaviour.Evade:
+                    return Evade(position, velocity, targetCurrent, targetLast, speed, deltaTime);
+                case Behaviour.Pursue:
+                    return Pursue(position, velocity, targetCurrent, targetLast, speed, deltaTime);
+                case Behaviour.Flee:
+                    return Flee(position, velocity, targetCurrent, speed);
+                case Behaviour.Seek:
+                default:
+                    return Seek(position, velocity, targetCurrent, speed);
+            }
+        }
+
+        /// <summary>
+        /// Check if a move is complete.
+        /// </summary>
+        /// <param name="behaviour">The move type</param>
+        /// <param name="position">The position of the agent.</param>
+        /// <param name="target">The desired destination position.</param>
+        /// <returns>True if the move is complete, false otherwise.</returns>
+        public static bool MoveComplete(Behaviour behaviour, Vector2 position, Vector2 target)
+        {
+            switch (behaviour)
+            {
+                // Closing in behaviours.
+                case Behaviour.Seek:
+                case Behaviour.Pursue:
+                    return Manager.SeekAcceptableDistance >= 0 && Vector2.Distance(position, target) <= Manager.SeekAcceptableDistance;
+                // Moving away behaviours.
+                case Behaviour.Flee:
+                case Behaviour.Evade:
+                    return Manager.FleeAcceptableDistance >= 0 && Vector2.Distance(position, target) >= Manager.FleeAcceptableDistance;
+                default:
+                    return false;
+            }
+        }
+        
         /// <summary>
         /// Seek - Move directly towards a position.
         /// Based upon the implementation detailed in Programming Game AI by Example page 91.
@@ -31,35 +95,35 @@ namespace EasyAI.Navigation
         /// <param name="pursuer">The position of the target to flee from.</param>
         /// <param name="speed">The speed at which the agent can move.</param>
         /// <returns>The velocity to apply to the agent to perform the flee.</returns>
-        public static Vector2 Flee(Vector2 position, Vector2 velocity, Vector2 pursuer, float speed)
+        private static Vector2 Flee(Vector2 position, Vector2 velocity, Vector2 pursuer, float speed)
         {
             // Flee is almost identical to seek except the initial subtraction of positions is reversed.
             return (position - pursuer).normalized * speed - velocity;
         }
 
         /// <summary>
-        /// Pursuit - Move towards a position factoring in its current speed to predict where it is moving.
+        /// Pursue - Move towards a position factoring in its current speed to predict where it is moving.
         /// Based upon the implementation detailed in Programming Game AI by Example page 94.
         /// </summary>
         /// <param name="position">The position of the agent.</param>
         /// <param name="velocity">The current velocity of the agent.</param>
         /// <param name="evader">The position of the target to pursuit to.</param>
-        /// <param name="targetLastPosition">The position of the target during the last time step.</param>
+        /// <param name="evaderLastPosition">The position of the target during the last time step.</param>
         /// <param name="speed">The speed at which the agent can move.</param>
-        /// <param name="deltaTime">The time elapsed between when the target is in its current position and its previous</param>
+        /// <param name="deltaTime">The time elapsed between when the target is in its current position and its previous.</param>
         /// <returns>The velocity to apply to the agent to perform the pursuit.</returns>
-        public static Vector2 Pursuit(Vector2 position, Vector2 velocity, Vector2 evader, Vector2 targetLastPosition, float speed, float deltaTime)
+        private static Vector2 Pursue(Vector2 position, Vector2 velocity, Vector2 evader, Vector2 evaderLastPosition, float speed, float deltaTime)
         {
             // Get the vector between the agent and the target.
             Vector2 toEvader = evader - position;
         
             // The time to look ahead is equal to the vector magnitude divided by the sum of the speed of both the agent and the target,
             // with the target's speed calculated by determining how far it has traveled during the elapsed time.
-            float lookAheadTime = toEvader.magnitude / (speed + Vector2.Distance(evader, targetLastPosition) * deltaTime);
+            float lookAheadTime = toEvader.magnitude / (speed + Vector2.Distance(evader, evaderLastPosition) * deltaTime);
         
             // Seek the predicted target position based upon adding its position to its velocity multiplied by the look ahead time,
             // with the velocity calculated by subtracting the current and previous positions over the elapsed time.
-            return Seek(position, velocity, evader + (evader - targetLastPosition) / deltaTime * lookAheadTime, speed);
+            return Seek(position, velocity, evader + (evader - evaderLastPosition) / deltaTime * lookAheadTime, speed);
         }
 
         /// <summary>
@@ -71,9 +135,9 @@ namespace EasyAI.Navigation
         /// <param name="pursuer">The position of the target to evade from.</param>
         /// <param name="pursuerLastPosition">The position of the target during the last time step.</param>
         /// <param name="speed">The speed at which the agent can move.</param>
-        /// <param name="deltaTime">The time elapsed between when the target is in its current position and its previous</param>
+        /// <param name="deltaTime">The time elapsed between when the target is in its current position and its previous.</param>
         /// <returns>The velocity to apply to the agent to perform the evade.</returns>
-        public static Vector2 Evade(Vector2 position, Vector2 velocity, Vector2 pursuer, Vector2 pursuerLastPosition, float speed, float deltaTime)
+        private static Vector2 Evade(Vector2 position, Vector2 velocity, Vector2 pursuer, Vector2 pursuerLastPosition, float speed, float deltaTime)
         {
             // Get the vector between the agent and the target.
             Vector2 toPursuer = pursuer - position;
@@ -87,22 +151,6 @@ namespace EasyAI.Navigation
             return Flee(position, velocity, pursuer + (pursuer - pursuerLastPosition) / deltaTime * lookAheadTime, speed);
         }
 
-        /// <summary>
-        /// Face - Face towards a target position.
-        /// Custom implementation, not directly based off of any existing code in either Buckland's book or Dr. Goodwin's slides.
-        /// Given that Vector2 does not have any RotateTowards method, this method is the only to use Vector3 values.
-        /// </summary>
-        /// <param name="position">The position of the agent.</param>
-        /// <param name="forward">The forward vector the agent is visually facing.</param>
-        /// <param name="target">The position to look towards.</param>
-        /// <param name="lookSpeed">The maximum degrees the agent can rotate in a second.</param>
-        /// <param name="deltaTime">The elapsed time.</param>
-        /// <param name="current">The current rotation prior to calling.</param>
-        /// <returns>The quaternion of the updated rotation for the agent visuals.</returns>
-        public static Quaternion Face(Vector3 position, Vector3 forward, Vector3 target, float lookSpeed, float deltaTime, Quaternion current)
-        {
-            Vector3 rotation = Vector3.RotateTowards(forward, target - position, lookSpeed * deltaTime, 0.0f);
-            return rotation == Vector3.zero || float.IsNaN(rotation.x) || float.IsNaN(rotation.y) || float.IsNaN(rotation.z) ? current : Quaternion.LookRotation(rotation);
-        }
+
     }
 }

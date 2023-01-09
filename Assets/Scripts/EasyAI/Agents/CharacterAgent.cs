@@ -32,7 +32,7 @@ namespace EasyAI.Agents
         /// <summary>
         /// Character controller movement.
         /// </summary>
-        public override void Move()
+        public override void MovementCalculations()
         {
             if (CharacterController == null)
             {

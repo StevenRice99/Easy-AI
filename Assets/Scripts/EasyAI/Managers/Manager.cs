@@ -7,21 +7,19 @@ using EasyAI.Actuators;
 using EasyAI.AgentActions;
 using EasyAI.Agents;
 using EasyAI.Cameras;
+using EasyAI.Navigation;
 using EasyAI.Navigation.Nodes;
 using EasyAI.Percepts;
 using EasyAI.Thinking;
 using EasyAI.Utility;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using Sensor = EasyAI.Sensors.Sensor;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
-namespace EasyAI
+namespace EasyAI.Managers
 {
     /// <summary>
     /// Singleton to handle agents and GUI rendering. Must be exactly one of this or an extension of this present in every scene.
@@ -244,6 +242,31 @@ namespace EasyAI
         public const float NavigationVisualOffset = 0.1f;
 
         /// <summary>
+        /// The mind or global state agents are in
+        /// </summary>
+        public static State Mind => Singleton.mind;
+
+        /// <summary>
+        /// How close an agent can be to a location its seeking or pursuing to declare it as reached.
+        /// </summary>
+        public static float SeekAcceptableDistance => Singleton.seekAcceptableDistance;
+
+        /// <summary>
+        /// How far an agent can be to a location its fleeing or evading from to declare it as reached.
+        /// </summary>
+        public static float FleeAcceptableDistance => Singleton.fleeAcceptableDistance;
+
+        /// <summary>
+        /// If an agent is not moving, ensure it comes to a complete stop when its velocity is less than this.
+        /// </summary>
+        public static float RestVelocity => Singleton.restVelocity;
+
+        /// <summary>
+        /// The height to draw agent looking visuals looking from.
+        /// </summary>
+        public static float SightHeight => Singleton.sightHeight;
+
+        /// <summary>
         /// Which layers can nodes be placed on.
         /// </summary>
         public static LayerMask GroundLayers => Singleton.groundLayers;
@@ -281,11 +304,6 @@ namespace EasyAI
         /// The currently selected agent.
         /// </summary>
         public static Agent CurrentlySelectedAgent => Singleton.SelectedAgent;
-
-        /// <summary>
-        /// The global messages.
-        /// </summary>
-        public static List<string> GlobalMessages => Singleton._globalMessages;
 
         /// <summary>
         /// Determine what mode messages are stored in.
@@ -366,6 +384,34 @@ namespace EasyAI
         /// All agents in the scene.
         /// </summary>
         protected List<Agent> Agents { get; private set; } = new();
+
+        [Header("Agents")]
+        [Tooltip("The mind or global state agents are in. Initialize it with the global state to start it. If left empty the agent will have manual right-click-to-move controls.")]
+        [SerializeField]
+        private State mind;
+        
+        [Tooltip("How close an agent can be to a location its seeking or pursuing to declare it as reached. Set negative for none.")]
+        [SerializeField]
+        private float seekAcceptableDistance = 0.1f;
+
+        [Tooltip("How far an agent can be to a location its fleeing or evading from to declare it as reached. Set negative for none.")]
+        [SerializeField]
+        private float fleeAcceptableDistance = 10f;
+
+        [Tooltip("If an agent is not moving, ensure it comes to a complete stop when its velocity is less than this.")]
+        [Min(0)]
+        [SerializeField]
+        private float restVelocity = 0.1f;
+
+        [Tooltip("The radius of agents. This is for connecting navigation nodes to ensure enough space for movement.")]
+        [Min(0)]
+        [SerializeField]
+        private float navigationRadius = 0.5f;
+        
+        [Tooltip("The height to draw agent looking visuals looking from.")]
+        [Min(0)]
+        [SerializeField]
+        private float sightHeight;
         
         [Header("Navigation")]
         [Tooltip("Which layers can nodes be placed on.")]
@@ -380,11 +426,6 @@ namespace EasyAI
         [Min(0)]
         [SerializeField]
         private float nodeDistance;
-
-        [Tooltip("How wide is the agent radius for connecting nodes to ensure enough space for movement.")]
-        [Min(0)]
-        [SerializeField]
-        private float navigationRadius;
 
         [Tooltip(
             "How much height difference can there be between string pulls, set to zero for no limit.\n" +
@@ -662,6 +703,12 @@ namespace EasyAI
         /// <returns>A list of the points to move to to reach the goal destination.</returns>
         public static List<Vector3> LookupPath(Vector3 position, Vector3 goal)
         {
+            // If there are no nodes in the lookup table simply return the end goal position.
+            if (Singleton._nodes.Count == 0)
+            {
+                return new() { goal };
+            }
+            
             // Check if there is a direct line of sight so we can skip pathing and just move directly towards the goal.
             if (Singleton.navigationRadius <= 0)
             {
@@ -680,12 +727,6 @@ namespace EasyAI
                 {
                     return new() { goal };
                 }
-            }
-        
-            // If there are no nodes in the lookup table simply return the end goal position.
-            if (Singleton._nodes.Count == 0)
-            {
-                return new() { goal };
             }
         
             // Get the starting node and end nodes closest to their positions.
@@ -1413,7 +1454,7 @@ namespace EasyAI
             foreach (Agent agent in Agents)
             {
                 agent.DeltaTime += Time.deltaTime;
-                agent.Look();
+                agent.LookCalculations();
             }
         
             // Move agents that do not require physics.
@@ -1478,7 +1519,7 @@ namespace EasyAI
         {
             foreach (Agent agent in agents)
             {
-                agent.Move();
+                agent.MovementCalculations();
             }
         }
 
@@ -1875,7 +1916,7 @@ namespace EasyAI
                 length++;
             }
 
-            if (Singleton.SelectedAgent.Mind == null)
+            if (Singleton.mind == null)
             {
                 length--;
             }
@@ -1901,9 +1942,9 @@ namespace EasyAI
             GuiLabel(x, y, w, h, p, $"Type: {Singleton.SelectedAgent}");
             y = NextItem(y, h, p);
         
-            if (Singleton.SelectedAgent.Mind != null)
+            if (Singleton.mind != null)
             {
-                GuiLabel(x, y, w, h, p, $"Global State: {Singleton.SelectedAgent.Mind}");
+                GuiLabel(x, y, w, h, p, $"Mind: {Singleton.mind}");
                 y = NextItem(y, h, p);
             }
         
@@ -1920,18 +1961,22 @@ namespace EasyAI
             }
         
             GuiLabel(x, y, w, h, p, $"Position: {Singleton.SelectedAgent.transform.position} | Velocity: {Singleton.SelectedAgent.MoveVelocity.magnitude}");
-            foreach (Agent.MoveData moveData in Singleton.SelectedAgent.MovesData)
+            foreach (Agent.Movement moveData in Singleton.SelectedAgent.MovesData)
             {
-                string moveType = moveData.MoveType switch
+                string moveType = moveData.Behaviour switch
                 {
-                    Agent.MoveType.Seek => "Seek",
-                    Agent.MoveType.Flee => "Flee",
-                    Agent.MoveType.Pursuit => "Pursuit",
-                    Agent.MoveType.Evade => "Evade",
+                    Steering.Behaviour.Seek => "Seek",
+                    Steering.Behaviour.Flee => "Flee",
+                    Steering.Behaviour.Pursue => "Pursue",
+                    Steering.Behaviour.Evade => "Evade",
                     _ => "Error"
                 };
-                string toFrom = moveData.MoveType is Agent.MoveType.Seek or Agent.MoveType.Pursuit ? " towards"
-                    : moveData.MoveType is Agent.MoveType.Flee or Agent.MoveType.Flee ? " from" : string.Empty;
+                string toFrom = moveData.Behaviour switch
+                {
+                    Steering.Behaviour.Seek or Steering.Behaviour.Pursue => " towards",
+                    Steering.Behaviour.Flee or Steering.Behaviour.Flee => " from",
+                    _ => "Error"
+                };
                 Vector3 pos3 = moveData.Transform != null ? moveData.Transform.position : Vector3.zero;
                 string pos = moveData.Transform != null ? $" ({pos3.x}, {pos3.z})" : $" ({moveData.Position.x}, {moveData.Position.y})";
                 y = NextItem(y, h, p);
