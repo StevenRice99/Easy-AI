@@ -188,13 +188,13 @@ namespace EasyAI.Navigation.Nodes
                         }
 
                         // Ensure there is not already an entry for this connection in the list.
-                        if (AgentManager.Singleton.Connections.Any(c => c.A == _nodes[x] && c.B == _nodes[z] || c.A == _nodes[z] && c.B == _nodes[x]))
+                        if (AgentManager.Connections.Any(c => c.A == _nodes[x] && c.B == _nodes[z] || c.A == _nodes[z] && c.B == _nodes[x]))
                         {
                             continue;
                         }
                 
                         // Add the connection to the list.
-                        AgentManager.Singleton.Connections.Add(new(_nodes[x], _nodes[z]));
+                        AgentManager.Connections.Add(new(_nodes[x], _nodes[z]));
                     }
                 }
             }

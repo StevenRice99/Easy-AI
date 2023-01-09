@@ -38,7 +38,7 @@ namespace A2.States
             // If the microbe is not tracking another microbe to eat yet, search for one.
             if (microbe.TargetMicrobe == null)
             {
-                microbe.TargetMicrobe = MicrobeManager.MicrobeManagerSingleton.FindFood(microbe);
+                microbe.TargetMicrobe = MicrobeManager.FindFood(microbe);
             }
 
             // If there are no microbes in detection range to eat, roam.
@@ -48,14 +48,14 @@ namespace A2.States
                 
                 if (agent.MovesData.Count <= 0)
                 {
-                    agent.SetMoveData(Agent.MoveType.Seek, Random.insideUnitCircle * MicrobeManager.MicrobeManagerSingleton.FloorRadius);
+                    agent.SetMoveData(Agent.MoveType.Seek, Random.insideUnitCircle * MicrobeManager.FloorRadius);
                 }
 
                 return null;
             }
 
             // If close enough to eat the microbe it is tracking, eat it.
-            if (Vector3.Distance(microbe.transform.position, microbe.TargetMicrobe.transform.position) <= MicrobeManager.MicrobeManagerSingleton.MicrobeInteractRadius)
+            if (Vector3.Distance(microbe.transform.position, microbe.TargetMicrobe.transform.position) <= MicrobeManager.MicrobeInteractRadius)
             {
                 microbe.FireEvent(microbe.TargetMicrobe, (int) MicrobeManager.MicrobeEvents.Eaten);
                 return null;

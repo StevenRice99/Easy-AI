@@ -112,13 +112,13 @@ namespace A2.Agents
 
                 meshRenderer.material = _microbeType switch
                 {
-                    MicrobeManager.MicrobeType.Red => MicrobeManager.MicrobeManagerSingleton.RedMicrobeMaterial,
-                    MicrobeManager.MicrobeType.Orange => MicrobeManager.MicrobeManagerSingleton.OrangeMicrobeMaterial,
-                    MicrobeManager.MicrobeType.Yellow => MicrobeManager.MicrobeManagerSingleton.YellowMicrobeMaterial,
-                    MicrobeManager.MicrobeType.Green => MicrobeManager.MicrobeManagerSingleton.GreenMicrobeMaterial,
-                    MicrobeManager.MicrobeType.Blue => MicrobeManager.MicrobeManagerSingleton.BlueMicrobeMaterial,
-                    MicrobeManager.MicrobeType.Purple => MicrobeManager.MicrobeManagerSingleton.PurpleMicrobeMaterial,
-                    _ => MicrobeManager.MicrobeManagerSingleton.PinkMicrobeMaterial
+                    MicrobeManager.MicrobeType.Red => MicrobeManager.RedMicrobeMaterial,
+                    MicrobeManager.MicrobeType.Orange => MicrobeManager.OrangeMicrobeMaterial,
+                    MicrobeManager.MicrobeType.Yellow => MicrobeManager.YellowMicrobeMaterial,
+                    MicrobeManager.MicrobeType.Green => MicrobeManager.GreenMicrobeMaterial,
+                    MicrobeManager.MicrobeType.Blue => MicrobeManager.BlueMicrobeMaterial,
+                    MicrobeManager.MicrobeType.Purple => MicrobeManager.PurpleMicrobeMaterial,
+                    _ => MicrobeManager.PinkMicrobeMaterial
                 };
             }
         }
@@ -129,7 +129,7 @@ namespace A2.Agents
         /// <param name="eaten">The microbe to eat.</param>
         public void Eat(Agent eaten)
         {
-            Hunger = Mathf.Max(MicrobeManager.MicrobeManagerSingleton.StartingHunger, Hunger - MicrobeManager.MicrobeManagerSingleton.HungerRestoredFromEating);
+            Hunger = Mathf.Max(MicrobeManager.StartingHunger, Hunger - MicrobeManager.HungerRestoredFromEating);
             PlayAudio(eatAudio);
             AddMessage($"Ate {eaten.name}.");
         }
@@ -140,7 +140,7 @@ namespace A2.Agents
         public void Die()
         {
             AddMessage("Died.");
-            Instantiate(MicrobeManager.MicrobeManagerSingleton.DeathParticlesPrefab, transform.position, Quaternion.Euler(270, 0, 0));
+            Instantiate(MicrobeManager.DeathParticlesPrefab, transform.position, Quaternion.Euler(270, 0, 0));
             Destroy(gameObject);
         }
 
@@ -157,25 +157,25 @@ namespace A2.Agents
             
             if (state as MicrobeRoamingState)
             {
-                stateVisualization.material = MicrobeManager.MicrobeManagerSingleton.SleepingIndicatorMaterial;
+                stateVisualization.material = MicrobeManager.SleepingIndicatorMaterial;
                 return;
             }
             
             if (state as MicrobeSeekingFoodState)
             {
-                stateVisualization.material = MicrobeManager.MicrobeManagerSingleton.FoodIndicatorMaterial;
+                stateVisualization.material = MicrobeManager.FoodIndicatorMaterial;
                 return;
             }
             
             if (state as MicrobeSeekingMateState)
             {
-                stateVisualization.material = MicrobeManager.MicrobeManagerSingleton.MateIndicatorMaterial;
+                stateVisualization.material = MicrobeManager.MateIndicatorMaterial;
                 return;
             }
             
             if (state as MicrobeSeekingPickupState)
             {
-                stateVisualization.material = MicrobeManager.MicrobeManagerSingleton.PickupIndicatorMaterial;
+                stateVisualization.material = MicrobeManager.PickupIndicatorMaterial;
             }
         }
 

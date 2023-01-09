@@ -39,7 +39,7 @@ namespace A2.States
             if (microbe.TargetMicrobe == null)
             {
                 // If a potential mate was found, attempt to impress them.
-                Microbe potentialMate = MicrobeManager.MicrobeManagerSingleton.FindMate(microbe);
+                Microbe potentialMate = MicrobeManager.FindMate(microbe);
                 if (potentialMate != null)
                 {
                     agent.AddMessage($"Attempting to impress {potentialMate.name} to mate.");
@@ -63,14 +63,14 @@ namespace A2.States
                 agent.AddMessage("Cannot find a mate, roaming.");
                 if (agent.MovesData.Count <= 0)
                 {
-                    agent.SetMoveData(Agent.MoveType.Seek, Random.insideUnitCircle * MicrobeManager.MicrobeManagerSingleton.FloorRadius);
+                    agent.SetMoveData(Agent.MoveType.Seek, Random.insideUnitCircle * MicrobeManager.FloorRadius);
                 }
 
                 return null;
             }
 
             // If close enough to mate with the microbe it is tracking, mate with it.
-            if (Vector3.Distance(microbe.transform.position, microbe.TargetMicrobe.transform.position) <= MicrobeManager.MicrobeManagerSingleton.MicrobeInteractRadius)
+            if (Vector3.Distance(microbe.transform.position, microbe.TargetMicrobe.transform.position) <= MicrobeManager.MicrobeInteractRadius)
             {
                 if (microbe.FireEvent(microbe.TargetMicrobe, (int) MicrobeManager.MicrobeEvents.Mate))
                 {
@@ -143,7 +143,7 @@ namespace A2.States
                     if (sender != null)
                     {
                         sender.DidMate = true;
-                        int offspring = MicrobeManager.MicrobeManagerSingleton.Mate(microbe, sender);
+                        int offspring = MicrobeManager.Mate(microbe, sender);
                         agent.AddMessage(offspring == 0
                             ? $"Failed to have any offspring with {aiEvent.Sender.name}."
                             : $"Have {offspring} offspring with {aiEvent.Sender.name}."

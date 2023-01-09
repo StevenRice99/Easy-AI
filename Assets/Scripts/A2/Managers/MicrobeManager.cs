@@ -42,277 +42,282 @@ namespace A2.Managers
         /// <summary>
         /// Access to the singleton directly as a microbe manager.
         /// </summary>
-        public static MicrobeManager MicrobeManagerSingleton => Singleton as MicrobeManager;
+        private static MicrobeManager MicrobeSingleton => Singleton as MicrobeManager;
 
-        [Header("Microbe Parameters")]
-        [SerializeField]
-        [Tooltip("The hunger to start microbes at.")]
-        private int startingHunger = -100;
+        /// <summary>
+        /// The maximum number of microbes there can be.
+        /// </summary>
+        public static int MaxMicrobes => MicrobeSingleton.maxMicrobes;
 
-        [SerializeField]
-        [Tooltip("The maximum hunger before a microbe dies of starvation.")]
-        private int maxHunger = 200;
-
-        [SerializeField]
-        [Min(1)]
-        [Tooltip("The hunger restored from eating a microbe.")]
-        private int hungerRestoredFromEating = 100;
-
-        [SerializeField]
-        [Min(0)]
-        [Tooltip("The radius of the floor.")]
-        private float floorRadius = 10f;
-
-        [SerializeField]
-        [Min(2)]
-        [Tooltip("The minimum number of microbes there must be.")]
-        private int minMicrobes = 10;
-
-        [SerializeField]
-        [Min(2)]
-        [Tooltip("The maximum number of microbes there can be.")]
-        public int maxMicrobes = 30;
-
-        [SerializeField]
-        [Min(0)]
-        [Tooltip("The number of pickups present in the level at any time.")]
-        private int activePickups = 5;
-
-        [SerializeField]
-        [Min(0)]
-        [Tooltip("The chance that a new microbe could randomly spawn every tick.")]
-        private float randomSpawnChance;
-
-        [SerializeField]
-        [Min(float.Epsilon)]
-        [Tooltip("The slowest speed a microbe can have.")]
-        private float minMicrobeSpeed = 5f;
-
-        [SerializeField]
-        [Min(float.Epsilon)]
-        [Tooltip("The fastest speed a microbe can have.")]
-        private float maxMicrobeSpeed = 10f;
-
-        [SerializeField]
-        [Min(float.Epsilon)]
-        [Tooltip("The shortest lifespan a microbe can have.")]
-        private float minMicrobeLifespan = 20f;
-
-        [SerializeField]
-        [Min(float.Epsilon)]
-        [Tooltip("The longest lifespan a microbe can have.")]
-        private float maxMicrobeLifespan = 30f;
-
-        [SerializeField]
-        [Min(1)]
-        [Tooltip("The maximum number of offspring microbes can have when mating.")]
-        private int maxOffspring = 4;
-
-        [SerializeField]
-        [Min(float.Epsilon)]
-        [Tooltip("How close microbes must be to interact.")]
-        private float microbeInteractRadius = 1;
-
-        [SerializeField]
-        [Min(float.Epsilon)]
-        [Tooltip("How small to make newborn microbes.")]
-        private float minMicrobeSize = 0.25f;
-
-        [SerializeField]
-        [Min(float.Epsilon)]
-        [Tooltip("How large to make fully grown microbes.")]
-        private float maxMicrobeSize = 1;
-
-        [SerializeField]
-        [Min(0)]
-        [Tooltip("The minimum distance a microbe can detect up to.")]
-        private float minMicrobeDetectionRange = 5;
-        
-        [SerializeField]
-        [Min(0)]
-        [Tooltip("The chance that a microbe will increase in hunger every tick.")]
-        public float hungerChance = 0.05f;
-        
-        [Header("Prefabs")]
-        [SerializeField]
-        [Tooltip("Prefab for the microbes.")]
-        private GameObject microbePrefab;
-
-        [SerializeField]
-        [Tooltip("Prefab for the fertility pickup.")]
-        private GameObject fertilityPickupPrefab;
-
-        [SerializeField]
-        [Tooltip("Prefab for the never hungry pickup.")]
-        private GameObject neverHungryPickupPrefab;
-
-        [SerializeField]
-        [Tooltip("Prefab for the offspring pickup.")]
-        private GameObject offspringPickupPrefab;
-
-        [SerializeField]
-        [Tooltip("Prefab for the rejuvenate pickup.")]
-        private GameObject rejuvenatePickupPrefab;
-
-        [SerializeField]
-        [Tooltip("Prefab for the spawn particles object.")]
-        private GameObject spawnParticlesPrefab;
-
-        [SerializeField]
-        [Tooltip("Prefab for the death particles object.")]
-        private GameObject deathParticlesPrefab;
-
-        [SerializeField]
-        [Tooltip("Prefab for the mate particles object.")]
-        private GameObject mateParticlesPrefab;
-
-        [SerializeField]
-        [Tooltip("Prefab for the pickup particles object.")]
-        private GameObject pickupParticlesPrefab;
-
-        [Header("Materials")]
-        [SerializeField]
-        [Tooltip("Material to apply to the floor.")]
-        private Material floorMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply for red microbes.")]
-        private Material redMicrobeMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply for orange microbes.")]
-        private Material orangeMicrobeMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply for yellow microbes.")]
-        private Material yellowMicrobeMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply for green microbes.")]
-        private Material greenMicrobeMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply for blue microbes.")]
-        private Material blueMicrobeMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply for purple microbes.")]
-        private Material purpleMicrobeMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply for pink microbes.")]
-        private Material pinkMicrobeMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply to the microbe state indicator when sleeping.")]
-        private Material sleepingIndicatorMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply to the microbe state indicator when seeking food.")]
-        private Material foodIndicatorMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply to the microbe state indicator when seeking a mate.")]
-        private Material mateIndicatorMaterial;
-
-        [SerializeField]
-        [Tooltip("Material to apply to the microbe state indicator when seeking a pickup.")]
-        private Material pickupIndicatorMaterial;
+        /// <summary>
+        /// The chance that a microbe will increase in hunger every tick.
+        /// </summary>
+        public static float HungerChance => MicrobeSingleton.hungerChance;
 
         /// <summary>
         /// The hunger restored from eating a microbe.
         /// </summary>
-        public int HungerRestoredFromEating => hungerRestoredFromEating;
+        public static int HungerRestoredFromEating => MicrobeSingleton.hungerRestoredFromEating;
 
         /// <summary>
         /// How close microbes must be to interact.
         /// </summary>
-        public float MicrobeInteractRadius => microbeInteractRadius;
+        public static float MicrobeInteractRadius => MicrobeSingleton.microbeInteractRadius;
 
         /// <summary>
         /// How close microbes must be to interact.
         /// </summary>
-        public Material RedMicrobeMaterial => redMicrobeMaterial;
+        public static Material RedMicrobeMaterial => MicrobeSingleton.redMicrobeMaterial;
 
         /// <summary>
         /// Material to apply for orange microbes.
         /// </summary>
-        public Material OrangeMicrobeMaterial => orangeMicrobeMaterial;
+        public static Material OrangeMicrobeMaterial => MicrobeSingleton.orangeMicrobeMaterial;
 
         /// <summary>
         /// Material to apply for yellow microbes.
         /// </summary>
-        public Material YellowMicrobeMaterial => yellowMicrobeMaterial;
+        public static Material YellowMicrobeMaterial => MicrobeSingleton.yellowMicrobeMaterial;
 
         /// <summary>
         /// Material to apply for green microbes.
         /// </summary>
-        public Material GreenMicrobeMaterial => greenMicrobeMaterial;
+        public static Material GreenMicrobeMaterial => MicrobeSingleton.greenMicrobeMaterial;
 
         /// <summary>
         /// Material to apply for blue microbes.
         /// </summary>
-        public Material BlueMicrobeMaterial => blueMicrobeMaterial;
+        public static Material BlueMicrobeMaterial => MicrobeSingleton.blueMicrobeMaterial;
 
         /// <summary>
         /// Material to apply for purple microbes.
         /// </summary>
-        public Material PurpleMicrobeMaterial => purpleMicrobeMaterial;
+        public static Material PurpleMicrobeMaterial => MicrobeSingleton.purpleMicrobeMaterial;
 
         /// <summary>
         /// Material to apply for pink microbes.
         /// </summary>
-        public Material PinkMicrobeMaterial => pinkMicrobeMaterial;
+        public static Material PinkMicrobeMaterial => MicrobeSingleton.pinkMicrobeMaterial;
 
         /// <summary>
         /// Material to apply to the microbe state indicator when sleeping.
         /// </summary>
-        public Material SleepingIndicatorMaterial => sleepingIndicatorMaterial;
+        public static Material SleepingIndicatorMaterial => MicrobeSingleton.sleepingIndicatorMaterial;
 
         /// <summary>
         /// Material to apply to the microbe state indicator when sleeping.
         /// </summary>
-        public Material FoodIndicatorMaterial => foodIndicatorMaterial;
+        public static Material FoodIndicatorMaterial => MicrobeSingleton.foodIndicatorMaterial;
 
         /// <summary>
         /// Material to apply to the microbe state indicator when seeking a mate.
         /// </summary>
-        public Material MateIndicatorMaterial => mateIndicatorMaterial;
+        public static Material MateIndicatorMaterial => MicrobeSingleton.mateIndicatorMaterial;
 
         /// <summary>
         /// Material to apply to the microbe state indicator when seeking a pickup.
         /// </summary>
-        public Material PickupIndicatorMaterial => pickupIndicatorMaterial;
-
-        /// <summary>
-        /// Prefab for the spawn particles object.
-        /// </summary>
-        public GameObject SpawnParticlesPrefab => spawnParticlesPrefab;
+        public static Material PickupIndicatorMaterial => MicrobeSingleton.pickupIndicatorMaterial;
 
         /// <summary>
         /// Prefab for the death particles object.
         /// </summary>
-        public GameObject DeathParticlesPrefab => deathParticlesPrefab;
+        public static GameObject DeathParticlesPrefab => MicrobeSingleton.deathParticlesPrefab;
 
         /// <summary>
         /// Prefab for the mate particles object.
         /// </summary>
-        public GameObject MateParticlesPrefab => mateParticlesPrefab;
+        public static GameObject MateParticlesPrefab => MicrobeSingleton.mateParticlesPrefab;
 
         /// <summary>
         /// Prefab for the pickup particles object.
         /// </summary>
-        public GameObject PickupParticlesPrefab => pickupParticlesPrefab;
+        public static GameObject PickupParticlesPrefab => MicrobeSingleton.pickupParticlesPrefab;
 
         /// <summary>
         /// The hunger to start microbes at.
         /// </summary>
-        public int StartingHunger => startingHunger;
+        public static int StartingHunger => MicrobeSingleton.startingHunger;
 
         /// <summary>
         /// The radius of the floor.
         /// </summary>
-        public float FloorRadius => floorRadius;
+        public static float FloorRadius => MicrobeSingleton.floorRadius;
+
+        [Header("Microbe Parameters")]
+        [Tooltip("The hunger to start microbes at.")]
+        [SerializeField]
+        private int startingHunger = -100;
+
+        [Tooltip("The maximum hunger before a microbe dies of starvation.")]
+        [SerializeField]
+        private int maxHunger = 200;
+
+        [Tooltip("The hunger restored from eating a microbe.")]
+        [Min(1)]
+        [SerializeField]
+        private int hungerRestoredFromEating = 100;
+
+        [Tooltip("The radius of the floor.")]
+        [Min(0)]
+        [SerializeField]
+        private float floorRadius = 10f;
+
+        [Tooltip("The minimum number of microbes there must be.")]
+        [Min(2)]
+        [SerializeField]
+        private int minMicrobes = 10;
+
+        [Tooltip("The maximum number of microbes there can be.")]
+        [Min(2)]
+        [SerializeField]
+        private int maxMicrobes = 30;
+
+        [Tooltip("The number of pickups present in the level at any time.")]
+        [Min(0)]
+        [SerializeField]
+        private int activePickups = 5;
+
+        [Tooltip("The chance that a new microbe could randomly spawn every tick.")]
+        [Min(0)]
+        [SerializeField]
+        private float randomSpawnChance;
+
+        [Tooltip("The slowest speed a microbe can have.")]
+        [Min(float.Epsilon)]
+        [SerializeField]
+        private float minMicrobeSpeed = 5f;
+
+        [Tooltip("The fastest speed a microbe can have.")]
+        [Min(float.Epsilon)]
+        [SerializeField]
+        private float maxMicrobeSpeed = 10f;
+
+        [Tooltip("The shortest lifespan a microbe can have.")]
+        [Min(float.Epsilon)]
+        [SerializeField]
+        private float minMicrobeLifespan = 20f;
+
+        [Tooltip("The longest lifespan a microbe can have.")]
+        [Min(float.Epsilon)]
+        [SerializeField]
+        private float maxMicrobeLifespan = 30f;
+
+        [Tooltip("The maximum number of offspring microbes can have when mating.")]
+        [Min(1)]
+        [SerializeField]
+        private int maxOffspring = 4;
+
+        [Tooltip("How close microbes must be to interact.")]
+        [Min(float.Epsilon)]
+        [SerializeField]
+        private float microbeInteractRadius = 1;
+
+        [Tooltip("How small to make newborn microbes.")]
+        [Min(float.Epsilon)]
+        [SerializeField]
+        private float minMicrobeSize = 0.25f;
+
+        [Tooltip("How large to make fully grown microbes.")]
+        [Min(float.Epsilon)]
+        [SerializeField]
+        private float maxMicrobeSize = 1;
+
+        [Tooltip("The minimum distance a microbe can detect up to.")]
+        [Min(0)]
+        [SerializeField]
+        private float minMicrobeDetectionRange = 5;
+        
+        [Tooltip("The chance that a microbe will increase in hunger every tick.")]
+        [Min(0)]
+        [SerializeField]
+        private float hungerChance = 0.05f;
+        
+        [Header("Prefabs")]
+        [Tooltip("Prefab for the microbes.")]
+        [SerializeField]
+        private GameObject microbePrefab;
+
+        [Tooltip("Prefab for the fertility pickup.")]
+        [SerializeField]
+        private GameObject fertilityPickupPrefab;
+
+        [Tooltip("Prefab for the never hungry pickup.")]
+        [SerializeField]
+        private GameObject neverHungryPickupPrefab;
+
+        [Tooltip("Prefab for the offspring pickup.")]
+        [SerializeField]
+        private GameObject offspringPickupPrefab;
+
+        [Tooltip("Prefab for the rejuvenate pickup.")]
+        [SerializeField]
+        private GameObject rejuvenatePickupPrefab;
+
+        [Tooltip("Prefab for the spawn particles object.")]
+        [SerializeField]
+        private GameObject spawnParticlesPrefab;
+
+        [Tooltip("Prefab for the death particles object.")]
+        [SerializeField]
+        private GameObject deathParticlesPrefab;
+
+        [Tooltip("Prefab for the mate particles object.")]
+        [SerializeField]
+        private GameObject mateParticlesPrefab;
+
+        [Tooltip("Prefab for the pickup particles object.")]
+        [SerializeField]
+        private GameObject pickupParticlesPrefab;
+
+        [Header("Materials")]
+        [Tooltip("Material to apply to the floor.")]
+        [SerializeField]
+        private Material floorMaterial;
+
+        [Tooltip("Material to apply for red microbes.")]
+        [SerializeField]
+        private Material redMicrobeMaterial;
+
+        [Tooltip("Material to apply for orange microbes.")]
+        [SerializeField]
+        private Material orangeMicrobeMaterial;
+
+        [Tooltip("Material to apply for yellow microbes.")]
+        [SerializeField]
+        private Material yellowMicrobeMaterial;
+
+        [Tooltip("Material to apply for green microbes.")]
+        [SerializeField]
+        private Material greenMicrobeMaterial;
+
+        [Tooltip("Material to apply for blue microbes.")]
+        [SerializeField]
+        private Material blueMicrobeMaterial;
+
+        [Tooltip("Material to apply for purple microbes.")]
+        [SerializeField]
+        private Material purpleMicrobeMaterial;
+
+        [Tooltip("Material to apply for pink microbes.")]
+        [SerializeField]
+        private Material pinkMicrobeMaterial;
+
+        [Tooltip("Material to apply to the microbe state indicator when sleeping.")]
+        [SerializeField]
+        private Material sleepingIndicatorMaterial;
+
+        [Tooltip("Material to apply to the microbe state indicator when seeking food.")]
+        [SerializeField]
+        private Material foodIndicatorMaterial;
+
+        [Tooltip("Material to apply to the microbe state indicator when seeking a mate.")]
+        [SerializeField]
+        private Material mateIndicatorMaterial;
+
+        [Tooltip("Material to apply to the microbe state indicator when seeking a pickup.")]
+        [SerializeField]
+        private Material pickupIndicatorMaterial;
 
         /// <summary>
         /// Mate two microbes.
@@ -320,24 +325,24 @@ namespace A2.Managers
         /// <param name="parentA">First parent.</param>
         /// <param name="parentB">Second parent.</param>
         /// <returns>The number of offspring spawned.</returns>
-        public int Mate(Microbe parentA, Microbe parentB)
+        public static int Mate(Microbe parentA, Microbe parentB)
         {
             int born;
             
             // Spawn between the two parents.
             Vector3 position = (parentA.transform.position + parentB.transform.position) / 2;
-            for (born = 0; born < maxOffspring && Agents.Count < maxMicrobes; born++)
+            for (born = 0; born < MicrobeSingleton.maxOffspring && MicrobeSingleton.Agents.Count < MicrobeSingleton.maxMicrobes; born++)
             {
                 SpawnMicrobe(
                     // Inherit the color from either parent.
                     Random.value <= 0.5f ? parentA.MicrobeType : parentB.MicrobeType,
                     position,
                     // Inherit the average speed of both parents offset by a slight random value.
-                    Mathf.Clamp((parentA.moveSpeed + parentB.moveSpeed) / 2 + Random.value - 0.5f, minMicrobeSpeed, maxMicrobeSpeed),
+                    Mathf.Clamp((parentA.moveSpeed + parentB.moveSpeed) / 2 + Random.value - 0.5f, MicrobeSingleton.minMicrobeSpeed, MicrobeSingleton.maxMicrobeSpeed),
                     // Inherit the average lifespan of both parents offset by a slight random value.
-                    Mathf.Clamp((parentA.LifeSpan + parentB.LifeSpan) / 2 + Random.value - 0.5f, minMicrobeLifespan, maxMicrobeLifespan),
+                    Mathf.Clamp((parentA.LifeSpan + parentB.LifeSpan) / 2 + Random.value - 0.5f, MicrobeSingleton.minMicrobeLifespan, MicrobeSingleton.maxMicrobeLifespan),
                     // Inherit the average detection range of both parents offset by a slight random value.
-                    Mathf.Clamp((parentA.DetectionRange + parentB.DetectionRange) / 2 + Random.value - 0.5f, minMicrobeDetectionRange, floorRadius * 2));
+                    Mathf.Clamp((parentA.DetectionRange + parentB.DetectionRange) / 2 + Random.value - 0.5f, MicrobeSingleton.minMicrobeDetectionRange, MicrobeSingleton.floorRadius * 2));
             }
 
             if (born > 0)
@@ -353,9 +358,9 @@ namespace A2.Managers
         /// </summary>
         /// <param name="seeker">The microbe looking for food.</param>
         /// <returns>The nearest microbe to eat or null if there are no microbes to eat.</returns>
-        public Microbe FindFood(Microbe seeker)
+        public static Microbe FindFood(Microbe seeker)
         {
-            Microbe[] microbes = Agents.Where(a => a is Microbe m && m != seeker && Vector3.Distance(seeker.transform.position, a.transform.position) < seeker.DetectionRange).Cast<Microbe>().ToArray();
+            Microbe[] microbes = MicrobeSingleton.Agents.Where(a => a is Microbe m && m != seeker && Vector3.Distance(seeker.transform.position, a.transform.position) < seeker.DetectionRange).Cast<Microbe>().ToArray();
             if (microbes.Length == 0)
             {
                 return null;
@@ -380,9 +385,9 @@ namespace A2.Managers
         /// </summary>
         /// <param name="seeker">The microbe looking for a mate.</param>
         /// <returns>The nearest microbe to mate with or null if there are no microbes to eat.</returns>
-        public Microbe FindMate(Microbe seeker)
+        public static Microbe FindMate(Microbe seeker)
         {
-            Microbe[] microbes = Agents.Where(a => a is Microbe m && m != seeker && m.IsAdult && m.State.GetType() == typeof(MicrobeSeekingMateState) && Vector3.Distance(seeker.transform.position, a.transform.position) < seeker.DetectionRange).Cast<Microbe>().ToArray();
+            Microbe[] microbes = MicrobeSingleton.Agents.Where(a => a is Microbe m && m != seeker && m.IsAdult && m.State.GetType() == typeof(MicrobeSeekingMateState) && Vector3.Distance(seeker.transform.position, a.transform.position) < seeker.DetectionRange).Cast<Microbe>().ToArray();
             if (microbes.Length == 0)
             {
                 return null;
@@ -557,15 +562,15 @@ namespace A2.Managers
         /// <param name="moveSpeed">The speed the microbe will move at.</param>
         /// <param name="lifespan">How long the microbe can live.</param>
         /// <param name="detectionRange">How far away microbes can detect others and pickups from.</param>
-        private void SpawnMicrobe(MicrobeType microbeType, Vector3 position, float moveSpeed, float lifespan, float detectionRange)
+        private static void SpawnMicrobe(MicrobeType microbeType, Vector3 position, float moveSpeed, float lifespan, float detectionRange)
         {
-            if (Agents.Count >= maxMicrobes)
+            if (MicrobeSingleton.Agents.Count >= MicrobeSingleton.maxMicrobes)
             {
                 return;
             }
             
             // Setup the microbe.
-            GameObject go = Instantiate(microbePrefab, position, Quaternion.identity);
+            GameObject go = Instantiate(MicrobeSingleton.microbePrefab, position, Quaternion.identity);
             Microbe microbe = go.GetComponent<Microbe>();
             if (microbe == null)
             {
@@ -573,7 +578,7 @@ namespace A2.Managers
             }
 
             microbe.MicrobeType = microbeType;
-            microbe.Hunger = startingHunger;
+            microbe.Hunger = MicrobeSingleton.startingHunger;
             microbe.LifeSpan = lifespan;
             microbe.DetectionRange = detectionRange;
             microbe.moveSpeed = moveSpeed;
@@ -590,7 +595,7 @@ namespace A2.Managers
                 _ => "Pink"
             };
 
-            Agent[] coloredMicrobes = Agents.Where(a => a is Microbe m && m.MicrobeType == microbeType && m != microbe).ToArray();
+            Agent[] coloredMicrobes = MicrobeSingleton.Agents.Where(a => a is Microbe m && m.MicrobeType == microbeType && m != microbe).ToArray();
             if (coloredMicrobes.Length == 0)
             {
                 microbe.name = $"{n} 1";
@@ -610,23 +615,23 @@ namespace A2.Managers
             
             SortAgents();
             AddGlobalMessage($"Spawned microbe {n}.");
-            Instantiate(SpawnParticlesPrefab, microbe.transform.position, Quaternion.Euler(270, 0, 0));
+            Instantiate(MicrobeSingleton.spawnParticlesPrefab, microbe.transform.position, Quaternion.Euler(270, 0, 0));
         }
 
         /// <summary>
         /// Spawn a pickup.
         /// </summary>
-        private void SpawnPickup()
+        private static void SpawnPickup()
         {
-            Vector3 position = Random.insideUnitSphere * floorRadius;
+            Vector3 position = Random.insideUnitSphere * MicrobeSingleton.floorRadius;
             position = new(position.x, 0, position.z);
             
             GameObject go = Instantiate(Random.Range(0, 4) switch
             {
-                3 => fertilityPickupPrefab,
-                2 => neverHungryPickupPrefab,
-                1 => offspringPickupPrefab,
-                _ => rejuvenatePickupPrefab
+                3 => MicrobeSingleton.fertilityPickupPrefab,
+                2 => MicrobeSingleton.neverHungryPickupPrefab,
+                1 => MicrobeSingleton.offspringPickupPrefab,
+                _ => MicrobeSingleton.rejuvenatePickupPrefab
             }, position, Quaternion.identity);
 
             go.transform.localScale = new(0.5f, 1, 0.5f);

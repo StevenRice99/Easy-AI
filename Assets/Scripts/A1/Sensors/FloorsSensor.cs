@@ -19,7 +19,7 @@ namespace A1.Sensors
         protected override PerceivedData Sense()
         {
             // Get all floors.
-            List<Floor> floors = CleanerAgentManager.CleanerAgentManagerSingleton.Floors;
+            List<Floor> floors = CleanerManager.Floors;
             
             // Build the percepts.
             FloorsData data = new()

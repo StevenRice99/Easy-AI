@@ -17,7 +17,7 @@ namespace A1.PerformanceMeasures
         protected override float CalculatePerformance()
         {
             // Get all floors. If there are none return 100 as there is technically perfect performance if there is nothing to clean.
-            List<Floor> floors = CleanerAgentManager.CleanerAgentManagerSingleton.Floors;
+            List<Floor> floors = CleanerManager.Floors;
             if (floors == null || floors.Count == 0)
             {
                 return 100;

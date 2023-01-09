@@ -11,13 +11,15 @@ using EasyAI.Navigation.Nodes;
 using EasyAI.Percepts;
 using EasyAI.Thinking;
 using EasyAI.Utility;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 using Sensor = EasyAI.Sensors.Sensor;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace EasyAI
 {
@@ -241,11 +243,6 @@ namespace EasyAI
         public const float NavigationVisualOffset = 0.1f;
 
         /// <summary>
-        /// The singleton agent manager.
-        /// </summary>
-        public static AgentManager Singleton;
-
-        /// <summary>
         /// Which layers can nodes be placed on.
         /// </summary>
         public static LayerMask GroundLayers => Singleton.groundLayers;
@@ -308,6 +305,16 @@ namespace EasyAI
         /// List of all navigation nodes.
         /// </summary>
         public static List<Vector3> Nodes => Singleton._nodes;
+
+        /// <summary>
+        /// List of all navigation connections.
+        /// </summary>
+        public static List<Connection> Connections => Singleton._connections;
+
+        /// <summary>
+        /// The singleton agent manager.
+        /// </summary>
+        protected static AgentManager Singleton;
     
         /// <summary>
         /// All registered states.
@@ -340,9 +347,9 @@ namespace EasyAI
         private static Material _lineMaterial;
 
         /// <summary>
-        /// List of all navigation connections. TODO
+        /// List of all navigation connections.
         /// </summary>
-        public readonly List<Connection> Connections = new();
+        private readonly List<Connection> _connections = new();
     
         /// <summary>
         /// List of all navigation nodes.
@@ -1270,13 +1277,13 @@ namespace EasyAI
                         }
                     
                         // Ensure there is not already an entry for this connection in the list.
-                        if (Connections.Any(c => c.A == p && c.B == v || c.A == v && c.B == p))
+                        if (_connections.Any(c => c.A == p && c.B == v || c.A == v && c.B == p))
                         {
                             continue;
                         }
                 
                         // Add the connection to the list.
-                        Connections.Add(new(p, v));
+                        _connections.Add(new(p, v));
                     }
                 
                     _nodes.Add(p);
@@ -1285,7 +1292,7 @@ namespace EasyAI
                 // If any nodes are not a part of any connections, remove them.
                 for (int i = 0; i < _nodes.Count; i++)
                 {
-                    if (!Connections.Any(c => c.A == _nodes[i] || c.B == _nodes[i]))
+                    if (!_connections.Any(c => c.A == _nodes[i] || c.B == _nodes[i]))
                     {
                         _nodes.RemoveAt(i--);
                     }
@@ -1587,7 +1594,7 @@ namespace EasyAI
                 if (paths == PathState.All)
                 {
                     GL.Color(Color.white);
-                    foreach (Connection connection in Connections)
+                    foreach (Connection connection in _connections)
                     {
                         Vector3 a = connection.A;
                         a.y += NavigationVisualOffset;
@@ -2181,7 +2188,7 @@ namespace EasyAI
                 ChangeGizmosState();
             }
 
-            if (Singleton.Connections.Count > 0)
+            if (Singleton._connections.Count > 0)
             {
                 // Button to change navigation mode.
                 y = NextItem(y, h, p);
@@ -2296,7 +2303,7 @@ namespace EasyAI
                 }
             
                 // Loop through all nodes which connect to the current node.
-                foreach (Connection connection in Connections.Where(c => c.A == node.Position || c.B == node.Position))
+                foreach (Connection connection in _connections.Where(c => c.A == node.Position || c.B == node.Position))
                 {
                     // Get the other position in the connection so we do not work with the exact same node again and get stuck.
                     Vector3 position = connection.A == node.Position ? connection.B : connection.A;
@@ -2448,9 +2455,9 @@ namespace EasyAI
                 }
 
                 // Ensure a connection between the current and next nodes exists.
-                if (!Connections.Any(c => c.A == lookup.Current && c.B == lookup.Next || c.A == lookup.Next && c.B == lookup.Current))
+                if (!_connections.Any(c => c.A == lookup.Current && c.B == lookup.Next || c.A == lookup.Next && c.B == lookup.Current))
                 {
-                    Connections.Add(new(lookup.Current, lookup.Next));
+                    _connections.Add(new(lookup.Current, lookup.Next));
                 }
             
                 // Add to the lookup table.

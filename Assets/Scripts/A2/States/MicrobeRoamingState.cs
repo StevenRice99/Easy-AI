@@ -33,7 +33,7 @@ namespace A2.States
             
             if (agent.MovesData.Count <= 0)
             {
-                agent.SetMoveData(Agent.MoveType.Seek, Random.insideUnitCircle * MicrobeManager.MicrobeManagerSingleton.FloorRadius);
+                agent.SetMoveData(Agent.MoveType.Seek, Random.insideUnitCircle * MicrobeManager.FloorRadius);
             }
 
             return null;

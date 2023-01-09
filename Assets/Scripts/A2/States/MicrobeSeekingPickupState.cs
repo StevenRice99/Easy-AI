@@ -54,7 +54,7 @@ namespace A2.States
                 agent.AddMessage("Cannot find any pickups, roaming.");
                 if (agent.MovesData.Count <= 0)
                 {
-                    agent.SetMoveData(Agent.MoveType.Seek, Random.insideUnitCircle * MicrobeManager.MicrobeManagerSingleton.FloorRadius);
+                    agent.SetMoveData(Agent.MoveType.Seek, Random.insideUnitCircle * MicrobeManager.FloorRadius);
                 }
 
                 return null;
