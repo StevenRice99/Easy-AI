@@ -222,18 +222,18 @@ namespace Project.Agents
             Manager.GuiBox(x, y, w, h, p, 13);
             
             // Display overall flags captured for each team.
-            Manager.GuiLabel(x, y, w, h, p, $"Team Captures - Red: {SoldierManager.SoldierSingleton.ScoreRed} | Blue: {SoldierManager.SoldierSingleton.ScoreBlue}");
+            Manager.GuiLabel(x, y, w, h, p, $"Team Captures - Red: {SoldierManager.CapturedRed} | Blue: {SoldierManager.CapturedBlue}");
             y = Manager.NextItem(y, h, p);
             
             // Display overall kills for each team.
-            Manager.GuiLabel(x, y, w, h, p, $"Team Kills - Red: {SoldierManager.SoldierSingleton.KillsRed} | Blue: {SoldierManager.SoldierSingleton.KillsBlue}");
+            Manager.GuiLabel(x, y, w, h, p, $"Team Kills - Red: {SoldierManager.KillsRed} | Blue: {SoldierManager.KillsBlue}");
             y = Manager.NextItem(y, h, p);
             
             Manager.GuiLabel(x, y, w, h, p, "--------------------------------------------------------------------------------------------------------------------------");
             y = Manager.NextItem(y, h, p);
 
             // Display the position of this soldier relative to all others.
-            Manager.GuiLabel(x, y, w, h, p, $"Soldier Performance: {SoldierManager.SoldierSingleton.Sorted.IndexOf(this) + 1} / {SoldierManager.SoldierSingleton.Sorted.Count}");
+            Manager.GuiLabel(x, y, w, h, p, $"Soldier Performance: {SoldierManager.Sorted.IndexOf(this) + 1} / {SoldierManager.Sorted.Count}");
             y = Manager.NextItem(y, h, p);
 
             // Display the role of this soldier.
@@ -265,19 +265,19 @@ namespace Project.Agents
             y = Manager.NextItem(y, h, p);
 
             // Display how many flag captures this soldier has.
-            Manager.GuiLabel(x, y, w, h, p, $"Captures: {Captures} | Most: {SoldierManager.SoldierSingleton.MostCaptures}");
+            Manager.GuiLabel(x, y, w, h, p, $"Captures: {Captures} | Most: {SoldierManager.MostCaptures}");
             y = Manager.NextItem(y, h, p);
 
             // Display how many flag returns this soldier has.
-            Manager.GuiLabel(x, y, w, h, p, $"Returns: {Returns} | Most: {SoldierManager.SoldierSingleton.MostReturns}");
+            Manager.GuiLabel(x, y, w, h, p, $"Returns: {Returns} | Most: {SoldierManager.MostReturns}");
             y = Manager.NextItem(y, h, p);
 
             // Display how many kills this soldier has.
-            Manager.GuiLabel(x, y, w, h, p, $"Kills: {Kills} | Most: {SoldierManager.SoldierSingleton.MostKills}");
+            Manager.GuiLabel(x, y, w, h, p, $"Kills: {Kills} | Most: {SoldierManager.MostKills}");
             y = Manager.NextItem(y, h, p);
             
             // Display how many deaths this soldier has.
-            Manager.GuiLabel(x, y, w, h, p, $"Deaths: {Deaths} | Least: {SoldierManager.SoldierSingleton.LeastDeaths}");
+            Manager.GuiLabel(x, y, w, h, p, $"Deaths: {Deaths} | Least: {SoldierManager.LeastDeaths}");
             
             return y;
         }
@@ -325,8 +325,8 @@ namespace Project.Agents
         /// Receive damage from another soldier.
         /// </summary>
         /// <param name="amount">How much damage was taken.</param>
-        /// <param name="shotBy">What soldier shot.</param>
-        public void Damage(int amount, SoldierAgent shotBy)
+        /// <param name="shooter">What soldier shot.</param>
+        public void Damage(int amount, SoldierAgent shooter)
         {
             // If already dead, do nothing.
             if (Role == SoliderRole.Dead)
@@ -338,34 +338,10 @@ namespace Project.Agents
             Health -= amount;
             
             // Nothing more to do if still alive.
-            if (Health > 0)
+            if (Health <= 0)
             {
-                return;
+                SoldierManager.AddKill(shooter, this);
             }
-
-            // Otherwise died so reset health and increment death and kills.
-            Health = 0;
-            Deaths++;
-            shotBy.Kills++;
-            
-            AddMessage($"Killed by {shotBy.name}.");
-            shotBy.AddMessage($"Killed {name}");
-
-            if (RedTeam)
-            {
-                SoldierManager.SoldierSingleton.KillsRed++;
-            }
-            else
-            {
-                SoldierManager.SoldierSingleton.KillsBlue++;
-            }
-
-            // Reassign team roles as a team member has died.
-            SoldierManager.SoldierSingleton.UpdateSorted();
-
-            // Start the respawn counter.
-            StopAllCoroutines();
-            StartCoroutine(Respawn());
         }
 
         /// <summary>
@@ -465,7 +441,7 @@ namespace Project.Agents
         public void Spawn()
         {
             // Get spawn points on their side of the map.
-            SpawnPoint[] points = SoldierManager.SoldierSingleton.SpawnPoints.Where(p => p.redTeam == RedTeam).ToArray();
+            SpawnPoint[] points = SoldierManager.SpawnPoints.Where(p => p.redTeam == RedTeam).ToArray();
             
             // Get all open spawn points.
             SpawnPoint[] open = points.Where(p => p.Open).ToArray();
@@ -503,7 +479,7 @@ namespace Project.Agents
                 weapon.Replenish();
             }
             
-            SoldierManager.SoldierSingleton.UpdateSorted();
+            SoldierManager.UpdateSorted();
         }
 
         /// <summary>
@@ -598,7 +574,7 @@ namespace Project.Agents
                     // If the soldier has low health, move to a health pack to heal.
                     if (Health <= SoldierManager.LowHealth)
                     {
-                        Vector3? destination = SoldierManager.SoldierSingleton.GetHealth(transform.position);
+                        Vector3? destination = SoldierManager.GetHealth(transform.position);
                         if (destination != null)
                         {
                             if (Navigate(destination.Value))
@@ -617,7 +593,7 @@ namespace Project.Agents
                         // If not at full health, move to a health pack to heal.
                         if (Health < SoldierManager.Health)
                         {
-                            Vector3? destination = SoldierManager.SoldierSingleton.GetHealth(transform.position);
+                            Vector3? destination = SoldierManager.GetHealth(transform.position);
                             if (destination != null)
                             {
                                 if (Navigate(destination.Value))
@@ -638,7 +614,7 @@ namespace Project.Agents
                                 continue;
                             }
                             
-                            Vector3? destination = SoldierManager.SoldierSingleton.GetWeapon(transform.position, w);
+                            Vector3? destination = SoldierManager.GetWeapon(transform.position, w);
                             if (destination == null)
                             {
                                 continue;
@@ -671,7 +647,7 @@ namespace Project.Agents
                     if (_findNewPoint || (Role == SoliderRole.Attacker && Target is { Visible: true }))
                     {
                         _findNewPoint = false;
-                        if (Navigate(SoldierManager.SoldierSingleton.GetPoint(RedTeam, Role == SoliderRole.Defender)))
+                        if (Navigate(SoldierManager.GetPoint(RedTeam, Role == SoliderRole.Defender)))
                         {
                             AddMessage(Role == SoliderRole.Attacker ? "Moving to offensive position." : "Moving to defensive position.");
                         }
@@ -827,7 +803,7 @@ namespace Project.Agents
         /// Respawn the soldier after being killed.
         /// </summary>
         /// <returns>Nothing.</returns>
-        private IEnumerator Respawn()
+        public IEnumerator Respawn()
         {
             // Set that the soldier has died.
             Role = SoliderRole.Dead;

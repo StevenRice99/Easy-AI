@@ -15,11 +15,6 @@ namespace Project.Managers
     public class SoldierManager : Manager
     {
         /// <summary>
-        /// Getter to cast the AgentManager singleton into a SoldierAgentManager.
-        /// </summary>
-        public static SoldierManager SoldierSingleton => Singleton as SoldierManager;
-
-        /// <summary>
         /// How much health each soldier has.
         /// </summary>
         public static int Health => SoldierSingleton.health;
@@ -74,11 +69,66 @@ namespace Project.Managers
         /// </summary>
         public static Material Blue => SoldierSingleton.blue;
 
+        /// <summary>
+        /// The flags captured by the red team.
+        /// </summary>
+        public static int CapturedRed => SoldierSingleton._capturedRed;
+
+        /// <summary>
+        /// The flags captured by the blue team.
+        /// </summary>
+        public static int CapturedBlue => SoldierSingleton._capturedBlue;
+
+        /// <summary>
+        /// The total kills by the red team.
+        /// </summary>
+        public static int KillsRed => SoldierSingleton._killsRed;
+
+        /// <summary>
+        /// The total kills by the blue team.
+        /// </summary>
+        public static int KillsBlue => SoldierSingleton._killsBlue;
+
+        /// <summary>
+        /// The spawn points for soldiers.
+        /// </summary>
+        public static IEnumerable<SpawnPoint> SpawnPoints => SoldierSingleton._spawnPoints;
+
+        /// <summary>
+        /// Soldiers ordered by how well they are performing.
+        /// </summary>
+        public static List<SoldierAgent> Sorted => SoldierSingleton._sorted;
+
+        /// <summary>
+        /// What the most flag captures by a single soldier is.
+        /// </summary>
+        public static int MostCaptures => SoldierSingleton._mostCaptures;
+
+        /// <summary>
+        /// What the most flag returns by a single soldier is.
+        /// </summary>
+        public static int MostReturns => SoldierSingleton._mostReturns;
+
+        /// <summary>
+        /// What the most kills by a single soldier is.
+        /// </summary>
+        public static int MostKills => SoldierSingleton._mostKills;
+
+        /// <summary>
+        /// What the least deaths by a single soldier is.
+        /// </summary>
+        public static int LeastDeaths => SoldierSingleton._leastDeaths;
+        
+        /// <summary>
+        /// Cast the Manager singleton into a SoldierManager.
+        /// </summary>
+        private static SoldierManager SoldierSingleton => Singleton as SoldierManager;
+
         [Header("Soldier Parameters")]
         [Tooltip("How many soldiers to have on each team.")]
         [Range(1, 15)]
         [SerializeField]
-        private int soldiersPerTeam = 1;
+        private int soldiersPerTeam = 3;
 
         [Tooltip("How much health each soldier has.")]
         [Min(1)]
@@ -138,56 +188,31 @@ namespace Project.Managers
         [Tooltip("The material to apply to the blue soldiers.")]
         [SerializeField]
         private Material blue;
-        
+
         /// <summary>
         /// The flags captured by the red team.
         /// </summary>
-        public int ScoreRed { get; set; }
-        
+        private int _capturedRed;
+
         /// <summary>
         /// The flags captured by the blue team.
         /// </summary>
-        public int ScoreBlue { get; set; }
-        
+        private int _capturedBlue;
+
         /// <summary>
         /// The total kills by the red team.
         /// </summary>
-        public int KillsRed { get; set; }
-        
+        private int _killsRed;
+
         /// <summary>
         /// The total kills by the blue team.
         /// </summary>
-        public int KillsBlue { get; set; }
-        
+        private int _killsBlue;
+
         /// <summary>
         /// The spawn points for soldiers.
         /// </summary>
-        public SpawnPoint[] SpawnPoints { get; private set; }
-        
-        /// <summary>
-        /// Soldiers ordered by how well they are performing.
-        /// </summary>
-        public List<SoldierAgent> Sorted { get; private set; }
-        
-        /// <summary>
-        /// What the most flag captures by a single soldier is.
-        /// </summary>
-        public int MostCaptures { get; private set; }
-        
-        /// <summary>
-        /// What the most flag returns by a single soldier is.
-        /// </summary>
-        public int MostReturns { get; private set; }
-        
-        /// <summary>
-        /// What the most kills by a single soldier is.
-        /// </summary>
-        public int MostKills { get; private set; }
-        
-        /// <summary>
-        /// What the least deaths by a single soldier is.
-        /// </summary>
-        public int LeastDeaths { get; private set; }
+        private SpawnPoint[] _spawnPoints;
 
         /// <summary>
         /// All strategic positions for soldiers to use.
@@ -200,9 +225,97 @@ namespace Project.Managers
         private HealthWeaponPickup[] _healthWeaponPickups;
 
         /// <summary>
+        /// What the most flag captures by a single soldier is.
+        /// </summary>
+        private int _mostCaptures;
+
+        /// <summary>
+        /// What the most flag returns by a single soldier is.
+        /// </summary>
+        private int _mostReturns;
+
+        /// <summary>
+        /// What the most kills by a single soldier is.
+        /// </summary>
+        private int _mostKills;
+
+        /// <summary>
+        /// What the least deaths by a single soldier is.
+        /// </summary>
+        private int _leastDeaths;
+
+        /// <summary>
+        /// Soldiers ordered by how well they are performing.
+        /// </summary>
+        private List<SoldierAgent> _sorted;
+
+        /// <summary>
         /// If the cameras should lock to the best player or not.
         /// </summary>
         private bool _best = true;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="flag"></param>
+        public static void CaptureFlag(FlagPickup flag)
+        {
+            if (flag.IsRedFlag)
+            {
+                SoldierSingleton._capturedBlue++;
+            }
+            else
+            {
+                SoldierSingleton._capturedRed++;
+            }
+            
+            // Add the capture to the player.
+            flag.carryingPlayer.AddMessage("Captured the flag.");
+            flag.carryingPlayer.Captures++;
+
+            // Finally return the flag and reassign roles.
+            SoldierAgent soldier = flag.carryingPlayer;
+            flag.ReturnFlag(null);
+            soldier.AssignRoles();
+            
+            UpdateSorted();
+        }
+
+        /// <summary>
+        /// Add a kill.
+        /// </summary>
+        /// <param name="shooter">The solider that got the kill.</param>
+        /// <param name="killed">The soldier that got killed.</param>
+        public static void AddKill(SoldierAgent shooter, SoldierAgent killed)
+        {
+            // Reset killed player stats.
+            killed.Health = 0;
+            killed.Deaths++;
+            
+            // Add a kill for the shooter.
+            shooter.Kills++;
+            
+            // Add messages to each.
+            killed.AddMessage($"Killed by {shooter.name}.");
+            shooter.AddMessage($"Killed {killed.name}");
+            
+            // Add team score.
+            if (shooter.RedTeam)
+            {
+                SoldierSingleton._killsRed++;
+            }
+            else
+            {
+                SoldierSingleton._killsBlue++;
+            }
+
+            // Reassign team roles as a team member has died.
+            UpdateSorted();
+
+            // Start the respawn counter.
+            killed.StopAllCoroutines();
+            killed.StartCoroutine(killed.Respawn());
+        }
 
         /// <summary>
         /// Get a point to move to.
@@ -210,10 +323,10 @@ namespace Project.Managers
         /// <param name="redTeam">If this is for the red or blue team.</param>
         /// <param name="defensive">If this is for a defensive or offensive point.</param>
         /// <returns>A point to move to.</returns>
-        public Vector3 GetPoint(bool redTeam, bool defensive)
+        public static Vector3 GetPoint(bool redTeam, bool defensive)
         {
             // Get all points for the team and for the given type.
-            StrategicPoint[] points = _strategicPoints.Where(s => s.redTeam == redTeam && s.defensive == defensive).ToArray();
+            StrategicPoint[] points = SoldierSingleton._strategicPoints.Where(s => s.redTeam == redTeam && s.defensive == defensive).ToArray();
             
             // Get all open spots.
             StrategicPoint[] open = points.Where(s => s.Open).ToArray();
@@ -227,7 +340,7 @@ namespace Project.Managers
         /// </summary>
         /// <param name="soldierPosition">The position of the solder.</param>
         /// <returns>The health pack to move to or null if none are ready.</returns>
-        public Vector3? GetHealth(Vector3 soldierPosition)
+        public static Vector3? GetHealth(Vector3 soldierPosition)
         {
             // A health pickup is just a weapon pickup with an index of -1, so simply return that.
             return GetWeapon(soldierPosition, -1);
@@ -239,10 +352,10 @@ namespace Project.Managers
         /// <param name="soldierPosition">The position of the solder.</param>
         /// <param name="weaponIndex">The weapon type to look for.</param>
         /// <returns>The ammo pickup to move to or null if none are ready.</returns>
-        public Vector3? GetWeapon(Vector3 soldierPosition, int weaponIndex)
+        public static Vector3? GetWeapon(Vector3 soldierPosition, int weaponIndex)
         {
             // Get all pickups for the given type that can be picked up.
-            HealthWeaponPickup[] ready = _healthWeaponPickups.Where(p => p.weaponIndex == weaponIndex && p.Ready).ToArray();
+            HealthWeaponPickup[] ready = SoldierSingleton._healthWeaponPickups.Where(p => p.weaponIndex == weaponIndex && p.Ready).ToArray();
             
             // Get the nearest one if there are any, otherwise return null.
             return ready.Length > 0 ? ready.OrderBy(p => Vector3.Distance(soldierPosition, p.transform.position)).First().transform.position : null;
@@ -251,13 +364,64 @@ namespace Project.Managers
         /// <summary>
         /// Update all top scoring values.
         /// </summary>
-        public void UpdateSorted()
+        public static void UpdateSorted()
         {
-            Sorted = Sorted.OrderByDescending(s => s.Captures).ThenByDescending(s => s.Kills).ThenBy(s => s.Deaths).ThenByDescending(s => s.Returns).ThenByDescending(s => s.Role == SoldierAgent.SoliderRole.Collector).ToList();
-            MostCaptures = Sorted.OrderByDescending(s => s.Captures).First().Captures;
-            MostReturns = Sorted.OrderByDescending(s => s.Returns).First().Returns;
-            MostKills = Sorted.OrderByDescending(s => s.Kills).First().Kills;
-            LeastDeaths = Sorted.OrderBy(s => s.Deaths).First().Deaths;
+            SoldierSingleton._sorted = SoldierSingleton._sorted.OrderByDescending(s => s.Captures).ThenByDescending(s => s.Kills).ThenBy(s => s.Deaths).ThenByDescending(s => s.Returns).ThenByDescending(s => s.Role == SoldierAgent.SoliderRole.Collector).ToList();
+            SoldierSingleton._mostCaptures = SoldierSingleton._sorted.OrderByDescending(s => s.Captures).First().Captures;
+            SoldierSingleton._mostReturns = SoldierSingleton._sorted.OrderByDescending(s => s.Returns).First().Returns;
+            SoldierSingleton._mostKills = SoldierSingleton._sorted.OrderByDescending(s => s.Kills).First().Kills;
+            SoldierSingleton._leastDeaths = SoldierSingleton._sorted.OrderBy(s => s.Deaths).First().Deaths;
+        }
+
+        /// <summary>
+        /// Reset the level.
+        /// </summary>
+        private static void NewGame()
+        {
+            // Return the red flag.
+            if (FlagPickup.RedFlag != null)
+            {
+                FlagPickup.RedFlag.ReturnFlag(null);
+            }
+            
+            // Return the blue flag.
+            if (FlagPickup.BlueFlag != null)
+            {
+                FlagPickup.BlueFlag.ReturnFlag(null);
+            }
+
+            // Enable every spawn point.
+            foreach (SpawnPoint spawnPoint in SoldierSingleton._spawnPoints)
+            {
+                spawnPoint.Used = false;
+            }
+            
+            // Reset every soldier.
+            foreach (SoldierAgent soldier in SoldierSingleton._sorted)
+            {
+                soldier.Spawn();
+                soldier.Kills = 0;
+                soldier.Deaths = 0;
+                soldier.Captures = 0;
+                soldier.Returns = 0;
+            }
+            
+            // Reset every pickup.
+            foreach (HealthWeaponPickup pickup in SoldierSingleton._healthWeaponPickups)
+            {
+                pickup.StopAllCoroutines();
+                pickup.Ready = true;
+            }
+
+            // Reset all values.
+            SoldierSingleton._killsRed = 0;
+            SoldierSingleton._killsBlue = 0;
+            SoldierSingleton._capturedRed = 0;
+            SoldierSingleton._capturedBlue = 0;
+            SoldierSingleton._mostCaptures = 0;
+            SoldierSingleton._mostReturns = 0;
+            SoldierSingleton._mostKills = 0;
+            SoldierSingleton._leastDeaths = 0;
         }
         
         protected override void Start()
@@ -266,7 +430,7 @@ namespace Project.Managers
             base.Start();
 
             // Get all points in the level.
-            SpawnPoints = FindObjectsOfType<SpawnPoint>();
+            _spawnPoints = FindObjectsOfType<SpawnPoint>();
             _strategicPoints = FindObjectsOfType<StrategicPoint>();
             _healthWeaponPickups = FindObjectsOfType<HealthWeaponPickup>();
 
@@ -276,7 +440,7 @@ namespace Project.Managers
                 Instantiate(soldierPrefab);
             }
             
-            Sorted = FindObjectsOfType<SoldierAgent>().ToList();
+            _sorted = FindObjectsOfType<SoldierAgent>().ToList();
         }
 
         protected override void Update()
@@ -396,8 +560,8 @@ namespace Project.Managers
             }
             
             // If set to follow the best soldier, set it as the selected agent.
-            SoldierAgent bestAlive = Sorted.FirstOrDefault(s => s.Alive);
-            SetSelectedAgent(bestAlive != null ? bestAlive : Sorted[0]);
+            SoldierAgent bestAlive = _sorted.FirstOrDefault(s => s.Alive);
+            SetSelectedAgent(bestAlive != null ? bestAlive : _sorted[0]);
         }
         
         /// <summary>
@@ -414,7 +578,7 @@ namespace Project.Managers
             // Reset the game.
             if (GuiButton(x, y, w, h, "Reset"))
             {
-                Reset();
+                NewGame();
             }
             
             // Toggle between manually selecting soldiers and following the best one.
@@ -425,57 +589,6 @@ namespace Project.Managers
             }
             
             return NextItem(y, h, p);
-        }
-
-        /// <summary>
-        /// Reset the level.
-        /// </summary>
-        private void Reset()
-        {
-            // Return the red flag.
-            if (FlagPickup.RedFlag != null)
-            {
-                FlagPickup.RedFlag.ReturnFlag(null);
-            }
-            
-            // Return the blue flag.
-            if (FlagPickup.BlueFlag != null)
-            {
-                FlagPickup.BlueFlag.ReturnFlag(null);
-            }
-
-            // Enable every spawn point.
-            foreach (SpawnPoint spawnPoint in SpawnPoints)
-            {
-                spawnPoint.Used = false;
-            }
-            
-            // Reset every soldier.
-            foreach (SoldierAgent soldier in Sorted)
-            {
-                soldier.Spawn();
-                soldier.Kills = 0;
-                soldier.Deaths = 0;
-                soldier.Captures = 0;
-                soldier.Returns = 0;
-            }
-            
-            // Reset every pickup.
-            foreach (HealthWeaponPickup pickup in _healthWeaponPickups)
-            {
-                pickup.StopAllCoroutines();
-                pickup.Ready = true;
-            }
-
-            // Reset all values.
-            KillsRed = 0;
-            KillsBlue = 0;
-            ScoreRed = 0;
-            ScoreBlue = 0;
-            MostCaptures = 0;
-            MostReturns = 0;
-            MostKills = 0;
-            LeastDeaths = 0;
         }
     }
 }

@@ -33,7 +33,7 @@ namespace Project.Weapons
             projectile.name = $"{name} Projectile";
             ProjectileBullet projectileBullet = projectile.GetComponent<ProjectileBullet>();
             projectileBullet.WeaponIndex = Index;
-            projectileBullet.ShotBy = Soldier;
+            projectileBullet.Shooter = Soldier;
             projectileBullet.Damage = damage;
             projectileBullet.Distance = distance;
             projectileBullet.Velocity = velocity;

@@ -15,7 +15,7 @@ namespace Project.Weapons
         /// <summary>
         /// The soldier that shot the weapon.
         /// </summary>
-        public SoldierAgent ShotBy { get; set; }
+        public SoldierAgent Shooter { get; set; }
 
         /// <summary>
         /// The weapon index of the soldier.
@@ -46,7 +46,7 @@ namespace Project.Weapons
         {
             // Disable collisions with the soldier that shot it.
             Collider col = GetComponent<Collider>();
-            foreach (Collider hitBox in ShotBy.Colliders)
+            foreach (Collider hitBox in Shooter.Colliders)
             {
                 if (hitBox != null && hitBox.enabled)
                 {
@@ -80,9 +80,9 @@ namespace Project.Weapons
             } while (attacked == null && tr != null);
 
             // If an enemy was hit, damage them.
-            if (attacked != null && attacked.RedTeam != ShotBy.RedTeam)
+            if (attacked != null && attacked.RedTeam != Shooter.RedTeam)
             {
-                attacked.Damage(Damage, ShotBy);
+                attacked.Damage(Damage, Shooter);
             }
             
             // Calculate splash damage if there is some.
@@ -91,7 +91,7 @@ namespace Project.Weapons
                 int layerMask = LayerMask.GetMask("Default", "Obstacle", "Ground", "Projectile", "HitBox");
 
                 // Loop through all enemies.
-                foreach (SoldierAgent soldier in FindObjectsOfType<SoldierAgent>().Where(p => p != ShotBy && p.RedTeam != ShotBy.RedTeam && p != attacked).ToArray())
+                foreach (SoldierAgent soldier in FindObjectsOfType<SoldierAgent>().Where(p => p != Shooter && p.RedTeam != Shooter.RedTeam && p != attacked).ToArray())
                 {
                     // Get the points of every collider of an enemy.
                     Collider[] hitBoxes = soldier.GetComponentsInChildren<Collider>().Where(c => c.gameObject.layer == LayerMask.NameToLayer("HitBox")).ToArray();
@@ -107,7 +107,7 @@ namespace Project.Weapons
                             continue;
                         }
                         
-                        soldier.Damage(Mathf.Max((int) (Damage * (1 - Vector3.Distance(point, transform.position) / Distance)), 1), ShotBy);
+                        soldier.Damage(Mathf.Max((int) (Damage * (1 - Vector3.Distance(point, transform.position) / Distance)), 1), Shooter);
                         break;
                     }
                 }
@@ -115,8 +115,8 @@ namespace Project.Weapons
 
             // Create the impact effect and audio.
             Vector3 p = transform.position;
-            ShotBy.Weapons[WeaponIndex].ImpactAudio(p, 1);
-            ShotBy.Weapons[WeaponIndex].ImpactVisual(p, Vector3.zero);
+            Shooter.Weapons[WeaponIndex].ImpactAudio(p, 1);
+            Shooter.Weapons[WeaponIndex].ImpactVisual(p, Vector3.zero);
             
             // Destroy the projectile.
             Destroy(gameObject);

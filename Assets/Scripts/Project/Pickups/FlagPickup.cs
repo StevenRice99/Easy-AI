@@ -29,6 +29,8 @@ namespace Project.Pickups
         /// </summary>
         public SoldierAgent carryingPlayer;
 
+        public bool IsRedFlag => redFlag;
+
         [SerializeField]
         [Tooltip("If this flag is for the red team or not.")]
         private bool redFlag;
@@ -65,7 +67,7 @@ namespace Project.Pickups
             {
                 soldier.Returns++;
                 soldier.AddMessage("Returned the flag.");
-                SoldierManager.SoldierSingleton.UpdateSorted();
+                SoldierManager.UpdateSorted();
             }
 
             // Reset the flag.
@@ -148,33 +150,6 @@ namespace Project.Pickups
         }
 
         /// <summary>
-        /// Capture the flag.
-        /// </summary>
-        private void CaptureFlag()
-        {
-            // Add the point to the given team.
-            if (redFlag)
-            {
-                SoldierManager.SoldierSingleton.ScoreBlue++;
-            }
-            else
-            {
-                SoldierManager.SoldierSingleton.ScoreRed++;
-            }
-
-            // Add the capture to the player.
-            carryingPlayer.AddMessage("Captured the flag.");
-            carryingPlayer.Captures++;
-
-            // Finally return the flag and reassign roles.
-            SoldierAgent soldier = carryingPlayer;
-            ReturnFlag(null);
-            soldier.AssignRoles();
-            
-            SoldierManager.SoldierSingleton.UpdateSorted();
-        }
-
-        /// <summary>
         /// Check if a player is on the same team as the flag is for.
         /// </summary>
         /// <param name="soldier">The soldier to check.</param>
@@ -227,7 +202,7 @@ namespace Project.Pickups
             // If in range to capture the flag, capture it.
             if (Vector3.Distance(carryingPlayer.transform.position, (redFlag ? BlueFlag : RedFlag).SpawnPosition) <= CaptureDistance)
             {
-                CaptureFlag();
+                SoldierManager.CaptureFlag(this);
             }
         }
     }
