@@ -1,6 +1,5 @@
 using System.Linq;
 using A2.Agents;
-using EasyAI;
 using EasyAI.Managers;
 using UnityEngine;
 using UnityEngine.InputSystem;

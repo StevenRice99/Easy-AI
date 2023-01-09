@@ -151,26 +151,16 @@ namespace EasyAI.Agents
                 }
             }
         }
-
+        
         /// <summary>
-        /// The path destination.
+        /// The time passed since the last time the agent's mind made decisions. Use this instead of Time.DeltaTime.
         /// </summary>
-        protected Vector3? Destination => Path?[^1];
-
-        /// <summary>
-        /// The current move velocity if move acceleration is being used as a Vector3.
-        /// </summary>
-        protected Vector3 MoveVelocity3 => new(MoveVelocity.x, 0, MoveVelocity.y);
+        public float DeltaTime { get; private set; }
 
         /// <summary>
         /// The current move velocity if move acceleration is being used.
         /// </summary>
         public Vector2 MoveVelocity { get; protected set; }
-        
-        /// <summary>
-        /// The time passed since the last time the agent's mind made decisions. Use this instead of Time.DeltaTime.
-        /// </summary>
-        public float DeltaTime { get; set; }
 
         /// <summary>
         /// The target the agent is currently trying to look towards.
@@ -226,6 +216,16 @@ namespace EasyAI.Agents
         /// The current path an agent is following.
         /// </summary>
         public List<Vector3> Path { get; private set; }
+
+        /// <summary>
+        /// The path destination.
+        /// </summary>
+        protected Vector3? Destination => Path?[^1];
+
+        /// <summary>
+        /// The current move velocity if move acceleration is being used as a Vector3.
+        /// </summary>
+        protected Vector3 MoveVelocity3 => new(MoveVelocity.x, 0, MoveVelocity.y);
 
         /// <summary>
         /// The index of the currently selected mind.
@@ -294,6 +294,11 @@ namespace EasyAI.Agents
                 GL.Vertex(position);
             }
             GL.Vertex(LookTarget);
+        }
+
+        public void IncreaseDeltaTime()
+        {
+            DeltaTime += Time.deltaTime;
         }
 
         /// <summary>
@@ -613,7 +618,7 @@ namespace EasyAI.Agents
             sensors.AddRange(GetComponentsInChildren<Sensor>());
             Sensors = sensors.Distinct().ToArray();
             
-            // Setup the percepts array to match the size of the sensors so each sensor can return a percept to its index.
+            // Setup the percepts array to match the size of the sensors so each sensor can return a percepts to its index.
             foreach (Sensor sensor in Sensors)
             {
                 sensor.Agent = this;

@@ -72,20 +72,20 @@ namespace A1.States
             List<Vector3> likelyToGetDirty = new();
 
             // Build lists.
-            foreach (FloorsData dirtPercept in dirtPercepts)
+            foreach (FloorsData floorData in dirtPercepts)
             {
-                for (int i = 0; i < dirtPercept.Positions.Length; i++)
+                for (int i = 0; i < floorData.Positions.Length; i++)
                 {
-                    all.Add(dirtPercept.Positions[i]);
+                    all.Add(floorData.Positions[i]);
                     
-                    if (dirtPercept.LikelyToGetDirty[i])
+                    if (floorData.LikelyToGetDirty[i])
                     {
-                        likelyToGetDirty.Add(dirtPercept.Positions[i]);
+                        likelyToGetDirty.Add(floorData.Positions[i]);
                     }
 
-                    if (dirtPercept.Dirty[i])
+                    if (floorData.Dirty[i])
                     {
-                        dirty.Add(dirtPercept.Positions[i]);
+                        dirty.Add(floorData.Positions[i]);
                     }
                 }
             }

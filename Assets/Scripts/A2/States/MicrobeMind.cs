@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using A2.Agents;
 using A2.Managers;
-using EasyAI;
 using EasyAI.AgentActions;
 using EasyAI.Agents;
 using EasyAI.Managers;

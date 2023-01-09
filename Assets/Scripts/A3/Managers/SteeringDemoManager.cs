@@ -1,6 +1,4 @@
-﻿using EasyAI;
-using EasyAI.Agents;
-using EasyAI.Managers;
+﻿using EasyAI.Managers;
 using EasyAI.Navigation;
 using UnityEngine;
 

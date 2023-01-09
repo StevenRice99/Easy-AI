@@ -1,11 +1,10 @@
-﻿using System;
-using EasyAI.Managers;
+﻿using EasyAI.Managers;
 using UnityEngine;
 
 namespace EasyAI.Navigation
 {
     /// <summary>
-    /// Steering behaviours implemented based upon Mat Buckland's Programming Game AI by Example and Dr. Goodwin's Slides.
+    /// Steering behaviours implemented.
     /// These are static calls using simple parameters so they are not directly tied to agents but are easily implementable by them.
     /// </summary>
     public static class Steering
@@ -74,7 +73,6 @@ namespace EasyAI.Navigation
         
         /// <summary>
         /// Seek - Move directly towards a position.
-        /// Based upon the implementation detailed in Programming Game AI by Example page 91.
         /// </summary>
         /// <param name="position">The position of the agent.</param>
         /// <param name="velocity">The current velocity of the agent.</param>
@@ -88,7 +86,6 @@ namespace EasyAI.Navigation
 
         /// <summary>
         /// Flee - Move directly away from a position.
-        /// Based upon the implementation detailed in Programming Game AI by Example page 92.
         /// </summary>
         /// <param name="position">The position of the agent.</param>
         /// <param name="velocity">The current velocity of the agent.</param>
@@ -103,7 +100,6 @@ namespace EasyAI.Navigation
 
         /// <summary>
         /// Pursue - Move towards a position factoring in its current speed to predict where it is moving.
-        /// Based upon the implementation detailed in Programming Game AI by Example page 94.
         /// </summary>
         /// <param name="position">The position of the agent.</param>
         /// <param name="velocity">The current velocity of the agent.</param>
@@ -128,7 +124,6 @@ namespace EasyAI.Navigation
 
         /// <summary>
         /// Evade - Move from a position factoring in its current speed to predict where it is moving.
-        /// Based upon the implementation detailed in Programming Game AI by Example page 96.
         /// </summary>
         /// <param name="position">The position of the agent.</param>
         /// <param name="velocity">The current velocity of the agent.</param>
@@ -150,7 +145,5 @@ namespace EasyAI.Navigation
             // with the velocity calculated by subtracting the current and previous positions over the elapsed time.
             return Flee(position, velocity, pursuer + (pursuer - pursuerLastPosition) / deltaTime * lookAheadTime, speed);
         }
-
-
     }
 }

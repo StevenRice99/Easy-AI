@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using EasyAI;
 using EasyAI.Managers;
 using Unity.Mathematics;
 using UnityEngine;

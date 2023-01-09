@@ -2,7 +2,6 @@
 using A2.Agents;
 using A2.Pickups;
 using A2.States;
-using EasyAI;
 using EasyAI.Agents;
 using EasyAI.Managers;
 using UnityEngine;

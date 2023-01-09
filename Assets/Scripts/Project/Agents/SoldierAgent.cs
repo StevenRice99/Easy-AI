@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using EasyAI;
 using EasyAI.Agents;
 using EasyAI.Managers;
 using Project.Managers;

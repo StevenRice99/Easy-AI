@@ -184,19 +184,6 @@ namespace EasyAI.Managers
         }
 
         /// <summary>
-        /// Determine what gizmos lines are drawn.
-        /// Off - No lines are drawn.
-        /// All - Every line from every agent, sensor, and actuator is drawn.
-        /// Selected - If an agent is selected, only it and its sensors and actuators are drawn. If an individual sensor or actuator is selected, only it is drawn.
-        /// </summary>
-        public enum GizmosState : byte
-        {
-            Off,
-            All,
-            Selected
-        }
-
-        /// <summary>
         /// Determine what navigation lines are drawn.
         /// Off - No lines are drawn.
         /// All - Every line for every connection is drawn.
@@ -224,6 +211,19 @@ namespace EasyAI.Managers
             Agent,
             Components,
             Component
+        }
+
+        /// <summary>
+        /// Determine what gizmos lines are drawn.
+        /// Off - No lines are drawn.
+        /// All - Every line from every agent, sensor, and actuator is drawn.
+        /// Selected - If an agent is selected, only it and its sensors and actuators are drawn. If an individual sensor or actuator is selected, only it is drawn.
+        /// </summary>
+        private enum GizmosState : byte
+        {
+            Off,
+            All,
+            Selected
         }
 
         /// <summary>
@@ -296,11 +296,6 @@ namespace EasyAI.Managers
         public static int MaxMessages => Singleton.maxMessages;
 
         /// <summary>
-        /// If the scene is currently playing or not.
-        /// </summary>
-        public static bool Playing => !Singleton._stepping && Time.timeScale > 0;
-
-        /// <summary>
         /// The currently selected agent.
         /// </summary>
         public static Agent CurrentlySelectedAgent => Singleton.SelectedAgent;
@@ -359,6 +354,11 @@ namespace EasyAI.Managers
         /// Cached shader value for use with line rendering.
         /// </summary>
         private static readonly int ZWrite = Shader.PropertyToID("_ZWrite");
+
+        /// <summary>
+        /// If the scene is currently playing or not.
+        /// </summary>
+        private static bool Playing => !Singleton._stepping && Time.timeScale > 0;
 
         /// <summary>
         /// The auto-generated material for displaying lines.
@@ -656,7 +656,7 @@ namespace EasyAI.Managers
         /// </summary>
         /// <param name="name">The name to give the agent.</param>
         /// <returns>Game object with the visuals setup for a basic agent.</returns>
-        public static GameObject CreateAgent(string name)
+        private static GameObject CreateAgent(string name)
         {
             GameObject agent = new(name);
 
@@ -688,7 +688,7 @@ namespace EasyAI.Managers
         /// </summary>
         /// <param name="name">The name to give the camera.</param>
         /// <returns>Game object with a camera.</returns>
-        public static GameObject CreateCamera(string name)
+        private static GameObject CreateCamera(string name)
         {
             GameObject camera = new(name);
             camera.AddComponent<Camera>();
@@ -906,25 +906,6 @@ namespace EasyAI.Managers
         }
 
         /// <summary>
-        /// Register a state type into the dictionary for future reference.
-        /// </summary>
-        /// <param name="stateType">The type of state.</param>
-        /// <param name="stateToAdd">The state itself.</param>
-        public static void RegisterState(Type stateType, State stateToAdd)
-        {
-            RegisteredStates[stateType] = stateToAdd;
-        }
-
-        /// <summary>
-        /// Remove a state type from the dictionary.
-        /// </summary>
-        /// <param name="stateType">The type of state.</param>
-        public static void RemoveState(Type stateType)
-        {
-            RegisteredStates.Remove(stateType);
-        }
-
-        /// <summary>
         /// Lookup a state type from the dictionary.
         /// </summary>
         /// <param name="stateType">The type of state.</param>
@@ -932,22 +913,6 @@ namespace EasyAI.Managers
         public static State Lookup(Type stateType)
         {
             return RegisteredStates.ContainsKey(stateType) ? RegisteredStates[stateType] : CreateState(stateType);
-        }
-
-        /// <summary>
-        /// Resume playing.
-        /// </summary>
-        public static void Resume()
-        {
-            Time.timeScale = 1;
-        }
-
-        /// <summary>
-        /// Pause playing.
-        /// </summary>
-        public static void Pause()
-        {
-            Time.timeScale = 0;
         }
 
         /// <summary>
@@ -1131,9 +1096,32 @@ namespace EasyAI.Managers
         }
 
         /// <summary>
+        /// Change the messaging mode.
+        /// </summary>
+        /// <param name="mode">The mode to change to.</param>
+        public static void ChangeMessageMode(MessagingMode mode)
+        {
+            Singleton._messageMode = mode;
+        }
+
+        /// <summary>
+        /// Change to the next gizmos state.
+        /// </summary>
+        private static void ChangeGizmosState()
+        {
+            if (Singleton.gizmos == GizmosState.Selected)
+            {
+                Singleton.gizmos = GizmosState.Off;
+                return;
+            }
+
+            Singleton.gizmos++;
+        }
+
+        /// <summary>
         /// Sort all agents by name.
         /// </summary>
-        public static void SortAgents()
+        protected static void SortAgents()
         {
             Singleton.Agents = Singleton.Agents.OrderBy(a => a.name).ToList();
         }
@@ -1141,7 +1129,7 @@ namespace EasyAI.Managers
         /// <summary>
         /// Find all cameras in the scene so buttons can be setup for them.
         /// </summary>
-        public static void FindCameras()
+        private static void FindCameras()
         {
             Singleton._cameras = FindObjectsOfType<Camera>().OrderBy(c => c.name).ToArray();
         }
@@ -1149,7 +1137,7 @@ namespace EasyAI.Managers
         /// <summary>
         /// Change to the next messaging mode.
         /// </summary>
-        public static void ChangeMessageMode()
+        private static void ChangeMessageMode()
         {
             if (Singleton._messageMode == MessagingMode.Unique)
             {
@@ -1167,337 +1155,13 @@ namespace EasyAI.Managers
         }
 
         /// <summary>
-        /// Change the messaging mode.
+        /// Register a state type into the dictionary for future reference.
         /// </summary>
-        /// <param name="mode">The mode to change to.</param>
-        public static void ChangeMessageMode(MessagingMode mode)
+        /// <param name="stateType">The type of state.</param>
+        /// <param name="stateToAdd">The state itself.</param>
+        private static void RegisterState(Type stateType, State stateToAdd)
         {
-            Singleton._messageMode = mode;
-        }
-
-        /// <summary>
-        /// Change to the next gizmos state.
-        /// </summary>
-        public static void ChangeGizmosState()
-        {
-            if (Singleton.gizmos == GizmosState.Selected)
-            {
-                Singleton.gizmos = GizmosState.Off;
-                return;
-            }
-
-            Singleton.gizmos++;
-        }
-
-        /// <summary>
-        /// Change to the next navigation state.
-        /// </summary>
-        public static void ChangeNavigationState()
-        {
-            if (Singleton.paths == PathState.Selected)
-            {
-                Singleton.paths = PathState.Off;
-                return;
-            }
-
-            Singleton.paths++;
-        }
-
-        /// <summary>
-        /// Change the gizmos state.
-        /// </summary>
-        /// <param name="state">The state to change to.</param>
-        public static void ChangeGizmosState(GizmosState state)
-        {
-            Singleton.gizmos = state;
-        }
-
-        /// <summary>
-        /// Step for a single frame.
-        /// </summary>
-        public static void Step()
-        {
-            Singleton.StartCoroutine(StepOneFrame());
-        }
-
-        /// <summary>
-        /// Clear all messages.
-        /// </summary>
-        public static void ClearMessages()
-        {
-            Singleton._globalMessages.Clear();
-            foreach (IntelligenceComponent component in FindObjectsOfType<IntelligenceComponent>())
-            {
-                component.ClearMessages();
-            }
-        }
-
-        /// <summary>
-        /// Switch to a camera.
-        /// </summary>
-        /// <param name="cam">The camera to switch to.</param>
-        public static void SwitchCamera(Camera cam)
-        {
-            Singleton.selectedCamera = cam;
-            cam.enabled = true;
-            foreach (Camera cam2 in Singleton._cameras)
-            {
-                if (cam != cam2)
-                {
-                    cam2.enabled = false;
-                }
-            }
-        }
-    
-        protected virtual void Awake()
-        {
-            if (Singleton == this)
-            {
-                return;
-            }
-
-            if (Singleton != null)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
-            Singleton = this;
-        }
-
-        protected virtual void Start()
-        {
-            // If we should use a pre-generated lookup table, use it if one exists.
-            if (lookupTable)
-            {
-                ReadLookupData();
-            }
-        
-            // If we should generate a lookup table or there was not one pre-generated to load, generate one.
-            if (!lookupTable)
-            {
-                // Generate all node areas in the scene.
-                foreach (NodeArea nodeArea in FindObjectsOfType<NodeArea>())
-                {
-                    nodeArea.Generate();
-                }
-
-                // Setup all freely-placed nodes.
-                foreach (Node node in FindObjectsOfType<Node>())
-                {
-                    Vector3 p = node.transform.position;
-                    node.Finish();
-                
-                    foreach (Vector3 v in _nodes)
-                    {
-                        // Ensure the nodes are in range to form a connection.
-                        float d = Vector3.Distance(p, v);
-                        if (nodeDistance > 0 && d > nodeDistance)
-                        {
-                            continue;
-                        }
-                    
-                        // Ensure the nodes have line of sight on each other.
-                        if (navigationRadius <= 0)
-                        {
-                            if (Physics.Linecast(p, v, obstacleLayers))
-                            {
-                                continue;
-                            }
-                        }
-                        else
-                        {
-                            Vector3 p1 = p;
-                            p1.y += navigationRadius;
-                            Vector3 p2 = v;
-                            p2.y += navigationRadius;
-                            Vector3 direction = (p2 - p1).normalized;
-                            if (Physics.SphereCast(p1, navigationRadius, direction, out _, d, obstacleLayers))
-                            {
-                                continue;
-                            }
-                        }
-                    
-                        // Ensure there is not already an entry for this connection in the list.
-                        if (_connections.Any(c => c.A == p && c.B == v || c.A == v && c.B == p))
-                        {
-                            continue;
-                        }
-                
-                        // Add the connection to the list.
-                        _connections.Add(new(p, v));
-                    }
-                
-                    _nodes.Add(p);
-                }
-
-                // If any nodes are not a part of any connections, remove them.
-                for (int i = 0; i < _nodes.Count; i++)
-                {
-                    if (!_connections.Any(c => c.A == _nodes[i] || c.B == _nodes[i]))
-                    {
-                        _nodes.RemoveAt(i--);
-                    }
-                }
-
-                // Store all new lookup tables.
-                List<NavigationLookup> table = new();
-        
-                // Loop through all nodes.
-                for (int i = 0; i < _nodes.Count; i++)
-                {
-                    // Loop through all nodes again so pathfinding can be done on each pair.
-                    for (int j = 0; j < _nodes.Count; j++)
-                    {
-                        // Skip if each node is the same.
-                        if (i == j)
-                        {
-                            continue;
-                        }
-
-                        // Get the A* path from one node to another.
-                        List<Vector3> path = AStar(_nodes[i], _nodes[j]);
-                    
-                        // Skip if there was no path.
-                        if (path.Count < 2)
-                        {
-                            continue;
-                        }
-
-                        // Loop through all nodes in the path and add them to the lookup table.
-                        for (int k = 0; k < path.Count - 1; k++)
-                        {
-                            // Ensure there are no duplicates in the lookup table.
-                            if (path[k] == _nodes[j] || table.Any(t => t.Current == path[k] && t.Goal == _nodes[j] && t.Next == path[k + 1]))
-                            {
-                                continue;
-                            }
-
-                            NavigationLookup lookup = new(path[k], _nodes[j], path[k + 1]);
-                            table.Add(lookup);
-                        }
-                    }
-                }
-
-                // Finalize the lookup table.
-                _navigationTable = table.ToArray();
-
-                // Write the lookup table to a file for fast reading on future runs.
-                WriteLookupData();
-            }
-
-            // Clean up all node related components in the scene as they are no longer needed after generation.
-            foreach (NodeBase nodeBase in FindObjectsOfType<NodeBase>().OrderBy(n => n.transform.childCount))
-            {
-                nodeBase.Finish();
-            }
-        
-            // Setup cameras.
-            FindCameras();
-            if (selectedCamera != null)
-            {
-                SwitchCamera(selectedCamera);
-            }
-            else if (_cameras.Length > 0)
-            {
-                SwitchCamera(_cameras[0]);
-            }
-            else
-            {
-                CreateFollowAgentCamera();
-                CreateTrackAgentCamera();
-                FindCameras();
-                SwitchCamera(_cameras[0]);
-            }
-        }
-
-        protected virtual void Update()
-        {
-            if (Agents.Count == 1)
-            {
-                SelectedAgent = Agents[0];
-            }
-        
-            // Perform for all agents if there is no limit or only the next allowable number of agents if there is.
-            if (maxAgentsPerUpdate <= 0)
-            {
-                for (int i = 0; i < Agents.Count; i++)
-                {
-                    try
-                    {
-                        Agents[i].Perform();
-                    }
-                    catch
-                    {
-                        // Ignored.
-                    }
-                }
-            }
-            else
-            {
-                for (int i = 0; i < maxAgentsPerUpdate && i < Agents.Count; i++)
-                {
-                    try
-                    {
-                        Agents[_currentAgentIndex].Perform();
-                    }
-                    catch
-                    {
-                        continue;
-                    }
-                
-                    NextAgent();
-                }
-            }
-
-            // Update the delta time for all agents and look towards their targets.
-            foreach (Agent agent in Agents)
-            {
-                agent.DeltaTime += Time.deltaTime;
-                agent.LookCalculations();
-            }
-        
-            // Move agents that do not require physics.
-            MoveAgents(_updateAgents);
-
-            // Click to select an agent.
-            if (!Mouse.current.leftButton.wasPressedThisFrame || !Physics.Raycast(selectedCamera.ScreenPointToRay(new(Mouse.current.position.x.ReadValue(), Mouse.current.position.y.ReadValue(), 0)), out RaycastHit hit, Mathf.Infinity))
-            {
-                return;
-            }
-
-            // See if an agent was actually hit with the click and select it if so.
-            Transform tr = hit.collider.transform;
-            do
-            {
-                Agent clicked = tr.GetComponent<Agent>();
-                if (clicked != null)
-                {
-                    SelectedAgent = clicked;
-                    return;
-                }
-                tr = tr.parent;
-            } while (tr != null);
-        }
-
-        protected void FixedUpdate()
-        {
-            // Move agents that require physics.
-            MoveAgents(_fixedUpdateAgents);
-        }
-
-        /// <summary>
-        /// Override for custom detail rendering on the automatic GUI.
-        /// </summary>
-        /// <param name="x">X rendering position. In most cases this should remain unchanged.</param>
-        /// <param name="y">Y rendering position. Update this with every component added and return it.</param>
-        /// <param name="w">Width of components. In most cases this should remain unchanged.</param>
-        /// <param name="h">Height of components. In most cases this should remain unchanged.</param>
-        /// <param name="p">Padding of components. In most cases this should remain unchanged.</param>
-        /// <returns>The updated Y position after all custom rendering has been done.</returns>
-        protected virtual float CustomRendering(float x, float y, float w, float h, float p)
-        {
-            return y;
+            RegisteredStates[stateType] = stateToAdd;
         }
 
         /// <summary>
@@ -2306,6 +1970,73 @@ namespace EasyAI.Managers
                 _currentAgentIndex = 0;
             }
         }
+
+        /// <summary>
+        /// Resume playing.
+        /// </summary>
+        private static void Resume()
+        {
+            Time.timeScale = 1;
+        }
+
+        /// <summary>
+        /// Pause playing.
+        /// </summary>
+        private static void Pause()
+        {
+            Time.timeScale = 0;
+        }
+
+        /// <summary>
+        /// Step for a single frame.
+        /// </summary>
+        private static void Step()
+        {
+            Singleton.StartCoroutine(StepOneFrame());
+        }
+        
+        /// <summary>
+        /// Change to the next navigation state.
+        /// </summary>
+        private static void ChangeNavigationState()
+        {
+            if (Singleton.paths == PathState.Selected)
+            {
+                Singleton.paths = PathState.Off;
+                return;
+            }
+
+            Singleton.paths++;
+        }
+
+        /// <summary>
+        /// Clear all messages.
+        /// </summary>
+        private static void ClearMessages()
+        {
+            Singleton._globalMessages.Clear();
+            foreach (IntelligenceComponent component in FindObjectsOfType<IntelligenceComponent>())
+            {
+                component.ClearMessages();
+            }
+        }
+
+        /// <summary>
+        /// Switch to a camera.
+        /// </summary>
+        /// <param name="cam">The camera to switch to.</param>
+        private static void SwitchCamera(Camera cam)
+        {
+            Singleton.selectedCamera = cam;
+            cam.enabled = true;
+            foreach (Camera cam2 in Singleton._cameras)
+            {
+                if (cam != cam2)
+                {
+                    cam2.enabled = false;
+                }
+            }
+        }
         
         /// <summary>
         /// Coroutine lasts for exactly one frame to step though each time step.
@@ -2512,6 +2243,257 @@ namespace EasyAI.Managers
 
             // Finalize the lookup table.
             _navigationTable = lookups.ToArray();
+        }
+        
+                protected virtual void Awake()
+        {
+            if (Singleton == this)
+            {
+                return;
+            }
+
+            if (Singleton != null)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            Singleton = this;
+        }
+
+        protected virtual void Start()
+        {
+            // If we should use a pre-generated lookup table, use it if one exists.
+            if (lookupTable)
+            {
+                ReadLookupData();
+            }
+        
+            // If we should generate a lookup table or there was not one pre-generated to load, generate one.
+            if (!lookupTable)
+            {
+                // Generate all node areas in the scene.
+                foreach (NodeArea nodeArea in FindObjectsOfType<NodeArea>())
+                {
+                    nodeArea.Generate();
+                }
+
+                // Setup all freely-placed nodes.
+                foreach (Node node in FindObjectsOfType<Node>())
+                {
+                    Vector3 p = node.transform.position;
+                    node.Finish();
+                
+                    foreach (Vector3 v in _nodes)
+                    {
+                        // Ensure the nodes are in range to form a connection.
+                        float d = Vector3.Distance(p, v);
+                        if (nodeDistance > 0 && d > nodeDistance)
+                        {
+                            continue;
+                        }
+                    
+                        // Ensure the nodes have line of sight on each other.
+                        if (navigationRadius <= 0)
+                        {
+                            if (Physics.Linecast(p, v, obstacleLayers))
+                            {
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            Vector3 p1 = p;
+                            p1.y += navigationRadius;
+                            Vector3 p2 = v;
+                            p2.y += navigationRadius;
+                            Vector3 direction = (p2 - p1).normalized;
+                            if (Physics.SphereCast(p1, navigationRadius, direction, out _, d, obstacleLayers))
+                            {
+                                continue;
+                            }
+                        }
+                    
+                        // Ensure there is not already an entry for this connection in the list.
+                        if (_connections.Any(c => c.A == p && c.B == v || c.A == v && c.B == p))
+                        {
+                            continue;
+                        }
+                
+                        // Add the connection to the list.
+                        _connections.Add(new(p, v));
+                    }
+                
+                    _nodes.Add(p);
+                }
+
+                // If any nodes are not a part of any connections, remove them.
+                for (int i = 0; i < _nodes.Count; i++)
+                {
+                    if (!_connections.Any(c => c.A == _nodes[i] || c.B == _nodes[i]))
+                    {
+                        _nodes.RemoveAt(i--);
+                    }
+                }
+
+                // Store all new lookup tables.
+                List<NavigationLookup> table = new();
+        
+                // Loop through all nodes.
+                for (int i = 0; i < _nodes.Count; i++)
+                {
+                    // Loop through all nodes again so pathfinding can be done on each pair.
+                    for (int j = 0; j < _nodes.Count; j++)
+                    {
+                        // Skip if each node is the same.
+                        if (i == j)
+                        {
+                            continue;
+                        }
+
+                        // Get the A* path from one node to another.
+                        List<Vector3> path = AStar(_nodes[i], _nodes[j]);
+                    
+                        // Skip if there was no path.
+                        if (path.Count < 2)
+                        {
+                            continue;
+                        }
+
+                        // Loop through all nodes in the path and add them to the lookup table.
+                        for (int k = 0; k < path.Count - 1; k++)
+                        {
+                            // Ensure there are no duplicates in the lookup table.
+                            if (path[k] == _nodes[j] || table.Any(t => t.Current == path[k] && t.Goal == _nodes[j] && t.Next == path[k + 1]))
+                            {
+                                continue;
+                            }
+
+                            NavigationLookup lookup = new(path[k], _nodes[j], path[k + 1]);
+                            table.Add(lookup);
+                        }
+                    }
+                }
+
+                // Finalize the lookup table.
+                _navigationTable = table.ToArray();
+
+                // Write the lookup table to a file for fast reading on future runs.
+                WriteLookupData();
+            }
+
+            // Clean up all node related components in the scene as they are no longer needed after generation.
+            foreach (NodeBase nodeBase in FindObjectsOfType<NodeBase>().OrderBy(n => n.transform.childCount))
+            {
+                nodeBase.Finish();
+            }
+        
+            // Setup cameras.
+            FindCameras();
+            if (selectedCamera != null)
+            {
+                SwitchCamera(selectedCamera);
+            }
+            else if (_cameras.Length > 0)
+            {
+                SwitchCamera(_cameras[0]);
+            }
+            else
+            {
+                CreateFollowAgentCamera();
+                CreateTrackAgentCamera();
+                FindCameras();
+                SwitchCamera(_cameras[0]);
+            }
+        }
+
+        protected virtual void Update()
+        {
+            if (Agents.Count == 1)
+            {
+                SelectedAgent = Agents[0];
+            }
+        
+            // Perform for all agents if there is no limit or only the next allowable number of agents if there is.
+            if (maxAgentsPerUpdate <= 0)
+            {
+                for (int i = 0; i < Agents.Count; i++)
+                {
+                    try
+                    {
+                        Agents[i].Perform();
+                    }
+                    catch
+                    {
+                        // Ignored.
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < maxAgentsPerUpdate && i < Agents.Count; i++)
+                {
+                    try
+                    {
+                        Agents[_currentAgentIndex].Perform();
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+                
+                    NextAgent();
+                }
+            }
+
+            // Update the delta time for all agents and look towards their targets.
+            foreach (Agent agent in Agents)
+            {
+                agent.IncreaseDeltaTime();
+                agent.LookCalculations();
+            }
+        
+            // Move agents that do not require physics.
+            MoveAgents(_updateAgents);
+
+            // Click to select an agent.
+            if (!Mouse.current.leftButton.wasPressedThisFrame || !Physics.Raycast(selectedCamera.ScreenPointToRay(new(Mouse.current.position.x.ReadValue(), Mouse.current.position.y.ReadValue(), 0)), out RaycastHit hit, Mathf.Infinity))
+            {
+                return;
+            }
+
+            // See if an agent was actually hit with the click and select it if so.
+            Transform tr = hit.collider.transform;
+            do
+            {
+                Agent clicked = tr.GetComponent<Agent>();
+                if (clicked != null)
+                {
+                    SelectedAgent = clicked;
+                    return;
+                }
+                tr = tr.parent;
+            } while (tr != null);
+        }
+
+        protected void FixedUpdate()
+        {
+            // Move agents that require physics.
+            MoveAgents(_fixedUpdateAgents);
+        }
+
+        /// <summary>
+        /// Override for custom detail rendering on the automatic GUI.
+        /// </summary>
+        /// <param name="x">X rendering position. In most cases this should remain unchanged.</param>
+        /// <param name="y">Y rendering position. Update this with every component added and return it.</param>
+        /// <param name="w">Width of components. In most cases this should remain unchanged.</param>
+        /// <param name="h">Height of components. In most cases this should remain unchanged.</param>
+        /// <param name="p">Padding of components. In most cases this should remain unchanged.</param>
+        /// <returns>The updated Y position after all custom rendering has been done.</returns>
+        protected virtual float CustomRendering(float x, float y, float w, float h, float p)
+        {
+            return y;
         }
     }
 }

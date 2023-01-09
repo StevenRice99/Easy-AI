@@ -1,7 +1,6 @@
 ﻿using A2.Managers;
 using A2.Pickups;
 using A2.States;
-using EasyAI;
 using EasyAI.Agents;
 using EasyAI.Managers;
 using EasyAI.Thinking;
