@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using EasyAI.AgentActions;
+﻿using EasyAI.AgentActions;
 using EasyAI.Utility;
 
 namespace EasyAI.Actuators

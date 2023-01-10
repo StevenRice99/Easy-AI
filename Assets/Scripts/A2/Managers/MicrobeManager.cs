@@ -145,6 +145,11 @@ namespace A2.Managers
         /// </summary>
         public static float FloorRadius => MicrobeSingleton.floorRadius;
 
+        /// <summary>
+        /// Random position in the level.
+        /// </summary>
+        public static Vector2 RandomPosition => Random.insideUnitCircle * MicrobeSingleton.floorRadius;
+
         [Header("Microbe Parameters")]
         [Tooltip("The hunger to start microbes at.")]
         [SerializeField]
@@ -361,6 +366,11 @@ namespace A2.Managers
         /// <returns>The nearest microbe to eat or null if there are no microbes to eat.</returns>
         public static Microbe FindFood(Microbe seeker)
         {
+            if (seeker == null)
+            {
+                return null;
+            }
+            
             Microbe[] microbes = MicrobeSingleton.Agents.Where(a => a is Microbe m && m != seeker && Vector3.Distance(seeker.transform.position, a.transform.position) < seeker.DetectionRange).Cast<Microbe>().ToArray();
             if (microbes.Length == 0)
             {
@@ -381,6 +391,7 @@ namespace A2.Managers
 
             return microbes.Length == 0 ? null : microbes.OrderBy(m => Vector3.Distance(seeker.transform.position, m.transform.position)).First();
         }
+        
         /// <summary>
         /// Find the nearest microbe to mate with.
         /// </summary>
@@ -415,7 +426,7 @@ namespace A2.Managers
             GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             Destroy(floor.GetComponent<Collider>());
             floor.transform.position = new(0, -1, 0);
-            floor.transform.localScale = new(floorRadius * 2 + 1, 1, floorRadius * 2 + 1);
+            floor.transform.localScale = new(floorRadius * 2 + 2, 1, floorRadius * 2 + 2);
             floor.name = "Floor";
             floor.GetComponent<MeshRenderer>().material = floorMaterial;
 
@@ -448,7 +459,7 @@ namespace A2.Managers
                 microbe.Age();
 
                 // If a microbe has not starved, not died of old age, and has not gone out of bounds, update its size to reflect its age.
-                if (microbe.Hunger <= maxHunger && microbe.ElapsedLifespan < microbe.LifeSpan && Vector3.Distance(Agents[i].transform.position, Vector3.zero) <= floorRadius + 1)
+                if (microbe.Hunger <= maxHunger && microbe.ElapsedLifespan < microbe.LifeSpan && Vector3.Distance(Agents[i].transform.position, Vector3.zero) <= floorRadius + 2)
                 {
                     if (Agents[i].Visuals != null)
                     {

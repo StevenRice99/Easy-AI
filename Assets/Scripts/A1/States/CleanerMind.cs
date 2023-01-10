@@ -24,11 +24,11 @@ namespace A1.States
                 return;
             }
             
-            // Determine if the current floor tile needs to be cleaned.
-            Floor floorToClean = CanClean(agent);
+            // Read the dirty sensor to get the current tile.
+            Floor floor = agent.Sense<CurrentFloorSensor, Floor>();
             
             // If there are no floor tiles to clean, determine where to move which will be the closest floor with the highest dirt level or the weighted midpoint.
-            if (floorToClean == null)
+            if (floor == null || !floor.IsDirty)
             {
                 agent.AddMessage("Nothing to clean, preparing for more dirt.");
                 agent.Move(DetermineLocationToMove(agent));
@@ -38,21 +38,7 @@ namespace A1.States
             // Otherwise we are on a dirty floor to so stop movement and start cleaning the current floor tile.
             agent.AddMessage("Cleaning current floor tile.");
             agent.StopMoving();
-            agent.Act(new CleanAction(floorToClean));
-        }
-
-        /// <summary>
-        /// Determine if the current floor tile needs to be cleaned or not.
-        /// </summary>
-        /// <param name="agent">The agent.</param>
-        /// <returns>The current floor if it was detected as needing to be cleaned, null otherwise.</returns>
-        private static Floor CanClean(Agent agent)
-        {
-            // Read the dirty sensor to get the current tile.
-            DirtyData dirtyData = agent.Sense<DirtySensor, DirtyData>();
-
-            // Return the tile to clean if it needs to, otherwise null.
-            return dirtyData is { IsDirty: true } ? dirtyData.Floor : null;
+            agent.Act(new CleanAction(floor));
         }
 
         /// <summary>
@@ -63,7 +49,7 @@ namespace A1.States
         private static Vector3 DetermineLocationToMove(Agent agent)
         {
             // Read the dirty sensor to get the current tile.
-            FloorsData floorData = agent.Sense<FloorsSensor, FloorsData>();
+            FloorsData floorData = agent.Sense<AllFloorsSensor, FloorsData>();
             if (floorData == null)
             {
                 return Vector3.zero;

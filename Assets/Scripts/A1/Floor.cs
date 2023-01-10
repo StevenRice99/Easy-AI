@@ -19,11 +19,6 @@ namespace A1
         }
 
         /// <summary>
-        /// If this floor is likely to get dirty. Floors where this is true are twice as likely to get more dirty than other floor tiles.
-        /// </summary>
-        public bool LikelyToGetDirty { get; private set; }
-
-        /// <summary>
         /// The material to display when this floor is clean.
         /// </summary>
         private Material _cleanMaterial;
@@ -52,6 +47,16 @@ namespace A1
         /// How dirty this floor tile is.
         /// </summary>
         public DirtLevel State { get; private set; }
+
+        /// <summary>
+        /// If this floor is likely to get dirty. Floors where this is true are twice as likely to get more dirty than other floor tiles.
+        /// </summary>
+        public bool LikelyToGetDirty { get; private set; }
+
+        /// <summary>
+        /// If the floor tile is dirty or not.
+        /// </summary>
+        public bool IsDirty => State >= DirtLevel.Dirty;
 
         private void Start()
         {

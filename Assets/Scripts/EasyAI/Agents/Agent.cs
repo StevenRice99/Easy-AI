@@ -4,7 +4,6 @@ using EasyAI.Actuators;
 using EasyAI.AgentActions;
 using EasyAI.Managers;
 using EasyAI.Navigation;
-using EasyAI.Percepts;
 using EasyAI.Thinking;
 using EasyAI.Utility;
 using UnityEngine;
@@ -263,6 +262,7 @@ namespace EasyAI.Agents
             Vector3 position = transform.position;
             position.y += Manager.NavigationVisualOffset;
 
+            // Display navigation path.
             if (Path == null || Path.Count == 0)
             {
                 // Display the movement vectors of all move types.
@@ -350,9 +350,9 @@ namespace EasyAI.Agents
         /// Read a sensor and receive a given data piece type.
         /// </summary>
         /// <typeparam name="TSensor">The sensor type to read.</typeparam>
-        /// <typeparam name="TDataPiece">The expected piece to return.</typeparam>
+        /// <typeparam name="TData">The expected data to return.</typeparam>
         /// <returns>The data piece if it is returned by the given sensor type, null otherwise.</returns>
-        public TDataPiece Sense<TSensor, TDataPiece>() where TSensor : Sensor where TDataPiece : DataPiece 
+        public TData Sense<TSensor, TData>() where TSensor : Sensor where TData : class 
         {
             // Loop through all sensors.
             foreach (Sensor sensor in Sensors)
@@ -363,8 +363,8 @@ namespace EasyAI.Agents
                 }
 
                 // If the correct type of sensor and correct data returned, return it.
-                PerceivedData data = sensor.Read();
-                if (data is TDataPiece correctType)
+                object data = sensor.Read();
+                if (data is TData correctType)
                 {
                     return correctType;
                 }
@@ -436,6 +436,24 @@ namespace EasyAI.Agents
         public bool HasAction<T>() where T : AgentAction
         {
             return _inProgressActions.OfType<T>().Any();
+        }
+
+        /// <summary>
+        /// Remove a given action type, if it exists.
+        /// </summary>
+        /// <typeparam name="T">The action type to remove.</typeparam>
+        public void RemoveAction<T>() where T : AgentAction
+        {
+            for (int i = 0; i < _inProgressActions.Count; i++)
+            {
+                if (_inProgressActions[i] is not T)
+                {
+                    continue;
+                }
+
+                _inProgressActions.RemoveAt(i);
+                return;
+            }
         }
 
         /// <summary>

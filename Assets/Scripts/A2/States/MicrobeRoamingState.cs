@@ -26,12 +26,13 @@ namespace A2.States
         /// <param name="agent">The agent.</param>
         public override void Execute(Agent agent)
         {
-            agent.AddMessage("Roaming.");
-            
-            if (!agent.Moving)
+            if (agent.Moving)
             {
-                agent.Move(Random.insideUnitCircle * (MicrobeManager.FloorRadius - 1));
+                return;
             }
+
+            agent.AddMessage("Roaming.");
+            agent.Move(MicrobeManager.RandomPosition);
         }
 
         /// <summary>

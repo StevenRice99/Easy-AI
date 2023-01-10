@@ -6,15 +6,6 @@
     public abstract class DataPiece
     {
         /// <summary>
-        /// Override to add any custom details for rendering in the GUI.
-        /// </summary>
-        /// <returns></returns>
-        public virtual string DetailsDisplay()
-        {
-            return null;
-        }
-
-        /// <summary>
         /// Override to easily display the type of the component for easy usage in messages.
         /// </summary>
         /// <returns>Name of this type.</returns>

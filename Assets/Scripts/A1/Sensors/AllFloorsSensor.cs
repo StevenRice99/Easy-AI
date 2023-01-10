@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using A1.Managers;
 using A1.Percepts;
-using EasyAI.Percepts;
 using EasyAI.Sensors;
 using UnityEngine;
 
@@ -10,13 +9,13 @@ namespace A1.Sensors
     /// <summary>
     /// Sense positions, dirt levels, and if they are likely to get dirty for all floor tiles in the scene.
     /// </summary>
-    public class FloorsSensor : Sensor
+    public class AllFloorsSensor : Sensor
     {
         /// <summary>
         /// Sense positions, dirt levels, and if they are likely to get dirty for all floor tiles in the scene.
         /// </summary>
         /// <returns>A FloorsData with positions, dirt levels, and if they are likely to get dirty for all floor tiles in the scene.</returns>
-        protected override PerceivedData Sense()
+        protected override object Sense()
         {
             // Get all floors.
             List<Floor> floors = CleanerManager.Floors;

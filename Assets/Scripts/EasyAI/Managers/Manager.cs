@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using EasyAI.Actuators;
-using EasyAI.AgentActions;
 using EasyAI.Agents;
 using EasyAI.Cameras;
 using EasyAI.Navigation;

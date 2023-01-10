@@ -1,4 +1,5 @@
-﻿using A2.Agents;
+﻿using A2.Actuators;
+using A2.Agents;
 using A2.Managers;
 using EasyAI.Agents;
 using EasyAI.Navigation;
@@ -36,7 +37,7 @@ namespace A2.States
             // If the microbe is not tracking another microbe to eat yet, search for one.
             if (microbe.TargetMicrobe == null)
             {
-                microbe.SetTargetMicrobe(MicrobeManager.FindFood(microbe));
+                microbe.SetTargetMicrobe(agent.Sense<NearestPreySensor, Microbe>());
             }
 
             // If there are no microbes in detection range to eat, roam.
