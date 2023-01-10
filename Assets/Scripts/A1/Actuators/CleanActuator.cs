@@ -24,12 +24,6 @@ namespace A1.Actuators
         /// </summary>
         private float _timeSpentCleaning;
 
-        protected override void Start()
-        {
-            base.Start();
-            DisableParticles();
-        }
-
         /// <summary>
         /// Clean a floor tile.
         /// </summary>
@@ -68,6 +62,12 @@ namespace A1.Actuators
             cleanAction.Floor.Clean();
             DisableParticles();
             return true;
+        }
+
+        protected override void Start()
+        {
+            base.Start();
+            DisableParticles();
         }
 
         /// <summary>

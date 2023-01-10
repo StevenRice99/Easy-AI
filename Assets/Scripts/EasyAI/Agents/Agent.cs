@@ -131,45 +131,14 @@ namespace EasyAI.Agents
         public float lookSpeed;
 
         /// <summary>
-        /// The state the agent is in.
+        /// The current move velocity if move acceleration is being used.
         /// </summary>
-        public State State
-        {
-            get => state;
-            set
-            {
-                // If already in said state, do nothing.
-                if (state == value)
-                {
-                    return;
-                }
-                
-                // Exit the current state.
-                if (state != null)
-                {
-                    state.Exit(this);
-                }
+        public Vector2 MoveVelocity { get; protected set; }
 
-                // Set the new state.
-                state = value;
-
-                // Enter the new state.
-                if (state != null)
-                {
-                    state.Enter(this);
-                }
-            }
-        }
-        
         /// <summary>
         /// The time passed since the last time the agent's mind made decisions. Use this instead of Time.DeltaTime.
         /// </summary>
         public float DeltaTime { get; private set; }
-
-        /// <summary>
-        /// The current move velocity if move acceleration is being used.
-        /// </summary>
-        public Vector2 MoveVelocity { get; protected set; }
 
         /// <summary>
         /// The target the agent is currently trying to look towards.
@@ -199,7 +168,7 @@ namespace EasyAI.Agents
         /// <summary>
         /// The actions of this agent.
         /// </summary>
-        public AgentAction[] Actions { get; private set; }
+        public List<AgentAction> Actions { get; private set; } = new();
 
         /// <summary>
         /// The root transform that holds the visuals for this agent used to rotate the agent towards its look target.
@@ -220,6 +189,13 @@ namespace EasyAI.Agents
         /// The current path an agent is following.
         /// </summary>
         public List<Vector3> Path { get; private set; }
+
+        public bool Moving => Moves.Count > 0 || Path != null;
+
+        /// <summary>
+        /// The state the agent is in.
+        /// </summary>
+        public State State => state;
 
         /// <summary>
         /// The path destination.
@@ -296,9 +272,30 @@ namespace EasyAI.Agents
             DeltaTime += Time.deltaTime;
         }
 
-        public void SetState(State state)
+        public void SetState<T>() where T : State
         {
+            State value = Manager.GetState<T>();
             
+            // If already in this state, do nothing.
+            if (state == value)
+            {
+                return;
+            }
+                
+            // Exit the current state.
+            if (state != null)
+            {
+                state.Exit(this);
+            }
+
+            // Set the new state.
+            state = value;
+
+            // Enter the new state.
+            if (state != null)
+            {
+                state.Enter(this);
+            }
         }
 
         /// <summary>
@@ -327,6 +324,25 @@ namespace EasyAI.Agents
             
             // Return null if the given sensor returning the requested data type does not exist.
             return null;
+        }
+
+        /// <summary>
+        /// Add an action to perform.
+        /// </summary>
+        /// <param name="action"></param>
+        public void Act(AgentAction action)
+        {
+            // If there were previous actions, keep actions of types which were not in the current decisions.
+            for (int i = 0; i < Actions.Count; i++)
+            {
+                if (Actions[i].GetType() == action.GetType())
+                {
+                    Actions[i] = action;
+                    return;
+                }
+            }
+            
+            Actions.Add(action);
         }
 
         /// <summary>
@@ -522,18 +538,9 @@ namespace EasyAI.Agents
         /// </summary>
         public virtual void Perform()
         {
-            // Sense the agent's surroundings.
-            //Sense();
-
-            List<AgentAction> actions = new();
-            
             if (Manager.Mind != null)
             {
-                ICollection<AgentAction> decided = Manager.Mind.Execute(this);
-                if (decided != null)
-                {
-                    actions.AddRange(decided);
-                }
+                Manager.Mind.Execute(this);
             }
             else
             {
@@ -546,34 +553,8 @@ namespace EasyAI.Agents
 
             if (state != null)
             {
-                ICollection<AgentAction> decided = state.Execute(this);
-                if (decided != null)
-                {
-                    actions.AddRange(decided);
-                }
+                state.Execute(this);
             }
-            
-            // Remove any null actions.
-            actions = actions.Where(a => a != null).ToList();
-
-            // If there were previous actions, keep actions of types which were not in the current decisions.
-            if (Actions != null)
-            {
-                foreach (AgentAction action in Actions)
-                {
-                    if (action == null)
-                    {
-                        continue;
-                    }
-    
-                    if (!actions.Exists(a => a.GetType() == action.GetType()))
-                    {
-                        actions.Add(action);
-                    }
-                }
-            }
-    
-            Actions = actions.ToArray();
 
             // Act on the actions.
             Act();
@@ -893,7 +874,7 @@ namespace EasyAI.Agents
         /// </summary>
         private void Act()
         {
-            if (Actions == null || Actions.Length == 0)
+            if (Actions == null || Actions.Count == 0)
             {
                 return;
             }
@@ -904,16 +885,13 @@ namespace EasyAI.Agents
                 actuator.Act(Actions);
             }
 
-            foreach (AgentAction action in Actions)
+            foreach (AgentAction action in Actions.Where(action => action.Complete))
             {
-                if (action.Complete)
-                {
-                    AddMessage($"Completed action {action}.");
-                }
+                AddMessage($"Completed action {action}.");
             }
 
             // Remove actions which were completed.
-            Actions = Actions.Where(a => !a.Complete).ToArray();
+            Actions = Actions.Where(a => !a.Complete).ToList();
         }
         
         /// <summary>

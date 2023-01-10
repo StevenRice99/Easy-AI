@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using A2.Agents;
+﻿using A2.Agents;
 using A2.Managers;
-using EasyAI.AgentActions;
 using EasyAI.Agents;
 using EasyAI.Navigation;
 using EasyAI.Thinking;
@@ -19,21 +17,20 @@ namespace A2.States
         /// Called when an agent first enters this state.
         /// </summary>
         /// <param name="agent">The agent.</param>
-        public override ICollection<AgentAction> Enter(Agent agent)
+        public override void Enter(Agent agent)
         {
             agent.AddMessage("Looking for a mate.");
-            return null;
         }
-        
+
         /// <summary>
         /// Called when an agent is in this state.
         /// </summary>
         /// <param name="agent">The agent.</param>
-        public override ICollection<AgentAction> Execute(Agent agent)
+        public override void Execute(Agent agent)
         {
             if (agent is not Microbe microbe)
             {
-                return null;
+                return;
             }
 
             // If the microbe is not tracking another microbe to mate with yet, search for one.
@@ -62,12 +59,12 @@ namespace A2.States
             if (microbe.TargetMicrobe == null)
             {
                 agent.AddMessage("Cannot find a mate, roaming.");
-                if (agent.Moves.Count <= 0)
+                if (!agent.Moving)
                 {
                     agent.Move(Steering.Behaviour.Seek, Random.insideUnitCircle * MicrobeManager.FloorRadius);
                 }
 
-                return null;
+                return;
             }
 
             // If close enough to mate with the microbe it is tracking, mate with it.
@@ -79,30 +76,29 @@ namespace A2.States
                     microbe.DidMate = true;
                     microbe.PlayMateAudio();
                 }
-                return null;
+                
+                return;
             }
             
             // Otherwise move towards the microbe it is tracking.
             agent.AddMessage($"Moving to mate with {microbe.TargetMicrobe.name}.");
             agent.Move(Steering.Behaviour.Pursue, microbe.TargetMicrobe.transform);
-            return null;
         }
-        
+
         /// <summary>
         /// Called when an agent exits this state.
         /// </summary>
         /// <param name="agent">The agent.</param>
-        public override ICollection<AgentAction> Exit(Agent agent)
+        public override void Exit(Agent agent)
         {
             if (agent is not Microbe microbe)
             {
-                return null;
+                return;
             }
 
             // Ensure the target microbe is null.
             microbe.TargetMicrobe = null;
             agent.AddMessage("No longer looking for a mate.");
-            return null;
         }
         
         /// <summary>

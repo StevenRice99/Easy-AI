@@ -1,10 +1,8 @@
-﻿using System;
-using A2.Managers;
+﻿using A2.Managers;
 using A2.Pickups;
 using A2.States;
 using EasyAI.Agents;
 using EasyAI.Managers;
-using EasyAI.Thinking;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -146,10 +144,20 @@ namespace A2.Agents
             Destroy(gameObject);
         }
 
+        public override void Perform()
+        {
+            // Determine if the microbe's hunger should increase.
+            if (Random.value <= MicrobeManager.HungerChance * DeltaTime)
+            {
+                Hunger++;
+            }
+            
+            base.Perform();
+        }
+
         /// <summary>
         /// Set the state visuals for the microbe.
         /// </summary>
-        /// <param name="state">The state the microbe is entering.</param>
         private void SetStateVisual()
         {
             if (stateVisualization == null)

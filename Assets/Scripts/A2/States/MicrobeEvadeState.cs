@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using A2.Agents;
-using EasyAI.AgentActions;
+﻿using A2.Agents;
 using EasyAI.Agents;
 using EasyAI.Navigation;
 using EasyAI.Thinking;
@@ -18,48 +16,47 @@ namespace A2.States
         /// Called when an agent first enters this state.
         /// </summary>
         /// <param name="agent">The agent.</param>
-        public override ICollection<AgentAction> Enter(Agent agent)
+        public override void Enter(Agent agent)
         {
             agent.AddMessage("Being hunted, starting to evade.");
-            return null;
         }
 
-        public override ICollection<AgentAction> Execute(Agent agent)
+        public override void Execute(Agent agent)
         {
             // If no microbe is pursuing this microbe, return.
             if (agent is not Microbe microbe || microbe.PursuerMicrobe == null)
             {
-                return null;
+                agent.SetState<MicrobeRoamingState>();
+                return;
             }
 
             // Check if the microbe can detect its pursuer.
             if (Vector3.Distance(microbe.transform.position, microbe.PursuerMicrobe.transform.position) > microbe.DetectionRange)
             {
                 agent.AddMessage("Have a feeling I am being hunted but don't know where they are.");
-                agent.StopMoving();
+                agent.SetState<MicrobeRoamingState>();
+                return;
             }
             
             // Otherwise move towards the microbe it is tracking.
             agent.AddMessage($"Evading {microbe.PursuerMicrobe.name}.");
             agent.Move(Steering.Behaviour.Evade, microbe.PursuerMicrobe.transform);
-            return null;
         }
 
         /// <summary>
         /// Called when an agent exits this state.
         /// </summary>
         /// <param name="agent">The agent.</param>
-        public override ICollection<AgentAction> Exit(Agent agent)
+        public override void Exit(Agent agent)
         {
             if (agent is not Microbe microbe)
             {
-                return null;
+                return;
             }
 
             // Ensure the target microbe is null.
             microbe.TargetMicrobe = null;
             agent.AddMessage("No longer being hunted, stopping evading.");
-            return null;
         }
     }
 }

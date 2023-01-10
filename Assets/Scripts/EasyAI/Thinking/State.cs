@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using EasyAI.AgentActions;
-using EasyAI.Agents;
+﻿using EasyAI.Agents;
 using UnityEngine;
 
 namespace EasyAI.Thinking
@@ -14,28 +12,19 @@ namespace EasyAI.Thinking
         /// Called when an agent first enters this state.
         /// </summary>
         /// <param name="agent">The agent.</param>
-        public virtual ICollection<AgentAction> Enter(Agent agent)
-        {
-            return null;
-        }
+        public virtual void Enter(Agent agent) { }
 
         /// <summary>
         /// Called when an agent is in this state.
         /// </summary>
         /// <param name="agent">The agent.</param>
-        public virtual ICollection<AgentAction> Execute(Agent agent)
-        {
-            return null;
-        }
+        public virtual void Execute(Agent agent) { }
 
         /// <summary>
         /// Called when an agent exits this state.
         /// </summary>
         /// <param name="agent">The agent.</param>
-        public virtual ICollection<AgentAction> Exit(Agent agent)
-        {
-            return null;
-        }
+        public virtual void Exit(Agent agent) { }
 
         /// <summary>
         /// Handle receiving an event.

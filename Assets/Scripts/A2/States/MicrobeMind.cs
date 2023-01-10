@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
-using A2.Agents;
+﻿using A2.Agents;
 using A2.Managers;
-using EasyAI.AgentActions;
 using EasyAI.Agents;
-using EasyAI.Managers;
 using EasyAI.Thinking;
 using UnityEngine;
 
@@ -19,24 +16,18 @@ namespace A2.States
         /// Called when an agent is in this state.
         /// </summary>
         /// <param name="agent">The agent.</param>
-        public override ICollection<AgentAction> Execute(Agent agent)
+        public override void Execute(Agent agent)
         {
             if (agent is not Microbe microbe)
             {
-                return null;
-            }
-
-            // Determine if the microbe's hunger should increase.
-            if (Random.value <= MicrobeManager.HungerChance * agent.DeltaTime)
-            {
-                microbe.Hunger++;
+                return;
             }
 
             // If the microbe is hungry, set the microbe to seek food.
             if (microbe.IsHungry)
             {
-                microbe.State = Manager.GetState<MicrobeSeekingFoodState>();
-                return null;
+                microbe.SetState<MicrobeSeekingFoodState>();
+                return;
             }
 
             // If the microbe is an adult, look for either a made or a pickup.
@@ -45,25 +36,24 @@ namespace A2.States
                 // If the microbe is an adult and has not yet mated, set the microbe to seek a mate.
                 if (!microbe.DidMate)
                 {
-                    microbe.State = Manager.GetState<MicrobeSeekingMateState>();
-                    return null;
+                    microbe.SetState<MicrobeSeekingMateState>();
+                    return;
                 }
 
                 // Lastly, if the microbe is not hungry, is an adult, and has mated, set the microbe to look for pickups.
-                microbe.State = Manager.GetState<MicrobeSeekingPickupState>();
-                return null;
+                microbe.SetState<MicrobeSeekingPickupState>();
+                return;
             }
 
             // If the microbe is being hunted, evade it.
             if (microbe.PursuerMicrobe != null)
             {
-                microbe.State = Manager.GetState<MicrobeEvadeState>();
-                return null;
+                microbe.SetState<MicrobeEvadeState>();
+                return;
             }
             
             // Otherwise the microbe goes to sleep.
-            microbe.State = Manager.GetState<MicrobeRoamingState>();
-            return null;
+            microbe.SetState<MicrobeRoamingState>();
         }
         
         /// <summary>

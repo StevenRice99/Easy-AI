@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using A2.Managers;
-using EasyAI.AgentActions;
+﻿using A2.Managers;
 using EasyAI.Agents;
 using EasyAI.Navigation;
 using EasyAI.Thinking;
@@ -18,36 +16,32 @@ namespace A2.States
         /// Called when an agent first enters this state.
         /// </summary>
         /// <param name="agent">The agent.</param>
-        public override ICollection<AgentAction> Enter(Agent agent)
+        public override void Enter(Agent agent)
         {
             agent.AddMessage("Nothing to do, starting to roam.");
-            return null;
         }
 
         /// <summary>
         /// Called when an agent is in this state.
         /// </summary>
         /// <param name="agent">The agent.</param>
-        public override ICollection<AgentAction> Execute(Agent agent)
+        public override void Execute(Agent agent)
         {
             agent.AddMessage("Roaming.");
             
-            if (agent.Moves.Count <= 0)
+            if (!agent.Moving)
             {
                 agent.Move(Steering.Behaviour.Seek, Random.insideUnitCircle * (MicrobeManager.FloorRadius - 1));
             }
-
-            return null;
         }
 
         /// <summary>
         /// Called when an agent exits this state.
         /// </summary>
         /// <param name="agent">The agent.</param>
-        public override ICollection<AgentAction> Exit(Agent agent)
+        public override void Exit(Agent agent)
         {
             agent.AddMessage("Got something to do, stopping roaming.");
-            return null;
         }
     }
 }

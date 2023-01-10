@@ -3,7 +3,6 @@ using System.Linq;
 using A1.AgentActions;
 using A1.Percepts;
 using A1.Sensors;
-using EasyAI.AgentActions;
 using EasyAI.Agents;
 using EasyAI.Navigation;
 using EasyAI.Thinking;
@@ -14,13 +13,13 @@ namespace A1.States
     [CreateAssetMenu(menuName = "A1/States/Cleaner Mind", fileName = "Cleaner Mind")]
     public class CleanerMind : State
     {
-        public override ICollection<AgentAction> Enter(Agent agent)
+        public override void Enter(Agent agent)
         {
             agent.AddMessage("Starting cleaning!");
-            return null;
+            return;
         }
 
-        public override ICollection<AgentAction> Execute(Agent agent)
+        public override void Execute(Agent agent)
         {
             // Determine if the current floor tile needs to be cleaned.
             Floor floorToClean = CanClean(agent);
@@ -29,18 +28,17 @@ namespace A1.States
                 // Stop movement and start cleaning the current floor tile.
                 agent.AddMessage("Cleaning current floor tile.");
                 agent.StopMoving();
-                return new AgentAction[] { new CleanAgentAction { Floor = floorToClean } };
+                agent.Act(new CleanAgentAction { Floor = floorToClean });
+                return;
             }
 
             // Otherwise determine where to move which will be the closest floor with the highest dirt level or the weighted midpoint.
             agent.Move(Steering.Behaviour.Seek,DetermineLocationToMove(agent));
-            return null;
         }
 
-        public override ICollection<AgentAction> Exit(Agent agent)
+        public override void Exit(Agent agent)
         {
             agent.AddMessage("Done cleaning!");
-            return null;
         }
 
         /// <summary>
