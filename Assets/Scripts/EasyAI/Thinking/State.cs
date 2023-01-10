@@ -30,9 +30,9 @@ namespace EasyAI.Thinking
         /// Handle receiving an event.
         /// </summary>
         /// <param name="agent">The agent.</param>
-        /// <param name="aiEvent">The event to handle.</param>
+        /// <param name="stateEvent">The event to handle.</param>
         /// <returns>False.</returns>
-        public virtual bool HandleEvent(Agent agent, AIEvent aiEvent)
+        public virtual bool HandleEvent(Agent agent, StateEvent stateEvent)
         {
             return false;
         }

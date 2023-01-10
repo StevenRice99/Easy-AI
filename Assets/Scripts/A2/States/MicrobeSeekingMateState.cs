@@ -105,20 +105,20 @@ namespace A2.States
         /// Overridden to handle receiving an event saying a microbe wants to mate with or is mating with this microbe.
         /// </summary>
         /// <param name="agent">The agent.</param>
-        /// <param name="aiEvent">The event to handle.</param>
+        /// <param name="stateEvent">The event to handle.</param>
         /// <returns>True if an event was accepted by the receiver, false otherwise.</returns>
-        public override bool HandleEvent(Agent agent, AIEvent aiEvent)
+        public override bool HandleEvent(Agent agent, StateEvent stateEvent)
         {
             // Cast the event ID to the microbe events which have been defined for easy identification.
-            switch ((MicrobeManager.MicrobeEvents) aiEvent.EventId)
+            switch ((MicrobeManager.MicrobeEvents) stateEvent.Id)
             {
                 // If the message is to impress this microbe to mate with them.
                 case MicrobeManager.MicrobeEvents.Impress:
                 {
                     // Determine if the receiver can mate or not and return true if it can, false otherwise.
-                    if (agent is not Microbe { IsAdult: true } microbe || microbe.DidMate || microbe.TargetMicrobe != null || aiEvent.Sender is not Microbe sender)
+                    if (agent is not Microbe { IsAdult: true } microbe || microbe.DidMate || microbe.TargetMicrobe != null || stateEvent.Sender is not Microbe sender)
                     {
-                        agent.AddMessage($"Cannot mate with {aiEvent.Sender.name}.");
+                        agent.AddMessage($"Cannot mate with {stateEvent.Sender.name}.");
                         return false;
                     }
 
@@ -136,14 +136,14 @@ namespace A2.States
 
                     microbe.DidMate = true;
 
-                    Microbe sender = aiEvent.Sender as Microbe;
+                    Microbe sender = stateEvent.Sender as Microbe;
                     if (sender != null)
                     {
                         sender.DidMate = true;
                         int offspring = MicrobeManager.Mate(microbe, sender);
                         agent.AddMessage(offspring == 0
-                            ? $"Failed to have any offspring with {aiEvent.Sender.name}."
-                            : $"Have {offspring} offspring with {aiEvent.Sender.name}."
+                            ? $"Failed to have any offspring with {stateEvent.Sender.name}."
+                            : $"Have {offspring} offspring with {stateEvent.Sender.name}."
                         );
                     }
                     return true;

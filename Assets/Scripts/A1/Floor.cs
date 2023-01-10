@@ -55,7 +55,6 @@ namespace A1
 
         private void Start()
         {
-            _meshRenderer = GetComponent<MeshRenderer>();
             UpdateMaterial();
         }
 
@@ -109,6 +108,11 @@ namespace A1
         /// </summary>
         private void UpdateMaterial()
         {
+            if (_meshRenderer == null)
+            {
+                _meshRenderer = GetComponent<MeshRenderer>();
+            }
+            
             _meshRenderer.material = State switch
             {
                 DirtLevel.Clean => _cleanMaterial,

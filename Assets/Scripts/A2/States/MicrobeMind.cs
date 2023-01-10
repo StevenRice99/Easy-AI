@@ -60,17 +60,17 @@ namespace A2.States
         /// Overridden to handle receiving an event saying a microbe was eaten.
         /// </summary>
         /// <param name="agent">The agent.</param>
-        /// <param name="aiEvent">The event to handle.</param>
+        /// <param name="stateEvent">The event to handle.</param>
         /// <returns>True if it was an eaten message, false otherwise.</returns>
-        public override bool HandleEvent(Agent agent, AIEvent aiEvent)
+        public override bool HandleEvent(Agent agent, StateEvent stateEvent)
         {
             // Cast the event ID to the microbe events which have been defined for easy identification.
-            switch ((MicrobeManager.MicrobeEvents) aiEvent.EventId)
+            switch ((MicrobeManager.MicrobeEvents) stateEvent.Id)
             {
                 // If the message is that this microbe is now being hunted.
                 case MicrobeManager.MicrobeEvents.Hunted:
                 {
-                    if (agent is not Microbe microbe || aiEvent.Sender is not Microbe sender)
+                    if (agent is not Microbe microbe || stateEvent.Sender is not Microbe sender)
                     {
                         return false;
                     }
@@ -82,7 +82,7 @@ namespace A2.States
                 // If the message is that this microbe has been eaten.
                 case MicrobeManager.MicrobeEvents.Eaten:
                 {
-                    if (agent is not Microbe microbe || aiEvent.Sender is not Microbe sender)
+                    if (agent is not Microbe microbe || stateEvent.Sender is not Microbe sender)
                     {
                         return false;
                     }

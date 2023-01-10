@@ -164,6 +164,14 @@ namespace A1.Managers
             // Reset elapsed time.
             CleanerSingleton._elapsedTime = 0;
             
+            SetFloorTiles();
+        }
+
+        /// <summary>
+        /// Set floor tiles to be dirty.
+        /// </summary>
+        private static void SetFloorTiles()
+        {
             // If all floor tiles are already at max dirt level return as there is nothing more which can be updated.
             if (CleanerSingleton._floors.Count(f => f.State != Floor.DirtLevel.ExtremelyDirty) == 0)
             {
@@ -204,6 +212,7 @@ namespace A1.Managers
         {
             base.Start();
             GenerateFloor();
+            SetFloorTiles();
         }
 
         protected override void Update()

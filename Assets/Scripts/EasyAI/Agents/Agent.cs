@@ -862,11 +862,11 @@ namespace EasyAI.Agents
         /// <summary>
         /// Handle receiving an event.
         /// </summary>
-        /// <param name="aiEvent">The event to handle.</param>
+        /// <param name="stateEvent">The event to handle.</param>
         /// <returns>True if either the global state or normal state handles the event, false otherwise.</returns>
-        private bool HandleEvent(AIEvent aiEvent)
+        private bool HandleEvent(StateEvent stateEvent)
         {
-            return state != null && state.HandleEvent(this, aiEvent) || Manager.Mind != null && Manager.Mind.HandleEvent(this, aiEvent);
+            return state != null && state.HandleEvent(this, stateEvent) || Manager.Mind != null && Manager.Mind.HandleEvent(this, stateEvent);
         }
 
         /// <summary>
