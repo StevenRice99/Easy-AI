@@ -1754,23 +1754,6 @@ namespace EasyAI.Managers
                 Singleton._selectedComponent = actuator;
                 Singleton._state = GuiState.Component;
             }
-            
-            // Display all percepts.
-            PerceivedData[] data = Singleton.SelectedAgent.Data.Where(d => d != null).ToArray();
-            if (data.Length > 0)
-            {
-                y = NextItem(y, h, p);
-                GuiBox(x, y, w, h, p, 1 + data.Length);
-            
-                GuiLabel(x, y, w, h, p, data.Length == 1 ? "1 Percepts" :$"{data.Length} Percepts");
-
-                foreach (PerceivedData d in data)
-                {
-                    string msg = d.DetailsDisplay();
-                    y = NextItem(y, h, p);
-                    GuiLabel(x, y, w, h, p, d + (string.IsNullOrWhiteSpace(msg) ? string.Empty : $": {msg}"));
-                }
-            }
 
             // Display all actions.
             AgentAction[] actions = Singleton.SelectedAgent.Actions?.Where(a => a != null).ToArray();

@@ -2,10 +2,10 @@
 using System.Linq;
 using A1.AgentActions;
 using A1.Percepts;
+using A1.Sensors;
 using EasyAI.AgentActions;
 using EasyAI.Agents;
 using EasyAI.Navigation;
-using EasyAI.Percepts;
 using EasyAI.Thinking;
 using UnityEngine;
 
@@ -23,7 +23,7 @@ namespace A1.States
         public override ICollection<AgentAction> Execute(Agent agent)
         {
             // Determine if the current floor tile needs to be cleaned.
-            Floor floorToClean = CanClean(agent.Data);
+            Floor floorToClean = CanClean(agent);
             if (floorToClean != null)
             {
                 // Stop movement and start cleaning the current floor tile.
@@ -46,11 +46,15 @@ namespace A1.States
         /// <summary>
         /// Determine if the current floor tile needs to be cleaned or not.
         /// </summary>
-        /// <param name="percepts">The percepts which the agent's sensors sensed.</param>
+        /// <param name="agent">The agent.</param>
         /// <returns>The current floor if it was detected as needing to be cleaned, null otherwise.</returns>
-        private static Floor CanClean(IEnumerable<PerceivedData> percepts)
+        private static Floor CanClean(Agent agent)
         {
-            return percepts.OfType<DirtyData>().ToArray().FirstOrDefault(p => p.IsDirty)?.Floor;
+            // Read the dirty sensor to get the current tile.
+            DirtyData dirtyData = agent.Sense<DirtySensor, DirtyData>();
+
+            // Return the tile to clean if it needs to, otherwise null.
+            return dirtyData is { IsDirty: true } ? dirtyData.Floor : null;
         }
 
         /// <summary>
@@ -60,9 +64,9 @@ namespace A1.States
         /// <returns>The position of the closest dirtiest floor tile or the weighted midpoint if all floor tiles are clean.</returns>
         private static Vector3 DetermineLocationToMove(Agent agent)
         {
-            // If there are no floors detected, simply return (0, 0, 0) which should never happen but just to be safe.
-            FloorsData[] dirtPercepts = agent.Data.OfType<FloorsData>().ToArray();
-            if (dirtPercepts.Length == 0)
+            // Read the dirty sensor to get the current tile.
+            FloorsData floorData = agent.Sense<FloorsSensor, FloorsData>();
+            if (floorData == null)
             {
                 return Vector3.zero;
             }
@@ -71,22 +75,19 @@ namespace A1.States
             List<Vector3> dirty = new();
             List<Vector3> likelyToGetDirty = new();
 
-            // Build lists.
-            foreach (FloorsData floorData in dirtPercepts)
+            // Add the dirty status of all tiles to their respective arrays.
+            for (int i = 0; i < floorData.Positions.Length; i++)
             {
-                for (int i = 0; i < floorData.Positions.Length; i++)
+                all.Add(floorData.Positions[i]);
+                
+                if (floorData.LikelyToGetDirty[i])
                 {
-                    all.Add(floorData.Positions[i]);
-                    
-                    if (floorData.LikelyToGetDirty[i])
-                    {
-                        likelyToGetDirty.Add(floorData.Positions[i]);
-                    }
+                    likelyToGetDirty.Add(floorData.Positions[i]);
+                }
 
-                    if (floorData.Dirty[i])
-                    {
-                        dirty.Add(floorData.Positions[i]);
-                    }
+                if (floorData.Dirty[i])
+                {
+                    dirty.Add(floorData.Positions[i]);
                 }
             }
 

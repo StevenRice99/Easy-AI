@@ -7,6 +7,7 @@ using EasyAI.Navigation;
 using EasyAI.Percepts;
 using EasyAI.Thinking;
 using EasyAI.Utility;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Sensor = EasyAI.Sensors.Sensor;
@@ -188,11 +189,6 @@ namespace EasyAI.Agents
         public Sensor[] Sensors { get; private set; }
 
         /// <summary>
-        /// The percepts of this agent.
-        /// </summary>
-        public PerceivedData[] Data { get; private set; }
-
-        /// <summary>
         /// The actuators of this agent.
         /// </summary>
         public Actuator[] Actuators { get; private set; }
@@ -289,9 +285,40 @@ namespace EasyAI.Agents
             GL.Vertex(LookTarget);
         }
 
+        /// <summary>
+        /// Increase the time that has elapsed.
+        /// </summary>
         public void IncreaseDeltaTime()
         {
             DeltaTime += Time.deltaTime;
+        }
+
+        /// <summary>
+        /// Read a sensor and receive a given data piece type.
+        /// </summary>
+        /// <typeparam name="TSensor">The sensor type to read.</typeparam>
+        /// <typeparam name="TDataPiece">The expected piece to return.</typeparam>
+        /// <returns>The data piece if it is returned by the given sensor type, null otherwise.</returns>
+        public TDataPiece Sense<TSensor, TDataPiece>() where TSensor : Sensor where TDataPiece : DataPiece 
+        {
+            // Loop through all sensors.
+            foreach (Sensor sensor in Sensors)
+            {
+                if (sensor is not TSensor)
+                {
+                    continue;
+                }
+
+                // If the correct type of sensor and correct data returned, return it.
+                PerceivedData data = sensor.Read();
+                if (data is TDataPiece correctType)
+                {
+                    return correctType;
+                }
+            }
+            
+            // Return null if the given sensor returning the requested data type does not exist.
+            return null;
         }
 
         /// <summary>
@@ -404,24 +431,6 @@ namespace EasyAI.Agents
         }
 
         /// <summary>
-        /// Remove move data for a transform.
-        /// </summary>
-        /// <param name="tr">The transform.</param>
-        private void RemoveMove(Transform tr)
-        {
-            Moves = Moves.Where(m => m.Transform != tr).ToList();
-        }
-
-        /// <summary>
-        /// Remove move data for a position.
-        /// </summary>
-        /// <param name="pos">The position.</param>
-        private void RemoveMove(Vector2 pos)
-        {
-            Moves = Moves.Where(m => m.Transform == null && m.Position != pos).ToList();
-        }
-
-        /// <summary>
         /// Fire an event to an agent.
         /// </summary>
         /// <param name="receiver">The agent to send the event to.</param>
@@ -506,7 +515,7 @@ namespace EasyAI.Agents
         public virtual void Perform()
         {
             // Sense the agent's surroundings.
-            Sense();
+            //Sense();
 
             List<AgentAction> actions = new();
             
@@ -872,36 +881,6 @@ namespace EasyAI.Agents
         }
 
         /// <summary>
-        /// Read percepts from all the agent's sensors.
-        /// </summary>
-        private void Sense()
-        {
-            List<PerceivedData> perceptsRead = new();
-            int sensed = 0;
-            
-            // Read from every sensor.
-            foreach (Sensor sensor in Sensors)
-            {
-                PerceivedData data = sensor.Read();
-                if (data == null)
-                {
-                    continue;
-                }
-
-                AddMessage($"Perceived {data} from sensor {sensor}.");
-                perceptsRead.Add(data);
-                sensed++;
-            }
-        
-            if (sensed > 1)
-            {
-                AddMessage($"Perceived {sensed} percepts.");
-            }
-
-            Data = perceptsRead.ToArray();
-        }
-
-        /// <summary>
         /// Perform actions.
         /// </summary>
         private void Act()
@@ -938,6 +917,24 @@ namespace EasyAI.Agents
             {
                 PerformanceMeasure.Agent = this;
             }
+        }
+
+        /// <summary>
+        /// Remove move data for a transform.
+        /// </summary>
+        /// <param name="tr">The transform.</param>
+        private void RemoveMove(Transform tr)
+        {
+            Moves = Moves.Where(m => m.Transform != tr).ToList();
+        }
+
+        /// <summary>
+        /// Remove move data for a position.
+        /// </summary>
+        /// <param name="pos">The position.</param>
+        private void RemoveMove(Vector2 pos)
+        {
+            Moves = Moves.Where(m => m.Transform == null && m.Position != pos).ToList();
         }
     }
 }

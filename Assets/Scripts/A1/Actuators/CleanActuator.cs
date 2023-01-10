@@ -27,7 +27,7 @@ namespace A1.Actuators
         protected override void Start()
         {
             base.Start();
-            StopCleaning();
+            DisableParticles();
         }
 
         /// <summary>
@@ -40,7 +40,6 @@ namespace A1.Actuators
             // Only act if there is a clean action.
             if (agentAction is not CleanAgentAction cleanAction)
             {
-                StopCleaning();
                 return false;
             }
 
@@ -48,7 +47,7 @@ namespace A1.Actuators
             if (cleanAction.Floor == null)
             {
                 AddMessage("Unable to clean current floor tile.");
-                StopCleaning();
+                DisableParticles();
                 return false;
             }
 
@@ -59,7 +58,7 @@ namespace A1.Actuators
             if (_timeSpentCleaning < timeToClean)
             {
                 AddMessage("Cleaning current floor tile.");
-                StartCleaning();
+                EnableParticles();
                 return false;
             }
             
@@ -67,44 +66,30 @@ namespace A1.Actuators
             AddMessage("Finished cleaning current floor tile.");
             _timeSpentCleaning = 0;
             cleanAction.Floor.Clean();
-            cleanAction.Complete = true;
-            StopCleaning();
+            DisableParticles();
             return true;
         }
 
         /// <summary>
         /// Start the cleaning particles.
         /// </summary>
-        private void StartCleaning()
+        private void EnableParticles()
         {
-            if (dirtParticles == null)
+            if (dirtParticles != null && !dirtParticles.isPlaying)
             {
-                return;
+                dirtParticles.Play();
             }
-
-            if (dirtParticles.isPlaying)
-            {
-                return;
-            }
-            dirtParticles.Play();
         }
 
         /// <summary>
         /// Stop the cleaning particles.
         /// </summary>
-        private void StopCleaning()
+        private void DisableParticles()
         {
-            if (dirtParticles == null)
+            if (dirtParticles != null && dirtParticles.isPlaying)
             {
-                return;
+                dirtParticles.Stop();
             }
-
-            if (!dirtParticles.isPlaying)
-            {
-                return;
-            }
-                
-            dirtParticles.Stop();
         }
     }
 }
