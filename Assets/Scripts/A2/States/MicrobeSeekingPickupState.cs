@@ -41,7 +41,7 @@ namespace A2.States
                 MicrobeBasePickup[] pickups = FindObjectsOfType<MicrobeBasePickup>();
                 if (pickups.Length > 0)
                 {
-                    microbe.TargetPickup = pickups.OrderBy(p => Vector3.Distance(agent.transform.position, p.transform.position)).FirstOrDefault();
+                    microbe.SetTargetPickup(pickups.OrderBy(p => Vector3.Distance(agent.transform.position, p.transform.position)).FirstOrDefault());
                 }
                 
             }
@@ -75,7 +75,7 @@ namespace A2.States
             }
 
             // Ensure the target pickup is null.
-            microbe.TargetPickup = null;
+            microbe.RemoveTargetPickup();
             agent.AddMessage("No longer searching for a pickup.");
         }
     }

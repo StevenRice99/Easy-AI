@@ -37,42 +37,42 @@ namespace A2.Agents
         /// <summary>
         /// The hunger of this microbe.
         /// </summary>
-        public int Hunger { get; set; }
+        public int Hunger { get; private set; }
         
         /// <summary>
         /// How long this microbe will live for in seconds.
         /// </summary>
-        public float LifeSpan { get; set; }
+        public float LifeSpan { get; private set; }
 
         /// <summary>
         /// How far away this microbe can detect other microbes and pickups.
         /// </summary>
-        public float DetectionRange { get; set; }
+        public float DetectionRange { get; private set; }
         
         /// <summary>
         /// How much of this microbe's life in seconds has passed.
         /// </summary>
-        public float ElapsedLifespan { get; set; }
+        public float ElapsedLifespan { get; private set; }
         
         /// <summary>
         /// The microbe that this microbe is moving towards to either eat or mate with.
         /// </summary>
-        public Microbe TargetMicrobe { get; set; }
+        public Microbe TargetMicrobe { get; private set; }
         
         /// <summary>
         /// The microbe that is hunting this microbe.
         /// </summary>
-        public Microbe PursuerMicrobe { get; set; }
+        public Microbe PursuerMicrobe { get; private set; }
         
         /// <summary>
         /// The pickup this microbe is moving towards.
         /// </summary>
-        public MicrobeBasePickup TargetPickup { get; set; }
+        public MicrobeBasePickup TargetPickup { get; private set; }
         
         /// <summary>
         /// True if this microbe has already mated, false otherwise.
         /// </summary>
-        public bool DidMate { get; set; }
+        public bool DidMate { get; private set; }
 
         /// <summary>
         /// The microbe is hungry when its hunger level is above zero.
@@ -144,6 +144,111 @@ namespace A2.Agents
             Destroy(gameObject);
         }
 
+        /// <summary>
+        /// Set the hunger of the microbe.
+        /// </summary>
+        /// <param name="hunger">The hunger to give the microbe.</param>
+        public void SetHunger(int hunger)
+        {
+            Hunger = hunger;
+        }
+
+        /// <summary>
+        /// Set the life span of the microbe.
+        /// </summary>
+        /// <param name="lifeSpan">The life span to give the microbe.</param>
+        public void SetLifeSpan(float lifeSpan)
+        {
+            LifeSpan = lifeSpan;
+        }
+
+        /// <summary>
+        /// Set the detection range of the microbe.
+        /// </summary>
+        /// <param name="detectionRange">The detection range to give the microbe.</param>
+        public void SetDetectionRange(float detectionRange)
+        {
+            DetectionRange = detectionRange;
+        }
+
+        /// <summary>
+        /// Set the elapsed lifespan of the microbe.
+        /// </summary>
+        /// <param name="elapsedTime">The elapsed lifespan to give the microbe.</param>
+        public void SetElapsedLifespan(float elapsedTime)
+        {
+            ElapsedLifespan = elapsedTime;
+        }
+
+        /// <summary>
+        /// Increase the age of the microbe.
+        /// </summary>
+        public void Age()
+        {
+            ElapsedLifespan += Time.deltaTime;
+        }
+
+        /// <summary>
+        /// Set the target microbe for hunting or mating.
+        /// </summary>
+        /// <param name="microbe"></param>
+        public void SetTargetMicrobe(Microbe microbe)
+        {
+            TargetMicrobe = microbe;
+        }
+
+        /// <summary>
+        /// Remove the target microbe for hunting or mating.
+        /// </summary>
+        public void RemoveTargetMicrobe()
+        {
+            TargetMicrobe = null;
+        }
+
+        /// <summary>
+        /// Set the pursuer microbe that is hunting this microbe.
+        /// </summary>
+        public void SetPursuerMicrobe(Microbe microbe)
+        {
+            PursuerMicrobe = microbe;
+        }
+
+        /// <summary>
+        /// Set the pickup that the microbe is moving for.
+        /// </summary>
+        /// <param name="pickup">The pickup to assign.</param>
+        public void SetTargetPickup(MicrobeBasePickup pickup)
+        {
+            TargetPickup = pickup;
+        }
+        
+        /// <summary>
+        /// Remove the pickup that the microbe is moving for.
+        /// </summary>
+        public void RemoveTargetPickup()
+        {
+            TargetPickup = null;
+        }
+
+        /// <summary>
+        /// Set that the microbe mated.
+        /// </summary>
+        public void Mate()
+        {
+            DidMate = true;
+        }
+
+        /// <summary>
+        /// Reset that the microbe has mated so it can mate again.
+        /// </summary>
+        public void CanMate()
+        {
+            DidMate = false;
+        }
+        
+        /// <summary>
+        /// Called by the AgentManager to have the agent sense, think, and act.
+        /// </summary>
         public override void Perform()
         {
             // Determine if the microbe's hunger should increase.

@@ -46,7 +46,7 @@ namespace A2.States
                     {
                         // If the other microbe agreed to mate, set them as the target microbe.
                         agent.AddMessage($"{potentialMate.name} accepted advances to mate.");
-                        microbe.TargetMicrobe = potentialMate;
+                        microbe.SetTargetMicrobe(potentialMate);
                     }
                     else
                     {
@@ -73,7 +73,7 @@ namespace A2.States
                 if (microbe.FireEvent(microbe.TargetMicrobe, (int) MicrobeManager.MicrobeEvents.Mate))
                 {
                     agent.AddMessage($"Mating with {microbe.TargetMicrobe.name}.");
-                    microbe.DidMate = true;
+                    microbe.Mate();
                     microbe.PlayMateAudio();
                 }
                 
@@ -97,7 +97,7 @@ namespace A2.States
             }
 
             // Ensure the target microbe is null.
-            microbe.TargetMicrobe = null;
+            microbe.RemoveTargetMicrobe();
             agent.AddMessage("No longer looking for a mate.");
         }
         
@@ -123,7 +123,7 @@ namespace A2.States
                     }
 
                     agent.AddMessage($"Accepted advances of {sender.name}.");
-                    microbe.TargetMicrobe = sender;
+                    microbe.SetTargetMicrobe(sender);
                     return true;
                 }
                 // If the message is to mate with this microbe, mate.
@@ -134,12 +134,12 @@ namespace A2.States
                         return false;
                     }
 
-                    microbe.DidMate = true;
+                    microbe.Mate();
 
                     Microbe sender = stateEvent.Sender as Microbe;
                     if (sender != null)
                     {
-                        sender.DidMate = true;
+                        sender.Mate();
                         int offspring = MicrobeManager.Mate(microbe, sender);
                         agent.AddMessage(offspring == 0
                             ? $"Failed to have any offspring with {stateEvent.Sender.name}."

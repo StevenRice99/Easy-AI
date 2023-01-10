@@ -14,7 +14,7 @@ namespace A2.Pickups
         protected override void Execute(Microbe microbe)
         {
             microbe.AddMessage("Powered up - will not be hungry for eternity!");
-            microbe.Hunger = int.MinValue;
+            microbe.SetHunger(int.MinValue);
         }
     }
 }

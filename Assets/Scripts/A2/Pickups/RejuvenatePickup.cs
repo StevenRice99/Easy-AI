@@ -16,7 +16,7 @@ namespace A2.Pickups
             microbe.AddMessage("Powered up - has extended life and is now a young adult again!");
             
             // Set back to right when the microbe became an adult.
-            microbe.ElapsedLifespan = microbe.LifeSpan / 2;
+            microbe.SetElapsedLifespan(microbe.LifeSpan / 2);
         }
     }
 }

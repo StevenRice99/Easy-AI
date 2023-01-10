@@ -445,7 +445,7 @@ namespace A2.Managers
                 }
 
                 // Increment the lifespan.
-                microbe.ElapsedLifespan += Time.deltaTime;
+                microbe.Age();
 
                 // If a microbe has not starved, not died of old age, and has not gone out of bounds, update its size to reflect its age.
                 if (microbe.Hunger <= maxHunger && microbe.ElapsedLifespan < microbe.LifeSpan && Vector3.Distance(Agents[i].transform.position, Vector3.zero) <= floorRadius + 1)
@@ -579,9 +579,9 @@ namespace A2.Managers
             }
 
             microbe.MicrobeType = microbeType;
-            microbe.Hunger = MicrobeSingleton.startingHunger;
-            microbe.LifeSpan = lifespan;
-            microbe.DetectionRange = detectionRange;
+            microbe.SetHunger(MicrobeSingleton.startingHunger);
+            microbe.SetLifeSpan(lifespan);
+            microbe.SetDetectionRange(detectionRange);
             microbe.moveSpeed = moveSpeed;
 
             // Setup the microbe name.

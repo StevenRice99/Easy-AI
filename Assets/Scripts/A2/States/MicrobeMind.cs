@@ -76,7 +76,7 @@ namespace A2.States
                     }
                     
                     // Update that the microbe is being hunted.
-                    microbe.PursuerMicrobe = sender;
+                    microbe.SetPursuerMicrobe(sender);
                     return true;
                 }
                 // If the message is that this microbe has been eaten.

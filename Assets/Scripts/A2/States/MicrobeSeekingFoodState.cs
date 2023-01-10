@@ -36,7 +36,7 @@ namespace A2.States
             // If the microbe is not tracking another microbe to eat yet, search for one.
             if (microbe.TargetMicrobe == null)
             {
-                microbe.TargetMicrobe = MicrobeManager.FindFood(microbe);
+                microbe.SetTargetMicrobe(MicrobeManager.FindFood(microbe));
             }
 
             // If there are no microbes in detection range to eat, roam.
@@ -77,7 +77,7 @@ namespace A2.States
             }
 
             // Ensure the target microbe is null.
-            microbe.TargetMicrobe = null;
+            microbe.RemoveTargetMicrobe();
             agent.AddMessage("No longer searching for food.");
         }
     }

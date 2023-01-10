@@ -14,7 +14,7 @@ namespace A2.Pickups
         protected override void Execute(Microbe microbe)
         {
             microbe.AddMessage("Powered up -  can now mate again!");
-            microbe.DidMate = false;
+            microbe.CanMate();
         }
     }
 }

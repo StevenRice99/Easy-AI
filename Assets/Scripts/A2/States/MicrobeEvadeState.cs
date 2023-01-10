@@ -55,7 +55,7 @@ namespace A2.States
             }
 
             // Ensure the target microbe is null.
-            microbe.TargetMicrobe = null;
+            microbe.RemoveTargetMicrobe();
             agent.AddMessage("No longer being hunted, stopping evading.");
         }
     }
