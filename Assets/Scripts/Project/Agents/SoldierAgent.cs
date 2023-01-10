@@ -898,7 +898,7 @@ namespace Project.Agents
             }
             
             // Limit agent rotation speed based on their weapon.
-            lookSpeed = Weapons[WeaponIndex].rotationSpeed;
+            SetLookSpeed(Weapons[WeaponIndex].rotationSpeed);
             
             // Ensure weapons are properly visible.
             WeaponVisible();

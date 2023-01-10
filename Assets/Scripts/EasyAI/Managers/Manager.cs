@@ -907,7 +907,7 @@ namespace EasyAI.Managers
         /// <summary>
         /// Lookup a state type from the dictionary.
         /// </summary>
-        /// <param name="stateType">The type of state.</param>
+        /// <typeparam name="T">The type of state to register</typeparam>
         /// <returns>The state of the requested type.</returns>
         public static State GetState<T>() where T : State
         {
@@ -1170,8 +1170,8 @@ namespace EasyAI.Managers
         /// <summary>
         /// Create a state if there was not one within the dictionary.
         /// </summary>
-        /// <param name="stateType">The type of state to create.</param>
-        /// <returns></returns>
+        /// <typeparam name="T">The type of state to register</typeparam>
+        /// <returns>The state instance that was created</returns>
         private static State CreateState<T>() where T : State
         {
             RegisterState<T>(ScriptableObject.CreateInstance(typeof(T)) as State);
@@ -1632,7 +1632,7 @@ namespace EasyAI.Managers
             GuiLabel(x, y, w, h, p, $"Position: {Singleton.SelectedAgent.transform.position} | Velocity: {Singleton.SelectedAgent.MoveVelocity.magnitude}");
         
             y = NextItem(y, h, p);
-            GuiLabel(x, y, w, h, p, $"Rotation: {Singleton.SelectedAgent.Visuals.rotation.eulerAngles.y} Degrees" + (Singleton.SelectedAgent.LookingToTarget ? $" | Looking to {Singleton.SelectedAgent.LookTarget} at {Singleton.SelectedAgent.lookSpeed} degrees/second." : string.Empty));
+            GuiLabel(x, y, w, h, p, $"Rotation: {Singleton.SelectedAgent.Visuals.rotation.eulerAngles.y} Degrees" + (Singleton.SelectedAgent.LookingToTarget ? $" | Looking to {Singleton.SelectedAgent.LookTarget} at {Singleton.SelectedAgent.LookSpeed} degrees/second." : string.Empty));
 
             if (Singleton.SelectedAgent.Destination != null)
             {

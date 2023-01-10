@@ -120,15 +120,18 @@ namespace EasyAI.Agents
     
         [Tooltip("How fast this agent can move in units per second.")]
         [Min(0)]
-        public float moveSpeed = 10;
+        [SerializeField]
+        private float moveSpeed = 10;
     
-        [Min(0)]
         [Tooltip("How fast this agent can increase in move speed in units per second. Set to zero for instant.")]
-        public float moveAcceleration;
+        [Min(0)]
+        [SerializeField]
+        private float moveAcceleration;
     
         [Tooltip("How fast this agent can look in degrees per second. Set to zero for instant.")]
         [Min(0)]
-        public float lookSpeed;
+        [SerializeField]
+        private float lookSpeed;
 
         /// <summary>
         /// The current move velocity if move acceleration is being used.
@@ -190,7 +193,25 @@ namespace EasyAI.Agents
         /// </summary>
         public List<Vector3> Path { get; private set; }
 
+        /// <summary>
+        /// True if the agent is trying to move, false otherwise.
+        /// </summary>
         public bool Moving => Moves.Count > 0 || Path != null;
+
+        /// <summary>
+        /// How fast this agent can move in units per second.
+        /// </summary>
+        public float MoveSpeed => moveSpeed;
+
+        /// <summary>
+        /// How fast this agent can increase in move speed in units per second. Set to zero for instant.
+        /// </summary>
+        public float MoveAcceleration => moveAcceleration;
+
+        /// <summary>
+        /// How fast this agent can look in degrees per second. Set to zero for instant.
+        /// </summary>
+        public float LookSpeed => lookSpeed;
 
         /// <summary>
         /// The state the agent is in.
@@ -206,6 +227,33 @@ namespace EasyAI.Agents
         /// The current move velocity if move acceleration is being used as a Vector3.
         /// </summary>
         protected Vector3 MoveVelocity3 => new(MoveVelocity.x, 0, MoveVelocity.y);
+
+        /// <summary>
+        /// Set the move speed.
+        /// </summary>
+        /// <param name="moveSpeed">The move speed to set.</param>
+        public void SetMoveSpeed(float moveSpeed)
+        {
+            this.moveSpeed = moveSpeed;
+        }
+
+        /// <summary>
+        /// Set the move acceleration.
+        /// </summary>
+        /// <param name="moveAcceleration">The move acceleration to set.</param>
+        public void SetMoveAcceleration(float moveAcceleration)
+        {
+            this.moveAcceleration = moveAcceleration;
+        }
+
+        /// <summary>
+        /// Set the look speed.
+        /// </summary>
+        /// <param name="lookSpeed">The move acceleration to set.</param>
+        public void SetLookSpeed(float lookSpeed)
+        {
+            this.lookSpeed = lookSpeed;
+        }
     
         /// <summary>
         /// Display lines to highlight agent movement.

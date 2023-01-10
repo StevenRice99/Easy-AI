@@ -10,41 +10,36 @@ namespace EasyAI.Agents
         /// <summary>
         /// This agent's rigidbody.
         /// </summary>
-        protected Rigidbody Rigidbody;
+        private Rigidbody _rigidbody;
 
         protected override void Start()
         {
             base.Start();
         
             // Get the rigidbody.
-            Rigidbody = GetComponent<Rigidbody>();
-            if (Rigidbody == null)
+            _rigidbody = GetComponent<Rigidbody>();
+            if (_rigidbody == null)
             {
-                Rigidbody = gameObject.AddComponent<Rigidbody>();
-            }
-
-            if (Rigidbody == null)
-            {
-                return;
+                _rigidbody = gameObject.AddComponent<Rigidbody>();
             }
 
             // Since rotation is all done with the root visuals transform, freeze rigidbody rotation.
-            Rigidbody.freezeRotation = true;
-            Rigidbody.drag = 0;
-            Rigidbody.angularDrag = 0;
-            Rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
-            Rigidbody.isKinematic = false;
+            _rigidbody.freezeRotation = true;
+            _rigidbody.drag = 0;
+            _rigidbody.angularDrag = 0;
+            _rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
+            _rigidbody.isKinematic = false;
         }
         
         public override void MovementCalculations()
         {
-            if (Rigidbody == null)
+            if (_rigidbody == null)
             {
                 return;
             }
         
             CalculateMoveVelocity(Time.fixedDeltaTime);
-            Rigidbody.velocity = new(MoveVelocity.x, Rigidbody.velocity.y, MoveVelocity.y);
+            _rigidbody.velocity = new(MoveVelocity.x, _rigidbody.velocity.y, MoveVelocity.y);
         }
     }
 }

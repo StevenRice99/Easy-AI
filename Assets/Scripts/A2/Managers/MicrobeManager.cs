@@ -339,7 +339,7 @@ namespace A2.Managers
                     Random.value <= 0.5f ? parentA.MicrobeType : parentB.MicrobeType,
                     position,
                     // Inherit the average speed of both parents offset by a slight random value.
-                    Mathf.Clamp((parentA.moveSpeed + parentB.moveSpeed) / 2 + Random.value - 0.5f, MicrobeSingleton.minMicrobeSpeed, MicrobeSingleton.maxMicrobeSpeed),
+                    Mathf.Clamp((parentA.MoveSpeed + parentB.MoveSpeed) / 2 + Random.value - 0.5f, MicrobeSingleton.minMicrobeSpeed, MicrobeSingleton.maxMicrobeSpeed),
                     // Inherit the average lifespan of both parents offset by a slight random value.
                     Mathf.Clamp((parentA.LifeSpan + parentB.LifeSpan) / 2 + Random.value - 0.5f, MicrobeSingleton.minMicrobeLifespan, MicrobeSingleton.maxMicrobeLifespan),
                     // Inherit the average detection range of both parents offset by a slight random value.
@@ -582,7 +582,7 @@ namespace A2.Managers
             microbe.SetHunger(MicrobeSingleton.startingHunger);
             microbe.SetLifeSpan(lifespan);
             microbe.SetDetectionRange(detectionRange);
-            microbe.moveSpeed = moveSpeed;
+            microbe.SetMoveSpeed(moveSpeed);
 
             // Setup the microbe name.
             string n = microbeType switch
