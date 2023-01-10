@@ -113,6 +113,11 @@ namespace EasyAI.Agents
                 IsTransformTarget = false;
             }
         }
+
+        /// <summary>
+        /// The actions of this agent that are not yet completed.
+        /// </summary>
+        private readonly List<AgentAction> _inProgressActions = new();
     
         [Tooltip("The current state the agent is in. Initialize it with the state to start in.")]
         [SerializeField]
@@ -167,11 +172,6 @@ namespace EasyAI.Agents
         /// The actuators of this agent.
         /// </summary>
         public Actuator[] Actuators { get; private set; }
-
-        /// <summary>
-        /// The actions of this agent.
-        /// </summary>
-        public List<AgentAction> Actions { get; private set; } = new();
 
         /// <summary>
         /// The root transform that holds the visuals for this agent used to rotate the agent towards its look target.
@@ -380,17 +380,62 @@ namespace EasyAI.Agents
         /// <param name="action"></param>
         public void Act(AgentAction action)
         {
-            // If there were previous actions, keep actions of types which were not in the current decisions.
-            for (int i = 0; i < Actions.Count; i++)
+            // Try the action on all actuators.
+            foreach (Actuator actuator in Actuators)
             {
-                if (Actions[i].GetType() == action.GetType())
+                // If the actuator did not complete the action, try with the next actuator.
+                if (!actuator.Act(action))
                 {
-                    Actions[i] = action;
-                    return;
+                    continue;
                 }
+                
+                // Cleanup to remove if there was an already existing action of the same type.
+                for (int i = 0; i < _inProgressActions.Count; i++)
+                {
+                    if (_inProgressActions[i].GetType() != action.GetType())
+                    {
+                        continue;
+                    }
+
+                    _inProgressActions.RemoveAt(i);
+                    break;
+                }
+
+                AddMessage($"Completed action {action}.");
+                return;
+            }
+
+            // If there were previous actions, keep actions of types which were not in the current decisions.
+            for (int i = 0; i < _inProgressActions.Count; i++)
+            {
+                if (_inProgressActions[i].GetType() != action.GetType())
+                {
+                    continue;
+                }
+
+                _inProgressActions[i] = action;
+                return;
             }
             
-            Actions.Add(action);
+            _inProgressActions.Add(action);
+        }
+
+        /// <summary>
+        /// Clear any remaining in progress actions.
+        /// </summary>
+        public void ClearActions()
+        {
+            _inProgressActions.Clear();
+        }
+
+        /// <summary>
+        /// Check if there is already an action type that is not yet complete.
+        /// </summary>
+        /// <typeparam name="T">The type of action to look for.</typeparam>
+        /// <returns>True if the action of the type exists, false otherwise.</returns>
+        public bool HasAction<T>() where T : AgentAction
+        {
+            return _inProgressActions.OfType<T>().Any();
         }
 
         /// <summary>
@@ -605,7 +650,7 @@ namespace EasyAI.Agents
             }
 
             // Act on the actions.
-            Act();
+            ActIncomplete();
 
             // After all actions are performed, calculate the agent's new performance.
             if (PerformanceMeasure != null)
@@ -918,28 +963,31 @@ namespace EasyAI.Agents
         }
 
         /// <summary>
-        /// Perform actions.
+        /// Perform actions that are still incomplete.
         /// </summary>
-        private void Act()
+        private void ActIncomplete()
         {
-            if (Actions == null || Actions.Count == 0)
+            for (int i = 0; i < _inProgressActions.Count; i++)
             {
-                return;
-            }
-            
-            // Pass all actions to all actuators.
-            foreach (Actuator actuator in Actuators)
-            {
-                actuator.Act(Actions);
-            }
+                bool completed = false;
+                
+                foreach (Actuator actuator in Actuators)
+                {
+                    completed = actuator.Act(_inProgressActions[i]);
+                    if (completed)
+                    {
+                        break;
+                    }
+                }
 
-            foreach (AgentAction action in Actions.Where(action => action.Complete))
-            {
-                AddMessage($"Completed action {action}.");
-            }
+                if (!completed)
+                {
+                    continue;
+                }
 
-            // Remove actions which were completed.
-            Actions = Actions.Where(a => !a.Complete).ToList();
+                AddMessage($"Completed action {_inProgressActions[i]}.");
+                _inProgressActions.RemoveAt(i--);
+            }
         }
         
         /// <summary>

@@ -1752,25 +1752,6 @@ namespace EasyAI.Managers
                 Singleton._selectedComponent = actuator;
                 Singleton._state = GuiState.Component;
             }
-
-            // Display all actions.
-            AgentAction[] actions = Singleton.SelectedAgent.Actions?.Where(a => a != null).ToArray();
-            if (actions is not { Length: > 0 })
-            {
-                return;
-            }
-
-            y = NextItem(y, h, p);
-            GuiBox(x, y, w, h, p, 1 + actions.Length);
-
-            GuiLabel(x, y, w, h, p, actions.Length == 1 ? "1 Action" : $"{actions.Length} Actions");
-
-            foreach (AgentAction action in actions)
-            {
-                string msg = action.DetailsDisplay();
-                y = NextItem(y, h, p);
-                GuiLabel(x, y, w, h, p, action + (string.IsNullOrWhiteSpace(msg) ? string.Empty : $": {msg}"));
-            }
         }
         
         /// <summary>

@@ -18,12 +18,19 @@ namespace A1.States
         /// <param name="agent">The agent.</param>
         public override void Execute(Agent agent)
         {
+            // If currently cleaning, no need to make a new decision.
+            if (agent.HasAction<CleanAction>())
+            {
+                return;
+            }
+            
             // Determine if the current floor tile needs to be cleaned.
             Floor floorToClean = CanClean(agent);
             
             // If there are no floor tiles to clean, determine where to move which will be the closest floor with the highest dirt level or the weighted midpoint.
             if (floorToClean == null)
             {
+                agent.AddMessage("Nothing to clean, preparing for more dirt.");
                 agent.Move(DetermineLocationToMove(agent));
                 return;
             }

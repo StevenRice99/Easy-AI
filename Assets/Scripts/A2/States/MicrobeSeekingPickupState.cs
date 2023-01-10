@@ -42,7 +42,6 @@ namespace A2.States
                 {
                     microbe.SetTargetPickup(pickups.OrderBy(p => Vector3.Distance(agent.transform.position, p.transform.position)).FirstOrDefault());
                 }
-                
             }
 
             // If there are no pickups in detection range, roam.

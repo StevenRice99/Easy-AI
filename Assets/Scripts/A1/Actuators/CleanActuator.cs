@@ -29,7 +29,7 @@ namespace A1.Actuators
         /// </summary>
         /// <param name="agentAction"></param>
         /// <returns>True if the floor tile has finished being cleaned, false otherwise.</returns>
-        protected override bool Act(AgentAction agentAction)
+        public override bool Act(AgentAction agentAction)
         {
             // Only act if there is a clean action.
             if (agentAction is not CleanAction cleanAction)
