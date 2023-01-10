@@ -232,21 +232,9 @@ namespace A2.Managers
         [SerializeField]
         private GameObject microbePrefab;
 
-        [Tooltip("Prefab for the fertility pickup.")]
+        [Tooltip("Prefabs for pickups.")]
         [SerializeField]
-        private GameObject fertilityPickupPrefab;
-
-        [Tooltip("Prefab for the never hungry pickup.")]
-        [SerializeField]
-        private GameObject neverHungryPickupPrefab;
-
-        [Tooltip("Prefab for the offspring pickup.")]
-        [SerializeField]
-        private GameObject offspringPickupPrefab;
-
-        [Tooltip("Prefab for the rejuvenate pickup.")]
-        [SerializeField]
-        private GameObject rejuvenatePickupPrefab;
+        private GameObject[] pickupPrefabs;
 
         [Tooltip("Prefab for the spawn particles object.")]
         [SerializeField]
@@ -353,7 +341,7 @@ namespace A2.Managers
             GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             Destroy(floor.GetComponent<Collider>());
             floor.transform.position = new(0, -1, 0);
-            floor.transform.localScale = new(floorRadius * 2 + 2, 1, floorRadius * 2 + 2);
+            floor.transform.localScale = new(floorRadius * 2 + 3, 1, floorRadius * 2 + 3);
             floor.name = "Floor";
             floor.GetComponent<MeshRenderer>().material = floorMaterial;
 
@@ -565,13 +553,7 @@ namespace A2.Managers
             Vector3 position = Random.insideUnitSphere * MicrobeSingleton.floorRadius;
             position = new(position.x, 0, position.z);
             
-            GameObject go = Instantiate(Random.Range(0, 4) switch
-            {
-                3 => MicrobeSingleton.fertilityPickupPrefab,
-                2 => MicrobeSingleton.neverHungryPickupPrefab,
-                1 => MicrobeSingleton.offspringPickupPrefab,
-                _ => MicrobeSingleton.rejuvenatePickupPrefab
-            }, position, Quaternion.identity);
+            GameObject go = Instantiate(MicrobeSingleton.pickupPrefabs[Random.Range(0, MicrobeSingleton.pickupPrefabs.Length)], position, Quaternion.identity);
 
             go.transform.localScale = new(0.5f, 1, 0.5f);
         }

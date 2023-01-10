@@ -49,24 +49,24 @@ namespace A2.Agents
         /// </summary>
         public MicrobeBasePickup Pickup { get; private set; }
 
-        [SerializeField]
         [Tooltip("The mesh renderer for the mesh that changes color depending on what state the agent is in.")]
+        [SerializeField]
         private MeshRenderer stateVisualization;
 
-        [SerializeField]
         [Tooltip("Audio to play when spawning.")]
+        [SerializeField]
         private AudioClip spawnAudio;
 
-        [SerializeField]
         [Tooltip("Audio to play when eating another microbe.")]
+        [SerializeField]
         private AudioClip eatAudio;
 
-        [SerializeField]
         [Tooltip("Audio to play when mating.")]
+        [SerializeField]
         private AudioClip mateAudio;
 
-        [SerializeField]
         [Tooltip("Audio to play when picking up a pickup.")]
+        [SerializeField]
         private AudioClip pickupAudio;
 
         /// <summary>
@@ -225,6 +225,7 @@ namespace A2.Agents
         /// <summary>
         /// Eat another microbe.
         /// </summary>
+        /// <returns>True if eating was successful, false otherwise.</returns>
         public bool Eat()
         {
             if (_targetMicrobe == null || Vector3.Distance(transform.position, _targetMicrobe.transform.position) > MicrobeManager.MicrobeInteractRadius)

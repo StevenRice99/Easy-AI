@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7500204360399200346}
   - component: {fileID: 7500204360399200345}
   m_Layer: 0
-  m_Name: Fertility Pickup
+  m_Name: Mate Pickup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

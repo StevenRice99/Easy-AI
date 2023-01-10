@@ -193,10 +193,11 @@ MonoBehaviour:
   minMicrobeDetectionRange: 5
   hungerChance: 10
   microbePrefab: {fileID: 1567258149929102323, guid: b123d809f0c77554b9d8404a7e5f0874, type: 3}
-  fertilityPickupPrefab: {fileID: 7500204360399200344, guid: b0639286cb0827542b09569dc590ac44, type: 3}
-  neverHungryPickupPrefab: {fileID: 7500204360399200344, guid: c3056d8f78d4b5344b74144935a2cc53, type: 3}
-  offspringPickupPrefab: {fileID: 7500204360399200344, guid: f3b21ee8473076442b6fcc979f9b7f2b, type: 3}
-  rejuvenatePickupPrefab: {fileID: 7500204360399200344, guid: d75bba6a16096cc40bb25fd6a2956686, type: 3}
+  pickupPrefabs:
+  - {fileID: 7500204360399200344, guid: b0639286cb0827542b09569dc590ac44, type: 3}
+  - {fileID: 7500204360399200344, guid: c3056d8f78d4b5344b74144935a2cc53, type: 3}
+  - {fileID: 7500204360399200344, guid: f3b21ee8473076442b6fcc979f9b7f2b, type: 3}
+  - {fileID: 7500204360399200344, guid: d75bba6a16096cc40bb25fd6a2956686, type: 3}
   spawnParticlesPrefab: {fileID: 5968086345376651894, guid: 255bb67e626cd9a4eac18e4ac30c2ed7, type: 3}
   deathParticlesPrefab: {fileID: 5968086345376651894, guid: b3a69deb1cb5b4e44a5b4a6b730c862a, type: 3}
   mateParticlesPrefab: {fileID: 5968086345376651894, guid: 554a54d12ed0f724588bf3245e5eb94d, type: 3}
