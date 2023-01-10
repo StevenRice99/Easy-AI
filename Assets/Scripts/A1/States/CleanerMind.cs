@@ -16,7 +16,6 @@ namespace A1.States
         public override void Enter(Agent agent)
         {
             agent.AddMessage("Starting cleaning!");
-            return;
         }
 
         public override void Execute(Agent agent)
