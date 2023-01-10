@@ -32,7 +32,7 @@ namespace A1.Actuators
         protected override bool Act(AgentAction agentAction)
         {
             // Only act if there is a clean action.
-            if (agentAction is not CleanAgentAction cleanAction)
+            if (agentAction is not CleanAction cleanAction)
             {
                 return false;
             }

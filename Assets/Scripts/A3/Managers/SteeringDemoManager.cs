@@ -44,28 +44,28 @@ namespace A3.Managers
                 y = NextItem(y, h, p);
                 if (GuiButton(x, y, w, h, $"Seek {target.name}"))
                 {
-                    SelectedAgent.Move(Steering.Behaviour.Seek, target);
+                    SelectedAgent.Move(target);
                 }
                 
                 // Pursue the target.
                 y = NextItem(y, h, p);
                 if (GuiButton(x, y, w, h, $"Pursue {target.name}"))
                 {
-                    SelectedAgent.Move(Steering.Behaviour.Pursue, target);
+                    SelectedAgent.Move(target, Steering.Behaviour.Pursue);
                 }
                 
                 // Flee the target.
                 y = NextItem(y, h, p);
                 if (GuiButton(x, y, w, h, $"Flee {target.name}"))
                 {
-                    SelectedAgent.Move(Steering.Behaviour.Flee, target);
+                    SelectedAgent.Move(target, Steering.Behaviour.Flee);
                 }
                 
                 // Evade the target.
                 y = NextItem(y, h, p);
                 if (GuiButton(x, y, w, h, $"Evade {target.name}"))
                 {
-                    SelectedAgent.Move(Steering.Behaviour.Evade, target);
+                    SelectedAgent.Move(target, Steering.Behaviour.Evade);
                 }
             }
             
@@ -73,14 +73,14 @@ namespace A3.Managers
             y = NextItem(y, h, p);
             if (GuiButton(x, y, w, h, "Seek Origin"))
             {
-                SelectedAgent.Move(Steering.Behaviour.Seek, new Vector2(0, 0));
+                SelectedAgent.Move(new Vector2(0, 0));
             }
             
             // Seek back to the origin.
             y = NextItem(y, h, p);
             if (GuiButton(x, y, w, h, "Pursue Origin"))
             {
-                SelectedAgent.Move(Steering.Behaviour.Pursue, new Vector2(0, 0));
+                SelectedAgent.Move(new Vector2(0, 0), Steering.Behaviour.Pursue);
             }
 
             return NextItem(y, h, p);

@@ -18,6 +18,15 @@ namespace A1.Percepts
         public bool IsDirty => Floor != null && Floor.State >= Floor.DirtLevel.Dirty;
 
         /// <summary>
+        /// Assign the floor.
+        /// </summary>
+        /// <param name="floor">The floor.</param>
+        public DirtyData(Floor floor)
+        {
+            Floor = floor;
+        }
+
+        /// <summary>
         /// Display the details of the percepts.
         /// </summary>
         /// <returns>String with the details of the percepts.</returns>

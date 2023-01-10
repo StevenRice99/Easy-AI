@@ -372,42 +372,42 @@ namespace EasyAI.Agents
         /// <summary>
         /// Set a transform to move based upon.
         /// </summary>
-        /// <param name="behaviour">The move type.</param>
         /// <param name="tr">The transform.</param>
-        public void Move(Steering.Behaviour behaviour, Transform tr)
+        /// <param name="behaviour">The move type.</param>
+        public void Move(Transform tr, Steering.Behaviour behaviour = Steering.Behaviour.Seek)
         {
             Moves.Clear();
-            AddMove(behaviour, tr);
+            AddMove(tr, behaviour);
         }
 
         /// <summary>
         /// Set a position to move based upon.
         /// </summary>
-        /// <param name="behaviour">The move type.</param>
         /// <param name="pos">The position.</param>
-        public void Move(Steering.Behaviour behaviour, Vector3 pos)
+        /// <param name="behaviour">The move type.</param>
+        public void Move(Vector3 pos, Steering.Behaviour behaviour = Steering.Behaviour.Seek)
         {
             Moves.Clear();
-            AddMove(behaviour, pos);
+            AddMove(pos, behaviour);
         }
 
         /// <summary>
         /// Set a position to move based upon.
         /// </summary>
-        /// <param name="behaviour">The move type.</param>
         /// <param name="pos">The position.</param>
-        public void Move(Steering.Behaviour behaviour, Vector2 pos)
+        /// <param name="behaviour">The move type.</param>
+        public void Move(Vector2 pos, Steering.Behaviour behaviour = Steering.Behaviour.Seek)
         {
             Moves.Clear();
-            AddMove(behaviour, pos);
+            AddMove(pos, behaviour);
         }
     
         /// <summary>
         /// Add a transform to move based upon.
         /// </summary>
-        /// <param name="behaviour">The move type.</param>
         /// <param name="tr">The transform.</param>
-        public void AddMove(Steering.Behaviour behaviour, Transform tr)
+        /// <param name="behaviour">The move type.</param>
+        public void AddMove(Transform tr, Steering.Behaviour behaviour = Steering.Behaviour.Seek)
         {
             if (Moves.Exists(m => m.Behaviour == behaviour && m.Transform == tr) || Steering.IsMoveComplete(behaviour, new(transform.position.x, transform.position.z), new(tr.position.x, tr.position.z)))
             {
@@ -422,19 +422,19 @@ namespace EasyAI.Agents
         /// <summary>
         /// Add a position to move based upon.
         /// </summary>
-        /// <param name="behaviour">The move type.</param>
         /// <param name="pos">The position.</param>
-        public void AddMove(Steering.Behaviour behaviour, Vector3 pos)
+        /// <param name="behaviour">The move type.</param>
+        public void AddMove(Vector3 pos, Steering.Behaviour behaviour = Steering.Behaviour.Seek)
         {
-            AddMove(behaviour, new Vector2(pos.x, pos.z));
+            AddMove(new Vector2(pos.x, pos.z), behaviour);
         }
 
         /// <summary>
         /// Add a position to move based upon.
         /// </summary>
-        /// <param name="behaviour">The move type.</param>
         /// <param name="pos">The position.</param>
-        public void AddMove(Steering.Behaviour behaviour, Vector2 pos)
+        /// <param name="behaviour">The move type.</param>
+        public void AddMove(Vector2 pos, Steering.Behaviour behaviour = Steering.Behaviour.Seek)
         {
             if (Moves.Exists(m => m.Behaviour == behaviour && m.Transform == null && m.Position == pos) || Steering.IsMoveComplete(behaviour, new(transform.position.x, transform.position.z), pos))
             {

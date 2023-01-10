@@ -61,7 +61,7 @@ namespace A2.States
                 agent.AddMessage("Cannot find a mate, roaming.");
                 if (!agent.Moving)
                 {
-                    agent.Move(Steering.Behaviour.Seek, Random.insideUnitCircle * MicrobeManager.FloorRadius);
+                    agent.Move(Random.insideUnitCircle * MicrobeManager.FloorRadius);
                 }
 
                 return;
@@ -82,7 +82,7 @@ namespace A2.States
             
             // Otherwise move towards the microbe it is tracking.
             agent.AddMessage($"Moving to mate with {microbe.TargetMicrobe.name}.");
-            agent.Move(Steering.Behaviour.Pursue, microbe.TargetMicrobe.transform);
+            agent.Move(microbe.TargetMicrobe.transform, Steering.Behaviour.Pursue);
         }
 
         /// <summary>

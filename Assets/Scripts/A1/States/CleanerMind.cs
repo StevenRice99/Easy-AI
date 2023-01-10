@@ -4,7 +4,6 @@ using A1.AgentActions;
 using A1.Percepts;
 using A1.Sensors;
 using EasyAI.Agents;
-using EasyAI.Navigation;
 using EasyAI.Thinking;
 using UnityEngine;
 
@@ -13,31 +12,26 @@ namespace A1.States
     [CreateAssetMenu(menuName = "A1/States/Cleaner Mind", fileName = "Cleaner Mind")]
     public class CleanerMind : State
     {
-        public override void Enter(Agent agent)
-        {
-            agent.AddMessage("Starting cleaning!");
-        }
-
+        /// <summary>
+        /// Called when an agent is in this state.
+        /// </summary>
+        /// <param name="agent">The agent.</param>
         public override void Execute(Agent agent)
         {
             // Determine if the current floor tile needs to be cleaned.
             Floor floorToClean = CanClean(agent);
-            if (floorToClean != null)
+            
+            // If there are no floor tiles to clean, determine where to move which will be the closest floor with the highest dirt level or the weighted midpoint.
+            if (floorToClean == null)
             {
-                // Stop movement and start cleaning the current floor tile.
-                agent.AddMessage("Cleaning current floor tile.");
-                agent.StopMoving();
-                agent.Act(new CleanAgentAction { Floor = floorToClean });
+                agent.Move(DetermineLocationToMove(agent));
                 return;
             }
 
-            // Otherwise determine where to move which will be the closest floor with the highest dirt level or the weighted midpoint.
-            agent.Move(Steering.Behaviour.Seek,DetermineLocationToMove(agent));
-        }
-
-        public override void Exit(Agent agent)
-        {
-            agent.AddMessage("Done cleaning!");
+            // Otherwise we are on a dirty floor to so stop movement and start cleaning the current floor tile.
+            agent.AddMessage("Cleaning current floor tile.");
+            agent.StopMoving();
+            agent.Act(new CleanAction(floorToClean));
         }
 
         /// <summary>

@@ -27,11 +27,8 @@ namespace A1.Sensors
                 return null;
             }
 
-            // Create the percept with the dirt level of the closest floor.
-            DirtyData data = new()
-            {
-                Floor = floors.OrderBy(f => Vector3.Distance(Agent.transform.position, f.transform.position)).First()
-            };
+            // Create the percepts with the dirt level of the closest floor.
+            DirtyData data = new(floors.OrderBy(f => Vector3.Distance(Agent.transform.position, f.transform.position)).First());
             
             AddMessage(data.IsDirty ? "Current floor tile is dirty." : "Current floor tile is not dirty.");
             return data;

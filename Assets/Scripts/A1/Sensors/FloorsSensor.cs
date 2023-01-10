@@ -22,13 +22,8 @@ namespace A1.Sensors
             List<Floor> floors = CleanerManager.Floors;
             
             // Build the percepts.
-            FloorsData data = new()
-            {
-                Positions = new Vector3[floors.Count],
-                Dirty = new bool[floors.Count],
-                LikelyToGetDirty = new bool[floors.Count]
-            };
-            
+            FloorsData data = new(new Vector3[floors.Count], new bool[floors.Count], new bool[floors.Count]);
+
             // Fill the percepts with data.
             for (int i = 0; i < floors.Count; i++)
             {

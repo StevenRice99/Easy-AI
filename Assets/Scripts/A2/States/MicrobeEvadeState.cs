@@ -40,7 +40,7 @@ namespace A2.States
             
             // Otherwise move towards the microbe it is tracking.
             agent.AddMessage($"Evading {microbe.PursuerMicrobe.name}.");
-            agent.Move(Steering.Behaviour.Evade, microbe.PursuerMicrobe.transform);
+            agent.Move(microbe.PursuerMicrobe.transform, Steering.Behaviour.Evade);
         }
 
         /// <summary>

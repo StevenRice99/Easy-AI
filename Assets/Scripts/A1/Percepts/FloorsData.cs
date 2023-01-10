@@ -25,6 +25,19 @@ namespace A1.Percepts
         public bool[] LikelyToGetDirty;
 
         /// <summary>
+        /// Assign floor details
+        /// </summary>
+        /// <param name="positions">Floor positions.</param>
+        /// <param name="dirty">If a floor tile is dirty or not.</param>
+        /// <param name="likelyToGetDirty">If a floor tile is likely to get dirty or not.</param>
+        public FloorsData(Vector3[] positions, bool[] dirty, bool[] likelyToGetDirty)
+        {
+            Positions = positions;
+            Dirty = dirty;
+            LikelyToGetDirty = likelyToGetDirty;
+        }
+
+        /// <summary>
         /// Display the details of the percepts.
         /// </summary>
         /// <returns>String with the details of the percepts.</returns>
