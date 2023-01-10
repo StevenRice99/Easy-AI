@@ -66,14 +66,18 @@ namespace EasyAI.Navigation
         /// <returns>True if the move is complete, false otherwise.</returns>
         public static bool IsMoveComplete(Behaviour behaviour, Vector2 position, Vector2 target)
         {
-            if (!IsApproachingBehaviour(behaviour))
-            {
-                return Manager.FleeAcceptableDistance >= 0 && Vector2.Distance(position, target) >= Manager.FleeAcceptableDistance;
-            }
-            
-            return Manager.SeekAcceptableDistance >= 0 && Vector2.Distance(position, target) <= Manager.SeekAcceptableDistance;
+            return !IsApproachingBehaviour(behaviour)
+                ? Manager.FleeAcceptableDistance >= 0 &&
+                  Vector2.Distance(position, target) >= Manager.FleeAcceptableDistance
+                : Manager.SeekAcceptableDistance >= 0 &&
+                  Vector2.Distance(position, target) <= Manager.SeekAcceptableDistance;
         }
 
+        /// <summary>
+        /// The color to make a certain move type appear with gizmos.
+        /// </summary>
+        /// <param name="behaviour">The behaviour type.</param>
+        /// <returns>The color to display.</returns>
         public static Color GizmosColor(Behaviour behaviour)
         {
             switch (behaviour)
@@ -95,7 +99,7 @@ namespace EasyAI.Navigation
         /// </summary>
         /// <param name="position">The position of the agent.</param>
         /// <param name="velocity">The current velocity of the agent.</param>
-        /// <param name="evader">The position of the target to seek to.</param>
+        /// <param name="evader">The position of the evader to seek to.</param>
         /// <param name="speed">The speed at which the agent can move.</param>
         /// <returns>The velocity to apply to the agent to perform the seek.</returns>
         public static Vector2 Seek(Vector2 position, Vector2 velocity, Vector2 evader, float speed)
@@ -108,7 +112,7 @@ namespace EasyAI.Navigation
         /// </summary>
         /// <param name="position">The position of the agent.</param>
         /// <param name="velocity">The current velocity of the agent.</param>
-        /// <param name="pursuer">The position of the target to flee from.</param>
+        /// <param name="pursuer">The position of the pursuer to flee from.</param>
         /// <param name="speed">The speed at which the agent can move.</param>
         /// <returns>The velocity to apply to the agent to perform the flee.</returns>
         private static Vector2 Flee(Vector2 position, Vector2 velocity, Vector2 pursuer, float speed)
@@ -122,8 +126,8 @@ namespace EasyAI.Navigation
         /// </summary>
         /// <param name="position">The position of the agent.</param>
         /// <param name="velocity">The current velocity of the agent.</param>
-        /// <param name="evader">The position of the target to pursuit to.</param>
-        /// <param name="evaderLastPosition">The position of the target during the last time step.</param>
+        /// <param name="evader">The position of the evader to pursuit to.</param>
+        /// <param name="evaderLastPosition">The position of the evader during the last time step.</param>
         /// <param name="speed">The speed at which the agent can move.</param>
         /// <param name="deltaTime">The time elapsed between when the target is in its current position and its previous.</param>
         /// <returns>The velocity to apply to the agent to perform the pursuit.</returns>
@@ -146,8 +150,8 @@ namespace EasyAI.Navigation
         /// </summary>
         /// <param name="position">The position of the agent.</param>
         /// <param name="velocity">The current velocity of the agent.</param>
-        /// <param name="pursuer">The position of the target to evade from.</param>
-        /// <param name="pursuerLastPosition">The position of the target during the last time step.</param>
+        /// <param name="pursuer">The position of the pursuer to evade from.</param>
+        /// <param name="pursuerLastPosition">The position of the pursuer during the last time step.</param>
         /// <param name="speed">The speed at which the agent can move.</param>
         /// <param name="deltaTime">The time elapsed between when the target is in its current position and its previous.</param>
         /// <returns>The velocity to apply to the agent to perform the evade.</returns>
