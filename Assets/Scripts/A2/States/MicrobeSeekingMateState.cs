@@ -1,5 +1,6 @@
 ﻿using A2.Agents;
 using A2.Managers;
+using A2.Sensors;
 using EasyAI.Agents;
 using EasyAI.Navigation;
 using EasyAI.Thinking;
@@ -37,7 +38,7 @@ namespace A2.States
             if (microbe.TargetMicrobe == null)
             {
                 // If a potential mate was found, attempt to impress them.
-                Microbe potentialMate = MicrobeManager.FindMate(microbe);
+                Microbe potentialMate = agent.Sense<NearestMateSensor, Microbe>();
                 if (potentialMate != null)
                 {
                     agent.AddMessage($"Attempting to impress {potentialMate.name} to mate.");

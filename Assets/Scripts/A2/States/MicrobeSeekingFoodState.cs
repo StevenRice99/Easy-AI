@@ -1,6 +1,6 @@
-﻿using A2.Actuators;
-using A2.Agents;
+﻿using A2.Agents;
 using A2.Managers;
+using A2.Sensors;
 using EasyAI.Agents;
 using EasyAI.Navigation;
 using EasyAI.Thinking;

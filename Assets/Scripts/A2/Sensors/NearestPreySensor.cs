@@ -1,0 +1,41 @@
+﻿using System.Linq;
+using A2.Agents;
+using A2.Managers;
+using UnityEngine;
+using Sensor = EasyAI.Sensors.Sensor;
+
+namespace A2.Sensors
+{
+    public class NearestPreySensor : Sensor
+    {
+        protected override object Sense()
+        {
+            Microbe seeker = Agent as Microbe;
+            
+            if (seeker == null)
+            {
+                return null;
+            }
+            
+            Microbe[] microbes = MicrobeManager.MicrobeSingleton.Agents.Where(a => a is Microbe m && m != seeker && Vector3.Distance(seeker.transform.position, a.transform.position) < seeker.DetectionRange).Cast<Microbe>().ToArray();
+            if (microbes.Length == 0)
+            {
+                return null;
+            }
+            
+            // Microbes can eat all types of microbes that they cannot mate with. See readme for a food/mating table.
+            microbes = seeker.MicrobeType switch
+            {
+                MicrobeManager.MicrobeType.Red => microbes.Where(m => m.MicrobeType != MicrobeManager.MicrobeType.Red && m.MicrobeType != MicrobeManager.MicrobeType.Orange && m.MicrobeType != MicrobeManager.MicrobeType.Pink).ToArray(),
+                MicrobeManager.MicrobeType.Orange => microbes.Where(m => m.MicrobeType != MicrobeManager.MicrobeType.Orange && m.MicrobeType != MicrobeManager.MicrobeType.Yellow && m.MicrobeType != MicrobeManager.MicrobeType.Red).ToArray(),
+                MicrobeManager.MicrobeType.Yellow => microbes.Where(m => m.MicrobeType != MicrobeManager.MicrobeType.Yellow && m.MicrobeType != MicrobeManager.MicrobeType.Green && m.MicrobeType != MicrobeManager.MicrobeType.Orange).ToArray(),
+                MicrobeManager.MicrobeType.Green => microbes.Where(m => m.MicrobeType != MicrobeManager.MicrobeType.Green && m.MicrobeType != MicrobeManager.MicrobeType.Blue && m.MicrobeType != MicrobeManager.MicrobeType.Yellow).ToArray(),
+                MicrobeManager.MicrobeType.Blue => microbes.Where(m => m.MicrobeType != MicrobeManager.MicrobeType.Blue && m.MicrobeType != MicrobeManager.MicrobeType.Purple && m.MicrobeType != MicrobeManager.MicrobeType.Green).ToArray(),
+                MicrobeManager.MicrobeType.Purple => microbes.Where(m => m.MicrobeType != MicrobeManager.MicrobeType.Purple && m.MicrobeType != MicrobeManager.MicrobeType.Pink && m.MicrobeType != MicrobeManager.MicrobeType.Blue).ToArray(),
+                _ => microbes.Where(m => m.MicrobeType is not (MicrobeManager.MicrobeType.Pink or MicrobeManager.MicrobeType.Red or MicrobeManager.MicrobeType.Purple)).ToArray()
+            };
+
+            return microbes.Length == 0 ? null : microbes.OrderBy(m => Vector3.Distance(seeker.transform.position, m.transform.position)).First();
+        }
+    }
+}

@@ -10,6 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 8681913825557158867}
   - component: {fileID: 3715790923974705690}
+  - component: {fileID: 8746273391784731232}
+  - component: {fileID: 5938657817584930929}
+  - component: {fileID: 6597533758415603164}
   - component: {fileID: 5088663207801863598}
   m_Layer: 0
   m_Name: Microbe
@@ -28,6 +31,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2132608735531069219}
   m_Father: {fileID: 0}
@@ -45,20 +49,51 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8a214ef07764d35a10e171fa2154a14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  state: {fileID: 11400000, guid: 0dbbbbfc37da2304bbd48180d5f98c02, type: 2}
   moveSpeed: 10
   moveAcceleration: 10
-  seekAcceptableDistance: 0.1
-  fleeAcceptableDistance: 100
-  restVelocity: 0.1
   lookSpeed: 5
-  maxWanderTurn: 30
-  globalState: {fileID: 11400000, guid: 1c5677af39d17c748bb3dbf33fc8c7cb, type: 2}
-  state: {fileID: 11400000, guid: 0dbbbbfc37da2304bbd48180d5f98c02, type: 2}
   stateVisualization: {fileID: 6820371204410465446}
   spawnAudio: {fileID: 8300000, guid: 9812aa10de2ee6542a47b4ae7c446f01, type: 3}
   eatAudio: {fileID: 8300000, guid: 1d3e1885790d34f468dd787e3a5a8123, type: 3}
   mateAudio: {fileID: 8300000, guid: 599f10e0b67f9344c8d69af464719da7, type: 3}
   pickupAudio: {fileID: 8300000, guid: 8e1a8521378e47c48bbf333a1df9f665, type: 3}
+--- !u!114 &8746273391784731232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1567258149929102323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39f4f3c9a92745e3befb75fd9e0f3301, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5938657817584930929
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1567258149929102323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79590cb5573f42b5b17ce965e8dea62c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6597533758415603164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1567258149929102323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0bb36e03982c429ba559e39039e6c32e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!82 &5088663207801863598
 AudioSource:
   m_ObjectHideFlags: 0
@@ -183,6 +218,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8133441616400875082}
   - {fileID: 4784879481352017724}
@@ -208,6 +244,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -264,6 +301,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8417538896246874825}
   m_Father: {fileID: 8681913825557158867}
@@ -297,6 +335,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.4, z: 0.25}
   m_LocalScale: {x: 1, y: 0.2, z: 0.5}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8417538896246874825}
   m_RootOrder: 0
@@ -320,6 +359,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -378,6 +418,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.8, z: 0}
   m_LocalScale: {x: 0.75, y: 0.2, z: 0.75}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8417538896246874825}
   m_RootOrder: 1
@@ -401,6 +442,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1

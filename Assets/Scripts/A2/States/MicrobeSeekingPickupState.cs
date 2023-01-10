@@ -1,7 +1,7 @@
-﻿using System.Linq;
-using A2.Agents;
+﻿using A2.Agents;
 using A2.Managers;
 using A2.Pickups;
+using A2.Sensors;
 using EasyAI.Agents;
 using EasyAI.Thinking;
 using UnityEngine;
@@ -37,11 +37,7 @@ namespace A2.States
             // If the microbe is not tracking a pickup, search for one.
             if (microbe.TargetPickup == null)
             {
-                MicrobeBasePickup[] pickups = FindObjectsOfType<MicrobeBasePickup>();
-                if (pickups.Length > 0)
-                {
-                    microbe.SetTargetPickup(pickups.OrderBy(p => Vector3.Distance(agent.transform.position, p.transform.position)).FirstOrDefault());
-                }
+                microbe.SetTargetPickup(agent.Sense<NearestPickupSensor, MicrobeBasePickup>());
             }
 
             // If there are no pickups in detection range, roam.

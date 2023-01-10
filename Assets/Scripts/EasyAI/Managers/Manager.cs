@@ -324,6 +324,11 @@ namespace EasyAI.Managers
         public static List<Connection> Connections => Singleton._connections;
 
         /// <summary>
+        /// All agents in the scene.
+        /// </summary>
+        public List<Agent> Agents { get; private set; } = new();
+
+        /// <summary>
         /// The singleton agent manager.
         /// </summary>
         protected static Manager Singleton;
@@ -377,11 +382,6 @@ namespace EasyAI.Managers
         /// The currently selected agent.
         /// </summary>
         protected Agent SelectedAgent;
-
-        /// <summary>
-        /// All agents in the scene.
-        /// </summary>
-        protected List<Agent> Agents { get; private set; } = new();
 
         [Header("Agents")]
         [Tooltip("The mind or global state agents are in. Initialize it with the global state to start it. If left empty the agent will have manual right-click-to-move controls.")]
