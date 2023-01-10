@@ -32,7 +32,7 @@ namespace A2.States
         {
             agent.AddMessage("Roaming.");
             
-            if (agent.MovesData.Count <= 0)
+            if (agent.Moves.Count <= 0)
             {
                 agent.Move(Steering.Behaviour.Seek, Random.insideUnitCircle * MicrobeManager.FloorRadius);
             }

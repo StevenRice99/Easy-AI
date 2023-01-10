@@ -47,7 +47,7 @@ namespace A2.States
             {
                 agent.AddMessage("Cannot find any food, roaming.");
                 
-                if (agent.MovesData.Count <= 0)
+                if (agent.Moves.Count <= 0)
                 {
                     agent.Move(Steering.Behaviour.Seek, Random.insideUnitCircle * MicrobeManager.FloorRadius);
                 }

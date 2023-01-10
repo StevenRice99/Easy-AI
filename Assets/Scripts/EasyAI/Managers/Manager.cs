@@ -1574,25 +1574,36 @@ namespace EasyAI.Managers
             }
             
             y = NextItem(y, h, p);
-            int length = 6 + Singleton.SelectedAgent.MovesData.Count;
+            int length = 2;
             if (Singleton.Agents.Count > 1)
             {
                 length++;
             }
 
-            if (Singleton.mind == null)
+            if (Singleton.SelectedAgent.State != null)
             {
-                length--;
+                length++;
             }
 
-            if (Singleton.SelectedAgent.State == null)
+            if (Singleton.SelectedAgent.PerformanceMeasure != null)
             {
-                length--;
+                length++;
             }
 
-            if (Singleton.SelectedAgent.PerformanceMeasure == null)
+            if (Singleton.SelectedAgent.Destination != null)
             {
-                length--;
+                length++;
+            }
+            else
+            {
+                if (Singleton.SelectedAgent.Moves.Count > 0)
+                {
+                    length += Singleton.SelectedAgent.Moves.Count;
+                }
+                else
+                {
+                    length++;
+                }
             }
 
             // Display all agent details.
@@ -1600,15 +1611,6 @@ namespace EasyAI.Managers
             if (Singleton.Agents.Count > 1)
             {
                 GuiLabel(x, y, w, h, p, Singleton.SelectedAgent.name);
-                y = NextItem(y, h, p);
-            }
-
-            GuiLabel(x, y, w, h, p, $"Type: {Singleton.SelectedAgent}");
-            y = NextItem(y, h, p);
-        
-            if (Singleton.mind != null)
-            {
-                GuiLabel(x, y, w, h, p, $"Mind: {Singleton.mind}");
                 y = NextItem(y, h, p);
             }
         
@@ -1625,30 +1627,35 @@ namespace EasyAI.Managers
             }
         
             GuiLabel(x, y, w, h, p, $"Position: {Singleton.SelectedAgent.transform.position} | Velocity: {Singleton.SelectedAgent.MoveVelocity.magnitude}");
-            foreach (Agent.Movement moveData in Singleton.SelectedAgent.MovesData)
-            {
-                string moveType = moveData.Behaviour switch
-                {
-                    Steering.Behaviour.Seek => "Seek",
-                    Steering.Behaviour.Flee => "Flee",
-                    Steering.Behaviour.Pursue => "Pursue",
-                    Steering.Behaviour.Evade => "Evade",
-                    _ => "Error"
-                };
-                string toFrom = moveData.Behaviour switch
-                {
-                    Steering.Behaviour.Seek or Steering.Behaviour.Pursue => " towards",
-                    Steering.Behaviour.Flee or Steering.Behaviour.Flee => " from",
-                    _ => "Error"
-                };
-                Vector3 pos3 = moveData.Transform != null ? moveData.Transform.position : Vector3.zero;
-                string pos = moveData.Transform != null ? $" ({pos3.x}, {pos3.z})" : $" ({moveData.Position.x}, {moveData.Position.y})";
-                y = NextItem(y, h, p);
-                GuiLabel(x, y, w, h, p, $"{moveType}{toFrom}{pos}");
-            }
         
             y = NextItem(y, h, p);
             GuiLabel(x, y, w, h, p, $"Rotation: {Singleton.SelectedAgent.Visuals.rotation.eulerAngles.y} Degrees" + (Singleton.SelectedAgent.LookingToTarget ? $" | Looking to {Singleton.SelectedAgent.LookTarget} at {Singleton.SelectedAgent.lookSpeed} degrees/second." : string.Empty));
+
+            if (Singleton.SelectedAgent.Destination != null)
+            {
+                Vector3 destination = Singleton.SelectedAgent.Destination.Value;
+                y = NextItem(y, h, p);
+                GuiLabel(x, y, w, h, p, $"Navigating to ({destination.x}, {destination.z})");
+            }
+            else
+            {
+                if (Singleton.SelectedAgent.Moves.Count > 0)
+                {
+                    foreach (Agent.Movement movement in Singleton.SelectedAgent.Moves)
+                    {
+                        string toFrom = Steering.IsApproachingBehaviour(movement.Behaviour) ? " towards" : " from";
+                        Vector3 pos3 = movement.Transform != null ? movement.Transform.position : Vector3.zero;
+                        string pos = movement.Transform != null ? $" ({pos3.x}, {pos3.z})" : $" ({movement.Position.x}, {movement.Position.y})";
+                        y = NextItem(y, h, p);
+                        GuiLabel(x, y, w, h, p, $"{movement.Behaviour}{toFrom}{pos}");
+                    }
+                }
+                else
+                {
+                    y = NextItem(y, h, p);
+                    GuiLabel(x, y, w, h, p, $"Not moving");
+                }
+            }
 
             // Display any custom details implemented for the agent.
             y = Singleton.SelectedAgent.DisplayDetails(x, y, w, h, p);

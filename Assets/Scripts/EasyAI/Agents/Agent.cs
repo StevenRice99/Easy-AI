@@ -210,7 +210,7 @@ namespace EasyAI.Agents
         /// <summary>
         /// All movement the agent is doing without path finding.
         /// </summary>
-        public List<Movement> MovesData { get; private set; } = new();
+        public List<Movement> Moves { get; private set; } = new();
 
         /// <summary>
         /// The current path an agent is following.
@@ -220,7 +220,7 @@ namespace EasyAI.Agents
         /// <summary>
         /// The path destination.
         /// </summary>
-        protected Vector3? Destination => Path?[^1];
+        public Vector3? Destination => Path?[^1];
 
         /// <summary>
         /// The current move velocity if move acceleration is being used as a Vector3.
@@ -243,30 +243,23 @@ namespace EasyAI.Agents
             if (Path == null || Path.Count == 0)
             {
                 // Display the movement vectors of all move types.
-                foreach (Movement moveData in MovesData)
+                foreach (Movement movement in Moves)
                 {
-                    // Assign different colors for different behaviours:
-                    // Blue for seek, cyan for pursuit, red for flee, and orange for evade.
-                    GL.Color(moveData.Behaviour switch
-                    {
-                        Steering.Behaviour.Seek => Color.blue,
-                        Steering.Behaviour.Pursue => Color.cyan,
-                        Steering.Behaviour.Flee => Color.red,
-                        _ => new(1f, 0.65f, 0f),
-                    });
+                    // Assign different colors for different behaviours.
+                    GL.Color(Steering.GizmosColor(movement.Behaviour));
             
                     // Draw a line from the agent's position showing the force of this movement.
                     GL.Vertex(position);
-                    GL.Vertex(position + transform.rotation * (new Vector3(moveData.MoveVector.x, position.y, moveData.MoveVector.y).normalized * 2));
+                    GL.Vertex(position + transform.rotation * (new Vector3(movement.MoveVector.x, position.y, movement.MoveVector.y).normalized * 2));
 
-                    if (moveData.Behaviour is Steering.Behaviour.Seek or Steering.Behaviour.Flee)
+                    if (movement.Behaviour is Steering.Behaviour.Seek or Steering.Behaviour.Flee)
                     {
                         continue;
                     }
             
                     // Draw another line from the agent's position to where the agent is seeking/pursuing/fleeing/evading to/from.
                     GL.Vertex(position);
-                    GL.Vertex(new(moveData.Position.x, position.y, moveData.Position.y));
+                    GL.Vertex(new(movement.Position.x, position.y, movement.Position.y));
                 }
 
                 // If the agent is moving, draw a green line indicating the direction it is currently moving in.
@@ -332,7 +325,7 @@ namespace EasyAI.Agents
         /// <param name="tr">The transform.</param>
         public void Move(Steering.Behaviour behaviour, Transform tr)
         {
-            MovesData.Clear();
+            Moves.Clear();
             AddMove(behaviour, tr);
         }
 
@@ -343,7 +336,7 @@ namespace EasyAI.Agents
         /// <param name="pos">The position.</param>
         public void Move(Steering.Behaviour behaviour, Vector3 pos)
         {
-            MovesData.Clear();
+            Moves.Clear();
             AddMove(behaviour, pos);
         }
 
@@ -354,7 +347,7 @@ namespace EasyAI.Agents
         /// <param name="pos">The position.</param>
         public void Move(Steering.Behaviour behaviour, Vector2 pos)
         {
-            MovesData.Clear();
+            Moves.Clear();
             AddMove(behaviour, pos);
         }
     
@@ -365,14 +358,14 @@ namespace EasyAI.Agents
         /// <param name="tr">The transform.</param>
         public void AddMove(Steering.Behaviour behaviour, Transform tr)
         {
-            if (MovesData.Exists(m => m.Behaviour == behaviour && m.Transform == tr) || Steering.MoveComplete(behaviour, new(transform.position.x, transform.position.z), new(tr.position.x, tr.position.z)))
+            if (Moves.Exists(m => m.Behaviour == behaviour && m.Transform == tr) || Steering.IsMoveComplete(behaviour, new(transform.position.x, transform.position.z), new(tr.position.x, tr.position.z)))
             {
                 return;
             }
 
             Path = null;
             RemoveMove(tr);
-            MovesData.Add(new(behaviour, tr));
+            Moves.Add(new(behaviour, tr));
         }
 
         /// <summary>
@@ -392,14 +385,14 @@ namespace EasyAI.Agents
         /// <param name="pos">The position.</param>
         public void AddMove(Steering.Behaviour behaviour, Vector2 pos)
         {
-            if (MovesData.Exists(m => m.Behaviour == behaviour && m.Transform == null && m.Position == pos) || Steering.MoveComplete(behaviour, new(transform.position.x, transform.position.z), pos))
+            if (Moves.Exists(m => m.Behaviour == behaviour && m.Transform == null && m.Position == pos) || Steering.IsMoveComplete(behaviour, new(transform.position.x, transform.position.z), pos))
             {
                 return;
             }
         
             Path = null;
             RemoveMove(pos);
-            MovesData.Add(new(behaviour, pos));
+            Moves.Add(new(behaviour, pos));
         }
 
         /// <summary>
@@ -407,7 +400,7 @@ namespace EasyAI.Agents
         /// </summary>
         public void StopMoving()
         {
-            MovesData.Clear();
+            Moves.Clear();
         }
 
         /// <summary>
@@ -416,7 +409,7 @@ namespace EasyAI.Agents
         /// <param name="tr">The transform.</param>
         private void RemoveMove(Transform tr)
         {
-            MovesData = MovesData.Where(m => m.Transform != tr).ToList();
+            Moves = Moves.Where(m => m.Transform != tr).ToList();
         }
 
         /// <summary>
@@ -425,7 +418,7 @@ namespace EasyAI.Agents
         /// <param name="pos">The position.</param>
         private void RemoveMove(Vector2 pos)
         {
-            MovesData = MovesData.Where(m => m.Transform == null && m.Position != pos).ToList();
+            Moves = Moves.Where(m => m.Transform == null && m.Position != pos).ToList();
         }
 
         /// <summary>
@@ -811,35 +804,35 @@ namespace EasyAI.Agents
             }
 
             // If there is move data, perform it.
-            if (MovesData.Count > 0)
+            if (Moves.Count > 0)
             {
                 // Look through every move data.
-                for (int i = 0; i < MovesData.Count; i++)
+                for (int i = 0; i < Moves.Count; i++)
                 {
                     // Get the position to move to/from.
-                    Vector2 target = MovesData[i].Position;
+                    Vector2 target = Moves[i].Position;
 
                     // If this was a transform movement and the transform is now gone or the move has been satisfied, remove it.
-                    if (MovesData[i].IsTransformTarget && MovesData[i].Transform == null || Steering.MoveComplete(MovesData[i].Behaviour, position, target))
+                    if (Moves[i].IsTransformTarget && Moves[i].Transform == null || Steering.IsMoveComplete(Moves[i].Behaviour, position, target))
                     {
-                        MovesData.RemoveAt(i--);
+                        Moves.RemoveAt(i--);
                         continue;
                     }
 
                     // Increase the elapsed time for the move data.
-                    MovesData[i].DeltaTime += deltaTime;
+                    Moves[i].DeltaTime += deltaTime;
                     
                     // Update the movement vector of the data based on its given move type.
-                    MovesData[i].MoveVector = Steering.Move(MovesData[i].Behaviour, position, MoveVelocity, target, MovesData[i].LastPosition, acceleration, MovesData[i].DeltaTime);
+                    Moves[i].MoveVector = Steering.Move(Moves[i].Behaviour, position, MoveVelocity, target, Moves[i].LastPosition, acceleration, Moves[i].DeltaTime);
 
                     // Add the newly calculated movement data to the movement vector for this time step.
-                    movement += MovesData[i].MoveVector;
+                    movement += Moves[i].MoveVector;
 
                     // Update the last position so the next time step could calculated predictive movement.
-                    MovesData[i].LastPosition = target;
+                    Moves[i].LastPosition = target;
 
                     // Zero the elapsed time since the action was completed for this move data.
-                    MovesData[i].DeltaTime = 0;
+                    Moves[i].DeltaTime = 0;
                 }
             }
 

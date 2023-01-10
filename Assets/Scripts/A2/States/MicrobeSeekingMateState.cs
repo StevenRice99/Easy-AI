@@ -62,7 +62,7 @@ namespace A2.States
             if (microbe.TargetMicrobe == null)
             {
                 agent.AddMessage("Cannot find a mate, roaming.");
-                if (agent.MovesData.Count <= 0)
+                if (agent.Moves.Count <= 0)
                 {
                     agent.Move(Steering.Behaviour.Seek, Random.insideUnitCircle * MicrobeManager.FloorRadius);
                 }

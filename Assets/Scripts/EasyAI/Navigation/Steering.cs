@@ -48,26 +48,45 @@ namespace EasyAI.Navigation
         }
 
         /// <summary>
+        /// Check if this is an approaching or moving away behaviour
+        /// </summary>
+        /// <param name="behaviour">The behaviour to check</param>
+        /// <returns>True if it is an approaching behaviour, false otherwise</returns>
+        public static bool IsApproachingBehaviour(Behaviour behaviour)
+        {
+            return behaviour is Behaviour.Seek or Behaviour.Pursue;
+        }
+
+        /// <summary>
         /// Check if a move is complete.
         /// </summary>
         /// <param name="behaviour">The move type</param>
         /// <param name="position">The position of the agent.</param>
         /// <param name="target">The desired destination position.</param>
         /// <returns>True if the move is complete, false otherwise.</returns>
-        public static bool MoveComplete(Behaviour behaviour, Vector2 position, Vector2 target)
+        public static bool IsMoveComplete(Behaviour behaviour, Vector2 position, Vector2 target)
+        {
+            if (!IsApproachingBehaviour(behaviour))
+            {
+                return Manager.FleeAcceptableDistance >= 0 && Vector2.Distance(position, target) >= Manager.FleeAcceptableDistance;
+            }
+            
+            return Manager.SeekAcceptableDistance >= 0 && Vector2.Distance(position, target) <= Manager.SeekAcceptableDistance;
+        }
+
+        public static Color GizmosColor(Behaviour behaviour)
         {
             switch (behaviour)
             {
-                // Closing in behaviours.
-                case Behaviour.Seek:
-                case Behaviour.Pursue:
-                    return Manager.SeekAcceptableDistance >= 0 && Vector2.Distance(position, target) <= Manager.SeekAcceptableDistance;
-                // Moving away behaviours.
-                case Behaviour.Flee:
                 case Behaviour.Evade:
-                    return Manager.FleeAcceptableDistance >= 0 && Vector2.Distance(position, target) >= Manager.FleeAcceptableDistance;
+                    return new(1f, 0.65f, 0f);
+                case Behaviour.Pursue:
+                    return Color.cyan;
+                case Behaviour.Flee:
+                    return Color.red;
+                case Behaviour.Seek:
                 default:
-                    return false;
+                    return Color.blue;
             }
         }
         
