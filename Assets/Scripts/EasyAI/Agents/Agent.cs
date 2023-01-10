@@ -138,6 +138,11 @@ namespace EasyAI.Agents
             get => state;
             set
             {
+                if (state == value)
+                {
+                    return;
+                }
+                
                 if (state != null)
                 {
                     state.Exit(this);
@@ -226,11 +231,6 @@ namespace EasyAI.Agents
         /// The current move velocity if move acceleration is being used as a Vector3.
         /// </summary>
         protected Vector3 MoveVelocity3 => new(MoveVelocity.x, 0, MoveVelocity.y);
-
-        /// <summary>
-        /// The index of the currently selected mind.
-        /// </summary>
-        private int _selectedMindIndex;
     
         /// <summary>
         /// Display lines to highlight agent movement.

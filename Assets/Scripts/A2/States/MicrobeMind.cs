@@ -35,12 +35,7 @@ namespace A2.States
             // If the microbe is hungry, set the microbe to seek food.
             if (microbe.IsHungry)
             {
-                if (microbe.State.GetType() == typeof(MicrobeSeekingFoodState))
-                {
-                    return null;
-                }
-                microbe.State = Manager.Lookup(typeof(MicrobeSeekingFoodState));
-                microbe.SetStateVisual(microbe.State);
+                microbe.State = Manager.GetState(typeof(MicrobeSeekingFoodState));
                 return null;
             }
 
@@ -50,45 +45,24 @@ namespace A2.States
                 // If the microbe is an adult and has not yet mated, set the microbe to seek a mate.
                 if (!microbe.DidMate)
                 {
-                    if (microbe.State.GetType() == typeof(MicrobeSeekingMateState))
-                    {
-                        return null;
-                    }
-                    microbe.State = Manager.Lookup(typeof(MicrobeSeekingMateState));
-                    microbe.SetStateVisual(microbe.State);
+                    microbe.State = Manager.GetState(typeof(MicrobeSeekingMateState));
                     return null;
                 }
 
                 // Lastly, if the microbe is not hungry, is an adult, and has mated, set the microbe to look for pickups.
-                if (microbe.State.GetType() == typeof(MicrobeSeekingPickupState))
-                {
-                    return null;
-                }
-                
-                microbe.State = Manager.Lookup(typeof(MicrobeSeekingPickupState));
-                microbe.SetStateVisual(microbe.State);
+                microbe.State = Manager.GetState(typeof(MicrobeSeekingPickupState));
                 return null;
             }
 
             // If the microbe is being hunted, evade it.
             if (microbe.PursuerMicrobe != null)
             {
-                if (microbe.State.GetType() == typeof(MicrobeEvadeState))
-                {
-                    return null;
-                }
-                microbe.State = Manager.Lookup(typeof(MicrobeEvadeState));
-                microbe.SetStateVisual(microbe.State);
+                microbe.State = Manager.GetState(typeof(MicrobeEvadeState));
                 return null;
             }
             
             // Otherwise the microbe goes to sleep.
-            if (microbe.State.GetType() == typeof(MicrobeRoamingState))
-            {
-                return null;
-            }
-            microbe.State = Manager.Lookup(typeof(MicrobeRoamingState));
-            microbe.SetStateVisual(microbe.State);
+            microbe.State = Manager.GetState(typeof(MicrobeRoamingState));
             return null;
         }
         

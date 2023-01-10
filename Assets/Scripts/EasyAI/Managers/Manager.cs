@@ -910,9 +910,14 @@ namespace EasyAI.Managers
         /// </summary>
         /// <param name="stateType">The type of state.</param>
         /// <returns>The state of the requested type.</returns>
-        public static State Lookup(Type stateType)
+        public static State GetState(Type stateType)
         {
             return RegisteredStates.ContainsKey(stateType) ? RegisteredStates[stateType] : CreateState(stateType);
+        }
+
+        public static bool IsInState(Agent agent, Type stateType)
+        {
+            return agent.State.GetType() == stateType;
         }
 
         /// <summary>

@@ -10,7 +10,7 @@ namespace EasyAI.Navigation
     public static class Steering
     {
         /// <summary>
-        /// The various move types available for agents.
+        /// The various move behaviours available for agents.
         /// </summary>
         public enum Behaviour : byte
         {

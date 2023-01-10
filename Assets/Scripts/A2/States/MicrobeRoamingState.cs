@@ -34,7 +34,7 @@ namespace A2.States
             
             if (agent.Moves.Count <= 0)
             {
-                agent.Move(Steering.Behaviour.Seek, Random.insideUnitCircle * MicrobeManager.FloorRadius);
+                agent.Move(Steering.Behaviour.Seek, Random.insideUnitCircle * (MicrobeManager.FloorRadius - 1));
             }
 
             return null;

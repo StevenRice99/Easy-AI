@@ -415,7 +415,7 @@ namespace A2.Managers
             GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             Destroy(floor.GetComponent<Collider>());
             floor.transform.position = new(0, -1, 0);
-            floor.transform.localScale = new(floorRadius * 2, 1, floorRadius * 2);
+            floor.transform.localScale = new(floorRadius * 2 + 1, 1, floorRadius * 2 + 1);
             floor.name = "Floor";
             floor.GetComponent<MeshRenderer>().material = floorMaterial;
 
@@ -448,7 +448,7 @@ namespace A2.Managers
                 microbe.ElapsedLifespan += Time.deltaTime;
 
                 // If a microbe has not starved, not died of old age, and has not gone out of bounds, update its size to reflect its age.
-                if (microbe.Hunger <= maxHunger && microbe.ElapsedLifespan < microbe.LifeSpan && Vector3.Distance(Agents[i].transform.position, Vector3.zero) <= floorRadius)
+                if (microbe.Hunger <= maxHunger && microbe.ElapsedLifespan < microbe.LifeSpan && Vector3.Distance(Agents[i].transform.position, Vector3.zero) <= floorRadius + 1)
                 {
                     if (Agents[i].Visuals != null)
                     {

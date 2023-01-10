@@ -3,9 +3,9 @@
 namespace A2.Pickups
 {
     /// <summary>
-    /// Pickup to make a microbe fertile again.
+    /// Pickup to make a microbe able to mate again.
     /// </summary>
-    public class FertilityPickup : MicrobeBasePickup
+    public class MatePickup : MicrobeBasePickup
     {
         /// <summary>
         /// The behaviour of the pickup.

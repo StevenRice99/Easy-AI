@@ -1,10 +1,12 @@
-﻿using A2.Managers;
+﻿using System;
+using A2.Managers;
 using A2.Pickups;
 using A2.States;
 using EasyAI.Agents;
 using EasyAI.Managers;
 using EasyAI.Thinking;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace A2.Agents
 {
@@ -148,32 +150,32 @@ namespace A2.Agents
         /// Set the state visuals for the microbe.
         /// </summary>
         /// <param name="state">The state the microbe is entering.</param>
-        public void SetStateVisual(State state)
+        private void SetStateVisual()
         {
             if (stateVisualization == null)
             {
                 return;
             }
             
-            if (state as MicrobeRoamingState)
+            if (State as MicrobeRoamingState)
             {
                 stateVisualization.material = MicrobeManager.SleepingIndicatorMaterial;
                 return;
             }
             
-            if (state as MicrobeSeekingFoodState)
+            if (State as MicrobeSeekingFoodState)
             {
                 stateVisualization.material = MicrobeManager.FoodIndicatorMaterial;
                 return;
             }
             
-            if (state as MicrobeSeekingMateState)
+            if (State as MicrobeSeekingMateState)
             {
                 stateVisualization.material = MicrobeManager.MateIndicatorMaterial;
                 return;
             }
             
-            if (state as MicrobeSeekingPickupState)
+            if (State as MicrobeSeekingPickupState)
             {
                 stateVisualization.material = MicrobeManager.PickupIndicatorMaterial;
             }
@@ -224,7 +226,7 @@ namespace A2.Agents
         {
             base.Start();
             
-            SetStateVisual(State);
+            SetStateVisual();
 
             _audioSource = GetComponent<AudioSource>();
             
@@ -248,6 +250,11 @@ namespace A2.Agents
             {
                 // Ignored.
             }
+        }
+
+        private void Update()
+        {
+            SetStateVisual();
         }
     }
 }
