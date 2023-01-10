@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c089436a204a42e89193253d54dd50b0, type: 3}
-  m_Name: Microbe Global State
+  m_Name: Microbe Mind
   m_EditorClassIdentifier: 
   hungerChance: 0.05

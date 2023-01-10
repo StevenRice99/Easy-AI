@@ -35,7 +35,7 @@ namespace A2.States
             // If the microbe is hungry, set the microbe to seek food.
             if (microbe.IsHungry)
             {
-                microbe.State = Manager.GetState(typeof(MicrobeSeekingFoodState));
+                microbe.State = Manager.GetState<MicrobeSeekingFoodState>();
                 return null;
             }
 
@@ -45,24 +45,24 @@ namespace A2.States
                 // If the microbe is an adult and has not yet mated, set the microbe to seek a mate.
                 if (!microbe.DidMate)
                 {
-                    microbe.State = Manager.GetState(typeof(MicrobeSeekingMateState));
+                    microbe.State = Manager.GetState<MicrobeSeekingMateState>();
                     return null;
                 }
 
                 // Lastly, if the microbe is not hungry, is an adult, and has mated, set the microbe to look for pickups.
-                microbe.State = Manager.GetState(typeof(MicrobeSeekingPickupState));
+                microbe.State = Manager.GetState<MicrobeSeekingPickupState>();
                 return null;
             }
 
             // If the microbe is being hunted, evade it.
             if (microbe.PursuerMicrobe != null)
             {
-                microbe.State = Manager.GetState(typeof(MicrobeEvadeState));
+                microbe.State = Manager.GetState<MicrobeEvadeState>();
                 return null;
             }
             
             // Otherwise the microbe goes to sleep.
-            microbe.State = Manager.GetState(typeof(MicrobeRoamingState));
+            microbe.State = Manager.GetState<MicrobeRoamingState>();
             return null;
         }
         

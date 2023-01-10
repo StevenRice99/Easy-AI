@@ -152,12 +152,46 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f711a5754144b2f8e383ead329410d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mind: {fileID: 11400000, guid: 1c5677af39d17c748bb3dbf33fc8c7cb, type: 2}
+  seekAcceptableDistance: 0.1
+  fleeAcceptableDistance: 10
+  restVelocity: 0.1
+  navigationRadius: 0.5
+  sightHeight: 0
+  groundLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  obstacleLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  nodeDistance: 0
+  pullMaxDifference: 0
+  lookupTable: 0
   maxAgentsPerUpdate: 0
   maxMessages: 100
   detailsWidth: 500
   controlsWidth: 120
-  gizmos: 1
   selectedCamera: {fileID: 1258003438}
+  gizmos: 1
+  paths: 3
+  startingHunger: -100
+  maxHunger: 200
+  hungerRestoredFromEating: 100
+  floorRadius: 30
+  minMicrobes: 20
+  maxMicrobes: 60
+  activePickups: 5
+  randomSpawnChance: 0
+  minMicrobeSpeed: 5
+  maxMicrobeSpeed: 10
+  minMicrobeLifespan: 20
+  maxMicrobeLifespan: 60
+  maxOffspring: 4
+  microbeInteractRadius: 1
+  minMicrobeSize: 0.25
+  maxMicrobeSize: 1
+  minMicrobeDetectionRange: 5
+  hungerChance: 10
   microbePrefab: {fileID: 1567258149929102323, guid: b123d809f0c77554b9d8404a7e5f0874, type: 3}
   fertilityPickupPrefab: {fileID: 7500204360399200344, guid: b0639286cb0827542b09569dc590ac44, type: 3}
   neverHungryPickupPrefab: {fileID: 7500204360399200344, guid: c3056d8f78d4b5344b74144935a2cc53, type: 3}
@@ -179,24 +213,6 @@ MonoBehaviour:
   foodIndicatorMaterial: {fileID: 2100000, guid: aa8e8bd4571316249991441dcbaeac6b, type: 2}
   mateIndicatorMaterial: {fileID: 2100000, guid: 058fae64fcb330341ad146cc95dcde37, type: 2}
   pickupIndicatorMaterial: {fileID: 2100000, guid: 44a0a939e3007bb4c813e5d5ddb6e00c, type: 2}
-  startingHunger: -100
-  maxHunger: 200
-  hungerRestoredFromEating: 100
-  floorRadius: 30
-  minMicrobes: 20
-  maxMicrobes: 60
-  activePickups: 5
-  randomSpawnChance: 0
-  minMicrobeSpeed: 5
-  maxMicrobeSpeed: 10
-  minMicrobeLifespan: 20
-  maxMicrobeLifespan: 60
-  maxOffspring: 4
-  microbeInteractRadius: 1
-  minMicrobeSize: 0.25
-  maxMicrobeSize: 1
-  minMicrobeDetectionRange: 5
-  hungerChance: 10
 --- !u!4 &187274787
 Transform:
   m_ObjectHideFlags: 0
@@ -207,6 +223,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -331,6 +348,7 @@ Transform:
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
@@ -440,6 +458,7 @@ Transform:
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 10, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 5
@@ -462,6 +481,7 @@ GameObject:
   m_Component:
   - component: {fileID: 907330744}
   - component: {fileID: 907330743}
+  - component: {fileID: 907330745}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -541,10 +561,31 @@ Transform:
   m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!114 &907330745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 907330742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Version: 1
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_LightLayerMask: 1
+  m_CustomShadowLayers: 0
+  m_ShadowLayerMask: 1
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
 --- !u!1 &1218153548
 GameObject:
   m_ObjectHideFlags: 0
@@ -668,6 +709,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
@@ -792,6 +834,7 @@ Transform:
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4

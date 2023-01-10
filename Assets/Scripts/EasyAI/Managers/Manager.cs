@@ -9,7 +9,6 @@ using EasyAI.Agents;
 using EasyAI.Cameras;
 using EasyAI.Navigation;
 using EasyAI.Navigation.Nodes;
-using EasyAI.Percepts;
 using EasyAI.Thinking;
 using EasyAI.Utility;
 using UnityEditor;
@@ -910,9 +909,9 @@ namespace EasyAI.Managers
         /// </summary>
         /// <param name="stateType">The type of state.</param>
         /// <returns>The state of the requested type.</returns>
-        public static State GetState(Type stateType)
+        public static State GetState<T>() where T : State
         {
-            return RegisteredStates.ContainsKey(stateType) ? RegisteredStates[stateType] : CreateState(stateType);
+            return RegisteredStates.ContainsKey(typeof(T)) ? RegisteredStates[typeof(T)] : CreateState<T>();
         }
 
         public static bool IsInState(Agent agent, Type stateType)
@@ -1158,15 +1157,14 @@ namespace EasyAI.Managers
                 ClearMessages();
             }
         }
-
         /// <summary>
         /// Register a state type into the dictionary for future reference.
         /// </summary>
-        /// <param name="stateType">The type of state.</param>
         /// <param name="stateToAdd">The state itself.</param>
-        private static void RegisterState(Type stateType, State stateToAdd)
+        /// <typeparam name="T">The type of state to register</typeparam>
+        private static void RegisterState<T>(State stateToAdd) where T : State
         {
-            RegisteredStates[stateType] = stateToAdd;
+            RegisteredStates[typeof(T)] = stateToAdd;
         }
 
         /// <summary>
@@ -1174,10 +1172,10 @@ namespace EasyAI.Managers
         /// </summary>
         /// <param name="stateType">The type of state to create.</param>
         /// <returns></returns>
-        private static State CreateState(Type stateType)
+        private static State CreateState<T>() where T : State
         {
-            RegisterState(stateType, ScriptableObject.CreateInstance(stateType) as State);
-            return RegisteredStates[stateType];
+            RegisterState<T>(ScriptableObject.CreateInstance(typeof(T)) as State);
+            return RegisteredStates[typeof(T)];
         }
 
         /// <summary>

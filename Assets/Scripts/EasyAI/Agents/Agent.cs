@@ -7,7 +7,6 @@ using EasyAI.Navigation;
 using EasyAI.Percepts;
 using EasyAI.Thinking;
 using EasyAI.Utility;
-using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Sensor = EasyAI.Sensors.Sensor;
@@ -139,18 +138,22 @@ namespace EasyAI.Agents
             get => state;
             set
             {
+                // If already in said state, do nothing.
                 if (state == value)
                 {
                     return;
                 }
                 
+                // Exit the current state.
                 if (state != null)
                 {
                     state.Exit(this);
                 }
 
+                // Set the new state.
                 state = value;
 
+                // Enter the new state.
                 if (state != null)
                 {
                     state.Enter(this);
@@ -291,6 +294,11 @@ namespace EasyAI.Agents
         public void IncreaseDeltaTime()
         {
             DeltaTime += Time.deltaTime;
+        }
+
+        public void SetState(State state)
+        {
+            
         }
 
         /// <summary>
