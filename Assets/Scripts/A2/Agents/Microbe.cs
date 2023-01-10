@@ -14,26 +14,6 @@ namespace A2.Agents
     [RequireComponent(typeof(AudioSource))]
     public class Microbe : TransformAgent
     {
-        [SerializeField]
-        [Tooltip("The mesh renderer for the mesh that changes color depending on what state the agent is in.")]
-        private MeshRenderer stateVisualization;
-
-        [SerializeField]
-        [Tooltip("Audio to play when spawning.")]
-        private AudioClip spawnAudio;
-
-        [SerializeField]
-        [Tooltip("Audio to play when eating another microbe.")]
-        private AudioClip eatAudio;
-
-        [SerializeField]
-        [Tooltip("Audio to play when mating.")]
-        private AudioClip mateAudio;
-
-        [SerializeField]
-        [Tooltip("Audio to play when picking up a pickup.")]
-        private AudioClip pickupAudio;
-        
         /// <summary>
         /// The hunger of this microbe.
         /// </summary>
@@ -55,19 +35,9 @@ namespace A2.Agents
         public float ElapsedLifespan { get; private set; }
         
         /// <summary>
-        /// The microbe that this microbe is moving towards to either eat or mate with.
-        /// </summary>
-        public Microbe TargetMicrobe { get; private set; }
-        
-        /// <summary>
         /// The microbe that is hunting this microbe.
         /// </summary>
         public Microbe PursuerMicrobe { get; private set; }
-        
-        /// <summary>
-        /// The pickup this microbe is moving towards.
-        /// </summary>
-        public MicrobeBasePickup TargetPickup { get; private set; }
         
         /// <summary>
         /// True if this microbe has already mated, false otherwise.
@@ -75,9 +45,54 @@ namespace A2.Agents
         public bool DidMate { get; private set; }
 
         /// <summary>
+        /// The pickup this microbe is moving towards.
+        /// </summary>
+        public MicrobeBasePickup Pickup { get; private set; }
+
+        [SerializeField]
+        [Tooltip("The mesh renderer for the mesh that changes color depending on what state the agent is in.")]
+        private MeshRenderer stateVisualization;
+
+        [SerializeField]
+        [Tooltip("Audio to play when spawning.")]
+        private AudioClip spawnAudio;
+
+        [SerializeField]
+        [Tooltip("Audio to play when eating another microbe.")]
+        private AudioClip eatAudio;
+
+        [SerializeField]
+        [Tooltip("Audio to play when mating.")]
+        private AudioClip mateAudio;
+
+        [SerializeField]
+        [Tooltip("Audio to play when picking up a pickup.")]
+        private AudioClip pickupAudio;
+
+        /// <summary>
+        /// The microbe that this microbe is moving towards to either eat or mate with.
+        /// </summary>
+        private Microbe _targetMicrobe;
+
+        /// <summary>
         /// The microbe is hungry when its hunger level is above zero.
         /// </summary>
         public bool IsHungry => Hunger > 0;
+
+        /// <summary>
+        /// If the microbe currently has a target or not.
+        /// </summary>
+        public bool HasTarget => _targetMicrobe != null;
+
+        /// <summary>
+        /// If the microbe currently has a pickup it wants to pickup.
+        /// </summary>
+        public bool HasPickup => Pickup != null;
+
+        /// <summary>
+        /// The transform of the target microbe.
+        /// </summary>
+        public Transform TargetMicrobeTransform => _targetMicrobe == null ? null : _targetMicrobe.transform;
 
         /// <summary>
         /// A microbe is considered an adult if it has reached the halfway point of its life.
@@ -124,14 +139,104 @@ namespace A2.Agents
         }
 
         /// <summary>
+        /// Mate two microbes.
+        /// </summary>
+        /// <param name="a">First microbe to mate.</param>
+        /// <param name="b">Second microbe to mate.</param>
+        /// <returns>True if mating was complete, false otherwise.</returns>
+        private static bool Mate(Microbe a, Microbe b)
+        {
+            if (a._targetMicrobe != b || b._targetMicrobe != a)
+            {
+                return false;
+            }
+
+            a.DidMate = true;
+            b.DidMate = true;
+            
+            int offspring = MicrobeManager.Mate(a, b);
+            
+            a.AddMessage(offspring == 0
+                ? $"Failed to have any offspring with {b.name}."
+                : $"Have {offspring} offspring with {b.name}."
+            );
+            
+            b.AddMessage(offspring == 0
+                ? $"Failed to have any offspring with {a.name}."
+                : $"Have {offspring} offspring with {a.name}."
+            );
+
+            return true;
+        }
+
+        /// <summary>
+        /// Attempt to mate this microbe.
+        /// </summary>
+        /// <returns>True if the mating was successful, false otherwise.</returns>
+        public bool Mate()
+        {
+            return Vector3.Distance(transform.position, _targetMicrobe.transform.position) <= MicrobeManager.MicrobeInteractRadius && Mate(this, _targetMicrobe);
+        }
+
+        /// <summary>
+        /// Hunt the microbe currently tracking.
+        /// </summary>
+        public void StartHunting(Microbe microbe)
+        {
+            if (microbe == null || microbe == this)
+            {
+                return;
+            }
+
+            _targetMicrobe = microbe;
+            AddMessage($"Hunting {_targetMicrobe.name}.");
+            _targetMicrobe.PursuerMicrobe = this;
+        }
+
+        /// <summary>
+        /// Attempt to attract a mate.
+        /// </summary>
+        /// <param name="potentialMate"></param>
+        public void AttractMate(Microbe potentialMate)
+        {
+            if (potentialMate == null || potentialMate == this)
+            {
+                return;
+            }
+
+            AddMessage($"Attempting to impress {potentialMate.name} to mate.");
+
+            bool accepted = !potentialMate.DidMate && potentialMate._targetMicrobe == null;
+
+            if (!accepted)
+            {
+                AddMessage($"Could not mate with {potentialMate.name}.");
+                potentialMate.AddMessage($"Cannot mate with {name}.");
+                return;
+            }
+
+            // If the other microbe agreed to mate, set them as the target microbe.
+            AddMessage($"{potentialMate.name} accepted advances to mate.");
+            potentialMate.AddMessage($"Accepted advances of {name}.");
+            SetTargetMicrobe(potentialMate);
+            potentialMate.SetTargetMicrobe(this);
+        }
+
+        /// <summary>
         /// Eat another microbe.
         /// </summary>
-        /// <param name="eaten">The microbe to eat.</param>
-        public void Eat(Agent eaten)
+        public bool Eat()
         {
+            if (_targetMicrobe == null || Vector3.Distance(transform.position, _targetMicrobe.transform.position) > MicrobeManager.MicrobeInteractRadius)
+            {
+                return false;
+            }
+            
             Hunger = Mathf.Max(MicrobeManager.StartingHunger, Hunger - MicrobeManager.HungerRestoredFromEating);
             PlayAudio(eatAudio);
-            AddMessage($"Ate {eaten.name}.");
+            AddMessage($"Ate {_targetMicrobe.name}.");
+            _targetMicrobe.Die();
+            return true;
         }
 
         /// <summary>
@@ -194,7 +299,7 @@ namespace A2.Agents
         /// <param name="microbe"></param>
         public void SetTargetMicrobe(Microbe microbe)
         {
-            TargetMicrobe = microbe;
+            _targetMicrobe = microbe;
         }
 
         /// <summary>
@@ -202,38 +307,30 @@ namespace A2.Agents
         /// </summary>
         public void RemoveTargetMicrobe()
         {
-            TargetMicrobe = null;
-        }
-
-        /// <summary>
-        /// Set the pursuer microbe that is hunting this microbe.
-        /// </summary>
-        public void SetPursuerMicrobe(Microbe microbe)
-        {
-            PursuerMicrobe = microbe;
+            _targetMicrobe = null;
         }
 
         /// <summary>
         /// Set the pickup that the microbe is moving for.
         /// </summary>
         /// <param name="pickup">The pickup to assign.</param>
-        public void SetTargetPickup(MicrobeBasePickup pickup)
+        public void SetPickup(MicrobeBasePickup pickup)
         {
-            TargetPickup = pickup;
+            Pickup = pickup;
         }
         
         /// <summary>
         /// Remove the pickup that the microbe is moving for.
         /// </summary>
-        public void RemoveTargetPickup()
+        public void RemovePickup()
         {
-            TargetPickup = null;
+            Pickup = null;
         }
 
         /// <summary>
         /// Set that the microbe mated.
         /// </summary>
-        public void Mate()
+        public void SetMate()
         {
             DidMate = true;
         }
@@ -330,7 +427,7 @@ namespace A2.Agents
             Manager.GuiLabel(x, y, w, h, p, $"Lifespan: {ElapsedLifespan} / {LifeSpan} | " + (IsAdult ? "Adult" : "Infant"));
             y = Manager.NextItem(y, h, p);
             
-            Manager.GuiLabel(x, y, w, h, p, $"Mating: " + (DidMate ? "Already Mated" : IsAdult && !IsHungry ? TargetMicrobe == null ? "Searching for mate" : $"With {TargetMicrobe.name}" : "No"));
+            Manager.GuiLabel(x, y, w, h, p, $"Mating: " + (DidMate ? "Already Mated" : IsAdult && !IsHungry ? _targetMicrobe == null ? "Searching for mate" : $"With {_targetMicrobe.name}" : "No"));
             
             return y;
         }

@@ -35,26 +35,30 @@ namespace A2.States
             }
 
             // If the microbe is not tracking a pickup, search for one.
-            if (microbe.TargetPickup == null)
+            if (!microbe.HasPickup)
             {
-                microbe.SetTargetPickup(agent.Sense<NearestPickupSensor, MicrobeBasePickup>());
+                microbe.SetPickup(agent.Sense<NearestPickupSensor, MicrobeBasePickup>());
+                if (microbe.HasPickup)
+                {
+                    agent.AddMessage($"Moving to {microbe.Pickup.name}.");
+                }
             }
 
             // If there are no pickups in detection range, roam.
-            if (microbe.TargetPickup == null)
+            if (!microbe.HasPickup)
             {
-                agent.AddMessage("Cannot find any pickups, roaming.");
-                if (!agent.Moving)
+                if (agent.Moving)
                 {
-                    agent.Move(Random.insideUnitCircle * MicrobeManager.FloorRadius);
+                    return;
                 }
 
+                agent.AddMessage("Cannot find any pickups, roaming.");
+                agent.Move(Random.insideUnitCircle * MicrobeManager.FloorRadius);
                 return;
             }
             
             // Otherwise move towards the pickup it is tracking.
-            agent.AddMessage($"Moving to {microbe.TargetPickup.name}.");
-            agent.Move(microbe.TargetPickup.transform);
+            agent.Move(microbe.Pickup.transform);
         }
 
         /// <summary>
@@ -69,7 +73,7 @@ namespace A2.States
             }
 
             // Ensure the target pickup is null.
-            microbe.RemoveTargetPickup();
+            microbe.RemovePickup();
             agent.AddMessage("No longer searching for a pickup.");
         }
     }

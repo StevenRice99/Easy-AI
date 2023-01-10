@@ -29,17 +29,6 @@ namespace A2.Managers
         }
         
         /// <summary>
-        /// Used as IDs for events.
-        /// </summary>
-        public enum MicrobeEvents
-        {
-            Eaten = 0,
-            Impress,
-            Mate,
-            Hunted
-        }
-        
-        /// <summary>
         /// Access to the singleton directly as a microbe manager.
         /// </summary>
         public static MicrobeManager MicrobeSingleton => Singleton as MicrobeManager;

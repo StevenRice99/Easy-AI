@@ -566,44 +566,6 @@ namespace EasyAI.Agents
         }
 
         /// <summary>
-        /// Fire an event to an agent.
-        /// </summary>
-        /// <param name="receiver">The agent to send the event to.</param>
-        /// <param name="eventId">The event ID which the receiver will use to identify the type of message.</param>
-        /// <param name="details">Object which contains all data for this message.</param>
-        /// <returns>True if the receiver handled the message, false otherwise.</returns>
-        public bool FireEvent(Agent receiver, int eventId, object details = null)
-        {
-            return receiver != null && receiver != this && receiver.HandleEvent(new(eventId, this, details));
-        }
-
-        /// <summary>
-        /// Broadcast a message to all other agents.
-        /// </summary>
-        /// <param name="eventId">The event ID which the receivers will use to identify the type of message.</param>
-        /// <param name="details">Object which contains all data for this message.</param>
-        /// <param name="requireAll">Setting to true will check for all agents handling the message, false means only one agent needs to handle it.</param>
-        /// <returns>If require all is true, true if all agents handle the message and false otherwise and if require all is false, true if at least one agent handles the message, false otherwise.</returns>
-        public bool BroadcastEvent(int eventId, object details = null, bool requireAll = false)
-        {
-            bool all = true;
-            bool one = false;
-            foreach (bool result in Manager.CurrentAgents.Where(a => a != this).Select(a => a.HandleEvent(new(eventId, this, details))))
-            {
-                if (result)
-                {
-                    one = true;
-                }
-                else
-                {
-                    all = false;
-                }
-            }
-
-            return requireAll ? all : one;
-        }
-
-        /// <summary>
         /// Resume looking towards the look target currently assigned to the agent.
         /// </summary>
         public void Look()
@@ -968,16 +930,6 @@ namespace EasyAI.Agents
             {
                 MoveVelocity = MoveVelocity.normalized * moveSpeed;
             }
-        }
-
-        /// <summary>
-        /// Handle receiving an event.
-        /// </summary>
-        /// <param name="stateEvent">The event to handle.</param>
-        /// <returns>True if either the global state or normal state handles the event, false otherwise.</returns>
-        private bool HandleEvent(StateEvent stateEvent)
-        {
-            return state != null && state.HandleEvent(this, stateEvent) || Manager.Mind != null && Manager.Mind.HandleEvent(this, stateEvent);
         }
 
         /// <summary>

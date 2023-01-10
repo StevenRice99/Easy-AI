@@ -35,35 +35,30 @@ namespace A2.States
             }
 
             // If the microbe is not tracking another microbe to eat yet, search for one.
-            if (microbe.TargetMicrobe == null)
+            if (!microbe.HasTarget)
             {
-                microbe.SetTargetMicrobe(agent.Sense<NearestPreySensor, Microbe>());
+                microbe.StartHunting(agent.Sense<NearestPreySensor, Microbe>());
             }
 
             // If there are no microbes in detection range to eat, roam.
-            if (microbe.TargetMicrobe == null)
+            if (!microbe.HasTarget)
             {
-                agent.AddMessage("Cannot find any food, roaming.");
-                
-                if (!agent.Moving)
+                if (agent.Moving)
                 {
-                    agent.Move(Random.insideUnitCircle * MicrobeManager.FloorRadius);
+                    return;
                 }
 
+                agent.AddMessage("Cannot find any food, roaming.");
+                agent.Move(Random.insideUnitCircle * MicrobeManager.FloorRadius);
                 return;
             }
 
             // If close enough to eat the microbe it is tracking, eat it.
-            if (Vector3.Distance(microbe.transform.position, microbe.TargetMicrobe.transform.position) <= MicrobeManager.MicrobeInteractRadius)
+            if (!microbe.Eat())
             {
-                microbe.FireEvent(microbe.TargetMicrobe, (int) MicrobeManager.MicrobeEvents.Eaten);
-                return;
+                // Otherwise move towards the microbe it is tracking.
+                agent.Move(microbe.TargetMicrobeTransform, Steering.Behaviour.Pursue);
             }
-            
-            // Otherwise move towards the microbe it is tracking.
-            agent.AddMessage($"Hunting {microbe.TargetMicrobe.name}.");
-            agent.Move(microbe.TargetMicrobe.transform, Steering.Behaviour.Pursue);
-            agent.FireEvent(microbe.TargetMicrobe, (int) MicrobeManager.MicrobeEvents.Hunted);
         }
 
         /// <summary>

@@ -27,17 +27,6 @@ namespace EasyAI.Thinking
         public virtual void Exit(Agent agent) { }
 
         /// <summary>
-        /// Handle receiving an event.
-        /// </summary>
-        /// <param name="agent">The agent.</param>
-        /// <param name="stateEvent">The event to handle.</param>
-        /// <returns>False.</returns>
-        public virtual bool HandleEvent(Agent agent, StateEvent stateEvent)
-        {
-            return false;
-        }
-
-        /// <summary>
         /// Override to easily display the type of the component for easy usage in messages.
         /// </summary>
         /// <returns>Name of this type.</returns>
