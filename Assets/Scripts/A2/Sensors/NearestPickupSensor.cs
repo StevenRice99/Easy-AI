@@ -5,8 +5,15 @@ using UnityEngine;
 
 namespace A2.Sensors
 {
+    /// <summary>
+    /// Sensor to find the nearest pickup for a microbe.
+    /// </summary>
     public class NearestPickupSensor : Sensor
     {
+        /// <summary>
+        /// Sense the nearest pickup of the microbe.
+        /// </summary>
+        /// <returns>The nearest pickup of the microbe or null if none is found.</returns>
         protected override object Sense()
         {
             MicrobeBasePickup[] pickups = FindObjectsOfType<MicrobeBasePickup>();

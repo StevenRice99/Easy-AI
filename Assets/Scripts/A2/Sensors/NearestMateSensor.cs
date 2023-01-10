@@ -7,25 +7,32 @@ using UnityEngine;
 
 namespace A2.Sensors
 {
+    /// <summary>
+    /// Sensor to find the nearest potential mate for a microbe.
+    /// </summary>
     public class NearestMateSensor : Sensor
     {
+        /// <summary>
+        /// Sense the nearest potential mate of the microbe.
+        /// </summary>
+        /// <returns>The nearest potential mate of the microbe or null if none is found.</returns>
         protected override object Sense()
         {
-            Microbe seeker = Agent as Microbe;
+            Microbe microbe = Agent as Microbe;
 
-            if (seeker == null)
+            if (microbe == null)
             {
                 return null;
             }
 
-            Microbe[] microbes = MicrobeManager.MicrobeSingleton.Agents.Where(a => a is Microbe m && m != seeker && m.IsAdult && m.State.GetType() == typeof(MicrobeSeekingMateState) && Vector3.Distance(seeker.transform.position, a.transform.position) < seeker.DetectionRange).Cast<Microbe>().ToArray();
+            Microbe[] microbes = MicrobeManager.MicrobeSingleton.Agents.Where(a => a is Microbe m && m != microbe && m.IsAdult && m.State.GetType() == typeof(MicrobeSeekingMateState) && Vector3.Distance(microbe.transform.position, a.transform.position) < microbe.DetectionRange).Cast<Microbe>().ToArray();
             if (microbes.Length == 0)
             {
                 return null;
             }
             
             // Microbes can mate with a type/color one up or down from theirs in additional to their own color. See readme for a food/mating table.
-            microbes = seeker.MicrobeType switch
+            microbes = microbe.MicrobeType switch
             {
                 MicrobeManager.MicrobeType.Red => microbes.Where(m => m.MicrobeType is MicrobeManager.MicrobeType.Red or MicrobeManager.MicrobeType.Orange or MicrobeManager.MicrobeType.Pink).ToArray(),
                 MicrobeManager.MicrobeType.Orange => microbes.Where(m => m.MicrobeType is MicrobeManager.MicrobeType.Orange or MicrobeManager.MicrobeType.Yellow or MicrobeManager.MicrobeType.Red).ToArray(),
@@ -36,7 +43,7 @@ namespace A2.Sensors
                 _ => microbes.Where(m => m.MicrobeType is MicrobeManager.MicrobeType.Pink or MicrobeManager.MicrobeType.Red or MicrobeManager.MicrobeType.Purple).ToArray()
             };
             
-            return microbes.Length == 0 ? null : microbes.OrderBy(m => Vector3.Distance(seeker.transform.position, m.transform.position)).First();
+            return microbes.Length == 0 ? null : microbes.OrderBy(m => Vector3.Distance(microbe.transform.position, m.transform.position)).First();
         }
     }
 }

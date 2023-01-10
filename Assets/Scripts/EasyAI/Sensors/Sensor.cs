@@ -8,9 +8,9 @@ namespace EasyAI.Sensors
     public abstract class Sensor : IntelligenceComponent
     {
         /// <summary>
-        /// Send the percept back to the agent where it will be processed by its mind.
+        /// Send the percepts back to the agent where it will be processed by its mind.
         /// </summary>
-        /// <returns>The percept sent back to the agent.</returns>
+        /// <returns>The percepts sent back to the agent.</returns>
         public object Read()
         {
             object data = Sense();
@@ -21,7 +21,7 @@ namespace EasyAI.Sensors
         /// <summary>
         /// Implement what the sensor will send back to the agent.
         /// </summary>
-        /// <returns>The percept sent back to the agent.</returns>
+        /// <returns>The percepts sent back to the agent.</returns>
         protected abstract object Sense();
     }
 }

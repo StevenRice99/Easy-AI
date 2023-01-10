@@ -6,8 +6,15 @@ using Sensor = EasyAI.Sensors.Sensor;
 
 namespace A2.Sensors
 {
+    /// <summary>
+    /// Sensor to find the nearest prey for a microbe.
+    /// </summary>
     public class NearestPreySensor : Sensor
     {
+        /// <summary>
+        /// Sense the nearest prey of the microbe.
+        /// </summary>
+        /// <returns>The nearest prey of the microbe or null if none is found.</returns>
         protected override object Sense()
         {
             Microbe seeker = Agent as Microbe;
