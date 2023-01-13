@@ -360,7 +360,10 @@ namespace A2.Managers
 
             Instantiate(MateParticlesPrefab, position, Quaternion.Euler(270, 0, 0));
             parentA.HadOffspring(born);
-            parentB.HadOffspring(born);
+            if (parentA != parentB)
+            {
+                parentB.HadOffspring(born);
+            }
 
             return born;
         }

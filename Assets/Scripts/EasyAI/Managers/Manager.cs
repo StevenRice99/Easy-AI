@@ -547,6 +547,11 @@ namespace EasyAI.Managers
         private NavigationLookup[] _navigationTable;
 
         /// <summary>
+        /// Lock tracking cameras to the best agent.
+        /// </summary>
+        private bool _followBest = true;
+
+        /// <summary>
         /// Create a transform agent.
         /// </summary>
         public static GameObject CreateTransformAgent()
@@ -1480,8 +1485,9 @@ namespace EasyAI.Managers
                 {
                     // Button to go back to the main view.
                     y = NextItem(y, h, p);
-                    if (GuiButton(x, y, w, h, "Back to Overview"))
+                    if (GuiButton(x, y, w, h, "Back to Overview" + (Singleton._followBest ? " - Stop Following Best" : string.Empty)))
                     {
+                        Singleton._followBest = false;
                         Singleton._state = GuiState.Main;
                     }
                 }
@@ -1835,6 +1841,25 @@ namespace EasyAI.Managers
 
             y = NextItem(y, h, p);
             y = Singleton.CustomRendering(x, y, w, h, p);
+
+            if (Singleton.Agents.Count > 1)
+            {
+                // Button to lock any tracking cameras to the best performing agent or not.
+                if (GuiButton(x, y, w, h, Singleton._followBest ? "Stop Following" : "Follow Best"))
+                {
+                    Singleton._followBest = !Singleton._followBest;
+                    if (Singleton._followBest && Singleton._state == GuiState.Main)
+                    {
+                        Singleton._state = GuiState.Agent;
+                    }
+                }
+            
+                y = NextItem(y, h, p);
+            }
+            else
+            {
+                Singleton._followBest = false;
+            }
 
             // Button to pause or resume the scene.
             if (GuiButton(x, y, w, h, Playing ? "Pause" : "Resume"))
@@ -2430,23 +2455,53 @@ namespace EasyAI.Managers
             MoveAgents(_updateAgents);
 
             // Click to select an agent.
-            if (!Mouse.current.leftButton.wasPressedThisFrame || !Physics.Raycast(selectedCamera.ScreenPointToRay(new(Mouse.current.position.x.ReadValue(), Mouse.current.position.y.ReadValue(), 0)), out RaycastHit hit, Mathf.Infinity))
+            if (Mouse.current.leftButton.wasPressedThisFrame && Physics.Raycast(selectedCamera.ScreenPointToRay(new(Mouse.current.position.x.ReadValue(), Mouse.current.position.y.ReadValue(), 0)), out RaycastHit hit, Mathf.Infinity))
+            {
+                // See if an agent was actually hit with the click and select it if so.
+                Transform tr = hit.collider.transform;
+                do
+                {
+                    Agent clicked = tr.GetComponent<Agent>();
+                    if (clicked != null)
+                    {
+                        SelectedAgent = clicked;
+                        _followBest = false;
+                        break;
+                    }
+                    tr = tr.parent;
+                } while (tr != null);
+            }
+
+            if (!_followBest)
             {
                 return;
             }
 
-            // See if an agent was actually hit with the click and select it if so.
-            Transform tr = hit.collider.transform;
-            do
+            // If locked to following the best agent, select the best agent.
+            float best = float.MinValue;
+            SelectedAgent = null;
+            foreach (Agent agent in Agents.Where(a => a.PerformanceMeasure != null))
             {
-                Agent clicked = tr.GetComponent<Agent>();
-                if (clicked != null)
+                float score = agent.PerformanceMeasure.GetPerformance();
+                if (score <= best)
                 {
-                    SelectedAgent = clicked;
-                    return;
+                    continue;
                 }
-                tr = tr.parent;
-            } while (tr != null);
+
+                best = score;
+                SelectedAgent = agent;
+            }
+
+            if (SelectedAgent == null)
+            {
+                _followBest = false;
+                return;
+            }
+
+            if (Singleton._state == GuiState.Main)
+            {
+                Singleton._state = GuiState.Agent;
+            }
         }
 
         protected void FixedUpdate()
