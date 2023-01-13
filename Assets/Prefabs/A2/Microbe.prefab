@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8746273391784731232}
   - component: {fileID: 5938657817584930929}
   - component: {fileID: 6597533758415603164}
+  - component: {fileID: 3529226316716113026}
   - component: {fileID: 5088663207801863598}
   m_Layer: 0
   m_Name: Microbe
@@ -92,6 +93,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0bb36e03982c429ba559e39039e6c32e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3529226316716113026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1567258149929102323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bd273c18ef54e108b294b0e74fea6c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!82 &5088663207801863598

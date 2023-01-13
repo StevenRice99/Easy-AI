@@ -17,21 +17,19 @@ namespace A2.Sensors
         /// <returns>The nearest prey of the microbe or null if none is found.</returns>
         protected override object Sense()
         {
-            Microbe seeker = Agent as Microbe;
-            
-            if (seeker == null)
+            if (Agent is not Microbe microbe)
             {
                 return null;
             }
             
-            Microbe[] microbes = MicrobeManager.MicrobeSingleton.Agents.Where(a => a is Microbe m && m != seeker && Vector3.Distance(seeker.transform.position, a.transform.position) < seeker.DetectionRange).Cast<Microbe>().ToArray();
+            Microbe[] microbes = MicrobeManager.Microbes.Where(m =>  m != microbe && Vector3.Distance(microbe.transform.position, m.transform.position) < microbe.DetectionRange).ToArray();
             if (microbes.Length == 0)
             {
                 return null;
             }
             
             // Microbes can eat all types of microbes that they cannot mate with. See readme for a food/mating table.
-            microbes = seeker.MicrobeType switch
+            microbes = microbe.MicrobeType switch
             {
                 MicrobeManager.MicrobeType.Red => microbes.Where(m => m.MicrobeType != MicrobeManager.MicrobeType.Red && m.MicrobeType != MicrobeManager.MicrobeType.Orange && m.MicrobeType != MicrobeManager.MicrobeType.Pink).ToArray(),
                 MicrobeManager.MicrobeType.Orange => microbes.Where(m => m.MicrobeType != MicrobeManager.MicrobeType.Orange && m.MicrobeType != MicrobeManager.MicrobeType.Yellow && m.MicrobeType != MicrobeManager.MicrobeType.Red).ToArray(),
@@ -42,7 +40,7 @@ namespace A2.Sensors
                 _ => microbes.Where(m => m.MicrobeType is not (MicrobeManager.MicrobeType.Pink or MicrobeManager.MicrobeType.Red or MicrobeManager.MicrobeType.Purple)).ToArray()
             };
 
-            return microbes.Length == 0 ? null : microbes.OrderBy(m => Vector3.Distance(seeker.transform.position, m.transform.position)).First();
+            return microbes.Length == 0 ? null : microbes.OrderBy(m => Vector3.Distance(microbe.transform.position, m.transform.position)).First();
         }
     }
 }

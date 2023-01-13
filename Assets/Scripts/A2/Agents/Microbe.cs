@@ -48,6 +48,11 @@ namespace A2.Agents
         /// The pickup this microbe is moving towards.
         /// </summary>
         public MicrobeBasePickup Pickup { get; private set; }
+        
+        /// <summary>
+        /// The number of offspring this microbe has had.
+        /// </summary>
+        public int Offspring { get; private set; }
 
         [Tooltip("The mesh renderer for the mesh that changes color depending on what state the agent is in.")]
         [SerializeField]
@@ -339,6 +344,15 @@ namespace A2.Agents
         public void CanMate()
         {
             DidMate = false;
+        }
+
+        /// <summary>
+        /// Increment the offspring the microbe has had.
+        /// </summary>
+        /// <param name="number">The number of offspring the microbe had.</param>
+        public void HadOffspring(int number)
+        {
+            Offspring += number;
         }
         
         /// <summary>

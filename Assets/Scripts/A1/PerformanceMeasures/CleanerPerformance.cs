@@ -13,7 +13,7 @@ namespace A1.PerformanceMeasures
         /// <summary>
         /// Calculate how well the cleaner agent is performing based on how clean the floor is.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A percentage of how much of the tiles are clean.</returns>
         protected override float CalculatePerformance()
         {
             // Get all floors. If there are none return 100 as there is technically perfect performance if there is nothing to clean.

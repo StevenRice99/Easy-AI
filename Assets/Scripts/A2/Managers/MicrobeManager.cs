@@ -27,11 +27,6 @@ namespace A2.Managers
             Purple,
             Pink
         }
-        
-        /// <summary>
-        /// Access to the singleton directly as a microbe manager.
-        /// </summary>
-        public static MicrobeManager MicrobeSingleton => Singleton as MicrobeManager;
 
         /// <summary>
         /// The maximum number of microbes there can be.
@@ -138,6 +133,26 @@ namespace A2.Managers
         /// </summary>
         public static Vector2 RandomPosition => Random.insideUnitCircle * MicrobeSingleton.floorRadius;
 
+        /// <summary>
+        /// The score for each microbe for every second it has been alive.
+        /// </summary>
+        public static float ScoreSeconds => MicrobeSingleton.scoreSeconds;
+
+        /// <summary>
+        /// The score for each offspring the microbe has had since it has been alive.
+        /// </summary>
+        public static float ScoreOffspring => MicrobeSingleton.scoreOffspring;
+
+        /// <summary>
+        /// All microbes in the scene.
+        /// </summary>
+        public static Microbe[] Microbes => Singleton.Agents.Where(a => a is Microbe).Cast<Microbe>().ToArray();
+        
+        /// <summary>
+        /// Access to the singleton directly as a microbe manager.
+        /// </summary>
+        private static MicrobeManager MicrobeSingleton => Singleton as MicrobeManager;
+
         [Header("Microbe Parameters")]
         [Tooltip("The hunger to start microbes at.")]
         [SerializeField]
@@ -226,6 +241,17 @@ namespace A2.Managers
         [Min(0)]
         [SerializeField]
         private float hungerChance = 0.05f;
+
+        [Header("Performance Scores")]
+        [Tooltip("The score for each microbe for every second it has been alive.")]
+        [Min(0)]
+        [SerializeField]
+        private float scoreSeconds = 1;
+        
+        [Tooltip("The score for each offspring the microbe has had since it has been alive.")]
+        [Min(0)]
+        [SerializeField]
+        private float scoreOffspring = 10;
         
         [Header("Prefabs")]
         [Tooltip("Prefab for the microbes.")]
@@ -327,10 +353,14 @@ namespace A2.Managers
                     Mathf.Clamp((parentA.DetectionRange + parentB.DetectionRange) / 2 + Random.value - 0.5f, MicrobeSingleton.minMicrobeDetectionRange, MicrobeSingleton.floorRadius * 2));
             }
 
-            if (born > 0)
+            if (born == 0)
             {
-                Instantiate(MateParticlesPrefab, position, Quaternion.Euler(270, 0, 0));
+                return 0;
             }
+
+            Instantiate(MateParticlesPrefab, position, Quaternion.Euler(270, 0, 0));
+            parentA.HadOffspring(born);
+            parentB.HadOffspring(born);
 
             return born;
         }

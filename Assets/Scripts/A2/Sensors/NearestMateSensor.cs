@@ -18,14 +18,12 @@ namespace A2.Sensors
         /// <returns>The nearest potential mate of the microbe or null if none is found.</returns>
         protected override object Sense()
         {
-            Microbe microbe = Agent as Microbe;
-
-            if (microbe == null)
+            if (Agent is not Microbe microbe)
             {
                 return null;
             }
 
-            Microbe[] microbes = MicrobeManager.MicrobeSingleton.Agents.Where(a => a is Microbe m && m != microbe && m.IsAdult && m.State.GetType() == typeof(MicrobeMatingState) && Vector3.Distance(microbe.transform.position, a.transform.position) < microbe.DetectionRange).Cast<Microbe>().ToArray();
+            Microbe[] microbes = MicrobeManager.Microbes.Where(m => m != microbe && m.IsAdult && m.State.GetType() == typeof(MicrobeMatingState) && Vector3.Distance(microbe.transform.position, m.transform.position) < microbe.DetectionRange).ToArray();
             if (microbes.Length == 0)
             {
                 return null;
