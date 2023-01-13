@@ -230,28 +230,28 @@ namespace EasyAI.Agents
         /// <summary>
         /// Set the move speed.
         /// </summary>
-        /// <param name="moveSpeed">The move speed to set.</param>
-        public void SetMoveSpeed(float moveSpeed)
+        /// <param name="speed">The move speed to set.</param>
+        public void SetMoveSpeed(float speed)
         {
-            this.moveSpeed = moveSpeed;
+            moveSpeed = speed;
         }
 
         /// <summary>
         /// Set the move acceleration.
         /// </summary>
-        /// <param name="moveAcceleration">The move acceleration to set.</param>
-        public void SetMoveAcceleration(float moveAcceleration)
+        /// <param name="acceleration">The move acceleration to set.</param>
+        public void SetMoveAcceleration(float acceleration)
         {
-            this.moveAcceleration = moveAcceleration;
+            moveAcceleration = acceleration;
         }
 
         /// <summary>
         /// Set the look speed.
         /// </summary>
-        /// <param name="lookSpeed">The move acceleration to set.</param>
-        public void SetLookSpeed(float lookSpeed)
+        /// <param name="speed">The move acceleration to set.</param>
+        public void SetLookSpeed(float speed)
         {
-            this.lookSpeed = lookSpeed;
+            lookSpeed = speed;
         }
     
         /// <summary>
