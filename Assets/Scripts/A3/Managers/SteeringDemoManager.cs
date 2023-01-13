@@ -71,16 +71,9 @@ namespace A3.Managers
             
             // Seek back to the origin.
             y = NextItem(y, h, p);
-            if (GuiButton(x, y, w, h, "Seek Origin"))
+            if (GuiButton(x, y, w, h, "Return to Origin"))
             {
                 SelectedAgent.Move(new Vector2(0, 0));
-            }
-            
-            // Seek back to the origin.
-            y = NextItem(y, h, p);
-            if (GuiButton(x, y, w, h, "Pursue Origin"))
-            {
-                SelectedAgent.Move(new Vector2(0, 0), Steering.Behaviour.Pursue);
             }
 
             return NextItem(y, h, p);
