@@ -25,7 +25,7 @@ namespace A2.Sensors
                 return null;
             }
 
-            Microbe[] microbes = MicrobeManager.MicrobeSingleton.Agents.Where(a => a is Microbe m && m != microbe && m.IsAdult && m.State.GetType() == typeof(MicrobeSeekingMateState) && Vector3.Distance(microbe.transform.position, a.transform.position) < microbe.DetectionRange).Cast<Microbe>().ToArray();
+            Microbe[] microbes = MicrobeManager.MicrobeSingleton.Agents.Where(a => a is Microbe m && m != microbe && m.IsAdult && m.State.GetType() == typeof(MicrobeMatingState) && Vector3.Distance(microbe.transform.position, a.transform.position) < microbe.DetectionRange).Cast<Microbe>().ToArray();
             if (microbes.Length == 0)
             {
                 return null;

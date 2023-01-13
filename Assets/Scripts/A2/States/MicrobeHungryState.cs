@@ -9,10 +9,10 @@ using UnityEngine;
 namespace A2.States
 {
     /// <summary>
-    /// State for microbes that are seeking food.
+    /// State for microbes that are hungry and wanting to seek food.
     /// </summary>
-    [CreateAssetMenu(menuName = "A2/States/Microbe Seeking Food State", fileName = "Microbe Seeking Food State")]
-    public class MicrobeSeekingFoodState : State
+    [CreateAssetMenu(menuName = "A2/States/Microbe Hungry State", fileName = "Microbe Hungry State")]
+    public class MicrobeHungryState : State
     {
         /// <summary>
         /// Called when an agent first enters this state.
@@ -29,8 +29,10 @@ namespace A2.States
         /// <param name="agent">The agent.</param>
         public override void Execute(Agent agent)
         {
-            if (agent is not Microbe microbe)
+            // If the microbe is not hungry, stop hunting.
+            if (agent is not Microbe {IsHungry: true} microbe)
             {
+                agent.SetState<MicrobeRoamingState>();
                 return;
             }
 

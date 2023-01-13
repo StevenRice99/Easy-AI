@@ -25,7 +25,7 @@ namespace A2.States
             // If the microbe is hungry, set the microbe to seek food.
             if (microbe.IsHungry)
             {
-                microbe.SetState<MicrobeSeekingFoodState>();
+                microbe.SetState<MicrobeHungryState>();
                 return;
             }
 
@@ -35,7 +35,7 @@ namespace A2.States
                 // If the microbe is an adult and has not yet mated, set the microbe to seek a mate.
                 if (!microbe.DidMate)
                 {
-                    microbe.SetState<MicrobeSeekingMateState>();
+                    microbe.SetState<MicrobeMatingState>();
                     return;
                 }
 
@@ -45,9 +45,9 @@ namespace A2.States
             }
 
             // If the microbe is being hunted, evade it.
-            if (microbe.PursuerMicrobe != null)
+            if (microbe.BeingHunted)
             {
-                microbe.SetState<MicrobeEvadeState>();
+                microbe.SetState<MicrobeHuntedState>();
                 return;
             }
             

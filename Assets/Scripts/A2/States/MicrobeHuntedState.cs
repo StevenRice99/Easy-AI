@@ -7,10 +7,10 @@ using UnityEngine;
 namespace A2.States
 {
     /// <summary>
-    /// State for microbes that are evading being hunted.
+    /// State for microbes that are being hunted.
     /// </summary>
-    [CreateAssetMenu(menuName = "A2/States/Microbe Evade State", fileName = "Microbe Evade State")]
-    public class MicrobeEvadeState : State
+    [CreateAssetMenu(menuName = "A2/States/Microbe Hunted State", fileName = "Microbe Hunted State")]
+    public class MicrobeHuntedState : State
     {
         /// <summary>
         /// Called when an agent first enters this state.
@@ -23,15 +23,15 @@ namespace A2.States
 
         public override void Execute(Agent agent)
         {
-            // If no microbe is pursuing this microbe, return.
-            if (agent is not Microbe microbe || microbe.PursuerMicrobe == null)
+            // If no microbe is not being hunted, return.
+            if (agent is not Microbe {BeingHunted: true} microbe)
             {
                 agent.SetState<MicrobeRoamingState>();
                 return;
             }
 
             // Check if the microbe can detect its pursuer.
-            if (Vector3.Distance(microbe.transform.position, microbe.PursuerMicrobe.transform.position) > microbe.DetectionRange)
+            if (Vector3.Distance(microbe.transform.position, microbe.Hunter.transform.position) > microbe.DetectionRange)
             {
                 agent.AddMessage("Have a feeling I am being hunted but don't know where they are.");
                 agent.SetState<MicrobeRoamingState>();
@@ -39,8 +39,8 @@ namespace A2.States
             }
             
             // Otherwise move towards the microbe it is tracking.
-            agent.AddMessage($"Evading {microbe.PursuerMicrobe.name}.");
-            agent.Move(microbe.PursuerMicrobe.transform, Steering.Behaviour.Evade);
+            agent.AddMessage($"Evading {microbe.Hunter.name}.");
+            agent.Move(microbe.Hunter.transform, Steering.Behaviour.Evade);
         }
 
         /// <summary>

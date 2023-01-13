@@ -35,14 +35,14 @@ namespace A2.Agents
         public float ElapsedLifespan { get; private set; }
         
         /// <summary>
-        /// The microbe that is hunting this microbe.
-        /// </summary>
-        public Microbe PursuerMicrobe { get; private set; }
-        
-        /// <summary>
         /// True if this microbe has already mated, false otherwise.
         /// </summary>
         public bool DidMate { get; private set; }
+
+        /// <summary>
+        /// The microbe that is hunting this microbe.
+        /// </summary>
+        public Microbe Hunter { get; private set; }
 
         /// <summary>
         /// The pickup this microbe is moving towards.
@@ -78,6 +78,11 @@ namespace A2.Agents
         /// The microbe is hungry when its hunger level is above zero.
         /// </summary>
         public bool IsHungry => Hunger > 0;
+
+        /// <summary>
+        /// If this microbe is being hunted or not.
+        /// </summary>
+        public bool BeingHunted => Hunter != null;
 
         /// <summary>
         /// If the microbe currently has a target or not.
@@ -190,7 +195,7 @@ namespace A2.Agents
 
             _targetMicrobe = microbe;
             AddMessage($"Hunting {_targetMicrobe.name}.");
-            _targetMicrobe.PursuerMicrobe = this;
+            _targetMicrobe.Hunter = this;
         }
 
         /// <summary>
@@ -329,14 +334,6 @@ namespace A2.Agents
         }
 
         /// <summary>
-        /// Set that the microbe mated.
-        /// </summary>
-        public void SetMate()
-        {
-            DidMate = true;
-        }
-
-        /// <summary>
         /// Reset that the microbe has mated so it can mate again.
         /// </summary>
         public void CanMate()
@@ -374,13 +371,13 @@ namespace A2.Agents
                 return;
             }
             
-            if (State as MicrobeSeekingFoodState)
+            if (State as MicrobeHungryState)
             {
                 stateVisualization.material = MicrobeManager.FoodIndicatorMaterial;
                 return;
             }
             
-            if (State as MicrobeSeekingMateState)
+            if (State as MicrobeMatingState)
             {
                 stateVisualization.material = MicrobeManager.MateIndicatorMaterial;
                 return;
