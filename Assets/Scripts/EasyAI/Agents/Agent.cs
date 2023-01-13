@@ -916,14 +916,8 @@ namespace EasyAI.Agents
                 }
             }
 
-            // If there is still a path to follow, stop.
-            if (Path != null)
-            {
-                return;
-            }
-
             // If there is move data, perform it.
-            if (Moves.Count > 0)
+            if (Path == null && Moves.Count > 0)
             {
                 // Look through every move data.
                 for (int i = 0; i < Moves.Count; i++)
