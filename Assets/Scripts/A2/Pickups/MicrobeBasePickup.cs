@@ -28,7 +28,7 @@ namespace A2.Pickups
             
             // Activate this pickup for the nearest microbe.
             Microbe microbe = microbes.OrderBy(m => Vector3.Distance(m.transform.position, transform.position)).First();
-            microbe.AddMessage("Collecting pickup.");
+            microbe.Log("Collecting pickup.");
             microbe.PlayPickupAudio();
             Execute(microbe);
             Instantiate(MicrobeManager.PickupParticlesPrefab, microbe.transform.position, Quaternion.Euler(270, 0, 0));

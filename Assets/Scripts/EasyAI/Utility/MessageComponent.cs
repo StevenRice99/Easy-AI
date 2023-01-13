@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using EasyAI.Managers;
 using UnityEngine;
@@ -48,9 +49,9 @@ namespace EasyAI.Utility
         /// Add a message to this component.
         /// </summary>
         /// <param name="message">The message to add.</param>
-        public virtual void AddMessage(string message)
+        public void Log(string message)
         {
-            Manager.AddGlobalMessage($"{name} - {message}");
+            Manager.GlobalLog($"{name} - {message}");
             
             switch (Manager.MessageMode)
             {
@@ -58,6 +59,9 @@ namespace EasyAI.Utility
                     return;
                 case Manager.MessagingMode.Unique:
                     Messages = Messages.Where(m => m != message).ToList();
+                    break;
+                case Manager.MessagingMode.All:
+                default:
                     break;
             }
 

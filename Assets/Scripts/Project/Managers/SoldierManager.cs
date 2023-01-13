@@ -270,7 +270,7 @@ namespace Project.Managers
             }
             
             // Add the capture to the player.
-            flag.carryingPlayer.AddMessage("Captured the flag.");
+            flag.carryingPlayer.Log("Captured the flag.");
             flag.carryingPlayer.Captures++;
 
             // Finally return the flag and reassign roles.
@@ -296,8 +296,8 @@ namespace Project.Managers
             shooter.Kills++;
             
             // Add messages to each.
-            killed.AddMessage($"Killed by {shooter.name}.");
-            shooter.AddMessage($"Killed {killed.name}");
+            killed.Log($"Killed by {shooter.name}.");
+            shooter.Log($"Killed {killed.name}");
             
             // Add team score.
             if (shooter.RedTeam)

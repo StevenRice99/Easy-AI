@@ -30,13 +30,13 @@ namespace A1.States
             // If there are no floor tiles to clean, determine where to move which will be the closest floor with the highest dirt level or the weighted midpoint.
             if (floor == null || !floor.IsDirty)
             {
-                agent.AddMessage("Nothing to clean, preparing for more dirt.");
+                agent.Log("Nothing to clean, preparing for more dirt.");
                 agent.Move(DetermineLocationToMove(agent));
                 return;
             }
 
             // Otherwise we are on a dirty floor to so stop movement and start cleaning the current floor tile.
-            agent.AddMessage("Cleaning current floor tile.");
+            agent.Log("Cleaning current floor tile.");
             agent.StopMoving();
             agent.Act(new CleanAction(floor));
         }

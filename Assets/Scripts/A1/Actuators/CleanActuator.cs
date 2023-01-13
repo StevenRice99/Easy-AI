@@ -40,7 +40,7 @@ namespace A1.Actuators
             // This should never happen, but check just in case.
             if (cleanAction.Floor == null)
             {
-                AddMessage("Unable to clean current floor tile.");
+                Log("Unable to clean current floor tile.");
                 DisableParticles();
                 return false;
             }
@@ -51,13 +51,13 @@ namespace A1.Actuators
             // If the tile has not been cleaned long enough, return false as it has not finished getting cleaned.
             if (_timeSpentCleaning < timeToClean)
             {
-                AddMessage("Cleaning current floor tile.");
+                Log("Cleaning current floor tile.");
                 EnableParticles();
                 return false;
             }
             
             // The floor has finished being cleaned so reset the time spent cleaning.
-            AddMessage("Finished cleaning current floor tile.");
+            Log("Finished cleaning current floor tile.");
             _timeSpentCleaning = 0;
             cleanAction.Floor.Clean();
             DisableParticles();

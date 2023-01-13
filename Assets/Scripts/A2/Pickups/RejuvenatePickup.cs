@@ -13,7 +13,7 @@ namespace A2.Pickups
         /// <param name="microbe">The microbe which picked up this pickup.</param>
         protected override void Execute(Microbe microbe)
         {
-            microbe.AddMessage("Powered up - has extended life and is now a young adult again!");
+            microbe.Log("Powered up - has extended life and is now a young adult again!");
             
             // Set back to right when the microbe became an adult.
             microbe.SetElapsedLifespan(microbe.LifeSpan / 2);

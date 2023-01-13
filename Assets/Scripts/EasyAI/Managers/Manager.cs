@@ -1006,7 +1006,7 @@ namespace EasyAI.Managers
         /// Add a message to the global message list.
         /// </summary>
         /// <param name="message">The message to add.</param>
-        public static void AddGlobalMessage(string message)
+        public static void GlobalLog(string message)
         {
             switch (Singleton._messageMode)
             {
@@ -1014,6 +1014,9 @@ namespace EasyAI.Managers
                     return;
                 case MessagingMode.Unique:
                     Singleton._globalMessages = Singleton._globalMessages.Where(m => m != message).ToList();
+                    break;
+                case MessagingMode.All:
+                default:
                     break;
             }
 

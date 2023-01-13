@@ -21,14 +21,14 @@ namespace A1.Sensors
             List<Floor> floors = CleanerManager.Floors;
             if (floors.Count == 0)
             {
-                AddMessage("No floors.");
+                Log("No floors.");
                 return null;
             }
 
             // Create the percepts with the dirt level of the closest floor.
             Floor floor = floors.OrderBy(f => Vector3.Distance(Agent.transform.position, f.transform.position)).First();
             
-            AddMessage(floor.IsDirty ? "Current floor tile is dirty." : "Current floor tile is not dirty.");
+            Log(floor.IsDirty ? "Current floor tile is dirty." : "Current floor tile is not dirty.");
             return floor;
         }
     }

@@ -20,7 +20,7 @@ namespace A2.States
         /// <param name="agent">The agent.</param>
         public override void Enter(Agent agent)
         {
-            agent.AddMessage("Starting to search for food.");
+            agent.Log("Starting to search for food.");
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace A2.States
                     return;
                 }
 
-                agent.AddMessage("Cannot find any food, roaming.");
+                agent.Log("Cannot find any food, roaming.");
                 agent.Move(Random.insideUnitCircle * MicrobeManager.FloorRadius);
                 return;
             }
@@ -76,7 +76,7 @@ namespace A2.States
 
             // Ensure the target microbe is null.
             microbe.RemoveTargetMicrobe();
-            agent.AddMessage("No longer searching for food.");
+            agent.Log("No longer searching for food.");
         }
     }
 }

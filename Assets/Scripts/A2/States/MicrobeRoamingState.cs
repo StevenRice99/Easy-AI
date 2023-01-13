@@ -17,7 +17,7 @@ namespace A2.States
         /// <param name="agent">The agent.</param>
         public override void Enter(Agent agent)
         {
-            agent.AddMessage("Nothing to do, starting to roam.");
+            agent.Log("Nothing to do, starting to roam.");
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace A2.States
         /// <param name="agent">The agent.</param>
         public override void Exit(Agent agent)
         {
-            agent.AddMessage("Got something to do, stopping roaming.");
+            agent.Log("Got something to do, stopping roaming.");
         }
     }
 }

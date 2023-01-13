@@ -21,7 +21,7 @@ namespace A2.Pickups
         /// <param name="microbe">The microbe which picked up this pickup.</param>
         protected override void Execute(Microbe microbe)
         {
-            microbe.AddMessage("Powered up - magically spawned offspring!");
+            microbe.Log("Powered up - magically spawned offspring!");
             for (int i = 0; i < spawnCount && Manager.CurrentAgents.Count < MicrobeManager.MaxMicrobes; i++)
             {
                 // Treat this as mating but with the same parent passed in for both values.

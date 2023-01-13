@@ -13,7 +13,7 @@ namespace A2.Pickups
         /// <param name="microbe">The microbe which picked up this pickup.</param>
         protected override void Execute(Microbe microbe)
         {
-            microbe.AddMessage("Powered up - will not be hungry for eternity!");
+            microbe.Log("Powered up - will not be hungry for eternity!");
             microbe.SetHunger(int.MinValue);
         }
     }

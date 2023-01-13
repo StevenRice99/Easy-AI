@@ -54,7 +54,7 @@ namespace Project.Pickups
                     return;
                 }
                 
-                soldier.AddMessage("Picked up health.");
+                soldier.Log("Picked up health.");
             
                 soldier.Heal();
                 StartCoroutine(ReadyDelay());
@@ -68,7 +68,7 @@ namespace Project.Pickups
                 return;
             }
             
-            soldier.AddMessage((SoldierAgent.WeaponChoices) weaponIndex switch
+            soldier.Log((SoldierAgent.WeaponChoices) weaponIndex switch
             {
                 SoldierAgent.WeaponChoices.MachineGun => "Replenished machine gun.",
                 SoldierAgent.WeaponChoices.Shotgun => "Replenished shotgun.",

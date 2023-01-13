@@ -166,12 +166,12 @@ namespace A2.Agents
             
             int offspring = MicrobeManager.Mate(a, b);
             
-            a.AddMessage(offspring == 0
+            a.Log(offspring == 0
                 ? $"Failed to have any offspring with {b.name}."
                 : $"Have {offspring} offspring with {b.name}."
             );
             
-            b.AddMessage(offspring == 0
+            b.Log(offspring == 0
                 ? $"Failed to have any offspring with {a.name}."
                 : $"Have {offspring} offspring with {a.name}."
             );
@@ -199,7 +199,7 @@ namespace A2.Agents
             }
 
             _targetMicrobe = microbe;
-            AddMessage($"Hunting {_targetMicrobe.name}.");
+            Log($"Hunting {_targetMicrobe.name}.");
             _targetMicrobe.Hunter = this;
         }
 
@@ -214,20 +214,20 @@ namespace A2.Agents
                 return;
             }
 
-            AddMessage($"Attempting to impress {potentialMate.name} to mate.");
+            Log($"Attempting to impress {potentialMate.name} to mate.");
 
             bool accepted = !potentialMate.DidMate && potentialMate._targetMicrobe == null;
 
             if (!accepted)
             {
-                AddMessage($"Could not mate with {potentialMate.name}.");
-                potentialMate.AddMessage($"Cannot mate with {name}.");
+                Log($"Could not mate with {potentialMate.name}.");
+                potentialMate.Log($"Cannot mate with {name}.");
                 return;
             }
 
             // If the other microbe agreed to mate, set them as the target microbe.
-            AddMessage($"{potentialMate.name} accepted advances to mate.");
-            potentialMate.AddMessage($"Accepted advances of {name}.");
+            Log($"{potentialMate.name} accepted advances to mate.");
+            potentialMate.Log($"Accepted advances of {name}.");
             SetTargetMicrobe(potentialMate);
             potentialMate.SetTargetMicrobe(this);
         }
@@ -245,7 +245,7 @@ namespace A2.Agents
             
             Hunger = Mathf.Max(MicrobeManager.StartingHunger, Hunger - MicrobeManager.HungerRestoredFromEating);
             PlayAudio(eatAudio);
-            AddMessage($"Ate {_targetMicrobe.name}.");
+            Log($"Ate {_targetMicrobe.name}.");
             _targetMicrobe.Die();
             return true;
         }
@@ -255,7 +255,7 @@ namespace A2.Agents
         /// </summary>
         public void Die()
         {
-            AddMessage("Died.");
+            Log("Died.");
             Instantiate(MicrobeManager.DeathParticlesPrefab, transform.position, Quaternion.Euler(270, 0, 0));
             Destroy(gameObject);
         }

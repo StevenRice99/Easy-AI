@@ -18,7 +18,7 @@ namespace A2.States
         /// <param name="agent">The agent.</param>
         public override void Enter(Agent agent)
         {
-            agent.AddMessage("Being hunted, starting to evade.");
+            agent.Log("Being hunted, starting to evade.");
         }
 
         public override void Execute(Agent agent)
@@ -33,13 +33,13 @@ namespace A2.States
             // Check if the microbe can detect its pursuer.
             if (Vector3.Distance(microbe.transform.position, microbe.Hunter.transform.position) > microbe.DetectionRange)
             {
-                agent.AddMessage("Have a feeling I am being hunted but don't know where they are.");
+                agent.Log("Have a feeling I am being hunted but don't know where they are.");
                 agent.SetState<MicrobeRoamingState>();
                 return;
             }
             
             // Otherwise move towards the microbe it is tracking.
-            agent.AddMessage($"Evading {microbe.Hunter.name}.");
+            agent.Log($"Evading {microbe.Hunter.name}.");
             agent.Move(microbe.Hunter.transform, Steering.Behaviour.Evade);
         }
 
@@ -56,7 +56,7 @@ namespace A2.States
 
             // Ensure the target microbe is null.
             microbe.RemoveTargetMicrobe();
-            agent.AddMessage("No longer being hunted, stopping evading.");
+            agent.Log("No longer being hunted, stopping evading.");
         }
     }
 }

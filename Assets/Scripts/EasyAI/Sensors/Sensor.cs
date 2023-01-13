@@ -14,7 +14,7 @@ namespace EasyAI.Sensors
         public object Read()
         {
             object data = Sense();
-            AddMessage(data == null ? "Did not perceive anything." : $"Perceived {data}.");
+            Log(data == null ? "Did not perceive anything." : $"Perceived {data}.");
             return data;
         }
         

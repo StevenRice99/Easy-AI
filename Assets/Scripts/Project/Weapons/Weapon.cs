@@ -184,7 +184,7 @@ namespace Project.Weapons
                 return;
             }
             
-            Soldier.AddMessage((SoldierAgent.WeaponChoices) Soldier.WeaponIndex switch
+            Soldier.Log((SoldierAgent.WeaponChoices) Soldier.WeaponIndex switch
             {
                 SoldierAgent.WeaponChoices.MachineGun => "Shooting machine gun.",
                 SoldierAgent.WeaponChoices.Shotgun => "Shooting shotgun.",

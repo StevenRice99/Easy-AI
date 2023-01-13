@@ -66,7 +66,7 @@ namespace Project.Pickups
             if (soldier != null)
             {
                 soldier.Returns++;
-                soldier.AddMessage("Returned the flag.");
+                soldier.Log("Returned the flag.");
                 SoldierManager.UpdateSorted();
             }
 
@@ -108,7 +108,7 @@ namespace Project.Pickups
         {
             // Set carrying.
             carryingPlayer = soldier;
-            carryingPlayer.AddMessage("Picked up the flag.");
+            carryingPlayer.Log("Picked up the flag.");
             
             // Attach to the soldier.
             Transform tr = transform;

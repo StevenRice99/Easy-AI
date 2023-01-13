@@ -373,6 +373,54 @@ namespace EasyAI.Agents
             // Return null if the given sensor returning the requested data type does not exist.
             return null;
         }
+        
+        /// <summary>
+        /// Read all of a give sensor type and receive all of a given data piece type.
+        /// </summary>
+        /// <typeparam name="TSensor">The sensor type to read.</typeparam>
+        /// <typeparam name="TData">The expected data to return.</typeparam>
+        /// <returns>A list of the data type returned by the given sensors.</returns>
+        public List<TData> SenseAll<TSensor, TData>() where TSensor : Sensor where TData : class
+        {
+            List<TData> dataList = new();
+            
+            // Loop through all sensors.
+            foreach (Sensor sensor in Sensors)
+            {
+                if (sensor is not TSensor)
+                {
+                    continue;
+                }
+
+                // If the correct type of sensor and correct data returned, return it.
+                object data = sensor.Read();
+                if (data is TData correctType)
+                {
+                    dataList.Add(correctType);
+                }
+            }
+            
+            return dataList;
+        }
+
+        /// <summary>
+        /// Read all of a give sensor type and receive all potential types of data from those sensors.
+        /// </summary>
+        /// <typeparam name="TSensor">The sensor type to read.</typeparam>
+        /// <returns>A list of the objects returned by the given sensors.</returns>
+        public List<object> SenseAll<TSensor>() where TSensor : Sensor
+        {
+            return (from sensor in Sensors where sensor is TSensor select sensor.Read()).ToList();
+        }
+
+        /// <summary>
+        /// Read all sensors and receive all data.
+        /// </summary>
+        /// <returns>A list of the objects returned by all the sensors.</returns>
+        public List<object> SenseAll()
+        {
+            return (from sensor in Sensors select sensor.Read()).ToList();
+        }
 
         /// <summary>
         /// Add an action to perform.
@@ -401,7 +449,7 @@ namespace EasyAI.Agents
                     break;
                 }
 
-                AddMessage($"Completed action {action}.");
+                Log($"Completed action {action}.");
                 return;
             }
 
@@ -955,7 +1003,7 @@ namespace EasyAI.Agents
                     continue;
                 }
 
-                AddMessage($"Completed action {_inProgressActions[i]}.");
+                Log($"Completed action {_inProgressActions[i]}.");
                 _inProgressActions.RemoveAt(i--);
             }
         }

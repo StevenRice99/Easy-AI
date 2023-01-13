@@ -574,7 +574,7 @@ namespace A2.Managers
             }
             
             SortAgents();
-            AddGlobalMessage($"Spawned microbe {n}.");
+            GlobalLog($"Spawned microbe {n}.");
             Instantiate(MicrobeSingleton.spawnParticlesPrefab, microbe.transform.position, Quaternion.Euler(270, 0, 0));
         }
 

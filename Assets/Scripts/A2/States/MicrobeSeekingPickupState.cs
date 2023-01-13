@@ -20,7 +20,7 @@ namespace A2.States
         /// <param name="agent">The agent.</param>
         public override void Enter(Agent agent)
         {
-            agent.AddMessage("Starting searching for a pickup.");
+            agent.Log("Starting searching for a pickup.");
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace A2.States
                 microbe.SetPickup(agent.Sense<NearestPickupSensor, MicrobeBasePickup>());
                 if (microbe.HasPickup)
                 {
-                    agent.AddMessage($"Moving to {microbe.Pickup.name}.");
+                    agent.Log($"Moving to {microbe.Pickup.name}.");
                 }
             }
 
@@ -52,7 +52,7 @@ namespace A2.States
                     return;
                 }
 
-                agent.AddMessage("Cannot find any pickups, roaming.");
+                agent.Log("Cannot find any pickups, roaming.");
                 agent.Move(Random.insideUnitCircle * MicrobeManager.FloorRadius);
                 return;
             }
@@ -74,7 +74,7 @@ namespace A2.States
 
             // Ensure the target pickup is null.
             microbe.RemovePickup();
-            agent.AddMessage("No longer searching for a pickup.");
+            agent.Log("No longer searching for a pickup.");
         }
     }
 }

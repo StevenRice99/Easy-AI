@@ -20,7 +20,7 @@ namespace A2.States
         /// <param name="agent">The agent.</param>
         public override void Enter(Agent agent)
         {
-            agent.AddMessage("Looking for a mate.");
+            agent.Log("Looking for a mate.");
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace A2.States
                     return;
                 }
 
-                agent.AddMessage("Cannot find a mate, roaming.");
+                agent.Log("Cannot find a mate, roaming.");
                 agent.Move(Random.insideUnitCircle * MicrobeManager.FloorRadius);
                 return;
             }
@@ -76,7 +76,7 @@ namespace A2.States
 
             // Ensure the target microbe is null.
             microbe.RemoveTargetMicrobe();
-            agent.AddMessage("No longer looking for a mate.");
+            agent.Log("No longer looking for a mate.");
         }
     }
 }

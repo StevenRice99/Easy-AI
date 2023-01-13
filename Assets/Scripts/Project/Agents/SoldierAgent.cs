@@ -543,7 +543,7 @@ namespace Project.Agents
             {
                 if (Navigate(Base))
                 {
-                    AddMessage("Have the flag, returning it to base.");
+                    Log("Have the flag, returning it to base.");
                 }
 
                 return;
@@ -555,7 +555,7 @@ namespace Project.Agents
                 case SoliderRole.Collector:
                     if (Navigate(EnemyFlag))
                     {
-                        AddMessage("Moving to collect enemy flag.");
+                        Log("Moving to collect enemy flag.");
                     }
 
                     return;
@@ -564,7 +564,7 @@ namespace Project.Agents
                 case SoliderRole.Defender when !FlagAtBase:
                     if (Navigate(TeamFlag))
                     {
-                        AddMessage("Moving to return flag.");
+                        Log("Moving to return flag.");
                     }
                     
                     _findNewPoint = true;
@@ -579,7 +579,7 @@ namespace Project.Agents
                         {
                             if (Navigate(destination.Value))
                             {
-                                AddMessage("Moving to pickup health.");
+                                Log("Moving to pickup health.");
                             }
                             
                             _findNewPoint = true;
@@ -598,7 +598,7 @@ namespace Project.Agents
                             {
                                 if (Navigate(destination.Value))
                                 {
-                                    AddMessage("Moving to pickup health.");
+                                    Log("Moving to pickup health.");
                                 }
                                 
                                 _findNewPoint = true;
@@ -622,7 +622,7 @@ namespace Project.Agents
 
                             if (Navigate(destination.Value))
                             {
-                                AddMessage("Moving to pickup ammo for " + (WeaponChoices) w switch
+                                Log("Moving to pickup ammo for " + (WeaponChoices) w switch
                                 {
                                     WeaponChoices.MachineGun => "machine gun.",
                                     WeaponChoices.Shotgun => "shotgun.",
@@ -649,7 +649,7 @@ namespace Project.Agents
                         _findNewPoint = false;
                         if (Navigate(SoldierManager.GetPoint(RedTeam, Role == SoliderRole.Defender)))
                         {
-                            AddMessage(Role == SoliderRole.Attacker ? "Moving to offensive position." : "Moving to defensive position.");
+                            Log(Role == SoliderRole.Attacker ? "Moving to offensive position." : "Moving to defensive position.");
                         }
                         return;
                     }
@@ -671,7 +671,7 @@ namespace Project.Agents
                 // Defenders predict needing to use long range weapons like snipers.
                 if (Role == SoliderRole.Defender)
                 {
-                    AddMessage("No targets, prioritizing sniper.");
+                    Log("No targets, prioritizing sniper.");
                     
                     _weaponPriority = new[]
                     {
@@ -685,7 +685,7 @@ namespace Project.Agents
                     return;
                 }
                 
-                AddMessage("No targets, prioritizing shotgun.");
+                Log("No targets, prioritizing shotgun.");
 
                 // Attackers and the collector predict needing to use short range weapons like shotguns.
                 _weaponPriority = new[]
@@ -708,7 +708,7 @@ namespace Project.Agents
                 // Defenders use the sniper first.
                 if (Role == SoliderRole.Defender)
                 {
-                    AddMessage("Far target, prioritizing sniper.");
+                    Log("Far target, prioritizing sniper.");
                     
                     _weaponPriority = new[]
                     {
@@ -722,7 +722,7 @@ namespace Project.Agents
                     return;
                 }
                 
-                AddMessage("Far target, prioritizing rocket launcher.");
+                Log("Far target, prioritizing rocket launcher.");
 
                 // Attackers and the collector use the rocket launcher first.
                 _weaponPriority = new[]
@@ -740,7 +740,7 @@ namespace Project.Agents
             // If close range, all roles use close-range weapons first.
             if (distance <= SoldierManager.DistanceClose)
             {
-                AddMessage("Close target, prioritizing shotgun.");
+                Log("Close target, prioritizing shotgun.");
                 
                 _weaponPriority = new[]
                 {
@@ -754,7 +754,7 @@ namespace Project.Agents
                 return;
             }
             
-            AddMessage("Medium target, prioritizing machine gun.");
+            Log("Medium target, prioritizing machine gun.");
             
             // Otherwise, it is medium range, with the only difference being defenders using a sniper before a shotgun.
             if (Role == SoliderRole.Defender)
@@ -887,7 +887,7 @@ namespace Project.Agents
 
             if (lastWeapon != WeaponIndex)
             {
-                AddMessage((WeaponChoices) WeaponIndex switch
+                Log((WeaponChoices) WeaponIndex switch
                 {
                     WeaponChoices.MachineGun => "Selecting machine gun.",
                     WeaponChoices.Shotgun => "Selecting shotgun.",

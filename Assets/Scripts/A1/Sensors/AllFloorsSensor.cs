@@ -31,7 +31,7 @@ namespace A1.Sensors
                 data.LikelyToGetDirty[i] = floors[i].LikelyToGetDirty;
             }
             
-            AddMessage($"Perceived {floors.Count} floor tiles.");
+            Log($"Perceived {floors.Count} floor tiles.");
             
             return data;
         }
