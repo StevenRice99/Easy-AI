@@ -210,7 +210,7 @@ namespace Project
         public override float DisplayDetails(float x, float y, float w, float h, float p)
         {
             y = Manager.NextItem(y, h, p);
-            Manager.GuiBox(x, y, w, h, p, 9);
+            Manager.GuiBox(x, y, w, h, p, 8);
             
             // Display overall flags captured for each team.
             Manager.GuiLabel(x, y, w, h, p, $"Team Captures - Red: {SoldierManager.CapturedRed} | Blue: {SoldierManager.CapturedBlue}");
@@ -218,9 +218,6 @@ namespace Project
             
             // Display overall kills for each team.
             Manager.GuiLabel(x, y, w, h, p, $"Team Kills - Red: {SoldierManager.KillsRed} | Blue: {SoldierManager.KillsBlue}");
-            y = Manager.NextItem(y, h, p);
-            
-            Manager.GuiLabel(x, y, w, h, p, "--------------------------------------------------------------------------------------------------------------------------");
             y = Manager.NextItem(y, h, p);
 
             // Display the role of this soldier.
@@ -234,10 +231,10 @@ namespace Project
             // Display the weapon this soldier is using.
             Manager.GuiLabel(x, y, w, h, p, Role == SoliderRole.Dead ? "Weapon: None" : WeaponIndex switch
             {
-                (int) WeaponIndexes.MachineGun => $"Weapon: Machine Gun | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].maxAmmo}",
-                (int) WeaponIndexes.Shotgun => $"Weapon: Shotgun | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].maxAmmo}",
-                (int) WeaponIndexes.Sniper => $"Weapon: Sniper | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].maxAmmo}",
-                (int) WeaponIndexes.RocketLauncher => $"Weapon: Rocket Launcher | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].maxAmmo}",
+                (int) WeaponIndexes.MachineGun => $"Weapon: Machine Gun | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].MaxAmmo}",
+                (int) WeaponIndexes.Shotgun => $"Weapon: Shotgun | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].MaxAmmo}",
+                (int) WeaponIndexes.Sniper => $"Weapon: Sniper | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].MaxAmmo}",
+                (int) WeaponIndexes.RocketLauncher => $"Weapon: Rocket Launcher | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].MaxAmmo}",
                 _ => "Weapon: Pistol"
             });
             y = Manager.NextItem(y, h, p);
@@ -290,7 +287,7 @@ namespace Project
             // Go through the weapon priority and select the most preferred option which has ammo.
             for (int i = 0; i < WeaponPriority.Length; i++)
             {
-                if (Weapons[i].Ammo <= 0 && Weapons[i].maxAmmo >= 0)
+                if (Weapons[i].Ammo <= 0 && Weapons[i].MaxAmmo >= 0)
                 {
                     continue;
                 }
@@ -658,7 +655,8 @@ namespace Project
             }
             
             // Limit agent rotation speed based on their weapon.
-            SetLookSpeed(Weapons[WeaponIndex].rotationSpeed);
+            SetMoveSpeed(Weapons[WeaponIndex].MoveSpeed);
+            SetLookSpeed(Weapons[WeaponIndex].RotationSpeed);
             
             // Ensure weapons are properly visible.
             WeaponVisible();

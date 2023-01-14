@@ -61,7 +61,7 @@ namespace Project.Pickups
             }
 
             // Replenish ammo if needed.
-            if (soldier.Weapons.Length <= weaponIndex || soldier.Weapons[weaponIndex].maxAmmo < 0 || ammo[weaponIndex] >= soldier.Weapons[weaponIndex].maxAmmo)
+            if (soldier.Weapons.Length <= weaponIndex || soldier.Weapons[weaponIndex].MaxAmmo < 0 || ammo[weaponIndex] >= soldier.Weapons[weaponIndex].MaxAmmo)
             {
                 return;
             }

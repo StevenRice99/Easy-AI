@@ -54,6 +54,7 @@ MonoBehaviour:
   damage: 200
   delay: 3
   time: 30
+  moveSpeed: 6
   rotationSpeed: 3
   soundRange: 1000
   velocity: 50

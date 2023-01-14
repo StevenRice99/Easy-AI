@@ -25,7 +25,8 @@ namespace Project.Weapons
         }
 
         [Tooltip("The maximum ammo of the weapon, setting to less than 0 will give unlimited ammo.")]
-        public int maxAmmo = -1;
+        [SerializeField]
+        private int maxAmmo = -1;
 
         /// <summary>
         /// The weapon index on the soldier.
@@ -47,39 +48,52 @@ namespace Project.Weapons
         /// </summary>
         public int Ammo { get; private set; }
 
+        public int MaxAmmo => maxAmmo;
+
+        public float MoveSpeed => moveSpeed;
+
+        public float RotationSpeed => rotationSpeed;
+
         [Tooltip("The sound to make upon bullet impact.")]
-        public AudioClip impactSound;
+        [SerializeField]
+        private AudioClip impactSound;
 
         [Tooltip("The effect prefab to show upon bullet impact.")]
-        public GameObject impactEffectPrefab;
-        
         [SerializeField]
+        private GameObject impactEffectPrefab;
+        
         [Tooltip("The barrel of the weapon.")]
+        [SerializeField]
         protected Transform barrel;
         
-        [SerializeField]
-        [Min(1)]
         [Tooltip("How much damage the weapon should do.")]
+        [Min(1)]
+        [SerializeField]
         protected int damage;
         
-        [SerializeField]
-        [Min(0)]
         [Tooltip("How long between shots should there be.")]
+        [Min(0)]
+        [SerializeField]
         protected float delay;
         
-        [SerializeField]
-        [Min(0)]
         [Tooltip("How long bullet trails or projectiles last for.")]
+        [Min(0)]
+        [SerializeField]
         protected float time;
 
+        [Tooltip("How fast an agent can move when using this weapon.")]
+        [Min(float.Epsilon)]
         [SerializeField]
-        [Min(0)]
-        [Tooltip("How fast an agent can rotate when using this weapon.")]
-        public float rotationSpeed = 30;
+        private float moveSpeed = 10;
 
-        [SerializeField]
+        [Tooltip("How fast an agent can rotate when using this weapon.")]
         [Min(0)]
+        [SerializeField]
+        private float rotationSpeed = 30;
+
         [Tooltip("How far away shots can be heard by agents.")]
+        [Min(0)]
+        [SerializeField]
         private float soundRange;
         
         /// <summary>

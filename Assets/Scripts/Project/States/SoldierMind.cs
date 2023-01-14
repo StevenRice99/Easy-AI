@@ -71,6 +71,19 @@ namespace Project.States
         /// <param name="soldier">The soldier.</param>
         private static void PrioritizeWeapons(Soldier soldier)
         {
+            if (soldier.CarryingFlag)
+            {
+                soldier.Log("Carrying flag, using pistol to run fast.");
+                soldier.SetWeaponPriority(
+                    shotgun: 2,
+                    machineGun: 3,
+                    rocketLauncher: 4,
+                    sniper: 5,
+                    pistol: 1
+                );
+                return;
+            }
+            
             // If there is no target to choose a weapon based off of, predict what weapon type will be needed.
             if (soldier.Target == null)
             {

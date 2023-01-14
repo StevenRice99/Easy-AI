@@ -54,14 +54,12 @@ MonoBehaviour:
   damage: 30
   delay: 1
   time: 0.1
+  moveSpeed: 12
   rotationSpeed: 30
   soundRange: 20
   material: {fileID: 2100000, guid: 68c53c23fb1bf1a43af07979e79c5102, type: 2}
   rounds: 10
   spread: 0.085
-  layerMask:
-    serializedVersion: 2
-    m_Bits: 0
 --- !u!82 &3019058213430793805
 AudioSource:
   m_ObjectHideFlags: 0

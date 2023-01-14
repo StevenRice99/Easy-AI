@@ -20,7 +20,7 @@ namespace Project.Sensors
             
             for (int i = 0; i < soldier.WeaponPriority.Length; i++)
             {
-                if (soldier.Weapons[i].maxAmmo < 0 || soldier.Weapons[i].Ammo >= soldier.Weapons[i].maxAmmo)
+                if (soldier.Weapons[i].MaxAmmo < 0 || soldier.Weapons[i].Ammo >= soldier.Weapons[i].MaxAmmo)
                 {
                     continue;
                 }
