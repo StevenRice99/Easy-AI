@@ -271,11 +271,23 @@ namespace Project.States
                         }
                     }
 
-                    // If not moving, find a point to move to, either in the offense or defense side depending on the soldier's role.
-                    if (soldier.Destination == null && soldier.Navigate(soldier.Sense<RandomStrategicPositionSensor, Vector3>()))
+                    // If already moving, no need to find a new position.
+                    if (soldier.Destination != null)
                     {
-                        soldier.Log(soldier.Role == Soldier.SoliderRole.Attacker ? "Moving to offensive position." : "Moving to defensive position.");
+                        return;
                     }
+
+                    // If an attacker, move to a random offensive position.
+                    if (soldier.Role == Soldier.SoliderRole.Attacker)
+                    {
+                        soldier.Navigate(soldier.Sense<RandomOffensivePositionSensor, Vector3>());
+                        soldier.Log("Moving to offensive position.");
+                        return;
+                    }
+                    
+                    // If a defender, move to a random defensive position.
+                    soldier.Navigate(soldier.Sense<RandomDefensivePositionSensor, Vector3>());
+                    soldier.Log("Moving to defensive position.");
                     return;
             }
         }
