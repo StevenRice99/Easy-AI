@@ -13,7 +13,7 @@ namespace A2.Sensors
         /// Sense the nearest prey of the microbe.
         /// </summary>
         /// <returns>The nearest prey of the microbe or null if none is found.</returns>
-        protected override object Sense()
+        public override object Sense()
         {
             if (Agent is not Microbe microbe)
             {

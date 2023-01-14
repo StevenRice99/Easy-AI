@@ -13,7 +13,7 @@ namespace A1.Sensors
         /// Sense positions, dirt levels, and if they are likely to get dirty for all floor tiles in the scene.
         /// </summary>
         /// <returns>A FloorsData with positions, dirt levels, and if they are likely to get dirty for all floor tiles in the scene.</returns>
-        protected override object Sense()
+        public override object Sense()
         {
             // Get all floors.
             List<Floor> floors = CleanerManager.Floors;

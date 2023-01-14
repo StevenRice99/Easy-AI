@@ -373,7 +373,7 @@ namespace EasyAI
                 }
 
                 // If the correct type of sensor and correct data returned, return it.
-                object data = sensor.Read();
+                object data = sensor.Sense();
                 if (data is TData correctType)
                 {
                     return correctType;
@@ -403,7 +403,7 @@ namespace EasyAI
                 }
 
                 // If the correct type of sensor and correct data returned, return it.
-                object data = sensor.Read();
+                object data = sensor.Sense();
                 if (data is TData correctType)
                 {
                     dataList.Add(correctType);
@@ -420,7 +420,7 @@ namespace EasyAI
         /// <returns>A list of the objects returned by the given sensors.</returns>
         public List<object> SenseAll<TSensor>() where TSensor : Sensor
         {
-            return (from sensor in Sensors where sensor is TSensor select sensor.Read()).ToList();
+            return (from sensor in Sensors where sensor is TSensor select sensor.Sense()).ToList();
         }
 
         /// <summary>
@@ -429,7 +429,7 @@ namespace EasyAI
         /// <returns>A list of the objects returned by all the sensors.</returns>
         public List<object> SenseAll()
         {
-            return (from sensor in Sensors select sensor.Read()).ToList();
+            return (from sensor in Sensors select sensor.Sense()).ToList();
         }
 
         /// <summary>
@@ -686,7 +686,7 @@ namespace EasyAI
             // After all actions are performed, calculate the agent's new performance.
             if (PerformanceMeasure != null)
             {
-                Performance = PerformanceMeasure.GetPerformance();
+                Performance = PerformanceMeasure.CalculatePerformance();
             }
             
             // Reset the elapsed time for the next time this method is called.

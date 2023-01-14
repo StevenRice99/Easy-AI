@@ -6,7 +6,7 @@ namespace Project.Sensors
     [DisallowMultipleComponent]
     public class NearestAmmoPickupSensor : Sensor
     {
-        protected override object Sense()
+        public override object Sense()
         {
             int weaponIndex = 0;
             Vector3? destination = null;

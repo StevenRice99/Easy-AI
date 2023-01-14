@@ -14,7 +14,7 @@ namespace A1.Sensors
         /// Sense the dirt state of the current tile the agent is on.
         /// </summary>
         /// <returns>A DirtyData with the dirt state of the current tile the agent is on.</returns>
-        protected override object Sense()
+        public override object Sense()
         {
             // Get all floors. If there is none, return null as there was nothing sensed.
             List<Floor> floors = CleanerManager.Floors;

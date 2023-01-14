@@ -17,7 +17,7 @@ namespace A2
         /// Return how long the agent has been alive plus a score for how many offspring it has had.
         /// </summary>
         /// <returns>The score for the microbe.</returns>
-        protected override float CalculatePerformance()
+        public override float CalculatePerformance()
         {
             return Agent is not Microbe microbe
                 ? int.MinValue

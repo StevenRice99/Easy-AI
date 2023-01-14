@@ -2083,7 +2083,7 @@ namespace EasyAI
             SelectedAgent = null;
             foreach (Agent agent in Agents.Where(a => a.PerformanceMeasure != null))
             {
-                float score = agent.PerformanceMeasure.GetPerformance();
+                float score = agent.PerformanceMeasure.CalculatePerformance();
                 if (score <= best)
                 {
                     continue;

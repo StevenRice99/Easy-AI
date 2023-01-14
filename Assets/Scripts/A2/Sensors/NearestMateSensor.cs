@@ -14,7 +14,7 @@ namespace A2.Sensors
         /// Sense the nearest potential mate of the microbe.
         /// </summary>
         /// <returns>The nearest potential mate of the microbe or null if none is found.</returns>
-        protected override object Sense()
+        public override object Sense()
         {
             if (Agent is not Microbe microbe)
             {

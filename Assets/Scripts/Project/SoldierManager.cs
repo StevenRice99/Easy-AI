@@ -448,7 +448,7 @@ namespace Project
                         float best = float.MinValue;
                         foreach (Soldier s in aliveSoldiers)
                         {
-                            float score = s.PerformanceMeasure.GetPerformance();
+                            float score = s.PerformanceMeasure.CalculatePerformance();
                             if (score <= best)
                             {
                                 continue;

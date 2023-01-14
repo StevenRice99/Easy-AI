@@ -4,7 +4,7 @@ namespace Project.Sensors
 {
     public class RandomStrategicPositionSensor : Sensor
     {
-        protected override object Sense()
+        public override object Sense()
         {
             return Agent is not Soldier soldier
                 ? null

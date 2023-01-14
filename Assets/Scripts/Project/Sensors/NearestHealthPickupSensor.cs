@@ -6,7 +6,7 @@ namespace Project.Sensors
     [DisallowMultipleComponent]
     public class NearestHealthPickupSensor : Sensor
     {
-        protected override object Sense()
+        public override object Sense()
         {
             return SoldierManager.NearestHealthPickup(Agent);
         }
