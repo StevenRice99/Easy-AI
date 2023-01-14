@@ -9,6 +9,7 @@ namespace A2
     /// <summary>
     /// Microbe extends agent rather than being a separate component.
     /// </summary>
+    [DisallowMultipleComponent]
     [RequireComponent(typeof(AudioSource))]
     public class Microbe : TransformAgent
     {
@@ -52,31 +53,6 @@ namespace A2
         /// </summary>
         public int Offspring { get; private set; }
 
-        [Tooltip("The mesh renderer for the mesh that changes color depending on what state the agent is in.")]
-        [SerializeField]
-        private MeshRenderer stateVisualization;
-
-        [Tooltip("Audio to play when spawning.")]
-        [SerializeField]
-        private AudioClip spawnAudio;
-
-        [Tooltip("Audio to play when eating another microbe.")]
-        [SerializeField]
-        private AudioClip eatAudio;
-
-        [Tooltip("Audio to play when mating.")]
-        [SerializeField]
-        private AudioClip mateAudio;
-
-        [Tooltip("Audio to play when picking up a pickup.")]
-        [SerializeField]
-        private AudioClip pickupAudio;
-
-        /// <summary>
-        /// The microbe that this microbe is moving towards to either eat or mate with.
-        /// </summary>
-        private Microbe _targetMicrobe;
-
         /// <summary>
         /// The microbe is hungry when its hunger level is above zero.
         /// </summary>
@@ -106,6 +82,31 @@ namespace A2
         /// A microbe is considered an adult if it has reached the halfway point of its life.
         /// </summary>
         public bool IsAdult => ElapsedLifespan >= LifeSpan / 2;
+
+        [Tooltip("The mesh renderer for the mesh that changes color depending on what state the agent is in.")]
+        [SerializeField]
+        private MeshRenderer stateVisualization;
+
+        [Tooltip("Audio to play when spawning.")]
+        [SerializeField]
+        private AudioClip spawnAudio;
+
+        [Tooltip("Audio to play when eating another microbe.")]
+        [SerializeField]
+        private AudioClip eatAudio;
+
+        [Tooltip("Audio to play when mating.")]
+        [SerializeField]
+        private AudioClip mateAudio;
+
+        [Tooltip("Audio to play when picking up a pickup.")]
+        [SerializeField]
+        private AudioClip pickupAudio;
+
+        /// <summary>
+        /// The microbe that this microbe is moving towards to either eat or mate with.
+        /// </summary>
+        private Microbe _targetMicrobe;
 
         /// <summary>
         /// The type (color) of this microbe.

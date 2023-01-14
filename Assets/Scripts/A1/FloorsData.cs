@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace A1
 {
@@ -34,17 +33,6 @@ namespace A1
             Positions = positions;
             Dirty = dirty;
             LikelyToGetDirty = likelyToGetDirty;
-        }
-
-        /// <summary>
-        /// Display the details of the percepts.
-        /// </summary>
-        /// <returns>String with the details of the percepts.</returns>
-        public string DetailsDisplay()
-        {
-            int dirtyCount = Dirty.Count(dirty => dirty);
-            int likelyCount = LikelyToGetDirty.Count(likely => likely);
-            return $"{Positions.Length} floor tiles, {dirtyCount} dirty, {likelyCount} likely to get dirty.";
         }
     }
 }

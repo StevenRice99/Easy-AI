@@ -7,6 +7,7 @@ namespace A1.Sensors
     /// <summary>
     /// Sense positions, dirt levels, and if they are likely to get dirty for all floor tiles in the scene.
     /// </summary>
+    [DisallowMultipleComponent]
     public class AllFloorsSensor : Sensor
     {
         /// <summary>

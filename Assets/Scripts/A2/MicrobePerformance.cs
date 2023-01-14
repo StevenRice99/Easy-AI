@@ -6,6 +6,7 @@ namespace A2
     /// <summary>
     /// Determine what microbe is the best my age and how many offspring it has had.
     /// </summary>
+    [DisallowMultipleComponent]
     public class MicrobePerformance : PerformanceMeasure
     {
         /// <summary>

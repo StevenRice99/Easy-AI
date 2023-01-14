@@ -8,6 +8,7 @@ namespace A2.Sensors
     /// <summary>
     /// Sensor to find the nearest potential mate for a microbe.
     /// </summary>
+    [DisallowMultipleComponent]
     public class NearestMateSensor : Sensor
     {
         /// <summary>

@@ -1,5 +1,4 @@
 ﻿using EasyAI;
-using EasyAI.Utility;
 using UnityEngine;
 
 namespace A1
@@ -7,6 +6,7 @@ namespace A1
     /// <summary>
     /// Actuator to clean a floor tile.
     /// </summary>
+    [DisallowMultipleComponent]
     public class CleanActuator : Actuator
     {
         [SerializeField]
@@ -26,7 +26,7 @@ namespace A1
         /// <summary>
         /// Clean a floor tile.
         /// </summary>
-        /// <param name="agentAction"></param>
+        /// <param name="agentAction">The action to perform.</param>
         /// <returns>True if the floor tile has finished being cleaned, false otherwise.</returns>
         public override bool Act(object agentAction)
         {

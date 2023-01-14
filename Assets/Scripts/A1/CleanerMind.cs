@@ -12,10 +12,6 @@ namespace A1
     [CreateAssetMenu(menuName = "A1/States/Cleaner Mind", fileName = "Cleaner Mind")]
     public class CleanerMind : State
     {
-        /// <summary>
-        /// Called when an agent is in this state.
-        /// </summary>
-        /// <param name="agent">The agent.</param>
         public override void Execute(Agent agent)
         {
             // If currently cleaning, no need to make a new decision.

@@ -5,6 +5,7 @@ namespace A1
     /// <summary>
     /// Hold data for individual floor components.
     /// </summary>
+    [DisallowMultipleComponent]
     public class Floor : MonoBehaviour
     {
         /// <summary>

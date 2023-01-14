@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using EasyAI;
+using UnityEngine;
 
 namespace A1
 {
     /// <summary>
     /// Calculate how well the cleaner agent is performing based on how clean the floor is.
     /// </summary>
+    [DisallowMultipleComponent]
     public class CleanerPerformance : PerformanceMeasure
     {
         /// <summary>

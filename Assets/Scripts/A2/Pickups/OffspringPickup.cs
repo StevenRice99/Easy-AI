@@ -6,6 +6,7 @@ namespace A2.Pickups
     /// <summary>
     /// Class to spawn offspring instantly without having to mate.
     /// </summary>
+    [DisallowMultipleComponent]
     public class OffspringPickup : MicrobeBasePickup
     {
         [SerializeField]

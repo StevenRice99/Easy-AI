@@ -1,8 +1,11 @@
-﻿namespace A2.Pickups
+﻿using UnityEngine;
+
+namespace A2.Pickups
 {
     /// <summary>
     /// Pickup to make a microbe able to mate again.
     /// </summary>
+    [DisallowMultipleComponent]
     public class MatePickup : MicrobeBasePickup
     {
         /// <summary>

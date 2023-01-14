@@ -7,6 +7,7 @@ namespace A2.Pickups
     /// <summary>
     /// Base class for pickups for microbes.
     /// </summary>
+    [DisallowMultipleComponent]
     public abstract class MicrobeBasePickup : MonoBehaviour
     {
         /// <summary>

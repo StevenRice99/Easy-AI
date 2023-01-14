@@ -16,7 +16,7 @@ namespace A3
         private Transform[] targets;
         
         /// <summary>
-        /// Render buttons to regenerate the floor or change its size.
+        /// Render buttons to allow for various move actions to be taken.
         /// </summary>
         /// <param name="x">X rendering position. In most cases this should remain unchanged.</param>
         /// <param name="y">Y rendering position. Update this with every component added and return it.</param>

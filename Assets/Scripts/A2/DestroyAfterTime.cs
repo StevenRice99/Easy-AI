@@ -6,6 +6,7 @@ namespace A2
     /// <summary>
     /// Helper class to simply destroy an object after a given amount of time.
     /// </summary>
+    [DisallowMultipleComponent]
     public class DestroyAfterTime : MonoBehaviour
     {
         [SerializeField]

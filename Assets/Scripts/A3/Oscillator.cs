@@ -2,14 +2,19 @@ using UnityEngine;
 
 namespace A3
 {
+    /// <summary>
+    /// Simple class for oscillating a cube in the steering demo.
+    /// </summary>
+    [DisallowMultipleComponent]
     public class Oscillator : MonoBehaviour
     {
-        [SerializeField]
         [Tooltip("How fast in meters per second should the oscillator move along the X axis.")]
-        private float speed;
-    
+        [Min(0)]
         [SerializeField]
+        private float speed = 1;
+    
         [Tooltip("The bounds in meters to limit the movement on the X axis.")]
+        [SerializeField]
         private Vector2 bounds;
 
         private bool _positive = true;

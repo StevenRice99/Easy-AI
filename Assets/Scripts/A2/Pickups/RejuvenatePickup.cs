@@ -1,8 +1,11 @@
-﻿namespace A2.Pickups
+﻿using UnityEngine;
+
+namespace A2.Pickups
 {
     /// <summary>
     /// Pickup to make a microbe younger again to extend its life.
     /// </summary>
+    [DisallowMultipleComponent]
     public class RejuvenatePickup : MicrobeBasePickup
     {
         /// <summary>
