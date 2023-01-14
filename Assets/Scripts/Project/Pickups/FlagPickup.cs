@@ -1,6 +1,4 @@
-﻿using Project.Agents;
-using Project.Managers;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Project.Pickups
 {

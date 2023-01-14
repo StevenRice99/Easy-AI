@@ -1,6 +1,4 @@
 ﻿using System.Collections;
-using Project.Agents;
-using Project.Managers;
 using UnityEngine;
 
 namespace Project.Weapons

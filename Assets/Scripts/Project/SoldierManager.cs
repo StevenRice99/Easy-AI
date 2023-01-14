@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using EasyAI;
-using Project.Agents;
 using Project.Pickups;
 using Project.Positions;
 using UnityEngine;
 
-namespace Project.Managers
+namespace Project
 {
     /// <summary>
     /// Manager for soldiers.

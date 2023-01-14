@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using EasyAI;
-using Project.Managers;
 using Project.Pickups;
 using Project.Positions;
 using Project.Weapons;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace Project.Agents
+namespace Project
 {
     /// <summary>
     /// Agent used to control the soldiers in the project.

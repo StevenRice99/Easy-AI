@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Project.Agents;
 using UnityEngine;
 
 namespace Project.Pickups
