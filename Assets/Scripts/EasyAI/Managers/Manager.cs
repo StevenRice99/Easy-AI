@@ -26,115 +26,6 @@ namespace EasyAI.Managers
     public class Manager : MonoBehaviour
     {
         /// <summary>
-        /// Class to hold data for each node during A* pathfinding.
-        /// </summary>
-        private class AStarNode
-        {
-            /// <summary>
-            /// The position of the node.
-            /// </summary>
-            public readonly Vector3 Position;
-
-            /// <summary>
-            /// The heuristic cost of this node to the goal.
-            /// </summary>
-            public float CostH { get; }
-
-            /// <summary>
-            /// The final cost of this node.
-            /// </summary>
-            public float CostF => CostG + CostH;
-
-            /// <summary>
-            /// The previous node which was moved to prior to this node.
-            /// </summary>
-            public AStarNode Previous { get; private set; }
-        
-            /// <summary>
-            /// If this node is currently open or closed.
-            /// </summary>
-            public bool IsOpen { get; private set; }
-
-            /// <summary>
-            /// The cost to reach this node from previous nodes.
-            /// </summary>
-            private float CostG { get; set; }
-
-            /// <summary>
-            /// Store node data during A* pathfinding.
-            /// </summary>
-            /// <param name="pos">The position of the node.</param>
-            /// <param name="goal">The goal to find a path to.</param>
-            /// <param name="previous">The previous node in the A* pathfinding.</param>
-            public AStarNode(Vector3 pos, Vector3 goal, AStarNode previous = null)
-            {
-                Open();
-                Position = pos;
-                CostH = Vector3.Distance(Position, goal);
-                UpdatePrevious(previous);
-            }
-
-            /// <summary>
-            /// Update the node to have a new previous node and then update its G cost.
-            /// </summary>
-            /// <param name="previous">The previous node in the A* pathfinding.</param>
-            public void UpdatePrevious(AStarNode previous)
-            {
-                Previous = previous;
-                if (Previous == null)
-                {
-                    CostG = 0;
-                    return;
-                }
-
-                CostG = previous.CostG + Vector3.Distance(Position, Previous.Position);
-            }
-
-            /// <summary>
-            /// Open the node.
-            /// </summary>
-            public void Open()
-            {
-                IsOpen = true;
-            }
-
-            /// <summary>
-            /// Close the node.
-            /// </summary>
-            public void Close()
-            {
-                IsOpen = false;
-            }
-        }
-    
-        /// <summary>
-        /// Hold a connection between two nodes.
-        /// </summary>
-        public struct Connection
-        {
-            /// <summary>
-            /// A node in the connection.
-            /// </summary>
-            public readonly Vector3 A;
-        
-            /// <summary>
-            /// A node in the connection.
-            /// </summary>
-            public readonly Vector3 B;
-
-            /// <summary>
-            /// Add a connection for two nodes.
-            /// </summary>
-            /// <param name="a">The first node.</param>
-            /// <param name="b">The second node.</param>
-            public Connection(Vector3 a, Vector3 b)
-            {
-                A = a;
-                B = b;
-            }
-        }
-    
-        /// <summary>
         /// Hold data for the navigation lookup table.
         /// </summary>
         private struct NavigationLookup
@@ -322,6 +213,11 @@ namespace EasyAI.Managers
         /// List of all navigation connections.
         /// </summary>
         public static List<Connection> Connections => Singleton._connections;
+
+        /// <summary>
+        /// How much height difference can there be between string pulls.
+        /// </summary>
+        public static float PullMaxDifference => Singleton.pullMaxDifference;
 
         /// <summary>
         /// All agents in the scene.
@@ -784,8 +680,8 @@ namespace EasyAI.Managers
             backwards.Reverse();
 
             // Pull the strings of both the forwards and backwards path.
-            StringPull(path);
-            StringPull(backwards);
+            AStar.StringPull(path);
+            AStar.StringPull(backwards);
 
             // Return the path which is the shortest after string pulling.
             if (PathLength(path) <= PathLength(backwards))
@@ -838,47 +734,6 @@ namespace EasyAI.Managers
 
             // If no nodes are in line of sight, return the nearest node even though it is not in line of sight.
             return potential.First();
-        }
-
-        /// <summary>
-        /// Shorten a path.
-        /// </summary>
-        /// <param name="path">The path to shorten.</param>
-        private static void StringPull(IList<Vector3> path)
-        {
-            // Loop through every point in the path less two as there must be at least two points in a path.
-            for (int i = 0; i < path.Count - 2; i++)
-            {
-                // Inner loop from two points ahead of the outer loop to check if a node can be skipped.
-                for (int j = i + 2; j < path.Count; j++)
-                {
-                    // Do not string pull for multi-level paths as these could skip over objects that require stairs.
-                    if (Math.Abs(path[i].y - path[j].y) > Singleton.pullMaxDifference)
-                    {
-                        continue;
-                    }
-                
-                    // If a node can be skipped as there is line of sight without it, remove it.
-                    if (Singleton.navigationRadius <= 0)
-                    {
-                        if (!Physics.Linecast(path[i], path[j], Singleton.obstacleLayers))
-                        {
-                            path.RemoveAt(j-- - 1);
-                        }
-                        
-                        continue;
-                    }
-
-                    Vector3 p1 = path[i];
-                    p1.y += Singleton.navigationRadius;
-                    Vector3 p2 = path[j];
-                    p2.y += Singleton.navigationRadius;
-                    if (!Physics.SphereCast(p1, Singleton.navigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(p1, p2), Singleton.obstacleLayers))
-                    {
-                        path.RemoveAt(j-- - 1);
-                    }
-                }
-            }
         }
 
         /// <summary>
@@ -2053,94 +1908,6 @@ namespace EasyAI.Managers
         }
 
         /// <summary>
-        /// Perform A* pathfinding.
-        /// </summary>
-        /// <param name="current">The starting position.</param>
-        /// <param name="goal">The end goal position.</param>
-        /// <returns>The path of nodes to take.</returns>
-        private List<Vector3> AStar(Vector3 current, Vector3 goal)
-        {
-            AStarNode best = null;
-        
-            // Add the starting position to the list of nodes.
-            List<AStarNode> aStarNodes = new() { new(current, goal) };
-
-            // Loop until there are no options left meaning the path cannot be completed.
-            while (aStarNodes.Any(n => n.IsOpen))
-            {
-                // Get the open node with the lowest F cost and then by the lowest H cost if there is a tie in F cost.
-                AStarNode node = aStarNodes.Where(n => n.IsOpen).OrderBy(n => n.CostF).ThenBy(n => n.CostH).First();
-            
-                // Close the current node.
-                node.Close();
-            
-                // Update this to the best node if it is.
-                if (best == null || node.CostF < best.CostF)
-                {
-                    best = node;
-                }
-            
-                // Loop through all nodes which connect to the current node.
-                foreach (Connection connection in _connections.Where(c => c.A == node.Position || c.B == node.Position))
-                {
-                    // Get the other position in the connection so we do not work with the exact same node again and get stuck.
-                    Vector3 position = connection.A == node.Position ? connection.B : connection.A;
-                
-                    // Create the A* node.
-                    AStarNode successor = new(position, goal, node);
-
-                    // If this node is the goal destination, A* is done so set it as the best and clear the node list so the loop ends.
-                    if (position == goal)
-                    {
-                        best = successor;
-                        aStarNodes.Clear();
-                        break;
-                    }
-
-                    // If the node is not yet in the list, add it.
-                    AStarNode existing = aStarNodes.FirstOrDefault(n => n.Position == position);
-                    if (existing == null)
-                    {
-                        aStarNodes.Add(successor);
-                        continue;
-                    }
-
-                    // If it did already exist in the list but this path takes longer do nothing. 
-                    if (existing.CostF <= successor.CostF)
-                    {
-                        continue;
-                    }
-
-                    // If the new path is shorter, update its previous node and open it again.
-                    existing.UpdatePrevious(node);
-                    existing.Open();
-                }
-            }
-
-            // If there was no best node which should never happen, simply return a line between the start and end positions.
-            if (best == null)
-            {
-                return new() { current, goal };
-            }
-
-            // Go from the last to node to the first adding all positions to the path.
-            List<Vector3> path = new();
-            while (best != null)
-            {
-                path.Add(best.Position);
-                best = best.Previous;
-            }
-
-            // Reverse the path so it is from start to goal and return it.
-            path.Reverse();
-        
-            // Reduce the path if possible.
-            StringPull(path);
-        
-            return path;
-        }
-
-        /// <summary>
         /// Write lookup table data to a file.
         /// </summary>
         private void WriteLookupData()
@@ -2353,7 +2120,7 @@ namespace EasyAI.Managers
                         }
 
                         // Get the A* path from one node to another.
-                        List<Vector3> path = AStar(_nodes[i], _nodes[j]);
+                        List<Vector3> path = AStar.Perform(_nodes[i], _nodes[j], _connections);
                     
                         // Skip if there was no path.
                         if (path.Count < 2)

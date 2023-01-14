@@ -1,5 +1,4 @@
-﻿using System;
-using A2.Agents;
+﻿using A2.Agents;
 using A2.Managers;
 using EasyAI.Thinking;
 using UnityEngine;
