@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using EasyAI.Cameras;
 using EasyAI.Navigation;
 using EasyAI.Navigation.Nodes;
 using EasyAI.Utility;
@@ -75,7 +74,7 @@ namespace EasyAI
         /// Active - Only lines for connections being used by agents are drawn.
         /// Selected - Only lines for the connections being used by the selected agent are drawn.
         /// </summary>
-        public enum PathState : byte
+        private enum PathState : byte
         {
             Off,
             All,
@@ -443,153 +442,6 @@ namespace EasyAI
         private NavigationLookup[] _navigationTable;
 
         /// <summary>
-        /// Create a transform agent.
-        /// </summary>
-        public static GameObject CreateTransformAgent()
-        {
-            GameObject agent = CreateAgent("Transform Agent");
-            agent.AddComponent<TransformAgent>();
-            return agent;
-        }
-
-        /// <summary>
-        /// Create a character controller agent.
-        /// </summary>
-        public static GameObject CreateCharacterAgent()
-        {
-            GameObject agent = CreateAgent("Character Agent");
-            CharacterController c = agent.AddComponent<CharacterController>();
-            c.center = new(0, 1, 0);
-            c.minMoveDistance = 0;
-            agent.AddComponent<CharacterAgent>();
-            return agent;
-        }
-
-        /// <summary>
-        /// Create a rigidbody agent.
-        /// </summary>
-        public static GameObject CreateRigidbodyAgent()
-        {
-            GameObject agent = CreateAgent("Rigidbody Agent");
-            CapsuleCollider c = agent.AddComponent<CapsuleCollider>();
-            c.center = new(0, 1, 0);
-            c.height = 2;
-            Rigidbody rb = agent.AddComponent<Rigidbody>();
-            rb.interpolation = RigidbodyInterpolation.Interpolate;
-            rb.freezeRotation = true;
-            agent.AddComponent<RigidbodyAgent>();
-            return agent;
-        }
-
-        /// <summary>
-        /// Create all types of cameras which only adds in those that are not yet present in the scene.
-        /// </summary>
-        public static void CreateAllCameras()
-        {
-            if (FindObjectOfType<FollowAgentCamera>() == null)
-            {
-                CreateFollowAgentCamera();
-            }
-            else
-            {
-                Debug.Log("Already have a follow agent camera in the scene - skipping creating one.");
-            }
-        
-            if (FindObjectOfType<LookAtAgentCamera>() == null)
-            {
-                CreateLookAtAgentCamera();
-            }
-            else
-            {
-                Debug.Log("Already have a look at agent camera in the scene - skipping creating one.");
-            }
-        
-            if (FindObjectOfType<TrackAgentCamera>() == null)
-            {
-                CreateTrackAgentCamera();
-            }
-            else
-            {
-                Debug.Log("Already have a track agent camera in the scene - skipping creating one.");
-            }
-        }
-
-        /// <summary>
-        /// Create a follow agent camera.
-        /// </summary>
-        public static GameObject CreateFollowAgentCamera()
-        {
-            GameObject camera = CreateCamera("Follow Camera");
-            camera.AddComponent<FollowAgentCamera>();
-            return camera;
-        }
-
-        /// <summary>
-        /// Create a look at agent camera.
-        /// </summary>
-        public static GameObject CreateLookAtAgentCamera()
-        {
-            GameObject camera = CreateCamera("Look At Camera");
-            camera.AddComponent<LookAtAgentCamera>();
-            return camera;
-        }
-
-        /// <summary>
-        /// Create a track agent camera.
-        /// </summary>
-        public static GameObject CreateTrackAgentCamera()
-        {
-            GameObject camera = CreateCamera("Track Camera");
-            camera.AddComponent<TrackAgentCamera>();
-            camera.transform.localRotation = Quaternion.Euler(90, 0, 0);
-            return camera;
-        }
-
-        /// <summary>
-        /// Base method for setting up the core visuals of an agent.
-        /// </summary>
-        /// <param name="name">The name to give the agent.</param>
-        /// <returns>Game object with the visuals setup for a basic agent.</returns>
-        private static GameObject CreateAgent(string name)
-        {
-            GameObject agent = new(name);
-
-            GameObject visuals = new("Visuals");
-            visuals.transform.SetParent(agent.transform);
-            visuals.transform.localPosition = Vector3.zero;
-            visuals.transform.localRotation = Quaternion.identity;
-            
-            GameObject body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            body.name = "Body";
-            body.transform.SetParent(visuals.transform);
-            body.transform.localPosition = new(0, 1, 0);
-            body.transform.localRotation = Quaternion.identity;
-            DestroyImmediate(body.GetComponent<CapsuleCollider>());
-            
-            GameObject eyes = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            eyes.name = "Eyes";
-            eyes.transform.SetParent(body.transform);
-            eyes.transform.localPosition = new(0, 0.4f, 0.25f);
-            eyes.transform.localRotation = Quaternion.identity;
-            eyes.transform.localScale = new(1, 0.2f, 0.5f);
-            DestroyImmediate(eyes.GetComponent<BoxCollider>());
-
-            return agent;
-        }
-
-        /// <summary>
-        /// Base method for setting up a camera.
-        /// </summary>
-        /// <param name="name">The name to give the camera.</param>
-        /// <returns>Game object with a camera.</returns>
-        private static GameObject CreateCamera(string name)
-        {
-            GameObject camera = new(name);
-            camera.AddComponent<Camera>();
-            return camera;
-        }
-
-        /// <summary>
         /// Lookup a path to take from a starting position to an end goal.
         /// </summary>
         /// <param name="position">The starting position.</param>
@@ -766,11 +618,6 @@ namespace EasyAI
         public static State GetState<T>() where T : State
         {
             return RegisteredStates.ContainsKey(typeof(T)) ? RegisteredStates[typeof(T)] : CreateState<T>();
-        }
-
-        public static bool IsInState(Agent agent, Type stateType)
-        {
-            return agent.State.GetType() == stateType;
         }
 
         /// <summary>
@@ -954,15 +801,6 @@ namespace EasyAI
 
             // If the agent had any cameras attached to it we need to remove them.
             FindCameras();
-        }
-
-        /// <summary>
-        /// Change the messaging mode.
-        /// </summary>
-        /// <param name="mode">The mode to change to.</param>
-        public static void ChangeMessageMode(MessagingMode mode)
-        {
-            Singleton._messageMode = mode;
         }
 
         /// <summary>
@@ -2163,8 +2001,6 @@ namespace EasyAI
             }
             else
             {
-                CreateFollowAgentCamera();
-                CreateTrackAgentCamera();
                 FindCameras();
                 SwitchCamera(_cameras[0]);
             }

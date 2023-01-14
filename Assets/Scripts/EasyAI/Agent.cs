@@ -344,6 +344,17 @@ namespace EasyAI
                 state.Enter(this);
             }
         }
+        
+        
+        /// <summary>
+        /// Get if the agent is in a given state.
+        /// </summary>
+        /// <typeparam name="T">The type of state to check.</typeparam>
+        /// <returns>True if in the state, false otherwise.</returns>
+        public bool IsInState<T>()
+        {
+            return state.GetType() == typeof(T);
+        }
 
         /// <summary>
         /// Read a sensor and receive a given data piece type.
