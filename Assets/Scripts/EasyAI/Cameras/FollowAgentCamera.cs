@@ -6,32 +6,39 @@ namespace EasyAI.Cameras
     /// <summary>
     /// Camera for following behind an agent.
     /// </summary>
+    [DisallowMultipleComponent]
     [RequireComponent(typeof(Camera))]
     public class FollowAgentCamera : MonoBehaviour
     {
         [Tooltip("How much to vertically offset the camera for viewing agents.")]
-        public float offset = 1;
-        
-        [SerializeField]
         [Min(0)]
+        [SerializeField]
+        private float offset = 1;
+        
         [Tooltip("How fast the camera should look to the agent for smooth looking. Set to zero for instant camera looking.")]
+        [Min(0)]
+        [SerializeField]
         private float lookSpeed;
         
-        [Min(0)]
         [Tooltip("How fast the camera should move to the agent for smooth movement. Set to zero for instant camera movement.")]
-        public float moveSpeed = 5;
-
         [Min(0)]
+        [SerializeField]
+        private float moveSpeed = 5;
+
         [Tooltip("How far away from the agent should the camera be. Set this, height, and min distance to zero for a first-person camera.")]
-        public float depth = 5;
-
         [Min(0)]
+        [SerializeField]
+        private float depth = 5;
+
         [Tooltip("How high from the agent should the camera be. Set this, depth and min distance to zero for a first-person camera.")]
+        [Min(0)]
+        [SerializeField]
         public float height = 5;
 
-        [Min(0)]
         [Tooltip("How close the camera can zoom in to on either its depth or height. Set to zero for ")]
-        public float minDistance = 3;
+        [Min(0)]
+        [SerializeField]
+        private float minDistance = 3;
 
         /// <summary>
         /// The attached camera.

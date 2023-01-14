@@ -10,6 +10,7 @@ namespace EasyAI
     /// <summary>
     /// Base class for all agents.
     /// </summary>
+    [DisallowMultipleComponent]
     public abstract class Agent : MessageComponent
     {
         /// <summary>

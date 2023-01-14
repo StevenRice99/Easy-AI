@@ -6,20 +6,24 @@ namespace EasyAI.Cameras
     /// <summary>
     /// Camera for tracking above an agent.
     /// </summary>
+    [DisallowMultipleComponent]
     [RequireComponent(typeof(Camera))]
     public class TrackAgentCamera : MonoBehaviour
     {
-        [Min(0)]
         [Tooltip("How fast the camera should move to the agent for smooth movement. Set to zero for instant camera movement.")]
-        public float moveSpeed = 5;
-
         [Min(0)]
+        [SerializeField]
+        private float moveSpeed = 5;
+
         [Tooltip("How high from the agent should the camera be.")]
-        public float height = 10;
-
         [Min(0)]
+        [SerializeField]
+        private float height = 10;
+
         [Tooltip("How low the camera can zoom in to.")]
-        public float minHeight = 3;
+        [Min(0)]
+        [SerializeField]
+        private float minHeight = 3;
 
         /// <summary>
         /// The attached camera.

@@ -404,6 +404,7 @@ MonoBehaviour:
   maxMessages: 100
   detailsWidth: 500
   controlsWidth: 120
+  followBest: 1
   selectedCamera: {fileID: 448259072}
   gizmos: 1
   paths: 3

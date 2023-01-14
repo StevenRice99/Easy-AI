@@ -5,6 +5,7 @@ namespace EasyAI
     /// <summary>
     /// Agent which moves through a rigidbody.
     /// </summary>
+    [DisallowMultipleComponent]
     public class RigidbodyAgent : Agent
     {
         /// <summary>

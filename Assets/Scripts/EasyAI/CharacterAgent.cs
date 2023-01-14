@@ -5,6 +5,7 @@ namespace EasyAI
     /// <summary>
     /// Agent which moves through a character controller.
     /// </summary>
+    [DisallowMultipleComponent]
     public class CharacterAgent : TransformAgent
     {
         /// <summary>

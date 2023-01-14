@@ -5,15 +5,19 @@ namespace EasyAI.Cameras
     /// <summary>
     /// Camera for looking at an agent from a set position.
     /// </summary>
+    [DisallowMultipleComponent]
     [RequireComponent(typeof(Camera))]
     public class LookAtAgentCamera : MonoBehaviour
     {
         [Tooltip("How much to vertically offset the camera for viewing agents.")]
-        public float offset = 1;
-
         [Min(0)]
+        [SerializeField]
+        private float offset = 1;
+
         [Tooltip("How fast the camera should look to the agent for smooth looking. Set to zero for instant camera looking.")]
-        public float lookSpeed = 5;
+        [Min(0)]
+        [SerializeField]
+        private float lookSpeed = 5;
 
         private void Start()
         {
