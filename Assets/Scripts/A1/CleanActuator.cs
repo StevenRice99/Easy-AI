@@ -1,4 +1,5 @@
 ﻿using EasyAI;
+using EasyAI.Utility;
 using UnityEngine;
 
 namespace A1
@@ -27,7 +28,7 @@ namespace A1
         /// </summary>
         /// <param name="agentAction"></param>
         /// <returns>True if the floor tile has finished being cleaned, false otherwise.</returns>
-        public override bool Act(AgentAction agentAction)
+        public override bool Act(object agentAction)
         {
             // Only act if there is a clean action.
             if (agentAction is not CleanAction cleanAction)

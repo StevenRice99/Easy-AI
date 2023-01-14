@@ -74,6 +74,7 @@ namespace EasyAI.Navigation
 
         /// <summary>
         /// The color to make a certain move type appear with gizmos.
+        /// Note that although not listed here, yellow is used for look data, and white and green are for pathfinding.
         /// </summary>
         /// <param name="behaviour">The behaviour type.</param>
         /// <returns>The color to display.</returns>

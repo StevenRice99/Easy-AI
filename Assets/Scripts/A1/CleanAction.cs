@@ -1,11 +1,9 @@
-﻿using EasyAI;
-
-namespace A1
+﻿namespace A1
 {
     /// <summary>
     /// Action to clean a given floor tile.
     /// </summary>
-    public class CleanAction : AgentAction
+    public class CleanAction
     {
         /// <summary>
         /// The floor to clean.

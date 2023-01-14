@@ -111,7 +111,7 @@ namespace EasyAI
         /// <summary>
         /// The actions of this agent that are not yet completed.
         /// </summary>
-        private readonly List<AgentAction> _inProgressActions = new();
+        private readonly List<object> _inProgressActions = new();
     
         [Tooltip("The current state the agent is in. Initialize it with the state to start in.")]
         [SerializeField]
@@ -315,6 +315,10 @@ namespace EasyAI
             DeltaTime += Time.deltaTime;
         }
 
+        /// <summary>
+        /// Set the state the agent is in.
+        /// </summary>
+        /// <typeparam name="T">The state to put the agent in.</typeparam>
         public void SetState<T>() where T : State
         {
             State value = Manager.GetState<T>();
@@ -421,18 +425,11 @@ namespace EasyAI
         /// Add an action to perform.
         /// </summary>
         /// <param name="action"></param>
-        public void Act(AgentAction action)
+        public void Act(object action)
         {
             // Try the action on all actuators.
-            foreach (Actuator actuator in Actuators)
+            if (Actuators.Any(actuator => actuator.Act(action)))
             {
-                // If the actuator did not complete the action, try with the next actuator.
-                if (!actuator.Act(action))
-                {
-                    continue;
-                }
-                
-                // Cleanup to remove if there was an already existing action of the same type.
                 for (int i = 0; i < _inProgressActions.Count; i++)
                 {
                     if (_inProgressActions[i].GetType() != action.GetType())
@@ -476,7 +473,7 @@ namespace EasyAI
         /// </summary>
         /// <typeparam name="T">The type of action to look for.</typeparam>
         /// <returns>True if the action of the type exists, false otherwise.</returns>
-        public bool HasAction<T>() where T : AgentAction
+        public bool HasAction<T>()
         {
             return _inProgressActions.OfType<T>().Any();
         }
@@ -485,7 +482,7 @@ namespace EasyAI
         /// Remove a given action type, if it exists.
         /// </summary>
         /// <typeparam name="T">The action type to remove.</typeparam>
-        public void RemoveAction<T>() where T : AgentAction
+        public void RemoveAction<T>()
         {
             for (int i = 0; i < _inProgressActions.Count; i++)
             {
