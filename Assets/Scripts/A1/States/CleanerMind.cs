@@ -4,7 +4,7 @@ using A1.Sensors;
 using EasyAI;
 using UnityEngine;
 
-namespace A1
+namespace A1.States
 {
     /// <summary>
     /// The global state which the cleaner is always in.

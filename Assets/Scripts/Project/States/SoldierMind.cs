@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using EasyAI;
+using Project.Pickups;
 using Project.Sensors;
 using UnityEngine;
 
@@ -224,10 +225,10 @@ namespace Project.States
                     // If the soldier has low health, move to a health pack to heal.
                     if (soldier.Health <= lowHealth)
                     {
-                        Vector3? destination = soldier.Sense<NearestHealthPickupSensor, Vector3?>();
-                        if (destination != null)
+                        HealthWeaponPickup health = soldier.Sense<NearestHealthPickupSensor, HealthWeaponPickup>();
+                        if (health != null)
                         {
-                            if (soldier.Navigate(destination.Value))
+                            if (soldier.Navigate(health.transform.position))
                             {
                                 soldier.Log("Moving to pickup health.");
                             }
@@ -241,10 +242,10 @@ namespace Project.States
                         // Try to heal.
                         if (soldier.Health <= lowHealth)
                         {
-                            Vector3? destination = soldier.Sense<NearestHealthPickupSensor, Vector3?>();
-                            if (destination != null)
+                            HealthWeaponPickup health = soldier.Sense<NearestHealthPickupSensor, HealthWeaponPickup>();
+                            if (health != null)
                             {
-                                if (soldier.Navigate(destination.Value))
+                                if (soldier.Navigate(health.transform.position))
                                 {
                                     soldier.Log("Moving to pickup health.");
                                 }
@@ -252,12 +253,12 @@ namespace Project.States
                             }
                         }
 
-                        AmmoPickupData data = soldier.Sense<NearestAmmoPickupSensor, AmmoPickupData>();
-                        if (data.Destination != null)
+                        HealthWeaponPickup ammo = soldier.Sense<NearestAmmoPickupSensor, HealthWeaponPickup>();
+                        if (ammo != null)
                         {
-                            if (soldier.Navigate(data.Destination.Value))
+                            if (soldier.Navigate(ammo.transform.position))
                             {
-                                soldier.Log("Moving to pickup ammo for " + (Soldier.WeaponIndexes) data.WeaponId switch
+                                soldier.Log("Moving to pickup ammo for " + (Soldier.WeaponIndexes) ammo.weaponIndex switch
                                 {
                                     Soldier.WeaponIndexes.MachineGun => "machine gun.",
                                     Soldier.WeaponIndexes.Shotgun => "shotgun.",

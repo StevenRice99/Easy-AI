@@ -1,4 +1,5 @@
 ﻿using EasyAI;
+using Project.Pickups;
 using UnityEngine;
 
 namespace Project.Sensors
@@ -8,13 +9,13 @@ namespace Project.Sensors
     {
         public override object Sense()
         {
-            int weaponIndex = 0;
-            Vector3? destination = null;
 
             if (Agent is not Soldier soldier)
             {
-                return new AmmoPickupData(destination, weaponIndex);
+                return null;
             }
+            
+            HealthWeaponPickup selected = null;
 
             int priority = int.MaxValue;
             
@@ -25,17 +26,19 @@ namespace Project.Sensors
                     continue;
                 }
 
-                if (destination != null && priority <= soldier.WeaponPriority[i])
+                if (selected != null && priority <= soldier.WeaponPriority[i])
                 {
                     continue;
                 }
-
-                weaponIndex = i;
-                priority = soldier.WeaponPriority[i];
-                destination = SoldierManager.NearestAmmoPickup(soldier, i);
+                
+                selected = SoldierManager.NearestAmmoPickup(soldier, i);
+                if (selected != null)
+                {
+                    priority = soldier.WeaponPriority[i];
+                }
             }
 
-            return new AmmoPickupData(destination, weaponIndex);
+            return selected;
         }
     }
 }
