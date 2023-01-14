@@ -210,7 +210,7 @@ namespace Project
         public override float DisplayDetails(float x, float y, float w, float h, float p)
         {
             y = Manager.NextItem(y, h, p);
-            Manager.GuiBox(x, y, w, h, p, 13);
+            Manager.GuiBox(x, y, w, h, p, 9);
             
             // Display overall flags captured for each team.
             Manager.GuiLabel(x, y, w, h, p, $"Team Captures - Red: {SoldierManager.CapturedRed} | Blue: {SoldierManager.CapturedBlue}");
@@ -248,23 +248,11 @@ namespace Project
 
             // Display all enemies this soldier has detected.
             int visible = DetectedEnemies.Count(e => e.Visible);
-            Manager.GuiLabel(x, y, w, h, p, $"See: {visible} | Hear: {DetectedEnemies.Count - visible}");
+            Manager.GuiLabel(x, y, w, h, p, $"Detected Enemies - See: {visible} | Hear: {DetectedEnemies.Count - visible}");
             y = Manager.NextItem(y, h, p);
 
             // Display how many flag captures this soldier has.
-            Manager.GuiLabel(x, y, w, h, p, $"Captures: {Captures} | Most: {SoldierManager.MostCaptures}");
-            y = Manager.NextItem(y, h, p);
-
-            // Display how many flag returns this soldier has.
-            Manager.GuiLabel(x, y, w, h, p, $"Returns: {Returns} | Most: {SoldierManager.MostReturns}");
-            y = Manager.NextItem(y, h, p);
-
-            // Display how many kills this soldier has.
-            Manager.GuiLabel(x, y, w, h, p, $"Kills: {Kills} | Most: {SoldierManager.MostKills}");
-            y = Manager.NextItem(y, h, p);
-            
-            // Display how many deaths this soldier has.
-            Manager.GuiLabel(x, y, w, h, p, $"Deaths: {Deaths} | Least: {SoldierManager.LeastDeaths}");
+            Manager.GuiLabel(x, y, w, h, p, $"Captures: {Captures} | Returns: {Returns} | K/D : {Kills}/{Deaths}");
             
             return y;
         }

@@ -226,41 +226,20 @@ namespace Project.States
                     if (soldier.Target is not { Visible: true })
                     {
                         // Try to heal.
-                        Vector3? destination;
                         if (soldier.Health <= lowHealth)
                         {
-                            destination = soldier.Sense<NearestHealthPickupSensor, Vector3?>();
+                            Vector3? destination = soldier.Sense<NearestHealthPickupSensor, Vector3?>();
                             if (destination != null && soldier.Navigate(destination.Value))
                             {
                                 soldier.Log("Moving to pickup health.");
                                 return;
                             }
                         }
-                        
-                        // Restock on ammo.
-                        int index = 0;
-                        int priority = int.MaxValue;
-                        destination = null;
-                        for (int i = 0; i < soldier.WeaponPriority.Length; i++)
-                        {
-                            if (soldier.Weapons[i].maxAmmo < 0 || soldier.Weapons[i].Ammo >= soldier.Weapons[i].maxAmmo)
-                            {
-                                continue;
-                            }
 
-                            if (destination != null && priority <= soldier.WeaponPriority[i])
-                            {
-                                continue;
-                            }
-
-                            index = i;
-                            priority = soldier.WeaponPriority[i];
-                            destination = SoldierManager.NearestWeaponPickup(soldier, i);
-                        }
-                        
-                        if (destination != null && soldier.Navigate(destination.Value))
+                        AmmoPickupData data = soldier.Sense<NearestAmmoPickupSensor, AmmoPickupData>();
+                        if (data.Destination != null && soldier.Navigate(data.Destination.Value))
                         {
-                            soldier.Log("Moving to pickup ammo for " + (Soldier.WeaponIndexes) index switch
+                            soldier.Log("Moving to pickup ammo for " + (Soldier.WeaponIndexes) data.WeaponId switch
                             {
                                 Soldier.WeaponIndexes.MachineGun => "machine gun.",
                                 Soldier.WeaponIndexes.Shotgun => "shotgun.",

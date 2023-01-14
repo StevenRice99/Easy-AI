@@ -81,26 +81,6 @@ namespace Project
         /// The spawn points for soldiers.
         /// </summary>
         public static IEnumerable<SpawnPoint> SpawnPoints => SoldierSingleton._spawnPoints;
-
-        /// <summary>
-        /// What the most flag captures by a single soldier is.
-        /// </summary>
-        public static int MostCaptures => SoldierSingleton._mostCaptures;
-
-        /// <summary>
-        /// What the most flag returns by a single soldier is.
-        /// </summary>
-        public static int MostReturns => SoldierSingleton._mostReturns;
-
-        /// <summary>
-        /// What the most kills by a single soldier is.
-        /// </summary>
-        public static int MostKills => SoldierSingleton._mostKills;
-
-        /// <summary>
-        /// What the least deaths by a single soldier is.
-        /// </summary>
-        public static int LeastDeaths => SoldierSingleton._leastDeaths;
         
         /// <summary>
         /// How much score each flag capture is worth for a soldier's performance.
@@ -231,26 +211,6 @@ namespace Project
         private HealthWeaponPickup[] _healthWeaponPickups;
 
         /// <summary>
-        /// What the most flag captures by a single soldier is.
-        /// </summary>
-        private int _mostCaptures;
-
-        /// <summary>
-        /// What the most flag returns by a single soldier is.
-        /// </summary>
-        private int _mostReturns;
-
-        /// <summary>
-        /// What the most kills by a single soldier is.
-        /// </summary>
-        private int _mostKills;
-
-        /// <summary>
-        /// What the least deaths by a single soldier is.
-        /// </summary>
-        private int _leastDeaths;
-
-        /// <summary>
         /// 
         /// </summary>
         /// <param name="flag"></param>
@@ -331,10 +291,10 @@ namespace Project
         /// </summary>
         /// <param name="agent">The agent.</param>
         /// <returns>The health pack to move to or null if none are ready.</returns>
-        public static Vector3? NearestHealthPickup(Agent soldier)
+        public static Vector3? NearestHealthPickup(Agent agent)
         {
             // A health pickup is just a weapon pickup with an index of -1, so simply return that.
-            return NearestWeaponPickup(soldier, -1);
+            return NearestAmmoPickup(agent, -1);
         }
 
         /// <summary>
@@ -343,7 +303,7 @@ namespace Project
         /// <param name="agent">The agent.</param>
         /// <param name="weaponIndex">The weapon type to look for.</param>
         /// <returns>The ammo pickup to move to or null if none are ready.</returns>
-        public static Vector3? NearestWeaponPickup(Agent agent, int weaponIndex)
+        public static Vector3? NearestAmmoPickup(Agent agent, int weaponIndex)
         {
             // Get all pickups for the given type that can be picked up.
             HealthWeaponPickup[] ready = SoldierSingleton._healthWeaponPickups.Where(p => p.weaponIndex == weaponIndex && p.Ready).ToArray();
@@ -397,10 +357,6 @@ namespace Project
             SoldierSingleton._killsBlue = 0;
             SoldierSingleton._capturedRed = 0;
             SoldierSingleton._capturedBlue = 0;
-            SoldierSingleton._mostCaptures = 0;
-            SoldierSingleton._mostReturns = 0;
-            SoldierSingleton._mostKills = 0;
-            SoldierSingleton._leastDeaths = 0;
         }
         
         protected override void Start()
