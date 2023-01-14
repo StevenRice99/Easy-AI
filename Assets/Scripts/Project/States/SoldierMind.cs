@@ -40,7 +40,7 @@ namespace Project.States
             // If no enemies are detected, return null so the soldier will just look where it is walking.
             if (soldier.EnemiesDetected.Count == 0)
             {
-                soldier.Target = null;
+                soldier.NoTarget();
                 return;
             }
             
@@ -52,12 +52,12 @@ namespace Project.States
             Soldier.EnemyMemory target = soldier.EnemiesDetected.OrderBy(e => e.Visible).ThenBy(e => e.HasFlag).ThenBy(e => e.DeltaTime).ThenBy(e => Vector3.Distance(soldier.transform.position, e.Position)).First();
             
             // Define the target based upon the most ideal enemy to aim at.
-            soldier.Target = new Soldier.TargetData
+            soldier.SetTarget(new()
             {
                 Enemy = target.Enemy,
                 Position = target.Position,
                 Visible = target.Visible
-            };
+            });
         }
 
         /// <summary>
@@ -73,28 +73,25 @@ namespace Project.States
                 if (soldier.Role == Soldier.SoliderRole.Defender)
                 {
                     soldier.Log("No targets, prioritizing sniper.");
-                    soldier.SetWeaponPriority(new[]
-                    {
-                        (int) Soldier.WeaponChoices.Sniper,
-                        (int) Soldier.WeaponChoices.RocketLauncher,
-                        (int) Soldier.WeaponChoices.MachineGun,
-                        (int) Soldier.WeaponChoices.Shotgun,
-                        (int) Soldier.WeaponChoices.Pistol,
-                    });
+                    soldier.SetWeaponPriority(
+                        sniper:1,
+                        rocketLauncher:2,
+                        machineGun:3,
+                        shotgun:4,
+                        pistol:5
+                    );
                     return;
                 }
                 
-                soldier.Log("No targets, prioritizing shotgun.");
-
                 // Attackers and the collector predict needing to use short range weapons like shotguns.
-                soldier.SetWeaponPriority(new[]
-                {
-                    (int) Soldier.WeaponChoices.Shotgun,
-                    (int) Soldier.WeaponChoices.MachineGun,
-                    (int) Soldier.WeaponChoices.RocketLauncher,
-                    (int) Soldier.WeaponChoices.Sniper,
-                    (int) Soldier.WeaponChoices.Pistol,
-                });
+                soldier.Log("No targets, prioritizing shotgun.");
+                soldier.SetWeaponPriority(
+                    shotgun: 1,
+                    machineGun: 2,
+                    rocketLauncher: 3,
+                    sniper: 4,
+                    pistol: 5
+                );
                 return;
             }
 
@@ -108,29 +105,25 @@ namespace Project.States
                 if (soldier.Role == Soldier.SoliderRole.Defender)
                 {
                     soldier.Log("Far target, prioritizing sniper.");
-                    
-                    soldier.SetWeaponPriority(new[]
-                    {
-                        (int) Soldier.WeaponChoices.Sniper,
-                        (int) Soldier.WeaponChoices.RocketLauncher,
-                        (int) Soldier.WeaponChoices.MachineGun,
-                        (int) Soldier.WeaponChoices.Pistol,
-                        (int) Soldier.WeaponChoices.Shotgun
-                    });
+                    soldier.SetWeaponPriority(
+                        sniper:1,
+                        rocketLauncher:2,
+                        machineGun:3,
+                        pistol:4,
+                        shotgun:5
+                    );
                     return;
                 }
                 
-                soldier.Log("Far target, prioritizing rocket launcher.");
-
                 // Attackers and the collector use the rocket launcher first.
-                soldier.SetWeaponPriority(new[]
-                {
-                    (int) Soldier.WeaponChoices.RocketLauncher,
-                    (int) Soldier.WeaponChoices.MachineGun,
-                    (int) Soldier.WeaponChoices.Sniper,
-                    (int) Soldier.WeaponChoices.Pistol,
-                    (int) Soldier.WeaponChoices.Shotgun
-                });
+                soldier.Log("Far target, prioritizing rocket launcher.");
+                soldier.SetWeaponPriority(
+                    rocketLauncher:1,
+                    machineGun:2,
+                    sniper:3,
+                    pistol:4,
+                    shotgun:5
+                );
                 return;
             }
 
@@ -138,15 +131,13 @@ namespace Project.States
             if (distance <= SoldierManager.DistanceClose)
             {
                 soldier.Log("Close target, prioritizing shotgun.");
-                
-                soldier.SetWeaponPriority(new[]
-                {
-                    (int) Soldier.WeaponChoices.Shotgun,
-                    (int) Soldier.WeaponChoices.MachineGun,
-                    (int) Soldier.WeaponChoices.Pistol,
-                    (int) Soldier.WeaponChoices.RocketLauncher,
-                    (int) Soldier.WeaponChoices.Sniper
-                });
+                soldier.SetWeaponPriority(
+                    shotgun:1,
+                    machineGun:2,
+                    pistol:3,
+                    rocketLauncher:4,
+                    sniper:5
+                );
                 return;
             }
             
@@ -155,26 +146,23 @@ namespace Project.States
             // Otherwise, it is medium range, with the only difference being defenders using a sniper before a shotgun.
             if (soldier.Role == Soldier.SoliderRole.Defender)
             {
-                soldier.SetWeaponPriority(new[]
-                {
-                    (int) Soldier.WeaponChoices.MachineGun,
-                    (int) Soldier.WeaponChoices.RocketLauncher,
-                    (int) Soldier.WeaponChoices.Shotgun,
-                    (int) Soldier.WeaponChoices.Sniper,
-                    (int) Soldier.WeaponChoices.Pistol
-                });
-                
+                soldier.SetWeaponPriority(
+                    machineGun:1,
+                    rocketLauncher:2,
+                    shotgun:3,
+                    sniper:4,
+                    pistol:5
+                );
                 return;
             }
             
-            soldier.SetWeaponPriority(new[]
-            {
-                (int) Soldier.WeaponChoices.MachineGun,
-                (int) Soldier.WeaponChoices.RocketLauncher,
-                (int) Soldier.WeaponChoices.Sniper,
-                (int) Soldier.WeaponChoices.Shotgun,
-                (int) Soldier.WeaponChoices.Pistol
-            });
+            soldier.SetWeaponPriority(
+                machineGun:1,
+                rocketLauncher:2,
+                sniper:3,
+                shotgun:4,
+                pistol:5
+            );
         }
     }
 }

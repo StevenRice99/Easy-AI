@@ -182,12 +182,12 @@ namespace Project.Weapons
                 return;
             }
             
-            Soldier.Log((Soldier.WeaponChoices) Soldier.WeaponIndex switch
+            Soldier.Log((Soldier.WeaponIndexes) Soldier.WeaponIndex switch
             {
-                Soldier.WeaponChoices.MachineGun => "Shooting machine gun.",
-                Soldier.WeaponChoices.Shotgun => "Shooting shotgun.",
-                Soldier.WeaponChoices.Sniper => "Shooting sniper.",
-                Soldier.WeaponChoices.RocketLauncher => "Shooting rocket launcher.",
+                Soldier.WeaponIndexes.MachineGun => "Shooting machine gun.",
+                Soldier.WeaponIndexes.Shotgun => "Shooting shotgun.",
+                Soldier.WeaponIndexes.Sniper => "Shooting sniper.",
+                Soldier.WeaponIndexes.RocketLauncher => "Shooting rocket launcher.",
                 _=> "Shooting pistol."
             });
 

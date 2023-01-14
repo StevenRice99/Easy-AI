@@ -352,10 +352,10 @@ namespace Project
         /// </summary>
         /// <param name="soldierPosition">The position of the solder.</param>
         /// <returns>The health pack to move to or null if none are ready.</returns>
-        public static Vector3? GetHealth(Vector3 soldierPosition)
+        public static Vector3? GetHealthPickup(Vector3 soldierPosition)
         {
             // A health pickup is just a weapon pickup with an index of -1, so simply return that.
-            return GetWeapon(soldierPosition, -1);
+            return GetWeaponPickup(soldierPosition, -1);
         }
 
         /// <summary>
@@ -364,7 +364,7 @@ namespace Project
         /// <param name="soldierPosition">The position of the solder.</param>
         /// <param name="weaponIndex">The weapon type to look for.</param>
         /// <returns>The ammo pickup to move to or null if none are ready.</returns>
-        public static Vector3? GetWeapon(Vector3 soldierPosition, int weaponIndex)
+        public static Vector3? GetWeaponPickup(Vector3 soldierPosition, int weaponIndex)
         {
             // Get all pickups for the given type that can be picked up.
             HealthWeaponPickup[] ready = SoldierSingleton._healthWeaponPickups.Where(p => p.weaponIndex == weaponIndex && p.Ready).ToArray();
@@ -486,14 +486,13 @@ namespace Project
                     {
                         continue;
                     }
-
-                    // Update the target for the soldier.
-                    soldier.Target = new Soldier.TargetData
+                    
+                    soldier.SetTarget(new()
                     {
                         Enemy = enemy,
                         Position = enemy.headPosition.position,
                         Visible = true
-                    };
+                    });
                 }
             }
 

@@ -66,12 +66,12 @@ namespace Project.Pickups
                 return;
             }
             
-            soldier.Log((Soldier.WeaponChoices) weaponIndex switch
+            soldier.Log((Soldier.WeaponIndexes) weaponIndex switch
             {
-                Soldier.WeaponChoices.MachineGun => "Replenished machine gun.",
-                Soldier.WeaponChoices.Shotgun => "Replenished shotgun.",
-                Soldier.WeaponChoices.Sniper => "Replenished sniper.",
-                Soldier.WeaponChoices.RocketLauncher => "Replenished rocket launcher.",
+                Soldier.WeaponIndexes.MachineGun => "Replenished machine gun.",
+                Soldier.WeaponIndexes.Shotgun => "Replenished shotgun.",
+                Soldier.WeaponIndexes.Sniper => "Replenished sniper.",
+                Soldier.WeaponIndexes.RocketLauncher => "Replenished rocket launcher.",
                 _=> "Replenished pistol."
             });
             

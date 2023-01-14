@@ -5,6 +5,7 @@ using EasyAI;
 using Project.Pickups;
 using Project.Positions;
 using Project.Weapons;
+using Unity.Mathematics;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -33,7 +34,7 @@ namespace Project
         /// <summary>
         /// The indexes of weapons the soldier can use.
         /// </summary>
-        public enum WeaponChoices
+        public enum WeaponIndexes
         {
             MachineGun = 0,
             Shotgun = 1,
@@ -113,7 +114,7 @@ namespace Project
         /// <summary>
         /// The target of the soldier.
         /// </summary>
-        public TargetData? Target { get; set; }
+        public TargetData? Target { get; private set; }
         
         /// <summary>
         /// How many kills this soldier has.
@@ -180,7 +181,7 @@ namespace Project
         /// <summary>
         /// Which weapons the soldier has a preference to currently use.
         /// </summary>
-        private int[] _weaponPriority = new int[(int) WeaponChoices.Pistol];
+        private readonly int[] _weaponPriority = new int[(int) WeaponIndexes.Pistol + 1];
 
         /// <summary>
         /// If this soldier is carrying the flag.
@@ -243,10 +244,10 @@ namespace Project
             // Display the weapon this soldier is using.
             Manager.GuiLabel(x, y, w, h, p, Role == SoliderRole.Dead ? "Weapon: None" : WeaponIndex switch
             {
-                (int) WeaponChoices.MachineGun => $"Weapon: Machine Gun | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].maxAmmo}",
-                (int) WeaponChoices.Shotgun => $"Weapon: Shotgun | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].maxAmmo}",
-                (int) WeaponChoices.Sniper => $"Weapon: Sniper | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].maxAmmo}",
-                (int) WeaponChoices.RocketLauncher => $"Weapon: Rocket Launcher | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].maxAmmo}",
+                (int) WeaponIndexes.MachineGun => $"Weapon: Machine Gun | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].maxAmmo}",
+                (int) WeaponIndexes.Shotgun => $"Weapon: Shotgun | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].maxAmmo}",
+                (int) WeaponIndexes.Sniper => $"Weapon: Sniper | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].maxAmmo}",
+                (int) WeaponIndexes.RocketLauncher => $"Weapon: Rocket Launcher | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].maxAmmo}",
                 _ => "Weapon: Pistol"
             });
             y = Manager.NextItem(y, h, p);
@@ -288,21 +289,9 @@ namespace Project
             {
                 return;
             }
-            
-            base.Perform();
-            
-            // Go through the weapon priority and select the first weapon which has ammo.
-            foreach (int w in _weaponPriority)
-            {
-                if (Weapons[w].Ammo <= 0 && Weapons[w].maxAmmo >= 0)
-                {
-                    continue;
-                }
 
-                SelectWeapon(w);
-                return;
-            }
-            
+            WeaponCheck();
+
             // Remove detected enemies that have exceeded their maximum memory time.
             for (int i = 0; i < EnemiesDetected.Count; i++)
             {
@@ -315,6 +304,9 @@ namespace Project
                     EnemiesDetected.RemoveAt(i--);
                 }
             }
+
+            // Standard mind and states.
+            base.Perform();
         }
         
         /// <summary>
@@ -330,12 +322,32 @@ namespace Project
         }
 
         /// <summary>
-        /// Set the weapon priority for the soldier to choose the most ideal weapon.
+        /// Set the weapon priority for the soldier to choose the most ideal weapon, with lower values meaning higher priority.
         /// </summary>
-        /// <param name="weaponPriority">An array consisting of the indexes of weapons.</param>
-        public void SetWeaponPriority(int[] weaponPriority)
+        /// <param name="machineGun">The priority for the soldier to use the machine gun.</param>
+        /// <param name="shotgun">The priority for the soldier to use the shotgun.</param>
+        /// <param name="sniper">The priority for the soldier to use the sniper.</param>
+        /// <param name="rocketLauncher">The priority for the soldier to use the rocket launcher.</param>
+        /// <param name="pistol">The priority for the soldier to use the pistol.</param>
+        public void SetWeaponPriority(int machineGun = 5, int shotgun = 5, int sniper = 5, int rocketLauncher = 5, int pistol = 5)
         {
-            _weaponPriority = weaponPriority;
+            _weaponPriority[0] = machineGun;
+            _weaponPriority[1] = shotgun;
+            _weaponPriority[2] = sniper;
+            _weaponPriority[3] = rocketLauncher;
+            _weaponPriority[4] = pistol;
+
+            WeaponCheck();
+        }
+        
+        public void SetTarget(TargetData targetData)
+        {
+            Target = targetData;
+        }
+
+        public void NoTarget()
+        {
+            Target = null;
         }
         
         /// <summary>
@@ -589,7 +601,7 @@ namespace Project
                     // If the soldier has low health, move to a health pack to heal.
                     if (Health <= SoldierManager.LowHealth)
                     {
-                        Vector3? destination = SoldierManager.GetHealth(transform.position);
+                        Vector3? destination = SoldierManager.GetHealthPickup(transform.position);
                         if (destination != null)
                         {
                             if (Navigate(destination.Value))
@@ -605,10 +617,12 @@ namespace Project
                     // Decisions when the soldier's current target enemy is not visible.
                     if (Target is not { Visible: true })
                     {
+                        Vector3? destination;
+                        
                         // If not at full health, move to a health pack to heal.
                         if (Health < SoldierManager.Health)
                         {
-                            Vector3? destination = SoldierManager.GetHealth(transform.position);
+                            destination = SoldierManager.GetHealthPickup(transform.position);
                             if (destination != null)
                             {
                                 if (Navigate(destination.Value))
@@ -620,32 +634,38 @@ namespace Project
                                 return;
                             }
                         }
-                        
-                        // In order of the most prioritized weapons of the soldier, if a weapon needs more ammo, move to pickup ammo.
-                        foreach (int w in _weaponPriority)
+
+                        int index = 0;
+                        int priority = int.MaxValue;
+                        destination = null;
+
+                        for (int i = 0; i < _weaponPriority.Length; i++)
                         {
-                            if (Weapons[w].maxAmmo < 0 || Weapons[w].Ammo >= Weapons[w].maxAmmo)
-                            {
-                                continue;
-                            }
-                            
-                            Vector3? destination = SoldierManager.GetWeapon(transform.position, w);
-                            if (destination == null)
+                            if (Weapons[i].maxAmmo < 0 || Weapons[i].Ammo >= Weapons[i].maxAmmo)
                             {
                                 continue;
                             }
 
-                            if (Navigate(destination.Value))
+                            if (destination != null && priority <= _weaponPriority[i])
                             {
-                                Log("Moving to pickup ammo for " + (WeaponChoices) w switch
-                                {
-                                    WeaponChoices.MachineGun => "machine gun.",
-                                    WeaponChoices.Shotgun => "shotgun.",
-                                    WeaponChoices.Sniper => "sniper.",
-                                    WeaponChoices.RocketLauncher => "rocket launcher.",
-                                    _=> "pistol."
-                                });
+                                continue;
                             }
+
+                            index = i;
+                            priority = _weaponPriority[i];
+                            destination = SoldierManager.GetWeaponPickup(transform.position, i);
+                        }
+                        
+                        if (destination != null && Navigate(destination.Value))
+                        {
+                            Log("Moving to pickup ammo for " + (WeaponIndexes) index switch
+                            {
+                                WeaponIndexes.MachineGun => "machine gun.",
+                                WeaponIndexes.Shotgun => "shotgun.",
+                                WeaponIndexes.Sniper => "sniper.",
+                                WeaponIndexes.RocketLauncher => "rocket launcher.",
+                                _=> "pistol."
+                            });
                             
                             _findNewPoint = true;
                             return;
@@ -750,6 +770,34 @@ namespace Project
             WeaponVisible();
         }
 
+        private void WeaponCheck()
+        {
+            int priority = int.MaxValue;
+            int selected = (int) WeaponIndexes.Pistol;
+            
+            // Go through the weapon priority and select the most preferred option which has ammo.
+            for (int i = 0; i < _weaponPriority.Length; i++)
+            {
+                if (Weapons[i].Ammo <= 0 && Weapons[i].maxAmmo >= 0)
+                {
+                    continue;
+                }
+
+                if (_weaponPriority[i] >= priority)
+                {
+                    continue;
+                }
+
+                selected = i;
+                priority = _weaponPriority[i];
+            }
+
+            if (WeaponIndex != selected)
+            {
+                SelectWeapon(selected);
+            }
+        }
+
         /// <summary>
         /// Select a given weapon.
         /// </summary>
@@ -759,16 +807,16 @@ namespace Project
             int lastWeapon = WeaponIndex;
             
             // Set the new selected weapon.
-            WeaponIndex = Mathf.Clamp(i, 0, Weapons.Length - 1);
+            WeaponIndex = math.clamp(i, 0, Weapons.Length - 1);
 
             if (lastWeapon != WeaponIndex)
             {
-                Log((WeaponChoices) WeaponIndex switch
+                Log((WeaponIndexes) WeaponIndex switch
                 {
-                    WeaponChoices.MachineGun => "Selecting machine gun.",
-                    WeaponChoices.Shotgun => "Selecting shotgun.",
-                    WeaponChoices.Sniper => "Selecting sniper.",
-                    WeaponChoices.RocketLauncher => "Selecting rocket launcher.",
+                    WeaponIndexes.MachineGun => "Selecting machine gun.",
+                    WeaponIndexes.Shotgun => "Selecting shotgun.",
+                    WeaponIndexes.Sniper => "Selecting sniper.",
+                    WeaponIndexes.RocketLauncher => "Selecting rocket launcher.",
                     _=> "Selecting pistol."
                 });
             }

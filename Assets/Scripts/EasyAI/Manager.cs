@@ -2187,23 +2187,23 @@ namespace EasyAI
                     {
                         Agents[i].Perform();
                     }
-                    catch
+                    catch (Exception e)
                     {
-                        // Ignored.
+                        Debug.LogError(e);
                     }
                 }
             }
             else
             {
-                for (int i = 0; i < maxAgentsPerUpdate && i < Agents.Count; i++)
+                for (int i = 0; i < maxAgentsPerUpdate; i++)
                 {
                     try
                     {
                         Agents[_currentAgentIndex].Perform();
                     }
-                    catch
+                    catch (Exception e)
                     {
-                        continue;
+                        Debug.LogError(e);
                     }
                 
                     NextAgent();
