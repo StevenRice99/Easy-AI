@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace EasyAI.Navigation.Nodes.Generators
+namespace EasyAI.Navigation.Generators
 {
     /// <summary>
     /// Convex corner graph placement for nodes.
@@ -14,7 +14,7 @@ namespace EasyAI.Navigation.Nodes.Generators
         [SerializeField]
         [Min(0)]
         [Tooltip("How far away from corners should the nodes be placed.")]
-        private int cornerNodeSteps;
+        private int cornerNodeSteps = 3;
     
         /// <summary>
         /// Set the maximum distance that nodes can form connections between with zero or a negative value meaning no limit.

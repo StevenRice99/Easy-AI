@@ -2013,7 +2013,7 @@ namespace EasyAI.Managers
             _navigationTable = lookups.ToArray();
         }
         
-                protected virtual void Awake()
+        protected virtual void Awake()
         {
             if (Singleton == this)
             {

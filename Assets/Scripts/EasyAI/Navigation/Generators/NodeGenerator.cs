@@ -1,4 +1,6 @@
-﻿namespace EasyAI.Navigation.Nodes.Generators
+﻿using EasyAI.Navigation.Nodes;
+
+namespace EasyAI.Navigation.Generators
 {
     /// <summary>
     /// Class to implement node placing behaviours for use with a node area.
