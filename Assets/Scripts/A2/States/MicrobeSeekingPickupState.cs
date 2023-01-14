@@ -11,19 +11,11 @@ namespace A2.States
     [CreateAssetMenu(menuName = "A2/States/Microbe Seeking Pickup State", fileName = "Microbe Seeking Pickup State")]
     public class MicrobeSeekingPickupState : State
     {
-        /// <summary>
-        /// Called when an agent first enters this state.
-        /// </summary>
-        /// <param name="agent">The agent.</param>
         public override void Enter(Agent agent)
         {
             agent.Log("Starting searching for a pickup.");
         }
-
-        /// <summary>
-        /// Called when an agent is in this state.
-        /// </summary>
-        /// <param name="agent">The agent.</param>
+        
         public override void Execute(Agent agent)
         {
             if (agent is not Microbe microbe)
@@ -57,11 +49,7 @@ namespace A2.States
             // Otherwise move towards the pickup it is tracking.
             agent.Move(microbe.Pickup.transform);
         }
-
-        /// <summary>
-        /// Called when an agent exits this state.
-        /// </summary>
-        /// <param name="agent">The agent.</param>
+        
         public override void Exit(Agent agent)
         {
             if (agent is not Microbe microbe)

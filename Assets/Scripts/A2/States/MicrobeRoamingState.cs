@@ -9,19 +9,11 @@ namespace A2.States
     [CreateAssetMenu(menuName = "A2/States/Microbe Roaming State", fileName = "Microbe Roaming State")]
     public class MicrobeRoamingState : State
     {
-        /// <summary>
-        /// Called when an agent first enters this state.
-        /// </summary>
-        /// <param name="agent">The agent.</param>
         public override void Enter(Agent agent)
         {
             agent.Log("Nothing to do, starting to roam.");
         }
 
-        /// <summary>
-        /// Called when an agent is in this state.
-        /// </summary>
-        /// <param name="agent">The agent.</param>
         public override void Execute(Agent agent)
         {
             if (!agent.Moving)
@@ -29,11 +21,7 @@ namespace A2.States
                 agent.Move(MicrobeManager.RandomPosition);
             }
         }
-
-        /// <summary>
-        /// Called when an agent exits this state.
-        /// </summary>
-        /// <param name="agent">The agent.</param>
+        
         public override void Exit(Agent agent)
         {
             agent.Log("Got something to do, stopping roaming.");

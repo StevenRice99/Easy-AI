@@ -159,6 +159,8 @@ namespace Project
         /// The colliders that are attached to this soldier.
         /// </summary>
         public Collider[] Colliders { get; private set; }
+        
+        public float DistanceTarget => Target == null ? float.MaxValue : Vector3.Distance(shootPosition.position, Target.Value.Position);
 
         /// <summary>
         /// If the soldier should find a new location to move to.
@@ -287,20 +289,32 @@ namespace Project
                 return;
             }
             
-            // Choose a target.
-            Target = ChooseTarget();
+            base.Perform();
+            
+            // Go through the weapon priority and select the first weapon which has ammo.
+            foreach (int w in _weaponPriority)
+            {
+                if (Weapons[w].Ammo <= 0 && Weapons[w].maxAmmo >= 0)
+                {
+                    continue;
+                }
 
-            // Choose the optimal weapon to use.
-            PrioritizeWeapons();
-            ChooseWeapon();
-
-            // Chose to move somewhere.
-            ChooseDestination();
+                SelectWeapon(w);
+                return;
+            }
             
             // Remove detected enemies that have exceeded their maximum memory time.
-            Cleanup();
-            
-            base.Perform();
+            for (int i = 0; i < EnemiesDetected.Count; i++)
+            {
+                // Increment how long the enemy has been in memory.
+                EnemiesDetected[i].DeltaTime += DeltaTime;
+                
+                // If the detected enemy is too old or they have died, remove it.
+                if (EnemiesDetected[i].DeltaTime > SoldierManager.MemoryTime || EnemiesDetected[i].Enemy.Role == SoliderRole.Dead)
+                {
+                    EnemiesDetected.RemoveAt(i--);
+                }
+            }
         }
         
         /// <summary>
@@ -313,6 +327,15 @@ namespace Project
             {
                 base.MovementCalculations();
             }
+        }
+
+        /// <summary>
+        /// Set the weapon priority for the soldier to choose the most ideal weapon.
+        /// </summary>
+        /// <param name="weaponPriority">An array consisting of the indexes of weapons.</param>
+        public void SetWeaponPriority(int[] weaponPriority)
+        {
+            _weaponPriority = weaponPriority;
         }
         
         /// <summary>
@@ -528,7 +551,7 @@ namespace Project
         /// <summary>
         /// Choose where to move to.
         /// </summary>
-        private void ChooseDestination()
+        public void ChooseDestination()
         {
             // If carrying the flag, attempt to move directly back to base.
             if (CarryingFlag)
@@ -653,145 +676,6 @@ namespace Project
         }
 
         /// <summary>
-        /// Prioritize what weapons to use in a given situation.
-        /// </summary>
-        private void PrioritizeWeapons()
-        {
-            // If there is no target to choose a weapon based off of, predict what weapon type will be needed.
-            if (Target == null)
-            {
-                // Defenders predict needing to use long range weapons like snipers.
-                if (Role == SoliderRole.Defender)
-                {
-                    Log("No targets, prioritizing sniper.");
-                    
-                    _weaponPriority = new[]
-                    {
-                        (int) WeaponChoices.Sniper,
-                        (int) WeaponChoices.RocketLauncher,
-                        (int) WeaponChoices.MachineGun,
-                        (int) WeaponChoices.Shotgun,
-                        (int) WeaponChoices.Pistol,
-                    };
-                    
-                    return;
-                }
-                
-                Log("No targets, prioritizing shotgun.");
-
-                // Attackers and the collector predict needing to use short range weapons like shotguns.
-                _weaponPriority = new[]
-                {
-                    (int) WeaponChoices.Shotgun,
-                    (int) WeaponChoices.MachineGun,
-                    (int) WeaponChoices.RocketLauncher,
-                    (int) WeaponChoices.Sniper,
-                    (int) WeaponChoices.Pistol,
-                };
-                return;
-            }
-
-            // Determine how far away from the target enemy the soldier is.
-            float distance = Vector3.Distance(shootPosition.position, Target.Value.Position);
-            
-            // Target is far away, use long range weapons.
-            if (distance >= SoldierManager.DistanceFar)
-            {
-                // Defenders use the sniper first.
-                if (Role == SoliderRole.Defender)
-                {
-                    Log("Far target, prioritizing sniper.");
-                    
-                    _weaponPriority = new[]
-                    {
-                        (int) WeaponChoices.Sniper,
-                        (int) WeaponChoices.RocketLauncher,
-                        (int) WeaponChoices.MachineGun,
-                        (int) WeaponChoices.Pistol,
-                        (int) WeaponChoices.Shotgun
-                    };
-                
-                    return;
-                }
-                
-                Log("Far target, prioritizing rocket launcher.");
-
-                // Attackers and the collector use the rocket launcher first.
-                _weaponPriority = new[]
-                {
-                    (int) WeaponChoices.RocketLauncher,
-                    (int) WeaponChoices.MachineGun,
-                    (int) WeaponChoices.Sniper,
-                    (int) WeaponChoices.Pistol,
-                    (int) WeaponChoices.Shotgun
-                };
-
-                return;
-            }
-
-            // If close range, all roles use close-range weapons first.
-            if (distance <= SoldierManager.DistanceClose)
-            {
-                Log("Close target, prioritizing shotgun.");
-                
-                _weaponPriority = new[]
-                {
-                    (int) WeaponChoices.Shotgun,
-                    (int) WeaponChoices.MachineGun,
-                    (int) WeaponChoices.Pistol,
-                    (int) WeaponChoices.RocketLauncher,
-                    (int) WeaponChoices.Sniper
-                };
-                
-                return;
-            }
-            
-            Log("Medium target, prioritizing machine gun.");
-            
-            // Otherwise, it is medium range, with the only difference being defenders using a sniper before a shotgun.
-            if (Role == SoliderRole.Defender)
-            {
-                _weaponPriority = new[]
-                {
-                    (int) WeaponChoices.MachineGun,
-                    (int) WeaponChoices.RocketLauncher,
-                    (int) WeaponChoices.Shotgun,
-                    (int) WeaponChoices.Sniper,
-                    (int) WeaponChoices.Pistol
-                };
-                
-                return;
-            }
-
-            _weaponPriority = new[]
-            {
-                (int) WeaponChoices.MachineGun,
-                (int) WeaponChoices.RocketLauncher,
-                (int) WeaponChoices.Sniper,
-                (int) WeaponChoices.Shotgun,
-                (int) WeaponChoices.Pistol
-            };
-        }
-
-        /// <summary>
-        /// Choose the weapon to use.
-        /// </summary>
-        private void ChooseWeapon()
-        {
-            // Go through the weapon priority and select the first weapon which has ammo.
-            foreach (int w in _weaponPriority)
-            {
-                if (Weapons[w].Ammo <= 0 && Weapons[w].maxAmmo >= 0)
-                {
-                    continue;
-                }
-
-                SelectWeapon(w);
-                return;
-            }
-        }
-
-        /// <summary>
         /// Respawn the soldier after being killed.
         /// </summary>
         /// <returns>Nothing.</returns>
@@ -906,53 +790,6 @@ namespace Project
                 // Only the selected weapon is visible, and none are visible if the soldier is dead.
                 Weapons[i].Visible(Alive && i == WeaponIndex);
             }
-        }
-
-        /// <summary>
-        /// Remove all detected enemies..
-        /// </summary>
-        private void Cleanup()
-        {
-            // Loop through all detected enemies.
-            for (int i = 0; i < EnemiesDetected.Count; i++)
-            {
-                // Increment how long the enemy has been in memory.
-                EnemiesDetected[i].DeltaTime += DeltaTime;
-                
-                // If the detected enemy is too old or they have died, remove it.
-                if (EnemiesDetected[i].DeltaTime > SoldierManager.MemoryTime || EnemiesDetected[i].Enemy.Role == SoliderRole.Dead)
-                {
-                    EnemiesDetected.RemoveAt(i--);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Choose the target for this soldier.
-        /// </summary>
-        /// <returns>The target or null if there is no target.</returns>
-        private TargetData? ChooseTarget()
-        {
-            // If no enemies are detected, return null so the soldier will just look where it is walking.
-            if (EnemiesDetected.Count == 0)
-            {
-                return null;
-            }
-            
-            // For all detected enemies, prioritize who to take aim at.
-            // 1. If the enemy is visible.
-            // 2. If the enemy has the flag.
-            // 3. How recently seen/heard the enemy was.
-            // 4. How close the enemy is.
-            EnemyMemory target = EnemiesDetected.OrderBy(e => e.Visible).ThenBy(e => e.HasFlag).ThenBy(e => e.DeltaTime).ThenBy(e => Vector3.Distance(transform.position, e.Position)).First();
-            
-            // Define the target based upon the most ideal enemy to aim at.
-            return new TargetData
-            {
-                Enemy = target.Enemy,
-                Position = target.Position,
-                Visible = target.Visible
-            };
         }
 
         /// <summary>

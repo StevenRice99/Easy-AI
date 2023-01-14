@@ -4,8 +4,11 @@ using A1.Sensors;
 using EasyAI;
 using UnityEngine;
 
-namespace A1.States
+namespace A1
 {
+    /// <summary>
+    /// The global state which the cleaner is always in.
+    /// </summary>
     [CreateAssetMenu(menuName = "A1/States/Cleaner Mind", fileName = "Cleaner Mind")]
     public class CleanerMind : State
     {

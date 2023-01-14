@@ -11,19 +11,11 @@ namespace A2.States
     [CreateAssetMenu(menuName = "A2/States/Microbe Mating State", fileName = "Microbe Mating State")]
     public class MicrobeMatingState : State
     {
-        /// <summary>
-        /// Called when an agent first enters this state.
-        /// </summary>
-        /// <param name="agent">The agent.</param>
         public override void Enter(Agent agent)
         {
             agent.Log("Looking for a mate.");
         }
-
-        /// <summary>
-        /// Called when an agent is in this state.
-        /// </summary>
-        /// <param name="agent">The agent.</param>
+        
         public override void Execute(Agent agent)
         {
             // If the microbe has already mated, return.
@@ -59,11 +51,7 @@ namespace A2.States
                 agent.Move(microbe.TargetMicrobeTransform, Steering.Behaviour.Pursue);
             }
         }
-
-        /// <summary>
-        /// Called when an agent exits this state.
-        /// </summary>
-        /// <param name="agent">The agent.</param>
+        
         public override void Exit(Agent agent)
         {
             if (agent is not Microbe microbe)

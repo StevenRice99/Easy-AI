@@ -9,10 +9,6 @@ namespace A2.States
     [CreateAssetMenu(menuName = "A2/States/Microbe Mind", fileName = "Microbe Mind")]
     public class MicrobeMind : State
     {
-        /// <summary>
-        /// Called when an agent is in this state.
-        /// </summary>
-        /// <param name="agent">The agent.</param>
         public override void Execute(Agent agent)
         {
             if (agent is not Microbe microbe)
