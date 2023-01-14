@@ -213,7 +213,7 @@ namespace Project.States
                     // If the soldier has low health, move to a health pack to heal.
                     if (soldier.Health <= lowHealth)
                     {
-                        Vector3? destination = SoldierManager.GetHealthPickup(soldier.transform.position);
+                        Vector3? destination = SoldierManager.NearestHealthPickup(soldier);
                         if (destination != null && soldier.Navigate(destination.Value))
                         {
                             soldier.Log("Moving to pickup health.");
@@ -224,10 +224,11 @@ namespace Project.States
                     // Decisions when the soldier's current target enemy is not visible.
                     if (soldier.Target is not { Visible: true })
                     {
+                        // Try to heal.
                         Vector3? destination;
                         if (soldier.Health <= lowHealth)
                         {
-                            destination = SoldierManager.GetHealthPickup(soldier.transform.position);
+                            destination = SoldierManager.NearestHealthPickup(soldier);
                             if (destination != null && soldier.Navigate(destination.Value))
                             {
                                 soldier.Log("Moving to pickup health.");
@@ -235,10 +236,10 @@ namespace Project.States
                             }
                         }
                         
+                        // Restock on ammo.
                         int index = 0;
                         int priority = int.MaxValue;
                         destination = null;
-
                         for (int i = 0; i < soldier.WeaponPriority.Length; i++)
                         {
                             if (soldier.Weapons[i].maxAmmo < 0 || soldier.Weapons[i].Ammo >= soldier.Weapons[i].maxAmmo)
@@ -253,7 +254,7 @@ namespace Project.States
 
                             index = i;
                             priority = soldier.WeaponPriority[i];
-                            destination = SoldierManager.GetWeaponPickup(soldier.transform.position, i);
+                            destination = SoldierManager.NearestWeaponPickup(soldier, i);
                         }
                         
                         if (destination != null && soldier.Navigate(destination.Value))
@@ -271,7 +272,7 @@ namespace Project.States
                     }
 
                     // If not moving, find a point to move to, either in the offense or defense side depending on the soldier's role.
-                    if (soldier.Destination == null && soldier.Navigate(SoldierManager.GetPoint(soldier.RedTeam, soldier.Role == Soldier.SoliderRole.Defender)))
+                    if (soldier.Destination == null && soldier.Navigate(SoldierManager.RandomStrategicPosition(soldier, soldier.Role == Soldier.SoliderRole.Defender)))
                     {
                         soldier.Log(soldier.Role == Soldier.SoliderRole.Attacker ? "Moving to offensive position." : "Moving to defensive position.");
                     }

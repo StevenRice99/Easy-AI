@@ -454,6 +454,7 @@ namespace Project
             for (int i = 0; i < team.Length; i++)
             {
                 // Clear any current movement data.
+                team[i].StopMoving();
                 team[i].StopNavigating();
                 
                 // The closest soldier to the enemy flag becomes the collector.

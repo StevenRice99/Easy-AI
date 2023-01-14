@@ -309,15 +309,15 @@ namespace Project
         }
 
         /// <summary>
-        /// Get a point to move to.
+        /// Get a strategic point to move to.
         /// </summary>
-        /// <param name="redTeam">If this is for the red or blue team.</param>
+        /// <param name="soldier">The soldier.</param>
         /// <param name="defensive">If this is for a defensive or offensive point.</param>
         /// <returns>A point to move to.</returns>
-        public static Vector3 GetPoint(bool redTeam, bool defensive)
+        public static Vector3 RandomStrategicPosition(Soldier soldier, bool defensive)
         {
             // Get all points for the team and for the given type.
-            StrategicPoint[] points = SoldierSingleton._strategicPoints.Where(s => s.redTeam == redTeam && s.defensive == defensive).ToArray();
+            StrategicPoint[] points = SoldierSingleton._strategicPoints.Where(p => p.redTeam == soldier.RedTeam && p.defensive == defensive).ToArray();
             
             // Get all open spots.
             StrategicPoint[] open = points.Where(s => s.Open).ToArray();
@@ -329,27 +329,27 @@ namespace Project
         /// <summary>
         /// Get a health pack to move to.
         /// </summary>
-        /// <param name="soldierPosition">The position of the solder.</param>
+        /// <param name="soldier">The soldier.</param>
         /// <returns>The health pack to move to or null if none are ready.</returns>
-        public static Vector3? GetHealthPickup(Vector3 soldierPosition)
+        public static Vector3? NearestHealthPickup(Soldier soldier)
         {
             // A health pickup is just a weapon pickup with an index of -1, so simply return that.
-            return GetWeaponPickup(soldierPosition, -1);
+            return NearestWeaponPickup(soldier, -1);
         }
 
         /// <summary>
         /// Get an ammo pickup to move to.
         /// </summary>
-        /// <param name="soldierPosition">The position of the solder.</param>
+        /// <param name="soldier">The soldier.</param>
         /// <param name="weaponIndex">The weapon type to look for.</param>
         /// <returns>The ammo pickup to move to or null if none are ready.</returns>
-        public static Vector3? GetWeaponPickup(Vector3 soldierPosition, int weaponIndex)
+        public static Vector3? NearestWeaponPickup(Soldier soldier, int weaponIndex)
         {
             // Get all pickups for the given type that can be picked up.
             HealthWeaponPickup[] ready = SoldierSingleton._healthWeaponPickups.Where(p => p.weaponIndex == weaponIndex && p.Ready).ToArray();
             
             // Get the nearest one if there are any, otherwise return null.
-            return ready.Length > 0 ? ready.OrderBy(p => Vector3.Distance(soldierPosition, p.transform.position)).First().transform.position : null;
+            return ready.Length > 0 ? ready.OrderBy(p => Vector3.Distance(soldier.transform.position, p.transform.position)).First().transform.position : null;
         }
 
         /// <summary>
