@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using A1.Managers;
-using EasyAI.Sensors;
+using EasyAI;
 using UnityEngine;
 
 namespace A1.Sensors

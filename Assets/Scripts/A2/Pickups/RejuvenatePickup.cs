@@ -1,6 +1,4 @@
-﻿using A2.Agents;
-
-namespace A2.Pickups
+﻿namespace A2.Pickups
 {
     /// <summary>
     /// Pickup to make a microbe younger again to extend its life.

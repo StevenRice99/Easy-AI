@@ -5229,16 +5229,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c307137b9c4d4dc5af0399738b8ef9bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  state: {fileID: 0}
   moveSpeed: 10
   moveAcceleration: 10
-  seekAcceptableDistance: 0.1
-  fleeAcceptableDistance: 10
-  restVelocity: 0.1
   lookSpeed: 5
-  maxWanderTurn: 30
-  mind: {fileID: 11400000, guid: 98f525b2c2195bb40be697efa5f08ece, type: 2}
-  state: {fileID: 0}
-  sightHeight: 0
 --- !u!114 &8284675057619534058
 MonoBehaviour:
   m_ObjectHideFlags: 0

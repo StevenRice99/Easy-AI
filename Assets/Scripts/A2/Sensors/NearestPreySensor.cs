@@ -1,15 +1,13 @@
 ﻿using System.Linq;
-using A2.Agents;
-using A2.Managers;
 using UnityEngine;
-using Sensor = EasyAI.Sensors.Sensor;
+using Sensor = EasyAI.Sensor;
 
 namespace A2.Sensors
 {
     /// <summary>
     /// Sensor to find the nearest prey for a microbe.
     /// </summary>
-    public class NearestPreySensor : Sensor
+    public class NearestPreySensor : EasyAI.Sensor
     {
         /// <summary>
         /// Sense the nearest prey of the microbe.

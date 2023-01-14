@@ -1,10 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using A1.AgentActions;
-using A1.Percepts;
 using A1.Sensors;
-using EasyAI.Agents;
-using EasyAI.Thinking;
+using EasyAI;
 using UnityEngine;
 
 namespace A1.States

@@ -1,8 +1,6 @@
 ﻿using System.Linq;
-using A2.Agents;
-using A2.Managers;
 using A2.States;
-using EasyAI.Sensors;
+using EasyAI;
 using UnityEngine;
 
 namespace A2.Sensors

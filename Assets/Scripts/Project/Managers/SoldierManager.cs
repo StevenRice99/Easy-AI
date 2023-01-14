@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using EasyAI.Agents;
-using EasyAI.Managers;
+using EasyAI;
 using Project.Agents;
 using Project.Pickups;
 using Project.Positions;

@@ -1,9 +1,6 @@
-﻿using A2.Agents;
-using A2.Managers;
-using A2.Sensors;
-using EasyAI.Agents;
+﻿using A2.Sensors;
+using EasyAI;
 using EasyAI.Navigation;
-using EasyAI.Thinking;
 using UnityEngine;
 
 namespace A2.States

@@ -1,5 +1,4 @@
-﻿using EasyAI.Managers;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace EasyAI.Navigation
 {

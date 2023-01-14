@@ -1,6 +1,4 @@
-﻿using A2.Managers;
-using EasyAI.Agents;
-using EasyAI.Thinking;
+﻿using EasyAI;
 using UnityEngine;
 
 namespace A2.States

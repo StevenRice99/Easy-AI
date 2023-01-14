@@ -1,6 +1,4 @@
-﻿using EasyAI.Agents;
-using EasyAI.Managers;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace EasyAI.Cameras

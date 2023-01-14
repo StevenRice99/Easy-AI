@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using A2.Pickups;
-using EasyAI.Sensors;
+using EasyAI;
 using UnityEngine;
 
 namespace A2.Sensors

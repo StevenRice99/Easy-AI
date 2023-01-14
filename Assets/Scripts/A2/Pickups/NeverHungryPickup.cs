@@ -1,6 +1,4 @@
-﻿using A2.Agents;
-
-namespace A2.Pickups
+﻿namespace A2.Pickups
 {
     /// <summary>
     /// Pickup to make a microbe not be hungry for a long time which for all purposes can be assumed to be the rest of the microbe's life.

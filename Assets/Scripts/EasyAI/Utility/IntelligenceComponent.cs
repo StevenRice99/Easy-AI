@@ -1,7 +1,4 @@
-﻿using EasyAI.Agents;
-using EasyAI.Managers;
-
-namespace EasyAI.Utility
+﻿namespace EasyAI.Utility
 {
     /// <summary>
     /// Base component for sensors, actuators, minds, and performance measures.
