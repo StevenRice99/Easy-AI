@@ -252,7 +252,7 @@ namespace Project.States
                     }
 
                     // If not moving, find a point to move to, either in the offense or defense side depending on the soldier's role.
-                    if (soldier.Destination == null && soldier.Navigate(SoldierManager.RandomStrategicPosition(soldier, soldier.Role == Soldier.SoliderRole.Defender)))
+                    if (soldier.Destination == null && soldier.Navigate(soldier.Sense<RandomStrategicPositionSensor, Vector3>()))
                     {
                         soldier.Log(soldier.Role == Soldier.SoliderRole.Attacker ? "Moving to offensive position." : "Moving to defensive position.");
                     }
