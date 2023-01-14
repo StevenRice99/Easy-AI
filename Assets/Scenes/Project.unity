@@ -9312,10 +9312,11 @@ MonoBehaviour:
   nodeDistance: 0
   pullMaxDifference: 0
   lookupTable: 1
-  maxAgentsPerUpdate: 1
+  maxAgentsPerUpdate: 0
   maxMessages: 100
   detailsWidth: 500
   controlsWidth: 120
+  followBest: 0
   selectedCamera: {fileID: 1559026829}
   gizmos: 2
   paths: 3

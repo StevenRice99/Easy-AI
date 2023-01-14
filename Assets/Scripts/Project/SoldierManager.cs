@@ -459,7 +459,7 @@ namespace Project
                 foreach (Soldier enemy in soldier.SeeEnemies())
                 {
                     // If there is no existing memory, add it to memory.
-                    Soldier.EnemyMemory memory = soldier.EnemiesDetected.FirstOrDefault(e => e.Enemy == enemy);
+                    Soldier.EnemyMemory memory = soldier.DetectedEnemies.FirstOrDefault(e => e.Enemy == enemy);
                     if (memory != null)
                     {
                         memory.DeltaTime = 0;
@@ -471,7 +471,7 @@ namespace Project
                     // Otherwise, update the existing memory.
                     else
                     {
-                        soldier.EnemiesDetected.Add(new()
+                        soldier.DetectedEnemies.Add(new()
                         {
                             DeltaTime = 0,
                             Enemy = enemy,
@@ -504,7 +504,25 @@ namespace Project
                 // Only perform for alive soldiers.
                 if (agent is not Soldier { Alive: true } soldier)
                 {
+                    agent.StopMoving();
+                    agent.StopNavigating();
                     agent.StopLooking();
+                    if (agent == SelectedAgent)
+                    {
+                        Soldier[] aliveSoldiers = Agents.Where(a => a is Soldier {Alive: true, PerformanceMeasure: not null}).Cast<Soldier>().ToArray();
+                        float best = float.MinValue;
+                        foreach (Soldier s in aliveSoldiers)
+                        {
+                            float score = s.PerformanceMeasure.GetPerformance();
+                            if (score <= best)
+                            {
+                                continue;
+                            }
+
+                            best = score;
+                            SelectedAgent = s;
+                        }
+                    }
                     continue;
                 }
 
@@ -553,7 +571,7 @@ namespace Project
         }
         
         /// <summary>
-        /// Render buttons to reset the level or follow the best agent.
+        /// Render buttons to reset the level.
         /// </summary>
         /// <param name="x">X rendering position. In most cases this should remain unchanged.</param>
         /// <param name="y">Y rendering position. Update this with every component added and return it.</param>

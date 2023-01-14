@@ -351,6 +351,10 @@ namespace EasyAI
         [SerializeField]
         private float controlsWidth = 120;
 
+        [Tooltip("Lock tracking cameras to the best agent.")]
+        [SerializeField]
+        private bool followBest = true;
+
         [Tooltip(
             "Determine what mode messages are stored in.\n" +
             "All - All messages are captured.\n" +
@@ -437,11 +441,6 @@ namespace EasyAI
         /// The navigation lookup table.
         /// </summary>
         private NavigationLookup[] _navigationTable;
-
-        /// <summary>
-        /// Lock tracking cameras to the best agent.
-        /// </summary>
-        private bool _followBest = true;
 
         /// <summary>
         /// Create a transform agent.
@@ -1339,9 +1338,9 @@ namespace EasyAI
                 {
                     // Button to go back to the main view.
                     y = NextItem(y, h, p);
-                    if (GuiButton(x, y, w, h, "Back to Overview" + (Singleton._followBest ? " - Stop Following Best" : string.Empty)))
+                    if (GuiButton(x, y, w, h, "Back to Overview" + (Singleton.followBest ? " - Stop Following Best" : string.Empty)))
                     {
-                        Singleton._followBest = false;
+                        Singleton.followBest = false;
                         Singleton._state = GuiState.Main;
                     }
                 }
@@ -1699,10 +1698,10 @@ namespace EasyAI
             if (Singleton.Agents.Count > 1)
             {
                 // Button to lock any tracking cameras to the best performing agent or not.
-                if (GuiButton(x, y, w, h, Singleton._followBest ? "Stop Following" : "Follow Best"))
+                if (GuiButton(x, y, w, h, Singleton.followBest ? "Stop Following" : "Follow Best"))
                 {
-                    Singleton._followBest = !Singleton._followBest;
-                    if (Singleton._followBest && Singleton._state == GuiState.Main)
+                    Singleton.followBest = !Singleton.followBest;
+                    if (Singleton.followBest && Singleton._state == GuiState.Main)
                     {
                         Singleton._state = GuiState.Agent;
                     }
@@ -1712,7 +1711,7 @@ namespace EasyAI
             }
             else
             {
-                Singleton._followBest = false;
+                Singleton.followBest = false;
             }
 
             // Button to pause or resume the scene.
@@ -2231,14 +2230,14 @@ namespace EasyAI
                     if (clicked != null)
                     {
                         SelectedAgent = clicked;
-                        _followBest = false;
+                        followBest = false;
                         break;
                     }
                     tr = tr.parent;
                 } while (tr != null);
             }
 
-            if (!_followBest)
+            if (!followBest)
             {
                 return;
             }
@@ -2260,7 +2259,7 @@ namespace EasyAI
 
             if (SelectedAgent == null)
             {
-                _followBest = false;
+                followBest = false;
                 return;
             }
 

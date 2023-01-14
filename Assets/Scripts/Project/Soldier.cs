@@ -164,49 +164,39 @@ namespace Project
         public float DistanceTarget => Target == null ? float.MaxValue : Vector3.Distance(shootPosition.position, Target.Value.Position);
 
         /// <summary>
-        /// If the soldier should find a new location to move to.
-        /// </summary>
-        private bool _findNewPoint = true;
-
-        /// <summary>
-        /// The coroutine to keep track of when timing if a new point should be searched for.
-        /// </summary>
-        private Coroutine _pointDelay;
-
-        /// <summary>
         /// The enemies which this soldier currently has detected.
         /// </summary>
-        public readonly List<EnemyMemory> EnemiesDetected = new();
+        public readonly List<EnemyMemory> DetectedEnemies = new();
 
         /// <summary>
         /// Which weapons the soldier has a preference to currently use.
         /// </summary>
-        private readonly int[] _weaponPriority = new int[(int) WeaponIndexes.Pistol + 1];
+        public readonly int[] WeaponPriority = new int[(int) WeaponIndexes.Pistol + 1];
 
         /// <summary>
         /// If this soldier is carrying the flag.
         /// </summary>
-        private bool CarryingFlag => RedTeam ? FlagPickup.BlueFlag != null && FlagPickup.BlueFlag.carryingPlayer == this : FlagPickup.RedFlag != null && FlagPickup.RedFlag.carryingPlayer == this;
+        public bool CarryingFlag => RedTeam ? FlagPickup.BlueFlag != null && FlagPickup.BlueFlag.carryingPlayer == this : FlagPickup.RedFlag != null && FlagPickup.RedFlag.carryingPlayer == this;
 
         /// <summary>
         /// If this soldier's flag is at its base.
         /// </summary>
-        private bool FlagAtBase => RedTeam ? FlagPickup.RedFlag != null && FlagPickup.RedFlag.transform.position == FlagPickup.RedFlag.SpawnPosition : FlagPickup.BlueFlag != null && FlagPickup.BlueFlag.transform.position == FlagPickup.BlueFlag.SpawnPosition;
+        public bool FlagAtBase => RedTeam ? FlagPickup.RedFlag != null && FlagPickup.RedFlag.transform.position == FlagPickup.RedFlag.SpawnPosition : FlagPickup.BlueFlag != null && FlagPickup.BlueFlag.transform.position == FlagPickup.BlueFlag.SpawnPosition;
 
         /// <summary>
         /// The location of the enemy flag.
         /// </summary>
-        private Vector3 EnemyFlag => RedTeam ? FlagPickup.BlueFlag != null ? FlagPickup.BlueFlag.transform.position : Vector3.zero : FlagPickup.RedFlag != null ? FlagPickup.RedFlag.transform.position : Vector3.zero;
+        public Vector3 EnemyFlagPosition => RedTeam ? FlagPickup.BlueFlag != null ? FlagPickup.BlueFlag.transform.position : Vector3.zero : FlagPickup.RedFlag != null ? FlagPickup.RedFlag.transform.position : Vector3.zero;
 
         /// <summary>
         /// The location of the team's flag.
         /// </summary>
-        private Vector3 TeamFlag => RedTeam ? FlagPickup.RedFlag != null ? FlagPickup.RedFlag.transform.position : Vector3.zero : FlagPickup.BlueFlag != null ? FlagPickup.BlueFlag.transform.position : Vector3.zero;
+        public Vector3 TeamFlagPosition => RedTeam ? FlagPickup.RedFlag != null ? FlagPickup.RedFlag.transform.position : Vector3.zero : FlagPickup.BlueFlag != null ? FlagPickup.BlueFlag.transform.position : Vector3.zero;
         
         /// <summary>
         /// The location of this soldier's base.
         /// </summary>
-        private Vector3 Base => RedTeam ? FlagPickup.RedFlag != null ? FlagPickup.RedFlag.SpawnPosition : Vector3.zero : FlagPickup.BlueFlag != null ? FlagPickup.BlueFlag.SpawnPosition : Vector3.zero;
+        public Vector3 BasePosition => RedTeam ? FlagPickup.RedFlag != null ? FlagPickup.RedFlag.SpawnPosition : Vector3.zero : FlagPickup.BlueFlag != null ? FlagPickup.BlueFlag.SpawnPosition : Vector3.zero;
         
         /// <summary>
         /// Override for custom detail rendering on the automatic GUI.
@@ -257,8 +247,8 @@ namespace Project
             y = Manager.NextItem(y, h, p);
 
             // Display all enemies this soldier has detected.
-            int visible = EnemiesDetected.Count(e => e.Visible);
-            Manager.GuiLabel(x, y, w, h, p, $"See: {visible} | Hear: {EnemiesDetected.Count - visible}");
+            int visible = DetectedEnemies.Count(e => e.Visible);
+            Manager.GuiLabel(x, y, w, h, p, $"See: {visible} | Hear: {DetectedEnemies.Count - visible}");
             y = Manager.NextItem(y, h, p);
 
             // Display how many flag captures this soldier has.
@@ -290,23 +280,46 @@ namespace Project
                 return;
             }
 
-            WeaponCheck();
-
             // Remove detected enemies that have exceeded their maximum memory time.
-            for (int i = 0; i < EnemiesDetected.Count; i++)
+            for (int i = 0; i < DetectedEnemies.Count; i++)
             {
                 // Increment how long the enemy has been in memory.
-                EnemiesDetected[i].DeltaTime += DeltaTime;
+                DetectedEnemies[i].DeltaTime += DeltaTime;
                 
                 // If the detected enemy is too old or they have died, remove it.
-                if (EnemiesDetected[i].DeltaTime > SoldierManager.MemoryTime || EnemiesDetected[i].Enemy.Role == SoliderRole.Dead)
+                if (DetectedEnemies[i].DeltaTime > SoldierManager.MemoryTime || DetectedEnemies[i].Enemy.Role == SoliderRole.Dead)
                 {
-                    EnemiesDetected.RemoveAt(i--);
+                    DetectedEnemies.RemoveAt(i--);
                 }
             }
 
             // Standard mind and states.
             base.Perform();
+
+            int priority = int.MaxValue;
+            int selected = (int) WeaponIndexes.Pistol;
+            
+            // Go through the weapon priority and select the most preferred option which has ammo.
+            for (int i = 0; i < WeaponPriority.Length; i++)
+            {
+                if (Weapons[i].Ammo <= 0 && Weapons[i].maxAmmo >= 0)
+                {
+                    continue;
+                }
+
+                if (WeaponPriority[i] >= priority)
+                {
+                    continue;
+                }
+
+                selected = i;
+                priority = WeaponPriority[i];
+            }
+
+            if (WeaponIndex != selected)
+            {
+                SelectWeapon(selected);
+            }
         }
         
         /// <summary>
@@ -331,13 +344,11 @@ namespace Project
         /// <param name="pistol">The priority for the soldier to use the pistol.</param>
         public void SetWeaponPriority(int machineGun = 5, int shotgun = 5, int sniper = 5, int rocketLauncher = 5, int pistol = 5)
         {
-            _weaponPriority[0] = machineGun;
-            _weaponPriority[1] = shotgun;
-            _weaponPriority[2] = sniper;
-            _weaponPriority[3] = rocketLauncher;
-            _weaponPriority[4] = pistol;
-
-            WeaponCheck();
+            WeaponPriority[0] = machineGun;
+            WeaponPriority[1] = shotgun;
+            WeaponPriority[2] = sniper;
+            WeaponPriority[3] = rocketLauncher;
+            WeaponPriority[4] = pistol;
         }
         
         public void SetTarget(TargetData targetData)
@@ -387,7 +398,7 @@ namespace Project
             }
             
             // See if this item already exists in memory and if it does, simply update values.
-            EnemyMemory memory = EnemiesDetected.FirstOrDefault(e => e.Enemy == enemy && !e.Visible);
+            EnemyMemory memory = DetectedEnemies.FirstOrDefault(e => e.Enemy == enemy && !e.Visible);
             if (memory != null)
             {
                 memory.DeltaTime = 0;
@@ -398,7 +409,7 @@ namespace Project
             }
             
             // Otherwise add the instance into memory.
-            EnemiesDetected.Add(new()
+            DetectedEnemies.Add(new()
             {
                 DeltaTime = 0,
                 Enemy = enemy,
@@ -444,7 +455,6 @@ namespace Project
             {
                 // Clear any current movement data.
                 team[i].StopNavigating();
-                team[i]._findNewPoint = true;
                 
                 // The closest soldier to the enemy flag becomes the collector.
                 if (i == 0)
@@ -501,7 +511,6 @@ namespace Project
             Heal();
             SelectWeapon(0);
             ToggleAlive();
-            _findNewPoint = true;
 
             foreach (Weapon weapon in Weapons)
             {
@@ -561,141 +570,6 @@ namespace Project
         }
 
         /// <summary>
-        /// Choose where to move to.
-        /// </summary>
-        public void ChooseDestination()
-        {
-            // If carrying the flag, attempt to move directly back to base.
-            if (CarryingFlag)
-            {
-                if (Navigate(Base))
-                {
-                    Log("Have the flag, returning it to base.");
-                }
-
-                return;
-            }
-
-            switch (Role)
-            {
-                // If the flag collector, move to collect the enemy flag.
-                case SoliderRole.Collector:
-                    if (Navigate(EnemyFlag))
-                    {
-                        Log("Moving to collect enemy flag.");
-                    }
-
-                    return;
-                
-                // If a defender and the flag has been taken, move to it to kill the enemy flag carried and return it.
-                case SoliderRole.Defender when !FlagAtBase:
-                    if (Navigate(TeamFlag))
-                    {
-                        Log("Moving to return flag.");
-                    }
-                    
-                    _findNewPoint = true;
-                    return;
-                
-                default:
-                    // If the soldier has low health, move to a health pack to heal.
-                    if (Health <= SoldierManager.LowHealth)
-                    {
-                        Vector3? destination = SoldierManager.GetHealthPickup(transform.position);
-                        if (destination != null)
-                        {
-                            if (Navigate(destination.Value))
-                            {
-                                Log("Moving to pickup health.");
-                            }
-                            
-                            _findNewPoint = true;
-                            return;
-                        }
-                    }
-
-                    // Decisions when the soldier's current target enemy is not visible.
-                    if (Target is not { Visible: true })
-                    {
-                        Vector3? destination;
-                        
-                        // If not at full health, move to a health pack to heal.
-                        if (Health < SoldierManager.Health)
-                        {
-                            destination = SoldierManager.GetHealthPickup(transform.position);
-                            if (destination != null)
-                            {
-                                if (Navigate(destination.Value))
-                                {
-                                    Log("Moving to pickup health.");
-                                }
-                                
-                                _findNewPoint = true;
-                                return;
-                            }
-                        }
-
-                        int index = 0;
-                        int priority = int.MaxValue;
-                        destination = null;
-
-                        for (int i = 0; i < _weaponPriority.Length; i++)
-                        {
-                            if (Weapons[i].maxAmmo < 0 || Weapons[i].Ammo >= Weapons[i].maxAmmo)
-                            {
-                                continue;
-                            }
-
-                            if (destination != null && priority <= _weaponPriority[i])
-                            {
-                                continue;
-                            }
-
-                            index = i;
-                            priority = _weaponPriority[i];
-                            destination = SoldierManager.GetWeaponPickup(transform.position, i);
-                        }
-                        
-                        if (destination != null && Navigate(destination.Value))
-                        {
-                            Log("Moving to pickup ammo for " + (WeaponIndexes) index switch
-                            {
-                                WeaponIndexes.MachineGun => "machine gun.",
-                                WeaponIndexes.Shotgun => "shotgun.",
-                                WeaponIndexes.Sniper => "sniper.",
-                                WeaponIndexes.RocketLauncher => "rocket launcher.",
-                                _=> "pistol."
-                            });
-                            
-                            _findNewPoint = true;
-                            return;
-                        }
-                    }
-
-                    // If already moving to a position, do not search for a new one.
-                    if (Destination != null)
-                    {
-                        return;
-                    }
-
-                    // Find a point to move to, either in the offense or defense side depending on the soldier's role.
-                    if (_findNewPoint || (Role == SoliderRole.Attacker && Target is { Visible: true }))
-                    {
-                        _findNewPoint = false;
-                        if (Navigate(SoldierManager.GetPoint(RedTeam, Role == SoliderRole.Defender)))
-                        {
-                            Log(Role == SoliderRole.Attacker ? "Moving to offensive position." : "Moving to defensive position.");
-                        }
-                        return;
-                    }
-
-                    // Do not search for a new point for a given amount of time upon reaching it.
-                    _pointDelay ??= StartCoroutine(PointDelay());
-                    return;
-            }
-        }
-
-        /// <summary>
         /// Respawn the soldier after being killed.
         /// </summary>
         /// <returns>Nothing.</returns>
@@ -709,9 +583,10 @@ namespace Project
             AssignRoles();
             
             // Clear data the soldier had.
-            EnemiesDetected.Clear();
+            DetectedEnemies.Clear();
             Target = null;
             StopNavigating();
+            StopMoving();
             StopLooking();
             MoveVelocity = Vector2.zero;
             
@@ -770,34 +645,6 @@ namespace Project
             WeaponVisible();
         }
 
-        private void WeaponCheck()
-        {
-            int priority = int.MaxValue;
-            int selected = (int) WeaponIndexes.Pistol;
-            
-            // Go through the weapon priority and select the most preferred option which has ammo.
-            for (int i = 0; i < _weaponPriority.Length; i++)
-            {
-                if (Weapons[i].Ammo <= 0 && Weapons[i].maxAmmo >= 0)
-                {
-                    continue;
-                }
-
-                if (_weaponPriority[i] >= priority)
-                {
-                    continue;
-                }
-
-                selected = i;
-                priority = _weaponPriority[i];
-            }
-
-            if (WeaponIndex != selected)
-            {
-                SelectWeapon(selected);
-            }
-        }
-
         /// <summary>
         /// Select a given weapon.
         /// </summary>
@@ -838,17 +685,6 @@ namespace Project
                 // Only the selected weapon is visible, and none are visible if the soldier is dead.
                 Weapons[i].Visible(Alive && i == WeaponIndex);
             }
-        }
-
-        /// <summary>
-        /// Delay for a random amount of time how long to wait before choosing a new position to move to.
-        /// </summary>
-        /// <returns>Nothing.</returns>
-        private IEnumerator PointDelay()
-        {
-            yield return new WaitForSeconds(Random.Range(0, SoldierManager.MaxWaitTime));
-            _findNewPoint = true;
-            _pointDelay = null;
         }
     }
 }
