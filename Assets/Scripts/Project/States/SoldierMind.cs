@@ -10,6 +10,10 @@ namespace Project.States
     [CreateAssetMenu(menuName = "Project/States/Soldier Mind", fileName = "Soldier Mind")]
     public class SoldierMind : State
     {
+        [Tooltip("How much to consider low health.")]
+        [SerializeField]
+        private int lowHealth;
+        
         /// <summary>
         /// Control the soldier.
         /// </summary>
@@ -169,7 +173,7 @@ namespace Project.States
         /// Choose where the soldier should move to.
         /// </summary>
         /// <param name="soldier">The soldier.</param>
-        private static void ChooseDestination(Soldier soldier)
+        private void ChooseDestination(Soldier soldier)
         {
             // If carrying the flag, attempt to move directly back to base.
             if (soldier.CarryingFlag)
@@ -207,16 +211,13 @@ namespace Project.States
                 case Soldier.SoliderRole.Dead:
                 default:
                     // If the soldier has low health, move to a health pack to heal.
-                    if (soldier.Health <= SoldierManager.LowHealth)
+                    if (soldier.Health <= lowHealth)
                     {
                         Vector3? destination = SoldierManager.GetHealthPickup(soldier.transform.position);
-                        if (destination != null)
+                        if (destination != null && soldier.Navigate(destination.Value))
                         {
-                            if (soldier.Navigate(destination.Value))
-                            {
-                                soldier.Log("Moving to pickup health.");
-                                return;
-                            }
+                            soldier.Log("Moving to pickup health.");
+                            return;
                         }
                     }
 
@@ -224,21 +225,16 @@ namespace Project.States
                     if (soldier.Target is not { Visible: true })
                     {
                         Vector3? destination;
-                        
-                        // If not at full health, move to a health pack to heal.
-                        if (soldier.Health < SoldierManager.Health)
+                        if (soldier.Health <= lowHealth)
                         {
                             destination = SoldierManager.GetHealthPickup(soldier.transform.position);
-                            if (destination != null)
+                            if (destination != null && soldier.Navigate(destination.Value))
                             {
-                                if (soldier.Navigate(destination.Value))
-                                {
-                                    soldier.Log("Moving to pickup health.");
-                                }
+                                soldier.Log("Moving to pickup health.");
                                 return;
                             }
                         }
-
+                        
                         int index = 0;
                         int priority = int.MaxValue;
                         destination = null;
@@ -260,36 +256,25 @@ namespace Project.States
                             destination = SoldierManager.GetWeaponPickup(soldier.transform.position, i);
                         }
                         
-                        if (destination != null)
+                        if (destination != null && soldier.Navigate(destination.Value))
                         {
-                            if (soldier.Navigate(destination.Value))
+                            soldier.Log("Moving to pickup ammo for " + (Soldier.WeaponIndexes) index switch
                             {
-                                soldier.Log("Moving to pickup ammo for " + (Soldier.WeaponIndexes) index switch
-                                {
-                                    Soldier.WeaponIndexes.MachineGun => "machine gun.",
-                                    Soldier.WeaponIndexes.Shotgun => "shotgun.",
-                                    Soldier.WeaponIndexes.Sniper => "sniper.",
-                                    Soldier.WeaponIndexes.RocketLauncher => "rocket launcher.",
-                                    _=> "pistol."
-                                });
-                            }
-
+                                Soldier.WeaponIndexes.MachineGun => "machine gun.",
+                                Soldier.WeaponIndexes.Shotgun => "shotgun.",
+                                Soldier.WeaponIndexes.Sniper => "sniper.",
+                                Soldier.WeaponIndexes.RocketLauncher => "rocket launcher.",
+                                _=> "pistol."
+                            });
                             return;
                         }
                     }
 
-                    // If already moving to a position, do not search for a new one.
-                    if (soldier.Destination != null)
-                    {
-                        return;
-                    }
-
-                    // Find a point to move to, either in the offense or defense side depending on the soldier's role.
-                    if (soldier.Navigate(SoldierManager.GetPoint(soldier.RedTeam, soldier.Role == Soldier.SoliderRole.Defender)))
+                    // If not moving, find a point to move to, either in the offense or defense side depending on the soldier's role.
+                    if (soldier.Destination == null && soldier.Navigate(SoldierManager.GetPoint(soldier.RedTeam, soldier.Role == Soldier.SoliderRole.Defender)))
                     {
                         soldier.Log(soldier.Role == Soldier.SoliderRole.Attacker ? "Moving to offensive position." : "Moving to defensive position.");
                     }
-                    
                     return;
             }
         }

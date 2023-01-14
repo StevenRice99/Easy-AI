@@ -33,16 +33,6 @@ namespace Project
         public static float MemoryTime => SoldierSingleton.memoryTime;
 
         /// <summary>
-        /// At what health is a soldier considered at low health.
-        /// </summary>
-        public static float LowHealth => SoldierSingleton.lowHealth;
-
-        /// <summary>
-        /// The maximum amount of time a soldier can wait before deciding on a new position to move to.
-        /// </summary>
-        public static float MaxWaitTime => SoldierSingleton.maxWaitTime;
-
-        /// <summary>
         /// How close in units is an enemy considered close.
         /// </summary>
         public static float DistanceClose => SoldierSingleton.distanceClose;
@@ -194,17 +184,6 @@ namespace Project
         [Tooltip("The material to apply to the blue soldiers.")]
         [SerializeField]
         private Material blue;
-
-        [Header("Will Likely Remove")]
-        [Tooltip("At what health is a soldier considered at low health.")]
-        [Min(1)]
-        [SerializeField]
-        private int lowHealth = 50;
-
-        [Tooltip("The maximum amount of time a soldier can wait before deciding on a new position to move to.")]
-        [Min(0)]
-        [SerializeField]
-        private float maxWaitTime = 5;
 
         [Tooltip("How close in units is an enemy considered close.")]
         [Min(0)]
