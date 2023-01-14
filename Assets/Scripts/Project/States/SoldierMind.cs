@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using EasyAI;
+using Project.Sensors;
 using UnityEngine;
 
 namespace Project.States
@@ -213,7 +214,7 @@ namespace Project.States
                     // If the soldier has low health, move to a health pack to heal.
                     if (soldier.Health <= lowHealth)
                     {
-                        Vector3? destination = SoldierManager.NearestHealthPickup(soldier);
+                        Vector3? destination = soldier.Sense<NearestHealthPickupSensor, Vector3?>();
                         if (destination != null && soldier.Navigate(destination.Value))
                         {
                             soldier.Log("Moving to pickup health.");
@@ -228,7 +229,7 @@ namespace Project.States
                         Vector3? destination;
                         if (soldier.Health <= lowHealth)
                         {
-                            destination = SoldierManager.NearestHealthPickup(soldier);
+                            destination = soldier.Sense<NearestHealthPickupSensor, Vector3?>();
                             if (destination != null && soldier.Navigate(destination.Value))
                             {
                                 soldier.Log("Moving to pickup health.");

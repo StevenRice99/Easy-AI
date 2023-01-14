@@ -346,8 +346,8 @@ namespace EasyAI
         /// </summary>
         /// <typeparam name="TSensor">The sensor type to read.</typeparam>
         /// <typeparam name="TData">The expected data to return.</typeparam>
-        /// <returns>The data piece if it is returned by the given sensor type, null otherwise.</returns>
-        public TData Sense<TSensor, TData>() where TSensor : Sensor where TData : class 
+        /// <returns>The data piece if it is returned by the given sensor type, default otherwise.</returns>
+        public TData Sense<TSensor, TData>() where TSensor : Sensor
         {
             // Loop through all sensors.
             foreach (Sensor sensor in Sensors)
@@ -366,7 +366,7 @@ namespace EasyAI
             }
             
             // Return null if the given sensor returning the requested data type does not exist.
-            return null;
+            return default;
         }
         
         /// <summary>
@@ -375,7 +375,7 @@ namespace EasyAI
         /// <typeparam name="TSensor">The sensor type to read.</typeparam>
         /// <typeparam name="TData">The expected data to return.</typeparam>
         /// <returns>A list of the data type returned by the given sensors.</returns>
-        public List<TData> SenseAll<TSensor, TData>() where TSensor : Sensor where TData : class
+        public List<TData> SenseAll<TSensor, TData>() where TSensor : Sensor
         {
             List<TData> dataList = new();
             

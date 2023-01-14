@@ -329,9 +329,9 @@ namespace Project
         /// <summary>
         /// Get a health pack to move to.
         /// </summary>
-        /// <param name="soldier">The soldier.</param>
+        /// <param name="agent">The agent.</param>
         /// <returns>The health pack to move to or null if none are ready.</returns>
-        public static Vector3? NearestHealthPickup(Soldier soldier)
+        public static Vector3? NearestHealthPickup(Agent soldier)
         {
             // A health pickup is just a weapon pickup with an index of -1, so simply return that.
             return NearestWeaponPickup(soldier, -1);
@@ -340,16 +340,16 @@ namespace Project
         /// <summary>
         /// Get an ammo pickup to move to.
         /// </summary>
-        /// <param name="soldier">The soldier.</param>
+        /// <param name="agent">The agent.</param>
         /// <param name="weaponIndex">The weapon type to look for.</param>
         /// <returns>The ammo pickup to move to or null if none are ready.</returns>
-        public static Vector3? NearestWeaponPickup(Soldier soldier, int weaponIndex)
+        public static Vector3? NearestWeaponPickup(Agent agent, int weaponIndex)
         {
             // Get all pickups for the given type that can be picked up.
             HealthWeaponPickup[] ready = SoldierSingleton._healthWeaponPickups.Where(p => p.weaponIndex == weaponIndex && p.Ready).ToArray();
             
             // Get the nearest one if there are any, otherwise return null.
-            return ready.Length > 0 ? ready.OrderBy(p => Vector3.Distance(soldier.transform.position, p.transform.position)).First().transform.position : null;
+            return ready.Length > 0 ? ready.OrderBy(p => Vector3.Distance(agent.transform.position, p.transform.position)).First().transform.position : null;
         }
 
         /// <summary>
