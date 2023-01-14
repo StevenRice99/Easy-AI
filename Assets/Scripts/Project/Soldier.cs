@@ -13,7 +13,7 @@ namespace Project
     /// <summary>
     /// Agent used to control the soldiers in the project.
     /// </summary>
-    public class SoldierAgent : CharacterAgent
+    public class Soldier : CharacterAgent
     {
         /// <summary>
         /// The behaviour of soldiers is dependent upon their role on the team.
@@ -47,7 +47,7 @@ namespace Project
         /// </summary>
         public class EnemyMemory
         {
-            public SoldierAgent Enemy;
+            public Soldier Enemy;
 
             public bool HasFlag;
 
@@ -63,7 +63,7 @@ namespace Project
         /// </summary>
         public struct TargetData
         {
-            public SoldierAgent Enemy;
+            public Soldier Enemy;
             
             public Vector3 Position;
 
@@ -73,12 +73,12 @@ namespace Project
         /// <summary>
         /// All soldiers on the red team.
         /// </summary>
-        private static readonly List<SoldierAgent> TeamRed = new();
+        private static readonly List<Soldier> TeamRed = new();
         
         /// <summary>
         /// All soldiers on the blue team.
         /// </summary>
-        private static readonly List<SoldierAgent> TeamBlue = new();
+        private static readonly List<Soldier> TeamBlue = new();
 
         [Tooltip("The position of the solder's head.")]
         public Transform headPosition;
@@ -230,10 +230,6 @@ namespace Project
             Manager.GuiLabel(x, y, w, h, p, "--------------------------------------------------------------------------------------------------------------------------");
             y = Manager.NextItem(y, h, p);
 
-            // Display the position of this soldier relative to all others.
-            Manager.GuiLabel(x, y, w, h, p, $"Soldier Performance: {SoldierManager.Sorted.IndexOf(this) + 1} / {SoldierManager.Sorted.Count}");
-            y = Manager.NextItem(y, h, p);
-
             // Display the role of this soldier.
             Manager.GuiLabel(x, y, w, h, p, Role == SoliderRole.Dead ? "Respawning" : $"Role: {Role}");
             y = Manager.NextItem(y, h, p);
@@ -324,7 +320,7 @@ namespace Project
         /// </summary>
         /// <param name="amount">How much damage was taken.</param>
         /// <param name="shooter">What soldier shot.</param>
-        public void Damage(int amount, SoldierAgent shooter)
+        public void Damage(int amount, Soldier shooter)
         {
             // If already dead, do nothing.
             if (Role == SoliderRole.Dead)
@@ -347,7 +343,7 @@ namespace Project
         /// </summary>
         /// <param name="enemy">The enemy which was heard.</param>
         /// <param name="distance">How far away before the sound is considered out of range.</param>
-        public void Hear(SoldierAgent enemy, float distance)
+        public void Hear(Soldier enemy, float distance)
         {
             // Do not "hear" an enemy if the shot was out of range.
             if (Vector3.Distance(headPosition.position, enemy.headPosition.position) > distance)
@@ -395,7 +391,7 @@ namespace Project
         /// Get all enemies.
         /// </summary>
         /// <returns>An enumerable of all enemies.</returns>
-        public IEnumerable<SoldierAgent> GetEnemies()
+        public IEnumerable<Soldier> GetEnemies()
         {
             return (RedTeam ? TeamBlue : TeamRed).Where(s => s.Alive);
         }
@@ -406,7 +402,7 @@ namespace Project
         public void AssignRoles()
         {
             // Get the soldiers on this team, ordered by how close they are to the enemy flag.
-            SoldierAgent[] team = GetTeam();
+            Soldier[] team = GetTeam();
             
             // Loop through every team member.
             for (int i = 0; i < team.Length; i++)
@@ -476,15 +472,13 @@ namespace Project
             {
                 weapon.Replenish();
             }
-            
-            SoldierManager.UpdateSorted();
         }
 
         /// <summary>
         /// Detect which enemies are visible.
         /// </summary>
         /// <returns>All enemies in line of sight.</returns>
-        public IEnumerable<SoldierAgent> SeeEnemies()
+        public IEnumerable<Soldier> SeeEnemies()
         {
             return GetEnemies().Where(enemy => !Physics.Linecast(headPosition.position, enemy.headPosition.position, Manager.ObstacleLayers)).ToArray();
         }
@@ -828,9 +822,9 @@ namespace Project
         /// Get all members of this soldier's team.
         /// </summary>
         /// <returns>All soldiers on this solder's team by closest to the enemy flag.</returns>
-        private SoldierAgent[] GetTeam()
+        private Soldier[] GetTeam()
         {
-            IEnumerable<SoldierAgent> team = (RedTeam ? TeamRed : TeamBlue).Where(s => s.Alive);
+            IEnumerable<Soldier> team = (RedTeam ? TeamRed : TeamBlue).Where(s => s.Alive);
             if (RedTeam)
             {
                 if (FlagPickup.BlueFlag != null)

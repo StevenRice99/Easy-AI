@@ -25,7 +25,7 @@ namespace Project.Pickups
         /// <summary>
         /// The player carrying this flag.
         /// </summary>
-        public SoldierAgent carryingPlayer;
+        public Soldier carryingPlayer;
 
         public bool IsRedFlag => redFlag;
 
@@ -51,7 +51,7 @@ namespace Project.Pickups
         /// Return the flag back to the base.
         /// </summary>
         /// <param name="soldier">The soldier who returned the flag.</param>
-        public void ReturnFlag(SoldierAgent soldier)
+        public void ReturnFlag(Soldier soldier)
         {
             // No need to return if already at the base.
             Transform tr = transform;
@@ -65,7 +65,6 @@ namespace Project.Pickups
             {
                 soldier.Returns++;
                 soldier.Log("Returned the flag.");
-                SoldierManager.UpdateSorted();
             }
 
             // Reset the flag.
@@ -79,7 +78,7 @@ namespace Project.Pickups
         /// </summary>
         /// <param name="soldier">The soldier.</param>
         /// <param name="ammo">Not used.</param>
-        protected override void OnPickedUp(SoldierAgent soldier, int[] ammo)
+        protected override void OnPickedUp(Soldier soldier, int[] ammo)
         {
             // If already being carried, do nothing.
             if (carryingPlayer != null)
@@ -102,7 +101,7 @@ namespace Project.Pickups
         /// Pickup the flag.
         /// </summary>
         /// <param name="soldier">The soldier who picked it up.</param>
-        private void PickupFlag(SoldierAgent soldier)
+        private void PickupFlag(Soldier soldier)
         {
             // Set carrying.
             carryingPlayer = soldier;
@@ -152,7 +151,7 @@ namespace Project.Pickups
         /// </summary>
         /// <param name="soldier">The soldier to check.</param>
         /// <returns>True if the soldier is on the flag's team, false otherwise.</returns>
-        private bool SameTeam(SoldierAgent soldier)
+        private bool SameTeam(Soldier soldier)
         {
             return soldier.RedTeam && this == RedFlag || !soldier.RedTeam && this == BlueFlag;
         }

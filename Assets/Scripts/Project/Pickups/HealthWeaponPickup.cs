@@ -36,7 +36,7 @@ namespace Project.Pickups
         /// </summary>
         /// <param name="soldier">The soldier.</param>
         /// <param name="ammo">The ammo array of the soldier.</param>
-        protected override void OnPickedUp(SoldierAgent soldier, int[] ammo)
+        protected override void OnPickedUp(Soldier soldier, int[] ammo)
         {
             // If not ready to be pickup up do nothing.
             if (!Ready)
@@ -66,12 +66,12 @@ namespace Project.Pickups
                 return;
             }
             
-            soldier.Log((SoldierAgent.WeaponChoices) weaponIndex switch
+            soldier.Log((Soldier.WeaponChoices) weaponIndex switch
             {
-                SoldierAgent.WeaponChoices.MachineGun => "Replenished machine gun.",
-                SoldierAgent.WeaponChoices.Shotgun => "Replenished shotgun.",
-                SoldierAgent.WeaponChoices.Sniper => "Replenished sniper.",
-                SoldierAgent.WeaponChoices.RocketLauncher => "Replenished rocket launcher.",
+                Soldier.WeaponChoices.MachineGun => "Replenished machine gun.",
+                Soldier.WeaponChoices.Shotgun => "Replenished shotgun.",
+                Soldier.WeaponChoices.Sniper => "Replenished sniper.",
+                Soldier.WeaponChoices.RocketLauncher => "Replenished rocket launcher.",
                 _=> "Replenished pistol."
             });
             

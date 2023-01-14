@@ -20,7 +20,7 @@ namespace A2
         protected override float CalculatePerformance()
         {
             return Agent is not Microbe microbe
-                ? 0
+                ? int.MinValue
                 : _timeAlive * MicrobeManager.ScoreSeconds + microbe.Offspring * MicrobeManager.ScoreOffspring;
         }
 

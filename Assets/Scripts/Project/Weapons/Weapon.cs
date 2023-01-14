@@ -16,7 +16,7 @@ namespace Project.Weapons
             /// <summary>
             /// The soldier that was attacked.
             /// </summary>
-            public SoldierAgent Attacked;
+            public Soldier Attacked;
 
             /// <summary>
             /// How many hits they took.
@@ -35,7 +35,7 @@ namespace Project.Weapons
         /// <summary>
         /// The soldier using this weapon.
         /// </summary>
-        public SoldierAgent Soldier { get; set; }
+        public Soldier Soldier { get; set; }
 
         /// <summary>
         /// If the weapon is ready to shoot.
@@ -182,12 +182,12 @@ namespace Project.Weapons
                 return;
             }
             
-            Soldier.Log((SoldierAgent.WeaponChoices) Soldier.WeaponIndex switch
+            Soldier.Log((Soldier.WeaponChoices) Soldier.WeaponIndex switch
             {
-                SoldierAgent.WeaponChoices.MachineGun => "Shooting machine gun.",
-                SoldierAgent.WeaponChoices.Shotgun => "Shooting shotgun.",
-                SoldierAgent.WeaponChoices.Sniper => "Shooting sniper.",
-                SoldierAgent.WeaponChoices.RocketLauncher => "Shooting rocket launcher.",
+                Soldier.WeaponChoices.MachineGun => "Shooting machine gun.",
+                Soldier.WeaponChoices.Shotgun => "Shooting shotgun.",
+                Soldier.WeaponChoices.Sniper => "Shooting sniper.",
+                Soldier.WeaponChoices.RocketLauncher => "Shooting rocket launcher.",
                 _=> "Shooting pistol."
             });
 
@@ -199,7 +199,7 @@ namespace Project.Weapons
             StartDelay();
             
             // See if any enemies can hear this weapon.
-            foreach (SoldierAgent enemy in Soldier.GetEnemies())
+            foreach (Soldier enemy in Soldier.GetEnemies())
             {
                 enemy.Hear(Soldier, soundRange);
             }

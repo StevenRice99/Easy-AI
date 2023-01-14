@@ -93,11 +93,6 @@ namespace Project
         public static IEnumerable<SpawnPoint> SpawnPoints => SoldierSingleton._spawnPoints;
 
         /// <summary>
-        /// Soldiers ordered by how well they are performing.
-        /// </summary>
-        public static List<SoldierAgent> Sorted => SoldierSingleton._sorted;
-
-        /// <summary>
         /// What the most flag captures by a single soldier is.
         /// </summary>
         public static int MostCaptures => SoldierSingleton._mostCaptures;
@@ -118,16 +113,31 @@ namespace Project
         public static int LeastDeaths => SoldierSingleton._leastDeaths;
         
         /// <summary>
+        /// How much score each flag capture is worth for a soldier's performance.
+        /// </summary>
+        public static int ScoreCapture => SoldierSingleton.scoreCapture;
+
+        /// <summary>
+        /// How much score each flag return is worth for a soldier's performance.
+        /// </summary>
+        public static int ScoreReturn => SoldierSingleton.scoreReturn;
+
+        /// <summary>
+        /// How much score each kill gains for a soldier and each death loses.
+        /// </summary>
+        public static int ScoreKillsDeaths => SoldierSingleton.scoreKillsDeaths;
+        
+        /// <summary>
         /// Cast the Manager singleton into a SoldierManager.
         /// </summary>
         private static SoldierManager SoldierSingleton => Singleton as SoldierManager;
 
-        [Header("Soldier Parameters")]
         [Tooltip("How many soldiers to have on each team.")]
         [Range(1, 15)]
         [SerializeField]
         private int soldiersPerTeam = 3;
 
+        [Header("Match Settings")]
         [Tooltip("How much health each soldier has.")]
         [Min(1)]
         [SerializeField]
@@ -148,6 +158,44 @@ namespace Project
         [SerializeField]
         private float memoryTime = 5;
 
+        [Tooltip("How loud the audio is.")]
+        [Range(0, 1)]
+        [SerializeField]
+        private float volume;
+
+        [Header("Performance Scores")]
+        [Tooltip("How much score each flag capture is worth for a soldier's performance.")]
+        [Min(0)]
+        [SerializeField]
+        private int scoreCapture = 10;
+
+        [Header("Performance Scores")]
+        [Tooltip("How much score each flag return is worth for a soldier's performance.")]
+        [Min(0)]
+        [SerializeField]
+        private int scoreReturn = 5;
+
+        [Header("Performance Scores")]
+        [Tooltip("How much score each kill gains for a soldier and each death loses.")]
+        [Min(0)]
+        [SerializeField]
+        private int scoreKillsDeaths = 1;
+
+        [Header("Prefabs")]
+        [Tooltip("The prefab for soldiers.")]
+        [SerializeField]
+        private GameObject soldierPrefab;
+
+        [Header("Materials")]
+        [Tooltip("The material to apply to the red soldiers.")]
+        [SerializeField]
+        private Material red;
+
+        [Tooltip("The material to apply to the blue soldiers.")]
+        [SerializeField]
+        private Material blue;
+
+        [Header("Will Likely Remove")]
         [Tooltip("At what health is a soldier considered at low health.")]
         [Min(1)]
         [SerializeField]
@@ -167,25 +215,6 @@ namespace Project
         [Min(0)]
         [SerializeField]
         private float distanceFar = 20;
-
-        [Tooltip("How loud the audio is.")]
-        [Range(0, 1)]
-        [SerializeField]
-        private float volume;
-
-        [Header("Prefabs")]
-        [Tooltip("The prefab for soldiers.")]
-        [SerializeField]
-        private GameObject soldierPrefab;
-
-        [Header("Materials")]
-        [Tooltip("The material to apply to the red soldiers.")]
-        [SerializeField]
-        private Material red;
-
-        [Tooltip("The material to apply to the blue soldiers.")]
-        [SerializeField]
-        private Material blue;
 
         /// <summary>
         /// The flags captured by the red team.
@@ -243,16 +272,6 @@ namespace Project
         private int _leastDeaths;
 
         /// <summary>
-        /// Soldiers ordered by how well they are performing.
-        /// </summary>
-        private List<SoldierAgent> _sorted;
-
-        /// <summary>
-        /// If the cameras should lock to the best player or not.
-        /// </summary>
-        private bool _best = true;
-
-        /// <summary>
         /// 
         /// </summary>
         /// <param name="flag"></param>
@@ -272,11 +291,9 @@ namespace Project
             flag.carryingPlayer.Captures++;
 
             // Finally return the flag and reassign roles.
-            SoldierAgent soldier = flag.carryingPlayer;
+            Soldier soldier = flag.carryingPlayer;
             flag.ReturnFlag(null);
             soldier.AssignRoles();
-            
-            UpdateSorted();
         }
 
         /// <summary>
@@ -284,7 +301,7 @@ namespace Project
         /// </summary>
         /// <param name="shooter">The solider that got the kill.</param>
         /// <param name="killed">The soldier that got killed.</param>
-        public static void AddKill(SoldierAgent shooter, SoldierAgent killed)
+        public static void AddKill(Soldier shooter, Soldier killed)
         {
             // Reset killed player stats.
             killed.Health = 0;
@@ -307,10 +324,7 @@ namespace Project
                 SoldierSingleton._killsBlue++;
             }
 
-            // Reassign team roles as a team member has died.
-            UpdateSorted();
-
-            // Start the respawn counter.
+            // Start the respawn counter and reassign team roles as a team member has died.
             killed.StopAllCoroutines();
             killed.StartCoroutine(killed.Respawn());
         }
@@ -360,18 +374,6 @@ namespace Project
         }
 
         /// <summary>
-        /// Update all top scoring values.
-        /// </summary>
-        public static void UpdateSorted()
-        {
-            SoldierSingleton._sorted = SoldierSingleton._sorted.OrderByDescending(s => s.Captures).ThenByDescending(s => s.Kills).ThenBy(s => s.Deaths).ThenByDescending(s => s.Returns).ThenByDescending(s => s.Role == SoldierAgent.SoliderRole.Collector).ToList();
-            SoldierSingleton._mostCaptures = SoldierSingleton._sorted.OrderByDescending(s => s.Captures).First().Captures;
-            SoldierSingleton._mostReturns = SoldierSingleton._sorted.OrderByDescending(s => s.Returns).First().Returns;
-            SoldierSingleton._mostKills = SoldierSingleton._sorted.OrderByDescending(s => s.Kills).First().Kills;
-            SoldierSingleton._leastDeaths = SoldierSingleton._sorted.OrderBy(s => s.Deaths).First().Deaths;
-        }
-
-        /// <summary>
         /// Reset the level.
         /// </summary>
         private static void NewGame()
@@ -395,7 +397,7 @@ namespace Project
             }
             
             // Reset every soldier.
-            foreach (SoldierAgent soldier in SoldierSingleton._sorted)
+            foreach (Soldier soldier in Singleton.Agents.Where(a => a is Soldier).Cast<Soldier>())
             {
                 soldier.Spawn();
                 soldier.Kills = 0;
@@ -437,8 +439,6 @@ namespace Project
             {
                 Instantiate(soldierPrefab);
             }
-            
-            _sorted = FindObjectsOfType<SoldierAgent>().ToList();
         }
 
         protected override void Update()
@@ -450,16 +450,16 @@ namespace Project
             foreach (Agent agent in Agents)
             {
                 // Only perform on alive soldiers.
-                if (agent is not SoldierAgent { Alive: true } soldier)
+                if (agent is not Soldier { Alive: true } soldier)
                 {
                     continue;
                 }
                 
                 // Detect seen enemies and add them to memory.
-                foreach (SoldierAgent enemy in soldier.SeeEnemies())
+                foreach (Soldier enemy in soldier.SeeEnemies())
                 {
                     // If there is no existing memory, add it to memory.
-                    SoldierAgent.EnemyMemory memory = soldier.EnemiesDetected.FirstOrDefault(e => e.Enemy == enemy);
+                    Soldier.EnemyMemory memory = soldier.EnemiesDetected.FirstOrDefault(e => e.Enemy == enemy);
                     if (memory != null)
                     {
                         memory.DeltaTime = 0;
@@ -488,7 +488,7 @@ namespace Project
                     }
 
                     // Update the target for the soldier.
-                    soldier.Target = new SoldierAgent.TargetData
+                    soldier.Target = new Soldier.TargetData
                     {
                         Enemy = enemy,
                         Position = enemy.headPosition.position,
@@ -503,7 +503,7 @@ namespace Project
             foreach (Agent agent in Agents)
             {
                 // Only perform for alive soldiers.
-                if (agent is not SoldierAgent { Alive: true } soldier)
+                if (agent is not Soldier { Alive: true } soldier)
                 {
                     agent.StopLooking();
                     continue;
@@ -536,7 +536,7 @@ namespace Project
                 Transform tr = hit.collider.transform;
                 do
                 {
-                    SoldierAgent attacked = tr.GetComponent<SoldierAgent>();
+                    Soldier attacked = tr.GetComponent<Soldier>();
                     if (attacked != null)
                     {
                         // If it was a soldier on the other team, shoot at them.
@@ -551,15 +551,6 @@ namespace Project
                     tr = tr.parent;
                 } while (tr != null);
             }
-
-            if (!_best)
-            {
-                return;
-            }
-            
-            // If set to follow the best soldier, set it as the selected agent.
-            SoldierAgent bestAlive = _sorted.FirstOrDefault(s => s.Alive);
-            SetSelectedAgent(bestAlive != null ? bestAlive : _sorted[0]);
         }
         
         /// <summary>
@@ -577,13 +568,6 @@ namespace Project
             if (GuiButton(x, y, w, h, "Reset"))
             {
                 NewGame();
-            }
-            
-            // Toggle between manually selecting soldiers and following the best one.
-            y = NextItem(y, h, p);
-            if (GuiButton(x, y, w, h, _best ? "Following Best" : "Manual Selection"))
-            {
-                _best = !_best;
             }
             
             return NextItem(y, h, p);

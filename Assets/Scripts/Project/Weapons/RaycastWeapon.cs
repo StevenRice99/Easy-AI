@@ -65,11 +65,11 @@ namespace Project.Weapons
                 positions[i] = hit.point;
 
                 // Look to see if a soldier was hit.
-                SoldierAgent attacked;
+                Soldier attacked;
                 Transform tr = hit.collider.transform;
                 do
                 {
-                    attacked = tr.GetComponent<SoldierAgent>();
+                    attacked = tr.GetComponent<Soldier>();
                     tr = tr.parent;
                 } while (attacked == null && tr != null);
 

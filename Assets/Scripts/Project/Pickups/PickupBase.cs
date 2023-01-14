@@ -13,7 +13,7 @@ namespace Project.Pickups
         /// </summary>
         /// <param name="soldier">The soldier.</param>
         /// <param name="ammo">The ammo array of the soldier.</param>
-        protected abstract void OnPickedUp(SoldierAgent soldier, int[] ammo);
+        protected abstract void OnPickedUp(Soldier soldier, int[] ammo);
         
         private void OnTriggerEnter(Collider other)
         {
@@ -32,7 +32,7 @@ namespace Project.Pickups
         private void DetectPickup(Component other)
         {
             // If a soldier, pick it up.
-            SoldierAgent soldier = other.gameObject.GetComponent<SoldierAgent>();
+            Soldier soldier = other.gameObject.GetComponent<Soldier>();
             if (soldier != null && soldier.Alive)
             {
                 OnPickedUp(soldier, soldier.Weapons.Select(w => w.Ammo).ToArray());

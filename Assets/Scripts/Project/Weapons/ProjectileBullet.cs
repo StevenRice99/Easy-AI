@@ -14,7 +14,7 @@ namespace Project.Weapons
         /// <summary>
         /// The soldier that shot the weapon.
         /// </summary>
-        public SoldierAgent Shooter { get; set; }
+        public Soldier Shooter { get; set; }
 
         /// <summary>
         /// The weapon index of the soldier.
@@ -71,10 +71,10 @@ namespace Project.Weapons
         private void HandleCollision(Transform tr)
         {
             // See if a soldier was hit.
-            SoldierAgent attacked;
+            Soldier attacked;
             do
             {
-                attacked = tr.GetComponent<SoldierAgent>();
+                attacked = tr.GetComponent<Soldier>();
                 tr = tr.parent;
             } while (attacked == null && tr != null);
 
@@ -90,7 +90,7 @@ namespace Project.Weapons
                 int layerMask = LayerMask.GetMask("Default", "Obstacle", "Ground", "Projectile", "HitBox");
 
                 // Loop through all enemies.
-                foreach (SoldierAgent soldier in FindObjectsOfType<SoldierAgent>().Where(p => p != Shooter && p.RedTeam != Shooter.RedTeam && p != attacked).ToArray())
+                foreach (Soldier soldier in FindObjectsOfType<Soldier>().Where(p => p != Shooter && p.RedTeam != Shooter.RedTeam && p != attacked).ToArray())
                 {
                     // Get the points of every collider of an enemy.
                     Collider[] hitBoxes = soldier.GetComponentsInChildren<Collider>().Where(c => c.gameObject.layer == LayerMask.NameToLayer("HitBox")).ToArray();
