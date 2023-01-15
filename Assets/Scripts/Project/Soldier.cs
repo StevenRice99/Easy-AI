@@ -32,7 +32,7 @@ namespace Project
         }
         
         /// <summary>
-        /// The indexes of weapons the soldier can use.
+        /// The indexes of weapons the soldier can use, which will correspond to the weapon priority variable indexes.
         /// </summary>
         public enum WeaponIndexes
         {
@@ -466,7 +466,7 @@ namespace Project
         public void Spawn()
         {
             // Get spawn points on their side of the map.
-            SpawnPoint[] points = SoldierManager.SpawnPoints.Where(p => p.redTeam == RedTeam).ToArray();
+            SpawnPoint[] points = SoldierManager.SpawnPoints.Where(p => p.RedTeam == RedTeam).ToArray();
             
             // Get all open spawn points.
             SpawnPoint[] open = points.Where(p => p.Open).ToArray();

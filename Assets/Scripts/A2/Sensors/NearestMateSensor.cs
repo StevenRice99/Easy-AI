@@ -6,7 +6,7 @@ using UnityEngine;
 namespace A2.Sensors
 {
     /// <summary>
-    /// Sensor to find the nearest potential mate for a microbe.
+    /// Sensor to sense the nearest potential mate of the microbe.
     /// </summary>
     [DisallowMultipleComponent]
     public class NearestMateSensor : Sensor

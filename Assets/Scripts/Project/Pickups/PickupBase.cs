@@ -6,6 +6,7 @@ namespace Project.Pickups
     /// <summary>
     /// Base class for pickups for the soldiers.
     /// </summary>
+    [DisallowMultipleComponent]
     public abstract class PickupBase : MonoBehaviour
     {
         /// <summary>

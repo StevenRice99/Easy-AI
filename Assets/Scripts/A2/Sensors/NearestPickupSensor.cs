@@ -6,7 +6,7 @@ using UnityEngine;
 namespace A2.Sensors
 {
     /// <summary>
-    /// Sensor to find the nearest pickup for a microbe.
+    /// Sensor to sense the nearest pickup of the microbe.
     /// </summary>
     [DisallowMultipleComponent]
     public class NearestPickupSensor : Sensor

@@ -4,21 +4,22 @@ using UnityEngine;
 namespace Project.Pickups
 {
     /// <summary>
-    /// Pickup for health and weapons.
+    /// Pickup for health and ammo.
     /// </summary>
-    public class HealthWeaponPickup : PickupBase
+    [DisallowMultipleComponent]
+    public class HealthAmmoPickup : PickupBase
     {
         /// <summary>
         /// How fast to spin its visuals in degrees per second.
         /// </summary>
         private const float Speed = 180;
         
+        [Tooltip("Set to a negative number to be a health pickup, otherwise the weapon index of the player.")]
         [SerializeField]
-        [Tooltip("Set to below 0 to be a health pickup, otherwise the weapon index of the player.")]
         public int weaponIndex = -1;
 
-        [SerializeField]
         [Tooltip("The visuals object to rotate.")]
+        [SerializeField]
         private Transform visuals;
         
         /// <summary>

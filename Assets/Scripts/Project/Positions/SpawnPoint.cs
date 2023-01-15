@@ -6,6 +6,7 @@ namespace Project.Positions
     /// <summary>
     /// Positions for soldiers to spawn at.
     /// </summary>
+    [DisallowMultipleComponent]
     public class SpawnPoint : Position
     {
         /// <summary>

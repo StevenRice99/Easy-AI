@@ -1,8 +1,11 @@
-﻿namespace Project.Positions
+﻿using UnityEngine;
+
+namespace Project.Positions
 {
     /// <summary>
     /// A position that a soldier can move to.
     /// </summary>
+    [DisallowMultipleComponent]
     public class StrategicPoint : Position
     {
         /// <summary>

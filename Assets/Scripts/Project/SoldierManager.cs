@@ -208,7 +208,7 @@ namespace Project
         /// <summary>
         /// All health and weapon pickups.
         /// </summary>
-        private HealthWeaponPickup[] _healthWeaponPickups;
+        private HealthAmmoPickup[] _healthWeaponPickups;
 
         /// <summary>
         /// 
@@ -277,7 +277,7 @@ namespace Project
         public static Vector3 RandomStrategicPosition(Soldier soldier, bool defensive)
         {
             // Get all points for the team and for the given type.
-            StrategicPoint[] points = SoldierSingleton._strategicPoints.Where(p => p.redTeam == soldier.RedTeam && p.defensive == defensive).ToArray();
+            StrategicPoint[] points = SoldierSingleton._strategicPoints.Where(p => p.RedTeam == soldier.RedTeam && p.defensive == defensive).ToArray();
             
             // Get all open spots.
             StrategicPoint[] open = points.Where(s => s.Open).ToArray();
@@ -291,7 +291,7 @@ namespace Project
         /// </summary>
         /// <param name="agent">The agent.</param>
         /// <returns>The health pack to move to or null if none are ready.</returns>
-        public static HealthWeaponPickup NearestHealthPickup(Agent agent)
+        public static HealthAmmoPickup NearestHealthPickup(Agent agent)
         {
             // A health pickup is just a weapon pickup with an index of -1, so simply return that.
             return NearestAmmoPickup(agent, -1);
@@ -303,10 +303,10 @@ namespace Project
         /// <param name="agent">The agent.</param>
         /// <param name="weaponIndex">The weapon type to look for.</param>
         /// <returns>The ammo pickup to move to or null if none are ready.</returns>
-        public static HealthWeaponPickup NearestAmmoPickup(Agent agent, int weaponIndex)
+        public static HealthAmmoPickup NearestAmmoPickup(Agent agent, int weaponIndex)
         {
             // Get all pickups for the given type that can be picked up.
-            HealthWeaponPickup[] ready = SoldierSingleton._healthWeaponPickups.Where(p => p.weaponIndex == weaponIndex && p.Ready).ToArray();
+            HealthAmmoPickup[] ready = SoldierSingleton._healthWeaponPickups.Where(p => p.weaponIndex == weaponIndex && p.Ready).ToArray();
             
             // Get the nearest one if there are any, otherwise return null.
             return ready.Length > 0 ? ready.OrderBy(p => Vector3.Distance(agent.transform.position, p.transform.position)).First() : null;
@@ -346,7 +346,7 @@ namespace Project
             }
             
             // Reset every pickup.
-            foreach (HealthWeaponPickup pickup in SoldierSingleton._healthWeaponPickups)
+            foreach (HealthAmmoPickup pickup in SoldierSingleton._healthWeaponPickups)
             {
                 pickup.StopAllCoroutines();
                 pickup.Ready = true;
@@ -367,7 +367,7 @@ namespace Project
             // Get all points in the level.
             _spawnPoints = FindObjectsOfType<SpawnPoint>();
             _strategicPoints = FindObjectsOfType<StrategicPoint>();
-            _healthWeaponPickups = FindObjectsOfType<HealthWeaponPickup>();
+            _healthWeaponPickups = FindObjectsOfType<HealthAmmoPickup>();
 
             // Spawn all soldiers.
             for (int i = 0; i < soldiersPerTeam * 2; i++)

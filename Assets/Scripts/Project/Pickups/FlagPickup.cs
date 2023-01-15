@@ -5,6 +5,7 @@ namespace Project.Pickups
     /// <summary>
     /// Pickups for the flags for soldiers to carry.
     /// </summary>
+    [DisallowMultipleComponent]
     public class FlagPickup : PickupBase
     {
         /// <summary>
@@ -29,12 +30,12 @@ namespace Project.Pickups
 
         public bool IsRedFlag => redFlag;
 
-        [SerializeField]
         [Tooltip("If this flag is for the red team or not.")]
+        [SerializeField]
         private bool redFlag;
 
-        [SerializeField]
         [Tooltip("The raycast for a dropped flag to hit the ground.")]
+        [SerializeField]
         private LayerMask raycastMask;
 
         /// <summary>

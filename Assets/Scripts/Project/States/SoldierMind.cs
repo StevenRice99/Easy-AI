@@ -225,7 +225,7 @@ namespace Project.States
                     // If the soldier has low health, move to a health pack to heal.
                     if (soldier.Health <= lowHealth)
                     {
-                        HealthWeaponPickup health = soldier.Sense<NearestHealthPickupSensor, HealthWeaponPickup>();
+                        HealthAmmoPickup health = soldier.Sense<NearestHealthPickupSensor, HealthAmmoPickup>();
                         if (health != null)
                         {
                             if (soldier.Navigate(health.transform.position))
@@ -242,7 +242,7 @@ namespace Project.States
                         // Try to heal.
                         if (soldier.Health <= lowHealth)
                         {
-                            HealthWeaponPickup health = soldier.Sense<NearestHealthPickupSensor, HealthWeaponPickup>();
+                            HealthAmmoPickup health = soldier.Sense<NearestHealthPickupSensor, HealthAmmoPickup>();
                             if (health != null)
                             {
                                 if (soldier.Navigate(health.transform.position))
@@ -253,7 +253,7 @@ namespace Project.States
                             }
                         }
 
-                        HealthWeaponPickup ammo = soldier.Sense<NearestAmmoPickupSensor, HealthWeaponPickup>();
+                        HealthAmmoPickup ammo = soldier.Sense<NearestAmmoPickupSensor, HealthAmmoPickup>();
                         if (ammo != null)
                         {
                             if (soldier.Navigate(ammo.transform.position))

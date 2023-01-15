@@ -4,7 +4,7 @@ using UnityEngine;
 namespace A2.Sensors
 {
     /// <summary>
-    /// Sensor to find the nearest prey for a microbe.
+    /// Sensor to sense the nearest prey of the microbe.
     /// </summary>
     [DisallowMultipleComponent]
     public class NearestPreySensor : EasyAI.Sensor

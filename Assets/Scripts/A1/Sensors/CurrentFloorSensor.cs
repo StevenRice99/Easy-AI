@@ -6,7 +6,7 @@ using UnityEngine;
 namespace A1.Sensors
 {
     /// <summary>
-    /// Sense the dirt state of the current tile the agent is on.
+    /// Senor to sense the dirt state of the current tile the agent is on.
     /// </summary>
     [DisallowMultipleComponent]
     public class CurrentFloorSensor : Sensor
