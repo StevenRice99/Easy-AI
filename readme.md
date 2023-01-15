@@ -38,7 +38,7 @@ Agents, Sensors, and Actuators
 Finite State Machines
 -
 
-- Now understanding the basics of how agents can interact with the world from assignment one, it’s now time to create more complex behaviors.
+- Now understanding the basics of how agents can interact with the world from assignment one, it’s now time to create more complex behaviours.
 - You need to complete the mind and states for microbes to allow them to hunt and mate with each other.
 - Some sensors you may find useful to use have already been provided. As microbes can only eat or mate with others of certain colors, these sensors will help you get valid prey or mates.
 - Explore the microbe agent API as it provides easy ways to access properties of the microbe such as its hunger and if it has mated yet.
