@@ -42,7 +42,6 @@ Finite State Machines
 - You need to complete the mind and states for microbes to allow them to hunt and mate with each other.
 - Some sensors you may find useful to use have already been provided. As microbes can only eat or mate with others of certain colors, these sensors will help you get valid prey or mates.
 - Explore the microbe agent API as it provides easy ways to access properties of the microbe such as its hunger and if it has mated yet.
-- Create additional pickup types to see the potential impact they have on microbes behaviour.
 - Pickups will automatically be picked up by microbes close enough to them, no need to create an actuator for that.
 
 ## Tutorial 2
