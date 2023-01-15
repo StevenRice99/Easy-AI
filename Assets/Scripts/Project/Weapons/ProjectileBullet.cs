@@ -7,6 +7,7 @@ namespace Project.Weapons
     /// <summary>
     /// Projectile weapon.
     /// </summary>
+    [DisallowMultipleComponent]
     [RequireComponent(typeof(Collider))]
     [RequireComponent(typeof(Rigidbody))]
     public class ProjectileBullet : MonoBehaviour

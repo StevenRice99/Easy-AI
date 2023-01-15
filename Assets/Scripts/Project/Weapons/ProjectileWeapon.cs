@@ -5,18 +5,22 @@ namespace Project.Weapons
     /// <summary>
     /// Projectile weapon.
     /// </summary>
+    [DisallowMultipleComponent]
+    [RequireComponent(typeof(AudioSource))]
     public class ProjectileWeapon : Weapon
     {
-        [SerializeField]
         [Tooltip("How fast the projectile should travel.")]
+        [Min(float.Epsilon)]
+        [SerializeField]
         private float velocity = 10;
 
-        [SerializeField]
         [Tooltip("Splash damage distance.")]
+        [Min(0)]
+        [SerializeField]
         private float distance;
         
-        [SerializeField]
         [Tooltip("The bullet prefab.")]
+        [SerializeField]
         private GameObject bulletPrefab;
         
         /// <summary>

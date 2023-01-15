@@ -7,20 +7,22 @@ namespace Project.Weapons
     /// <summary>
     /// Raycast/hit scan weapon.
     /// </summary>
+    [DisallowMultipleComponent]
+    [RequireComponent(typeof(AudioSource))]
     public class RaycastWeapon : Weapon
     {
-        [SerializeField]
         [Tooltip("The material for the bullet trail.")]
+        [SerializeField]
         private Material material;
 
-        [SerializeField]
-        [Min(1)]
         [Tooltip("How many rounds to fire each shot.")]
-        private int rounds;
-
+        [Min(1)]
         [SerializeField]
-        [Range(0, 1)]
+        private int rounds = 1;
+
         [Tooltip("How much spread should the shots have.")]
+        [Range(0, 1)]
+        [SerializeField]
         private float spread;
 
         /// <summary>

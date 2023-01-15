@@ -6,6 +6,8 @@ namespace Project.Weapons
     /// <summary>
     /// Base class for weapons.
     /// </summary>
+    [DisallowMultipleComponent]
+    [RequireComponent(typeof(AudioSource))]
     public abstract class Weapon : MonoBehaviour
     {
         /// <summary>
