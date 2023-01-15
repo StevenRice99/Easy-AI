@@ -10,7 +10,7 @@ namespace A2
     public class MicrobePerformance : PerformanceMeasure
     {
         /// <summary>
-        /// How long in seconds the 
+        /// How long in seconds the microbe has been alive.
         /// </summary>
         private float _timeAlive;
         
