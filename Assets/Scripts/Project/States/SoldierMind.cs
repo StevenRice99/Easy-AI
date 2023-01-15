@@ -16,10 +16,6 @@ namespace Project.States
         [SerializeField]
         private int lowHealth;
         
-        /// <summary>
-        /// Control the soldier.
-        /// </summary>
-        /// <param name="agent"></param>
         public override void Execute(Agent agent)
         {
             if (agent is not Soldier soldier)
