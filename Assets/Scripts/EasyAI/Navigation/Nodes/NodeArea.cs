@@ -207,6 +207,12 @@ namespace EasyAI.Navigation.Nodes
                 g.Finish();
             }
 
+            // Only generate map files if in the editor.
+            if (!Application.isEditor)
+            {
+                return;
+            }
+
             // Ensure the folder to save the map data exists.
             const string folder = "Maps";
             if (!Directory.Exists(folder))
