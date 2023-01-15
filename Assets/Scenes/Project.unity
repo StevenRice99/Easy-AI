@@ -9316,8 +9316,8 @@ MonoBehaviour:
   maxMessages: 100
   detailsWidth: 500
   controlsWidth: 120
-  followBest: 0
-  selectedCamera: {fileID: 1559026829}
+  followBest: 1
+  selectedCamera: {fileID: 448259072}
   gizmos: 2
   paths: 3
   soldiersPerTeam: 15
