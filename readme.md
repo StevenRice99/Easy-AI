@@ -23,7 +23,7 @@ Agents, Sensors, and Actuators
 -
 
 - In assignment one, you need to help a vacuum cleaning agent keep the floor clean.
-- Grey tiles are normal floor tiles which are clean. Shiny white floor tiles are also clean, but they are more likely to become dirty than the normal floor tiles.
+- Grey tiles are normal floor tiles which are clean. Shiny white floor tiles are also clean, but they are more likely to become dirty than normal floor tiles.
 - Tiles can become either dirty or very dirty, indicated by light brown and dark brown respectfully. Tiles will randomly become dirty over time.
 - Your objective is to complete the cleaner agent's mind along with any sensors and actuators it needs to complete its task.
 - You should also create a performance measure to determine how well the cleaner is doing.
@@ -38,11 +38,22 @@ Agents, Sensors, and Actuators
 Finite State Machines
 -
 
-- Now understanding the basics of how agents can interact with the world from assignment one, its now time to create more complex behaviours.
+- Now understanding the basics of how agents can interact with the world from assignment one, it’s now time to create more complex behaviors.
 - You need to complete the mind and states for microbes to allow them to hunt and mate with each other.
 - Some sensors you may find useful to use have already been provided. As microbes can only eat or mate with others of certain colors, these sensors will help you get valid prey or mates.
 - Explore the microbe agent API as it provides easy ways to access properties of the microbe such as its hunger and if it has mated yet.
-- Pickups will automatically be picked up by microbes close enough to them, no need to create an actuator for that.
+- Pickups are automatically picked up by microbes close enough to them.
+- Microbes can mate with and eat various colors as seen in the table below where an "M" means those microbes can mate and a blank space means those microbes can eat each other:
+
+|        | Red | Orange | Yellow | Green | Blue | Purple | Pink |
+|:------:|:---:|:------:|:------:|:-----:|:----:|:------:|:----:|
+|  Red   |  M  |   M    |        |       |      |        |  M   |
+| Orange |  M  |   M    |   M    |       |      |        |      |
+| Yellow |     |   M    |   M    |   M   |      |        |      |
+| Green  |     |        |   M    |   M   |  M   |        |      |
+|  Blue  |     |        |        |   M   |  M   |   M    |      |
+| Purple |     |        |        |       |  M   |   M    |  M   |
+|  Pink  |  M  |        |        |       |      |   M    |  M   |
 
 ## Tutorial 2
 
@@ -55,29 +66,33 @@ Steering Behaviours
 -
 
 - Our agents can now interact with the world and make more complex decisions, but the available tools to move them are limiting.
-- So far, agents can only seek to a position. For instance as seen with microbes, the library is missing behaviour to make a microbe run away when being hunted.
+- So far, agents can only seek a position. For instance, as seen with microbes, the library is missing behaviour to make a microbe run away when being hunted.
 - Complete the flee, pursue, and evade steering behaviours in the Easy-AI library.
-- Then, use these completed behaviours to go back and improve the microbes from assignment two, and see how more life the addition of a few new steering behaviours gives the scene.
+- Then, use these completed behaviours to go back and improve the microbes from assignment two, and see how the addition of a few new steering behaviours gives the scene more life.
 
 # Assignment 4
 
 Navigation
 -
 
-- Our agents can now move around, but so far they've only been in open environments. They need to be able to get around obstacles in more complex environments.
+- Our agents can now move around, but so far, they've only been in open environments. They need to be able to get around obstacles in more complex environments.
 - First, complete corner-graph generation in the Easy-AI library.
 - Then, complete A* pathfinding in the Easy-AI library.
-- To improve your pathfinding, optionally complete string-pulling in the Easy-AI library.
+- Complete string-pulling in the Easy-AI library to improve pathfinding.
 
 # Project
 
+Goal-Oriented Behaviour
+-
+
 - Each assignment has introduced a building block to creating intelligent agents.
+- However, agents thus far have been working individually. Now, they must compete in a team-based game, and team members must take on different roles such as attackers or defenders that work together to complete the greater goal of capturing the enemy flag while not letting their own get captured.
 - Use all skills you have learned to have agents compete in a game of capture the flag.
 - Some sensors you may find useful to use have already been provided.
 - Explore the soldier agent API as it provides easy ways to access properties of the soldier such as its health, current weapon, and the enemies it has detected.
 - The soldier manager automatically handles aiming and shooting of the soldiers for you, all you need to do is decide for soldiers who to aim at and the framework will handle the rest for you.
-- A good idea is to decide on different behaviours based off of roles for each soldier. Capture, attack, and defend roles have been provided for you which are assigned in the soldier class automatically. You may wish to expand or change how this method works with more roles or change how they are assigned.
-- Flags, ammo pickups, and health pickups will automatically be picked up by soldiers close enough to them, no need to create an actuator for that.
+- Capture, attack, and defend roles have been provided for you which are assigned in the soldier class automatically. You may wish to expand or change how this method works with more roles or change how they are assigned to allow for more complex interactions and teamwork.
+- Flags, ammo pickups, and health pickups will automatically be picked up by soldiers close enough to them.
 
 # Assets
 
