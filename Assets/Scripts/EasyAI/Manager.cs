@@ -11,6 +11,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 namespace EasyAI
 {
@@ -20,40 +21,6 @@ namespace EasyAI
     [DisallowMultipleComponent]
     public class Manager : MonoBehaviour
     {
-        /// <summary>
-        /// Hold data for the navigation lookup table.
-        /// </summary>
-        private struct NavigationLookup
-        {
-            /// <summary>
-            /// The current or starting node.
-            /// </summary>
-            public readonly Vector3 Current;
-        
-            /// <summary>
-            /// Where the end goal of the navigation is.
-            /// </summary>
-            public readonly Vector3 Goal;
-        
-            /// <summary>
-            /// The node to move to from the current node in order to navigate towards the goal.
-            /// </summary>
-            public readonly Vector3 Next;
-
-            /// <summary>
-            /// Create a data entry for a navigation lookup table.
-            /// </summary>
-            /// <param name="current">The current or starting node.</param>
-            /// <param name="goal">Where the end goal of the navigation is.</param>
-            /// <param name="next">The node to move to from the current node in order to navigate towards the goal.</param>
-            public NavigationLookup(Vector3 current, Vector3 goal, Vector3 next)
-            {
-                Current = current;
-                Goal = goal;
-                Next = next;
-            }
-        }
-    
         /// <summary>
         /// Determine what mode messages are stored in.
         /// All - All messages are captured.
@@ -109,11 +76,6 @@ namespace EasyAI
             All,
             Selected
         }
-
-        /// <summary>
-        /// The folder to output navigation lookup tables into.
-        /// </summary>
-        private const string Folder = "Navigation";
         
         /// <summary>
         /// The width of the GUI buttons to open their respective menus when they are closed.
@@ -324,9 +286,14 @@ namespace EasyAI
         [SerializeField]
         private float pullMaxDifference;
 
-        [Tooltip("Read and use a pre-generated navigation lookup table instead of generating it at start.")]
+        [Tooltip("Lookup table to save and load navigation.")]
         [SerializeField]
-        private bool lookupTable;
+        private LookupTable lookupTable;
+
+        [FormerlySerializedAs("lookupTable")]
+        [Tooltip("Check to load the lookup data, otherwise new data will be generated and saved.")]
+        [SerializeField]
+        private bool loadLookupTable;
 
         [Header("Performance")]
         [Tooltip("The maximum number of agents which can be updated in a single frame. Set to zero to be unlimited.")]
@@ -1740,112 +1707,6 @@ namespace EasyAI
             Singleton._stepping = false;
         }
 
-        /// <summary>
-        /// Write lookup table data to a file.
-        /// </summary>
-        private void WriteLookupData()
-        {
-            // Build the data string.
-            string data = string.Empty;
-            for (int i = 0; i < _navigationTable.Length; i++)
-            {
-                data += $"{_navigationTable[i].Current.x} {_navigationTable[i].Current.y} {_navigationTable[i].Current.z} {_navigationTable[i].Goal.x} {_navigationTable[i].Goal.y} {_navigationTable[i].Goal.z} {_navigationTable[i].Next.x} {_navigationTable[i].Next.y} {_navigationTable[i].Next.z}";
-                if (i != _navigationTable.Length - 1)
-                {
-                    data += "\n";
-                }
-            }
-
-            // Do not create files if there is no node data.
-            if (string.IsNullOrWhiteSpace(data))
-            {
-                return;
-            }
-        
-            // Create the directory.
-            if (!Directory.Exists(Folder))
-            {
-                DirectoryInfo info = Directory.CreateDirectory(Folder);
-                if (!info.Exists)
-                {
-                    return;
-                }
-            }
-
-            // Write to the file.
-            string fileName = $"{Folder}/{SceneManager.GetActiveScene().name}.txt";
-            StreamWriter writer = new(fileName, false);
-            writer.Write(data);
-            writer.Close();
-        }
-
-        /// <summary>
-        /// Read lookup table data from a file.
-        /// </summary>
-        private void ReadLookupData()
-        {
-            // If there is no directory for data return.
-            if (!Directory.Exists(Folder))
-            {
-                // Set that there was no pre-generated data so data can now be generated.
-                lookupTable = false;
-                return;
-            }
-        
-            // If there is no file for data return.
-            string fileName = $"{Folder}/{SceneManager.GetActiveScene().name}.txt";
-            if (!File.Exists(fileName))
-            {
-                // Set that there was no pre-generated data so data can now be generated.
-                lookupTable = false;
-                return;
-            }
-
-            List<NavigationLookup> lookups = new();
-
-            // Read all lines from the file.
-            string[] lines = File.ReadAllLines(fileName);
-        
-            // Loop through all lines building each into a data entry for the lookup table.
-            foreach (string line in lines)
-            {
-                string[] s = line.Split(' ');
-                NavigationLookup lookup = new(
-                    new(float.Parse(s[0]), float.Parse(s[1]), float.Parse(s[2])),
-                    new(float.Parse(s[3]), float.Parse(s[4]), float.Parse(s[5])),
-                    new(float.Parse(s[6]), float.Parse(s[7]), float.Parse(s[8]))
-                );
-
-                // Ensure all nodes are added.
-                if (!_nodes.Contains(lookup.Current))
-                {
-                    _nodes.Add(lookup.Current);
-                }
-            
-                if (!_nodes.Contains(lookup.Goal))
-                {
-                    _nodes.Add(lookup.Goal);
-                }
-            
-                if (!_nodes.Contains(lookup.Next))
-                {
-                    _nodes.Add(lookup.Next);
-                }
-
-                // Ensure a connection between the current and next nodes exists.
-                if (!_connections.Any(c => c.A == lookup.Current && c.B == lookup.Next || c.A == lookup.Next && c.B == lookup.Current))
-                {
-                    _connections.Add(new(lookup.Current, lookup.Next));
-                }
-            
-                // Add to the lookup table.
-                lookups.Add(lookup);
-            }
-
-            // Finalize the lookup table.
-            _navigationTable = lookups.ToArray();
-        }
-        
         protected virtual void Awake()
         {
             if (Singleton == this)
@@ -1865,13 +1726,20 @@ namespace EasyAI
         protected virtual void Start()
         {
             // If we should use a pre-generated lookup table, use it if one exists.
-            if (lookupTable)
+            if (loadLookupTable)
             {
-                ReadLookupData();
+                if (lookupTable != null)
+                {
+                    _navigationTable = lookupTable.Read;
+                }
+                else
+                {
+                    loadLookupTable = false;
+                }
             }
         
             // If we should generate a lookup table or there was not one pre-generated to load, generate one.
-            if (!lookupTable)
+            if (!loadLookupTable)
             {
                 // Generate all node areas in the scene.
                 foreach (NodeArea nodeArea in FindObjectsOfType<NodeArea>())
@@ -1980,7 +1848,10 @@ namespace EasyAI
                 _navigationTable = table.ToArray();
 
                 // Write the lookup table to a file for fast reading on future runs.
-                WriteLookupData();
+                if (lookupTable != null)
+                {
+                    lookupTable.Write(_navigationTable);
+                }
             }
 
             // Clean up all node related components in the scene as they are no longer needed after generation.

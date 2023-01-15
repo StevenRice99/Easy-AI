@@ -949,11 +949,13 @@ MonoBehaviour:
     m_Bits: 64
   nodeDistance: 0
   pullMaxDifference: 0
-  lookupTable: 1
+  lookupTable: {fileID: 11400000, guid: b97faee4dc8b6cc47ba1e72cde9506f3, type: 2}
+  loadLookupTable: 1
   maxAgentsPerUpdate: 0
   maxMessages: 100
   detailsWidth: 500
   controlsWidth: 120
+  followBest: 1
   selectedCamera: {fileID: 448259072}
   gizmos: 1
   paths: 1
