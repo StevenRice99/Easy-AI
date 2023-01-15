@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using EasyAI.Navigation;
 using EasyAI.Navigation.Nodes;
@@ -1889,7 +1888,7 @@ namespace EasyAI
             // Perform for all agents if there is no limit or only the next allowable number of agents if there is.
             if (maxAgentsPerUpdate <= 0)
             {
-                // Keep as for loop and not foreach in case agents destroy each other.
+                // Keep as for loop and don't turn into a foreach in case agents destroy each other.
                 for (int i = 0; i < Agents.Count; i++)
                 {
                     try
