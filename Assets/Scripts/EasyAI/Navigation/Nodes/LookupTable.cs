@@ -2,6 +2,10 @@
 using System.Linq;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace EasyAI.Navigation.Nodes
 {
     [CreateAssetMenu(menuName = "Easy-AI/Lookup Table", fileName = "Lookup Table", order = 0)]
@@ -16,6 +20,9 @@ namespace EasyAI.Navigation.Nodes
         public void Write(IEnumerable<NavigationLookup> write)
         {
             data = write.ToArray();
+#if UNITY_EDITOR
+            EditorUtility.SetDirty(this);
+#endif
         }
     }
 }
