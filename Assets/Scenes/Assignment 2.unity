@@ -166,12 +166,14 @@ MonoBehaviour:
     m_Bits: 0
   nodeDistance: 0
   pullMaxDifference: 0
-  lookupTable: 0
+  lookupTable: {fileID: 0}
+  loadLookupTable: 0
   maxAgentsPerUpdate: 0
   maxMessages: 100
   detailsWidth: 500
   controlsWidth: 120
-  selectedCamera: {fileID: 0}
+  followBest: 1
+  selectedCamera: {fileID: 821404258}
   gizmos: 1
   paths: 3
   startingHunger: -100
@@ -435,7 +437,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 31
+  orthographic size: 32
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
