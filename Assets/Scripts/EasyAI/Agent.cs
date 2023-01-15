@@ -114,10 +114,6 @@ namespace EasyAI
         /// </summary>
         private readonly List<object> _inProgressActions = new();
     
-        [Tooltip("The current state the agent is in. Initialize it with the state to start in.")]
-        [SerializeField]
-        private State state;
-    
         [Tooltip("How fast this agent can move in units per second.")]
         [Min(0)]
         [SerializeField]
@@ -211,7 +207,7 @@ namespace EasyAI
         /// <summary>
         /// The state the agent is in.
         /// </summary>
-        public State State => state;
+        public State State { get; private set; }
 
         /// <summary>
         /// The path destination.
@@ -325,24 +321,24 @@ namespace EasyAI
             State value = Manager.GetState<T>();
             
             // If already in this state, do nothing.
-            if (state == value)
+            if (State == value)
             {
                 return;
             }
-                
+            
             // Exit the current state.
-            if (state != null)
+            if (State != null)
             {
-                state.Exit(this);
+                State.Exit(this);
             }
 
             // Set the new state.
-            state = value;
+            State = value;
 
             // Enter the new state.
-            if (state != null)
+            if (State != null)
             {
-                state.Enter(this);
+                State.Enter(this);
             }
         }
         
@@ -354,7 +350,7 @@ namespace EasyAI
         /// <returns>True if in the state, false otherwise.</returns>
         public bool IsInState<T>()
         {
-            return state.GetType() == typeof(T);
+            return State != null && State.GetType() == typeof(T);
         }
 
         /// <summary>
@@ -675,9 +671,9 @@ namespace EasyAI
                 }
             }
 
-            if (state != null)
+            if (State != null)
             {
-                state.Execute(this);
+                State.Execute(this);
             }
 
             // Act on the actions.
@@ -811,9 +807,9 @@ namespace EasyAI
                 Manager.Mind.Enter(this);
             }
 
-            if (state != null)
+            if (State != null)
             {
-                state.Enter(this);
+                State.Enter(this);
             }
         }
 

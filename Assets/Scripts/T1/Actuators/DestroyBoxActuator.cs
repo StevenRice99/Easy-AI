@@ -7,7 +7,7 @@ namespace T1.Actuators
     /// Actuator to collect a box.
     /// </summary>
     [DisallowMultipleComponent]
-    public class CollectBoxActuator : Actuator
+    public class DestroyBoxActuator : Actuator
     {
         [Tooltip("How far away from the box must the agent be to pick it up.")]
         [Min(float.Epsilon)]
