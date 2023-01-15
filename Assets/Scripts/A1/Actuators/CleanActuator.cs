@@ -1,7 +1,7 @@
 ﻿using EasyAI;
 using UnityEngine;
 
-namespace A1
+namespace A1.Actuators
 {
     /// <summary>
     /// Actuator to clean a floor tile.

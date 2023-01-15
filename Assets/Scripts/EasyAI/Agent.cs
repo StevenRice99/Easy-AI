@@ -452,8 +452,7 @@ namespace EasyAI
                     _inProgressActions.RemoveAt(i);
                     break;
                 }
-
-                Log($"Completed action {action}.");
+                
                 return;
             }
 
@@ -1001,7 +1000,6 @@ namespace EasyAI
                     continue;
                 }
 
-                Log($"Completed action {_inProgressActions[i]}.");
                 _inProgressActions.RemoveAt(i--);
             }
         }

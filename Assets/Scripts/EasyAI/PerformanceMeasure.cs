@@ -14,11 +14,5 @@ namespace EasyAI
         /// </summary>
         /// <returns>The calculated performance.</returns>
         public abstract float CalculatePerformance();
-
-        protected override void Start()
-        {
-            base.Start();
-            CalculatePerformance();
-        }
     }
 }

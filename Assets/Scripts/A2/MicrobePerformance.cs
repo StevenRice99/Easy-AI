@@ -18,12 +18,10 @@ namespace A2
         /// Return how long the agent has been alive plus a score for how many offspring it has had.
         /// </summary>
         /// <returns>The score for the microbe.</returns>
-        public override float CalculatePerformance()
-        {
-            return Agent is not Microbe microbe
+        public override float CalculatePerformance() =>
+            Agent is not Microbe microbe
                 ? int.MinValue
                 : _timeAlive * MicrobeManager.ScoreSeconds + microbe.Offspring * MicrobeManager.ScoreOffspring;
-        }
 
         private void Update()
         {
