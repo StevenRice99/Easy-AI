@@ -1,12 +1,10 @@
 # Easy-AI
 
-- [Overview](#overview "Overview")
+Unity library to easily learn and prototype artificial intelligence for games.
+--
+
 - [Assets](#assets "Assets")
 - [Details](#details "Details")
-
-# Overview
-
-- Easy-AI is a library to help easily learn and prototype with artificial intelligence for games.
 
 # Assets
 
