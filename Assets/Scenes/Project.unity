@@ -9312,7 +9312,7 @@ MonoBehaviour:
   nodeDistance: 0
   pullMaxDifference: 0
   lookupTable: {fileID: 11400000, guid: 611124616ac13a840887e3fda70a9776, type: 2}
-  loadLookupTable: 0
+  loadLookupTable: 1
   maxAgentsPerUpdate: 0
   maxMessages: 100
   detailsWidth: 500
