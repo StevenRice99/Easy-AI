@@ -8,6 +8,9 @@ using UnityEditor;
 
 namespace EasyAI.Navigation.Nodes
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [CreateAssetMenu(menuName = "Easy-AI/Lookup Table", fileName = "Lookup Table", order = 0)]
     public class LookupTable : ScriptableObject
     {

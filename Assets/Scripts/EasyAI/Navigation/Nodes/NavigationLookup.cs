@@ -12,17 +12,17 @@ namespace EasyAI.Navigation.Nodes
         /// <summary>
         /// The current or starting node.
         /// </summary>
-        public Vector3 Current;
+        public Vector3 current;
         
         /// <summary>
         /// Where the end goal of the navigation is.
         /// </summary>
-        public Vector3 Goal;
+        public Vector3 goal;
         
         /// <summary>
         /// The node to move to from the current node in order to navigate towards the goal.
         /// </summary>
-        public Vector3 Next;
+        public Vector3 next;
 
         /// <summary>
         /// Create a data entry for a navigation lookup table.
@@ -32,9 +32,9 @@ namespace EasyAI.Navigation.Nodes
         /// <param name="next">The node to move to from the current node in order to navigate towards the goal.</param>
         public NavigationLookup(Vector3 current, Vector3 goal, Vector3 next)
         {
-            Current = current;
-            Goal = goal;
-            Next = next;
+            this.current = current;
+            this.goal = goal;
+            this.next = next;
         }
     }
 }

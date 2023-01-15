@@ -10,7 +10,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 
 namespace EasyAI
 {
@@ -289,7 +288,6 @@ namespace EasyAI
         [SerializeField]
         private LookupTable lookupTable;
 
-        [FormerlySerializedAs("lookupTable")]
         [Tooltip("Check to load the lookup data, otherwise new data will be generated and saved.")]
         [SerializeField]
         private bool loadLookupTable;
@@ -460,16 +458,16 @@ namespace EasyAI
                 try
                 {
                     // Get the next node to move to.
-                    NavigationLookup lookup = Singleton._navigationTable.First(l => l.Current == nodePosition && l.Goal == nodeGoal);
+                    NavigationLookup lookup = Singleton._navigationTable.First(l => l.current == nodePosition && l.goal == nodeGoal);
                 
                     // If the node is the goal destination, all nodes in the path have been finished so stop the loop.
-                    if (lookup.Next == nodeGoal)
+                    if (lookup.next == nodeGoal)
                     {
                         break;
                     }
                 
                     // Move to the next node and add it to the path.
-                    nodePosition = lookup.Next;
+                    nodePosition = lookup.next;
                     path.Add(nodePosition);
                 }
                 catch
@@ -1730,6 +1728,31 @@ namespace EasyAI
                 if (lookupTable != null)
                 {
                     _navigationTable = lookupTable.Read;
+
+                    foreach (NavigationLookup lookup in _navigationTable)
+                    {
+                        // Ensure all nodes are added.
+                        if (!_nodes.Contains(lookup.current))
+                        {
+                            _nodes.Add(lookup.current);
+                        }
+            
+                        if (!_nodes.Contains(lookup.goal))
+                        {
+                            _nodes.Add(lookup.goal);
+                        }
+            
+                        if (!_nodes.Contains(lookup.next))
+                        {
+                            _nodes.Add(lookup.next);
+                        }
+
+                        // Ensure a connection between the current and next nodes exists.
+                        if (!_connections.Any(c => c.A == lookup.current && c.B == lookup.next || c.A == lookup.next && c.B == lookup.current))
+                        {
+                            _connections.Add(new(lookup.current, lookup.next));
+                        }
+                    }
                 }
                 else
                 {
@@ -1832,7 +1855,7 @@ namespace EasyAI
                         for (int k = 0; k < path.Count - 1; k++)
                         {
                             // Ensure there are no duplicates in the lookup table.
-                            if (path[k] == _nodes[j] || table.Any(t => t.Current == path[k] && t.Goal == _nodes[j] && t.Next == path[k + 1]))
+                            if (path[k] == _nodes[j] || table.Any(t => t.current == path[k] && t.goal == _nodes[j] && t.next == path[k + 1]))
                             {
                                 continue;
                             }
