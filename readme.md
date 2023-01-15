@@ -15,7 +15,7 @@ Unity library to easily learn and prototype artificial intelligence for games.
 
 # Overview
 
-- Easy-AI consists of templates for four assignments that aim to build the skills necessary to complete the included project. Included is fully commented source code and guidance "TODO - Assignment #" comments to guide where code is to be completed. Assignments one and two focus on utilizing the Easy-AI library, whereas assignments three and four focus on developing the Easy-AI library itself. Each assignment is designed to be a building block to prepare for the final project of creating a game of capture the flag.
+- Easy-AI consists of templates for four assignments that aim to build the skills necessary to complete the included project. Source code is fully commented with guidance to where sections are to be completed in each assignment. Assignments one and two focus on utilizing the Easy-AI library, whereas assignments three and four focus on developing the Easy-AI library itself. Each assignment is designed to be a building block to prepare for the final project of creating a game of capture the flag.
 
 # Assignment 1
 
