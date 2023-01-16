@@ -837,8 +837,10 @@ namespace EasyAI
         /// <param name="agent">The agent to display gizmos for.</param>
         private static void AgentGizmos(Agent agent)
         {
-            Vector3 position = agent.transform.position;
-            
+            Transform agentTransform = agent.transform;
+            Vector3 position = agentTransform.position;
+            Quaternion rotation = agentTransform.rotation;
+
             // Display the path the agent is following.
             if (agent.Path.Count > 0)
             {
@@ -861,7 +863,7 @@ namespace EasyAI
             
                     // Draw a line from the agent's position showing the force of this movement.
                     GL.Vertex(position);
-                    GL.Vertex(position + agent.transform.rotation * (new Vector3(movement.MoveVector.x, position.y, movement.MoveVector.y).normalized * 2));
+                    GL.Vertex(position + rotation * (new Vector3(movement.MoveVector.x, position.y, movement.MoveVector.y).normalized * 2));
             
                     // Draw another line from the agent's position to where the agent is seeking/pursuing/fleeing/evading to/from.
                     GL.Vertex(position);
@@ -877,7 +879,7 @@ namespace EasyAI
 
             GL.Color(Color.yellow);
             GL.Vertex(position);
-            GL.Vertex(position + agent.transform.rotation * (agent.MoveVelocity3.normalized * 2));
+            GL.Vertex(position + rotation * (agent.MoveVelocity3.normalized * 2));
         }
 
         /// <summary>
