@@ -235,8 +235,9 @@ namespace A1
             // Regenerate the floor button.
             if (GuiButton(x, y, w, h, "Reset"))
             {
-                GenerateFloor();
                 ClearMessages();
+                GenerateFloor();
+                SetFloorTiles();
             }
             
             // Increase the floor width.

@@ -461,6 +461,7 @@ namespace A2
             if (GuiButton(x, y, w, h, "Reset"))
             {
                 ResetAgents();
+                ClearMessages();
             }
             
             return NextItem(y, h, p);
