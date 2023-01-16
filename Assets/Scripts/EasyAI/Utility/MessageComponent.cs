@@ -37,11 +37,6 @@ namespace EasyAI.Utility
         {
             return y;
         }
-    
-        /// <summary>
-        /// Override to display custom GL.LINES gizmos.
-        /// </summary>
-        public virtual void DisplayGizmos() { }
 
         /// <summary>
         /// Add a message to this component.

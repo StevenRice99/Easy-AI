@@ -218,7 +218,7 @@ namespace EasyAI
         /// <summary>
         /// The current move velocity if move acceleration is being used as a Vector3.
         /// </summary>
-        protected Vector3 MoveVelocity3 => new(MoveVelocity.x, 0, MoveVelocity.y);
+        public Vector3 MoveVelocity3 => new(MoveVelocity.x, 0, MoveVelocity.y);
 
         /// <summary>
         /// Set the move speed.
@@ -245,47 +245,6 @@ namespace EasyAI
         public void SetLookSpeed(float speed)
         {
             lookSpeed = speed;
-        }
-    
-        /// <summary>
-        /// Display lines to highlight agent movement.
-        /// </summary>
-        public override void DisplayGizmos()
-        {
-            Vector3 position = transform.position;
-            position.y += Manager.NavigationVisualOffset;
-
-            // Display movement.
-            if (Path.Count == 0)
-            {
-                // Display the movement vectors of all move types.
-                foreach (Movement movement in Moves)
-                {
-                    // Assign different colors for different behaviours.
-                    GL.Color(Steering.GizmosColor(movement.Behaviour));
-            
-                    // Draw a line from the agent's position showing the force of this movement.
-                    GL.Vertex(position);
-                    GL.Vertex(position + transform.rotation * (new Vector3(movement.MoveVector.x, position.y, movement.MoveVector.y).normalized * 2));
-
-                    if (movement.Behaviour is Steering.Behaviour.Seek or Steering.Behaviour.Flee)
-                    {
-                        continue;
-                    }
-            
-                    // Draw another line from the agent's position to where the agent is seeking/pursuing/fleeing/evading to/from.
-                    GL.Vertex(position);
-                    GL.Vertex(new(movement.Position.x, position.y, movement.Position.y));
-                }
-
-                // If the agent is moving, draw a green line indicating the direction it is currently moving in.
-                if (MoveVelocity != Vector2.zero)
-                {
-                    GL.Color(Color.green);
-                    GL.Vertex(position);
-                    GL.Vertex(position + transform.rotation * (MoveVelocity3.normalized * 2));
-                }
-            }
         }
 
         /// <summary>

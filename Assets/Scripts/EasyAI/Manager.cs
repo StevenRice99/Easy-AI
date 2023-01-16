@@ -34,10 +34,11 @@ namespace EasyAI
 
         /// <summary>
         /// Determine what navigation lines are drawn.
-        /// Off - No lines are drawn.
-        /// All - Every line for every connection is drawn.
-        /// Active - Only lines for connections being used by agents are drawn.
-        /// Selected - Only lines for the connections being used by the selected agent are drawn.
+        /// "Determine what path lines are drawn.
+        /// "Off - No lines are drawn.
+        /// "All - Lines for every move, navigation, and connection is drawn.
+        /// "Active - Lines for every move and navigation drawn.
+        /// "Selected - Only lines for the moves and navigation of the selected agent are drawn."
         /// </summary>
         private enum PathState : byte
         {
@@ -60,19 +61,6 @@ namespace EasyAI
             Agent,
             Components,
             Component
-        }
-
-        /// <summary>
-        /// Determine what gizmos lines are drawn.
-        /// Off - No lines are drawn.
-        /// All - Every line from every agent, sensor, and actuator is drawn.
-        /// Selected - If an agent is selected, only it and its sensors and actuators are drawn. If an individual sensor or actuator is selected, only it is drawn.
-        /// </summary>
-        private enum GizmosState : byte
-        {
-            Off,
-            All,
-            Selected
         }
         
         /// <summary>
@@ -320,24 +308,15 @@ namespace EasyAI
         [Tooltip("The currently selected camera. Set this to start with that camera active. Leaving empty will default to the first camera by alphabetic order.")]
         [SerializeField]
         private Camera selectedCamera;
-        
-        [SerializeField]
-        [Tooltip(
-            "Determine what gizmos lines are drawn.\n" +
-            "Off - No lines are drawn.\n" +
-            "All - Every line from every agent, sensor, and actuator is drawn.\n" +
-            "Selected - If an agent is selected, only it and its sensors and actuators are drawn. If an individual sensor or actuator is selected, only it is drawn."
-        )]
-        private GizmosState gizmos = GizmosState.Selected;
     
-        [SerializeField]
         [Tooltip(
             "Determine what path lines are drawn.\n" +
             "Off - No lines are drawn.\n" +
-            "All - Every line for every connection is drawn.\n" +
-            "Active - Only lines for connections being used by agents are drawn.\n"+
-            "Selected - Only lines for the connections being used by the selected agent are drawn."
+            "All - Lines for every move, navigation, and connection is drawn.\n" +
+            "Active - Lines for every move and navigation drawn.\n"+
+            "Selected - Only lines for the moves and navigation of the selected agent are drawn."
         )]
+        [SerializeField]
         private PathState paths = PathState.Selected;
 
         /// <summary>
@@ -758,20 +737,6 @@ namespace EasyAI
         }
 
         /// <summary>
-        /// Change to the next gizmos state.
-        /// </summary>
-        private static void ChangeGizmosState()
-        {
-            if (Singleton.gizmos == GizmosState.Selected)
-            {
-                Singleton.gizmos = GizmosState.Off;
-                return;
-            }
-
-            Singleton.gizmos++;
-        }
-
-        /// <summary>
         /// Sort all agents by name.
         /// </summary>
         protected static void SortAgents()
@@ -872,23 +837,47 @@ namespace EasyAI
         /// <param name="agent">The agent to display gizmos for.</param>
         private static void AgentGizmos(Agent agent)
         {
-            agent.DisplayGizmos();
-
-            if (agent.Actuators != null)
+            Vector3 position = agent.transform.position;
+            
+            // Display the path the agent is following.
+            if (agent.Path.Count > 0)
             {
-                foreach (Actuator actuator in agent.Actuators)
+                GL.Color(Color.green);
+                GL.Vertex(position);
+                GL.Vertex(agent.Path[0]);
+                for (int i = 0; i < agent.Path.Count - 1; i++)
                 {
-                    actuator.DisplayGizmos();
+                    GL.Vertex(agent.Path[i]);
+                    GL.Vertex(agent.Path[i + 1]);
+                }
+            }
+            else
+            {
+                // Display the movement vectors of all move types.
+                foreach (Agent.Movement movement in agent.Moves)
+                {
+                    // Assign different colors for different behaviours.
+                    GL.Color(Steering.GizmosColor(movement.Behaviour));
+            
+                    // Draw a line from the agent's position showing the force of this movement.
+                    GL.Vertex(position);
+                    GL.Vertex(position + agent.transform.rotation * (new Vector3(movement.MoveVector.x, position.y, movement.MoveVector.y).normalized * 2));
+            
+                    // Draw another line from the agent's position to where the agent is seeking/pursuing/fleeing/evading to/from.
+                    GL.Vertex(position);
+                    GL.Vertex(new(movement.Position.x, position.y, movement.Position.y));
                 }
             }
 
-            if (agent.Sensors != null)
+            // If the agent is moving, draw a yellow line indicating the direction it is currently moving in.
+            if (agent.MoveAcceleration <= 0 || agent.MoveVelocity == Vector2.zero)
             {
-                foreach (Sensor sensor in agent.Sensors)
-                {
-                    sensor.DisplayGizmos();
-                }
+                return;
             }
+
+            GL.Color(Color.yellow);
+            GL.Vertex(position);
+            GL.Vertex(position + agent.transform.rotation * (agent.MoveVelocity3.normalized * 2));
         }
 
         /// <summary>
@@ -938,60 +927,41 @@ namespace EasyAI
         
         private void OnRenderObject()
         {
-            if (Agents.Count == 0 || paths is PathState.Off && gizmos is GizmosState.Off)
+            // We don't want to make rendering calls if there is no need cause it can be a problem on certain platforms like web.
+            if (Agents.Count == 0 || paths is PathState.Off)
             {
                 return;
             }
 
-            bool shouldRender = false;
-            if (paths is PathState.All && _connections.Count > 0)
+            // Check if there is any paths to render.
+            switch (paths)
             {
-                shouldRender = true;
-            }
-            else if (paths is PathState.Active)
-            {
-                for (int i = 0; i < Agents.Count; i++)
-                {
-                    if (Agents[i].Path.Count > 0)
+                case PathState.All:
+                    if (_connections.Count > 0 || Agents.Any(a => a.Path.Count > 0 || a.Moves.Count > 0))
                     {
-                        shouldRender = true;
                         break;
                     }
-                }
-            }
-            else if (paths is PathState.Selected)
-            {
-                if (SelectedAgent != null && SelectedAgent.Path.Count > 0)
+                    return;
+                case PathState.Active:
                 {
-                    shouldRender = true;
-                }
-            }
-
-            if (!shouldRender)
-            {
-                if (gizmos is GizmosState.All)
-                {
-                    for (int i = 0; i < Agents.Count; i++)
+                    if (Agents.Any(a => a.Path.Count > 0 || a.Moves.Count > 0))
                     {
-                        if (Agents[i].Path.Count == 0 && Agents[i].Moves.Count > 0)
-                        {
-                            shouldRender = true;
-                            break;
-                        }
+                        break;
                     }
-                }
-                else if (gizmos is GizmosState.Selected)
-                {
-                    if (SelectedAgent != null && SelectedAgent.Path.Count == 0 && SelectedAgent.Moves.Count > 0)
-                    {
-                        shouldRender = true;
-                    }
-                }
-            }
 
-            if (!shouldRender)
-            {
-                return;
+                    return;
+                }
+                case PathState.Off:
+                case PathState.Selected:
+                default:
+                {
+                    if (SelectedAgent != null && (SelectedAgent.Path.Count > 0 || SelectedAgent.Moves.Count > 0))
+                    {
+                        break;
+                    }
+
+                    return;
+                }
             }
             
             LineMaterial();
@@ -1001,78 +971,32 @@ namespace EasyAI
             GL.MultMatrix(transform.localToWorldMatrix);
             GL.Begin(GL.LINES);
 
-            // Render navigation nodes if either all or only active nodes should be shown.
-            if (paths is not PathState.Off)
+            // Render all nodes as white if they should be.
+            if (paths == PathState.All)
             {
-                // Render all nodes as white if they should be.
-                if (paths == PathState.All)
+                GL.Color(Color.white);
+                foreach (Connection connection in _connections)
                 {
-                    GL.Color(Color.white);
-                    foreach (Connection connection in _connections)
-                    {
-                        Vector3 a = connection.A;
-                        a.y += NavigationVisualOffset;
-                        Vector3 b = connection.B;
-                        b.y += NavigationVisualOffset;
-                        GL.Vertex(a);
-                        GL.Vertex(b);
-                    }
-                }
-
-                // Render active nodes in green for either all agents or only the selected agent.
-                if (paths is not PathState.Selected)
-                {
-                    GL.Color(Color.green);
-                    foreach (Agent agent in Agents.Where(agent => agent.Path.Count != 0))
-                    {
-                        GL.Vertex(agent.transform.position);
-                        GL.Vertex(agent.Path[0]);
-                        for (int i = 0; i < agent.Path.Count - 1; i++)
-                        {
-                            GL.Vertex(agent.Path[i]);
-                            GL.Vertex(agent.Path[i + 1]);
-                        }
-                    }
-                }
-                else if (SelectedAgent != null && SelectedAgent.Path.Count != 0)
-                {
-                    GL.Vertex(SelectedAgent.transform.position);
-                    GL.Vertex(SelectedAgent.Path[0]);
-                    for (int i = 0; i < SelectedAgent.Path.Count - 1; i++)
-                    {
-                        GL.Vertex(SelectedAgent.Path[i]);
-                        GL.Vertex(SelectedAgent.Path[i + 1]);
-                    }
+                    Vector3 a = connection.A;
+                    a.y += NavigationVisualOffset;
+                    Vector3 b = connection.B;
+                    b.y += NavigationVisualOffset;
+                    GL.Vertex(a);
+                    GL.Vertex(b);
                 }
             }
-        
-            // Nothing to do if gizmos are turned off.
-            if (gizmos != GizmosState.Off)
+
+            // Render active nodes in green for either all agents or only the selected agent.
+            if (paths is not PathState.Selected)
             {
-                // Render either all or the selected agent/component.
-                if (gizmos == GizmosState.All)
+                foreach (Agent agent in Agents)
                 {
-                    foreach (Agent agent in Agents)
-                    {
-                        AgentGizmos(agent);
-                    }
+                    AgentGizmos(agent);
                 }
-                else
-                {
-                    if (Agents.Count == 1)
-                    {
-                        SelectedAgent = Agents[0];
-                    }
-                
-                    if (_selectedComponent != null)
-                    {
-                        _selectedComponent.DisplayGizmos();
-                    }
-                    else if (SelectedAgent != null)
-                    {
-                        AgentGizmos(SelectedAgent);
-                    }
-                }
+            }
+            else if (SelectedAgent != null)
+            {
+                AgentGizmos(SelectedAgent);
             }
 
             GL.End();
@@ -1583,18 +1507,6 @@ namespace EasyAI
                 {
                     Step();
                 }
-            }
-        
-            // Button to change gizmos mode.
-            y = NextItem(y, h, p);
-            if (GuiButton(x, y, w, h, Singleton.gizmos switch
-                {
-                    GizmosState.Off => "Gizmos: Off",
-                    GizmosState.Selected => "Gizmos: Selected",
-                    _ => "Gizmos: All"
-                }))
-            {
-                ChangeGizmosState();
             }
 
             if (Singleton._connections.Count > 0)

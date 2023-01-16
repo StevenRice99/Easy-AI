@@ -293,10 +293,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mind: {fileID: 0}
   seekAcceptableDistance: 0.1
-  fleeAcceptableDistance: 0
+  fleeAcceptableDistance: -1
   restVelocity: 0.1
   navigationRadius: 0
-  sightHeight: 0
   groundLayers:
     serializedVersion: 2
     m_Bits: 8
