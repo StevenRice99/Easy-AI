@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EasyAI.Navigation;
 using EasyAI.Utility;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -965,12 +966,25 @@ namespace EasyAI
         
             // Add the new velocity to the agent's velocity.
             MoveVelocity += movement * deltaTime;
+                
+            double x = MoveVelocity.x;
+            double y = MoveVelocity.y;
+
+            double magnitude = math.sqrt(x * x + y * y);
 
             // If the agent's velocity is too fast, normalize it and then set it back to the max speed.
-            if (MoveVelocity.magnitude > moveSpeed)
+            if (magnitude <= moveSpeed)
             {
-                MoveVelocity = MoveVelocity.normalized * moveSpeed;
+                return;
             }
+
+            x /= magnitude;
+            y /= magnitude;
+
+            x *= moveSpeed;
+            y *= moveSpeed;
+
+            MoveVelocity = new((float) x, (float) y);
         }
 
         /// <summary>

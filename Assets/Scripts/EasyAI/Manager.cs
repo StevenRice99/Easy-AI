@@ -933,7 +933,7 @@ namespace EasyAI
             }
 
             int next = SceneManager.GetActiveScene().buildIndex - 1;
-            if (next <= 0)
+            if (next < 0)
             {
                 next = scenes - 1;
             }

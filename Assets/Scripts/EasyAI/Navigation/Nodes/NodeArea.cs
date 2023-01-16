@@ -207,12 +207,7 @@ namespace EasyAI.Navigation.Nodes
                 g.Finish();
             }
 
-            // Only generate map files if in the editor.
-            if (!Application.isEditor)
-            {
-                return;
-            }
-
+#if UNITY_EDITOR
             // Ensure the folder to save the map data exists.
             const string folder = "Maps";
             if (!Directory.Exists(folder))
@@ -224,7 +219,7 @@ namespace EasyAI.Navigation.Nodes
                     return;
                 }
             }
-        
+    
             // Write to the file.
             string fileName = $"{folder}/{SceneManager.GetActiveScene().name}";
             NodeArea[] levelSections = FindObjectsOfType<NodeArea>();
@@ -233,11 +228,12 @@ namespace EasyAI.Navigation.Nodes
                 fileName += $"_{levelSections.ToList().IndexOf(this)}";
             }
             fileName += ".txt";
-        
+    
             StreamWriter writer = new(fileName, false);
             writer.Write(ToString());
             writer.Close();
-        
+#endif
+            
             // Cleanup this node area.
             Finish();
         }
