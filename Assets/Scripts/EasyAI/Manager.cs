@@ -938,6 +938,62 @@ namespace EasyAI
         
         private void OnRenderObject()
         {
+            if (Agents.Count == 0 || paths is PathState.Off && gizmos is GizmosState.Off)
+            {
+                return;
+            }
+
+            bool shouldRender = false;
+            if (paths is PathState.All && _connections.Count > 0)
+            {
+                shouldRender = true;
+            }
+            else if (paths is PathState.Active)
+            {
+                for (int i = 0; i < Agents.Count; i++)
+                {
+                    if (Agents[i].Path.Count > 0)
+                    {
+                        shouldRender = true;
+                        break;
+                    }
+                }
+            }
+            else if (paths is PathState.Selected)
+            {
+                if (SelectedAgent != null && SelectedAgent.Path.Count > 0)
+                {
+                    shouldRender = true;
+                }
+            }
+
+            if (!shouldRender)
+            {
+                if (gizmos is GizmosState.All)
+                {
+                    for (int i = 0; i < Agents.Count; i++)
+                    {
+                        if (Agents[i].Path.Count == 0 && Agents[i].Moves.Count > 0)
+                        {
+                            shouldRender = true;
+                            break;
+                        }
+                    }
+                }
+                else if (gizmos is GizmosState.Selected)
+                {
+                    if (SelectedAgent != null && SelectedAgent.Path.Count == 0 && SelectedAgent.Moves.Count > 0)
+                    {
+                        shouldRender = true;
+                    }
+                }
+            }
+
+            if (!shouldRender)
+            {
+                return;
+            }
+            
             LineMaterial();
             _lineMaterial.SetPass(0);
 

@@ -14,11 +14,6 @@ namespace EasyAI
         public override void MovementCalculations()
         {
             CalculateMoveVelocity(Time.deltaTime);
-            if (MoveVelocity3 == Vector3.zero)
-            {
-                Debug.Log("NOT APPLYING");
-                return;
-            }
             transform.position += MoveVelocity3 * DeltaTime;
         }
     }

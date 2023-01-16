@@ -896,8 +896,6 @@ namespace EasyAI
             // If there is move data, perform it.
             if (Path.Count == 0 && Moves.Count > 0)
             {
-                Debug.Log("MOVING");
-                
                 // Look through every move data.
                 for (int i = 0; i < Moves.Count; i++)
                 {
@@ -931,15 +929,6 @@ namespace EasyAI
             // If there was no movement, bring the agent to a stop.
             if (movement == Vector2.zero)
             {
-                Debug.Log("Not moving.");
-                
-                // If already stopped, avoid doing any calculations.
-                if (MoveVelocity == Vector2.zero)
-                {
-                    Debug.Log("Avoiding.");
-                    return;
-                }
-                
                 // Can only slow down at the rate of acceleration but this will instantly stop if there is no acceleration.
                 MoveVelocity = Vector2.Lerp(MoveVelocity, Vector2.zero, acceleration * deltaTime);
             
