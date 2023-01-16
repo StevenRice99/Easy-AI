@@ -15,6 +15,16 @@ namespace Project.States
         [Tooltip("How much to consider low health.")]
         [SerializeField]
         private int lowHealth;
+
+        [Tooltip("How close in units is an enemy considered close.")]
+        [Min(0)]
+        [SerializeField]
+        private float distanceClose = 10;
+
+        [Tooltip("How far in units is an enemy considered far.")]
+        [Min(0)]
+        [SerializeField]
+        private float distanceFar = 20;
         
         public override void Execute(Agent agent)
         {
@@ -66,7 +76,7 @@ namespace Project.States
         /// Prioritize what weapons to use in a given situation.
         /// </summary>
         /// <param name="soldier">The soldier.</param>
-        private static void PrioritizeWeapons(Soldier soldier)
+        private void PrioritizeWeapons(Soldier soldier)
         {
             if (soldier.CarryingFlag)
             {
@@ -114,7 +124,7 @@ namespace Project.States
             float distance = soldier.DistanceTarget;
             
             // Target is far away, use long range weapons.
-            if (distance >= SoldierManager.DistanceFar)
+            if (distance >= distanceFar)
             {
                 // Defenders use the sniper first.
                 if (soldier.Role == Soldier.SoliderRole.Defender)
@@ -143,7 +153,7 @@ namespace Project.States
             }
 
             // If close range, all roles use close-range weapons first.
-            if (distance <= SoldierManager.DistanceClose)
+            if (distance <= distanceClose)
             {
                 soldier.Log("Close target, prioritizing shotgun.");
                 soldier.SetWeaponPriority(

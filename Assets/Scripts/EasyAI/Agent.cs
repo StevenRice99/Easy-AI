@@ -183,12 +183,12 @@ namespace EasyAI
         /// <summary>
         /// The current path an agent is following.
         /// </summary>
-        public List<Vector3> Path { get; private set; }
+        public List<Vector3> Path { get; private set; } = new();
 
         /// <summary>
         /// True if the agent is trying to move, false otherwise.
         /// </summary>
-        public bool Moving => Moves.Count > 0 || Path != null;
+        public bool Moving => Moves.Count > 0 || Path.Count > 0;
 
         /// <summary>
         /// How fast this agent can move in units per second.
@@ -213,7 +213,7 @@ namespace EasyAI
         /// <summary>
         /// The path destination.
         /// </summary>
-        public Vector3? Destination => Path?[^1];
+        public Vector3? Destination => Path.Count > 0 ? Path[^1] : null;
 
         /// <summary>
         /// The current move velocity if move acceleration is being used as a Vector3.
@@ -255,8 +255,8 @@ namespace EasyAI
             Vector3 position = transform.position;
             position.y += Manager.NavigationVisualOffset;
 
-            // Display navigation path.
-            if (Path == null || Path.Count == 0)
+            // Display movement.
+            if (Path.Count == 0)
             {
                 // Display the movement vectors of all move types.
                 foreach (Movement movement in Moves)
@@ -286,23 +286,6 @@ namespace EasyAI
                     GL.Vertex(position + transform.rotation * (MoveVelocity3.normalized * 2));
                 }
             }
-
-            if (!LookingToTarget)
-            {
-                return;
-            }
-
-            // If the agent is looking towards a particular target (not just based on where it is moving), draw a line towards the target.
-            GL.Color(Color.yellow);
-            if (Manager.SightHeight > 0)
-            {
-                GL.Vertex(transform.position + new Vector3(0, Manager.SightHeight, 0));
-            }
-            else
-            {
-                GL.Vertex(position);
-            }
-            GL.Vertex(LookTarget);
         }
 
         /// <summary>
@@ -525,7 +508,7 @@ namespace EasyAI
         /// </summary>
         public void StopNavigating()
         {
-            Path = null;
+            Path.Clear();
         }
 
         /// <summary>
@@ -572,8 +555,7 @@ namespace EasyAI
             {
                 return;
             }
-
-            Path = null;
+            
             RemoveMove(tr);
             Moves.Add(new(behaviour, tr));
         }
@@ -599,8 +581,7 @@ namespace EasyAI
             {
                 return;
             }
-        
-            Path = null;
+            
             RemoveMove(pos);
             Moves.Add(new(behaviour, pos));
         }
@@ -867,7 +848,7 @@ namespace EasyAI
             Vector2 position = new(positionVector3.x, positionVector3.z);
 
             // If there is a path the agent is following, follow it.
-            if (Path != null)
+            if (Path.Count > 0)
             {
                 // If we are at the end of the path, see if the agent can skip to the end in case it was off of a node and thus sub-optimal.
                 if (Path.Count == 2)
@@ -910,15 +891,13 @@ namespace EasyAI
                 {
                     movement += Steering.Seek(position, MoveVelocity, new(Path[0].x, Path[0].z), acceleration);
                 }
-                else
-                {
-                    Path = null;
-                }
             }
 
             // If there is move data, perform it.
-            if (Path == null && Moves.Count > 0)
+            if (Path.Count == 0 && Moves.Count > 0)
             {
+                Debug.Log("MOVING");
+                
                 // Look through every move data.
                 for (int i = 0; i < Moves.Count; i++)
                 {
@@ -952,6 +931,15 @@ namespace EasyAI
             // If there was no movement, bring the agent to a stop.
             if (movement == Vector2.zero)
             {
+                Debug.Log("Not moving.");
+                
+                // If already stopped, avoid doing any calculations.
+                if (MoveVelocity == Vector2.zero)
+                {
+                    Debug.Log("Avoiding.");
+                    return;
+                }
+                
                 // Can only slow down at the rate of acceleration but this will instantly stop if there is no acceleration.
                 MoveVelocity = Vector2.Lerp(MoveVelocity, Vector2.zero, acceleration * deltaTime);
             

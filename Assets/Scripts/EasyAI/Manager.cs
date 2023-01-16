@@ -106,11 +106,6 @@ namespace EasyAI
         public static float RestVelocity => Singleton.restVelocity;
 
         /// <summary>
-        /// The height to draw agent looking visuals looking from.
-        /// </summary>
-        public static float SightHeight => Singleton.sightHeight;
-
-        /// <summary>
         /// Which layers can nodes be placed on.
         /// </summary>
         public static LayerMask GroundLayers => Singleton.groundLayers;
@@ -256,11 +251,6 @@ namespace EasyAI
         [Min(0)]
         [SerializeField]
         private float navigationRadius = 0.5f;
-        
-        [Tooltip("The height to draw agent looking visuals looking from.")]
-        [Min(0)]
-        [SerializeField]
-        private float sightHeight;
         
         [Header("Navigation")]
         [Tooltip("Which layers can nodes be placed on.")]
@@ -977,7 +967,7 @@ namespace EasyAI
                 if (paths is not PathState.Selected)
                 {
                     GL.Color(Color.green);
-                    foreach (Agent agent in Agents.Where(agent => agent.Path != null && agent.Path.Count != 0))
+                    foreach (Agent agent in Agents.Where(agent => agent.Path.Count != 0))
                     {
                         GL.Vertex(agent.transform.position);
                         GL.Vertex(agent.Path[0]);
@@ -988,7 +978,7 @@ namespace EasyAI
                         }
                     }
                 }
-                else if (SelectedAgent != null && SelectedAgent.Path != null && SelectedAgent.Path.Count != 0)
+                else if (SelectedAgent != null && SelectedAgent.Path.Count != 0)
                 {
                     GL.Vertex(SelectedAgent.transform.position);
                     GL.Vertex(SelectedAgent.Path[0]);
@@ -1665,7 +1655,7 @@ namespace EasyAI
         /// <summary>
         /// Clear all messages.
         /// </summary>
-        private static void ClearMessages()
+        protected static void ClearMessages()
         {
             Singleton._globalMessages.Clear();
             foreach (IntelligenceComponent component in FindObjectsOfType<IntelligenceComponent>())

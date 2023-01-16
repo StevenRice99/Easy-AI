@@ -33,16 +33,6 @@ namespace Project
         public static float MemoryTime => SoldierSingleton.memoryTime;
 
         /// <summary>
-        /// How close in units is an enemy considered close.
-        /// </summary>
-        public static float DistanceClose => SoldierSingleton.distanceClose;
-
-        /// <summary>
-        /// How far in units is an enemy considered far.
-        /// </summary>
-        public static float DistanceFar => SoldierSingleton.distanceFar;
-
-        /// <summary>
         /// How loud the audio is.
         /// </summary>
         public static float Volume => SoldierSingleton.volume;
@@ -139,13 +129,11 @@ namespace Project
         [SerializeField]
         private int scoreCapture = 10;
 
-        [Header("Performance Scores")]
         [Tooltip("How much score each flag return is worth for a soldier's performance.")]
         [Min(0)]
         [SerializeField]
         private int scoreReturn = 5;
 
-        [Header("Performance Scores")]
         [Tooltip("How much score each kill gains for a soldier and each death loses.")]
         [Min(0)]
         [SerializeField]
@@ -164,16 +152,6 @@ namespace Project
         [Tooltip("The material to apply to the blue soldiers.")]
         [SerializeField]
         private Material blue;
-
-        [Tooltip("How close in units is an enemy considered close.")]
-        [Min(0)]
-        [SerializeField]
-        private float distanceClose = 10;
-
-        [Tooltip("How far in units is an enemy considered far.")]
-        [Min(0)]
-        [SerializeField]
-        private float distanceFar = 20;
 
         /// <summary>
         /// The flags captured by the red team.
@@ -344,6 +322,8 @@ namespace Project
                 soldier.Captures = 0;
                 soldier.Returns = 0;
             }
+            
+            ClearMessages();
             
             // Reset every pickup.
             foreach (HealthAmmoPickup pickup in SoldierSingleton._healthWeaponPickups)

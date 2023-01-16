@@ -236,6 +236,7 @@ namespace A1
             if (GuiButton(x, y, w, h, "Reset"))
             {
                 GenerateFloor();
+                ClearMessages();
             }
             
             // Increase the floor width.
