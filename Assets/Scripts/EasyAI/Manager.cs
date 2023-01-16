@@ -1897,47 +1897,50 @@ namespace EasyAI
             {
                 SelectedAgent = Agents[0];
             }
-        
-            // Perform for all agents if there is no limit or only the next allowable number of agents if there is.
-            if (maxAgentsPerUpdate <= 0)
+
+            if (Time.timeScale != 0)
             {
-                // Keep as for loop and don't turn into a foreach in case agents destroy each other.
-                for (int i = 0; i < Agents.Count; i++)
+                // Perform for all agents if there is no limit or only the next allowable number of agents if there is.
+                if (maxAgentsPerUpdate <= 0)
                 {
-                    try
+                    // Keep as for loop and don't turn into a foreach in case agents destroy each other.
+                    for (int i = 0; i < Agents.Count; i++)
                     {
-                        Agents[i].Perform();
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.LogError(e);
+                        try
+                        {
+                            Agents[i].Perform();
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogError(e);
+                        }
                     }
                 }
-            }
-            else
-            {
-                for (int i = 0; i < maxAgentsPerUpdate; i++)
+                else
                 {
-                    try
+                    for (int i = 0; i < maxAgentsPerUpdate; i++)
                     {
-                        Agents[_currentAgentIndex].Perform();
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.LogError(e);
-                    }
+                        try
+                        {
+                            Agents[_currentAgentIndex].Perform();
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogError(e);
+                        }
                 
-                    NextAgent();
+                        NextAgent();
+                    }
+                }
+
+                // Update the delta time for all agents and look towards their targets.
+                foreach (Agent agent in Agents)
+                {
+                    agent.IncreaseDeltaTime();
+                    agent.LookCalculations();
                 }
             }
 
-            // Update the delta time for all agents and look towards their targets.
-            foreach (Agent agent in Agents)
-            {
-                agent.IncreaseDeltaTime();
-                agent.LookCalculations();
-            }
-        
             // Move agents that do not require physics.
             MoveAgents(_updateAgents);
 
@@ -1993,8 +1996,11 @@ namespace EasyAI
 
         protected void FixedUpdate()
         {
-            // Move agents that require physics.
-            MoveAgents(_fixedUpdateAgents);
+            if (Time.timeScale != 0)
+            {
+                // Move agents that require physics.
+                MoveAgents(_fixedUpdateAgents);
+            }
         }
 
         /// <summary>
