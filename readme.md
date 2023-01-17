@@ -92,6 +92,7 @@ Goal-Oriented Behaviour
 - The soldier manager automatically handles aiming and shooting of the soldiers for you, all you need to do is decide for soldiers who to aim at and the framework will handle the rest for you.
 - Capture, attack, and defend roles have been provided for you which are assigned in the soldier class automatically. You may wish to expand or change how this method works with more roles or change how they are assigned to allow for more complex interactions and teamwork.
 - Flags, ammo pickups, and health pickups will automatically be picked up by soldiers close enough to them.
+- "Strategic points" have been placed around the map in positions that could be good for offence or defence. Consider building upon this idea.
 
 # Assets
 
