@@ -88,6 +88,16 @@ namespace Project
         public static int ScoreKillsDeaths => SoldierSingleton.scoreKillsDeaths;
         
         /// <summary>
+        /// All soldiers on the red team.
+        /// </summary>
+        public static List<Soldier> TeamRed => SoldierSingleton._teamRed;
+        
+        /// <summary>
+        /// All soldiers on the blue team.
+        /// </summary>
+        public static List<Soldier> TeamBlue => SoldierSingleton._teamBlue;
+        
+        /// <summary>
         /// Cast the Manager singleton into a SoldierManager.
         /// </summary>
         private static SoldierManager SoldierSingleton => Singleton as SoldierManager;
@@ -187,6 +197,16 @@ namespace Project
         /// All health and weapon pickups.
         /// </summary>
         private HealthAmmoPickup[] _healthWeaponPickups;
+        
+        /// <summary>
+        /// All soldiers on the red team.
+        /// </summary>
+        private readonly List<Soldier> _teamRed = new();
+        
+        /// <summary>
+        /// All soldiers on the blue team.
+        /// </summary>
+        private readonly List<Soldier> _teamBlue = new();
 
         /// <summary>
         /// 

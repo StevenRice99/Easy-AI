@@ -70,16 +70,6 @@ namespace Project
 
             public bool Visible;
         }
-        
-        /// <summary>
-        /// All soldiers on the red team.
-        /// </summary>
-        private static readonly List<Soldier> TeamRed = new();
-        
-        /// <summary>
-        /// All soldiers on the blue team.
-        /// </summary>
-        private static readonly List<Soldier> TeamBlue = new();
 
         [Tooltip("The position of the solder's head.")]
         public Transform headPosition;
@@ -424,7 +414,7 @@ namespace Project
         /// <returns>An enumerable of all enemies.</returns>
         public IEnumerable<Soldier> GetEnemies()
         {
-            return (RedTeam ? TeamBlue : TeamRed).Where(s => s.Alive);
+            return (RedTeam ? SoldierManager.TeamBlue : SoldierManager.TeamRed).Where(s => s.Alive);
         }
 
         /// <summary>
@@ -513,48 +503,6 @@ namespace Project
             return GetEnemies().Where(enemy => !Physics.Linecast(headPosition.position, enemy.headPosition.position, Manager.ObstacleLayers)).ToArray();
         }
 
-        protected override void Start()
-        {
-            // Perform default setup.
-            base.Start();
-
-            // Setup all weapons.
-            Weapons = GetComponentsInChildren<Weapon>();
-            for (int i = 0; i < Weapons.Length; i++)
-            {
-                Weapons[i].Soldier = this;
-                Weapons[i].Index = i;
-            }
-
-            // Assign team.
-            RedTeam = TeamRed.Count <= TeamBlue.Count;
-            if (RedTeam)
-            {
-                TeamRed.Add(this);
-            }
-            else
-            {
-                TeamBlue.Add(this);
-            }
-
-            // Assign name.
-            name = (RedTeam ? "Red " : "Blue ") + (RedTeam ? TeamRed.Count : TeamBlue.Count);
-
-            // Get all attached colliders.
-            List<Collider> colliders = GetComponents<Collider>().ToList();
-            colliders.AddRange(GetComponentsInChildren<Collider>());
-            Colliders = colliders.Distinct().ToArray();
-
-            // Assign team colors.
-            foreach (MeshRenderer meshRenderer in colorVisuals)
-            {
-                meshRenderer.material = RedTeam ? SoldierManager.Red : SoldierManager.Blue;
-            }
-            
-            // Spawn in.
-            Spawn();
-        }
-
         /// <summary>
         /// Respawn the soldier after being killed.
         /// </summary>
@@ -583,13 +531,78 @@ namespace Project
             Spawn();
         }
 
+        protected override void Start()
+        {
+            // Perform default setup.
+            base.Start();
+
+            // Setup all weapons.
+            Weapons = GetComponentsInChildren<Weapon>();
+            for (int i = 0; i < Weapons.Length; i++)
+            {
+                Weapons[i].Soldier = this;
+                Weapons[i].Index = i;
+            }
+
+            // Assign team.
+            RedTeam = SoldierManager.TeamRed.Count <= SoldierManager.TeamBlue.Count;
+            if (RedTeam)
+            {
+                SoldierManager.TeamRed.Add(this);
+            }
+            else
+            {
+                SoldierManager.TeamBlue.Add(this);
+            }
+
+            // Assign name.
+            name = (RedTeam ? "Red " : "Blue ") + (RedTeam ? SoldierManager.TeamRed.Count : SoldierManager.TeamBlue.Count);
+
+            // Get all attached colliders.
+            List<Collider> colliders = GetComponents<Collider>().ToList();
+            colliders.AddRange(GetComponentsInChildren<Collider>());
+            Colliders = colliders.Distinct().ToArray();
+
+            // Assign team colors.
+            foreach (MeshRenderer meshRenderer in colorVisuals)
+            {
+                meshRenderer.material = RedTeam ? SoldierManager.Red : SoldierManager.Blue;
+            }
+            
+            // Spawn in.
+            Spawn();
+        }
+
+        protected override void OnDestroy()
+        {
+            try
+            {
+                SoldierManager.TeamRed.Remove(this);
+            }
+            catch
+            {
+                // Ignored.
+            }
+            
+            try
+            {
+                SoldierManager.TeamBlue.Remove(this);
+            }
+            catch
+            {
+                // Ignored.
+            }
+            
+            base.OnDestroy();
+        }
+
         /// <summary>
         /// Get all members of this soldier's team.
         /// </summary>
         /// <returns>All soldiers on this solder's team by closest to the enemy flag.</returns>
         private Soldier[] GetTeam()
         {
-            IEnumerable<Soldier> team = (RedTeam ? TeamRed : TeamBlue).Where(s => s.Alive);
+            IEnumerable<Soldier> team = (RedTeam ? SoldierManager.TeamRed : SoldierManager.TeamBlue).Where(s => s.Alive);
             if (RedTeam)
             {
                 if (FlagPickup.BlueFlag != null)

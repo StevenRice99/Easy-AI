@@ -439,29 +439,11 @@ namespace EasyAI
                 path.Add(goal);
             }
 
-            // Try to pull the string from both sides, trying at least once from each side.
-            bool forward = true;
-            bool reverse = true;
-            do
-            {
-                // If forward pulling worked last time, try again.
-                if (forward)
-                {
-                    forward = StringPull(path);
-                }
-
-                // If reverse pulling worked last time, try again.
-                if (!reverse)
-                {
-                    continue;
-                }
-
-                path.Reverse();
-                reverse = StringPull(path);
-                path.Reverse();
-
-            } while (forward || reverse);
-
+            // Try to pull the string from both sides.
+            StringPull(path);
+            path.Reverse();
+            StringPull(path);
+            path.Reverse();
 
             return path;
         }
@@ -470,11 +452,8 @@ namespace EasyAI
         /// Perform string pulling to shorten a path. Path list does not need to be returned, simply remove nodes from it.
         /// </summary>
         /// <param name="path">The path to shorten.</param>
-        /// <returns>True if the string was pulled pulled, false otherwise.</returns>
-        private static bool StringPull(IList<Vector3> path)
+        private static void StringPull(IList<Vector3> path)
         {
-            bool pulled = false;
-            
             // Loop through every point in the path less two as there must be at least two points in a path.
             for (int i = 0; i < path.Count - 2; i++)
             {
@@ -493,7 +472,6 @@ namespace EasyAI
                         if (!Physics.Linecast(path[i], path[j], Manager.ObstacleLayers))
                         {
                             path.RemoveAt(j-- - 1);
-                            pulled = true;
                         }
                         
                         continue;
@@ -503,17 +481,12 @@ namespace EasyAI
                     p1.y += Manager.NavigationRadius;
                     Vector3 p2 = path[j];
                     p2.y += Manager.NavigationRadius;
-                    if (Physics.SphereCast(p1, Manager.NavigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(p1, p2), Manager.ObstacleLayers))
+                    if (!Physics.SphereCast(p1, Manager.NavigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(p1, p2), Manager.ObstacleLayers))
                     {
-                        continue;
+                        path.RemoveAt(j-- - 1);
                     }
-
-                    path.RemoveAt(j-- - 1);
-                    pulled = true;
                 }
             }
-
-            return pulled;
         }
 
         /// <summary>
