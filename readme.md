@@ -78,7 +78,6 @@ Navigation
 - Our agents can now move around, but so far, they've only been in open environments. They need to be able to get around obstacles in more complex environments.
 - First, complete corner-graph generation in the Easy-AI library.
 - Then, complete A* pathfinding in the Easy-AI library.
-- Complete string-pulling in the Easy-AI library to improve pathfinding.
 
 # Project
 
