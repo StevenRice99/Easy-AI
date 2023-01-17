@@ -13,15 +13,6 @@ namespace EasyAI.Navigation.Generators
         public NodeArea NodeArea { get; set; }
 
         /// <summary>
-        /// Set the maximum distance that nodes can form connections between with zero or a negative value meaning no limit.
-        /// </summary>
-        /// <returns>The maximum distance that nodes can form connections between with zero or a negative value meaning no limit.</returns>
-        public virtual float SetNodeDistance()
-        {
-            return 0;
-        }
-
-        /// <summary>
         /// Generate nodes.
         /// </summary>
         public abstract void Generate();

@@ -144,8 +144,6 @@ namespace EasyAI.Navigation.Nodes
             {
                 // Run the node generator.
                 generator.NodeArea = this;
-                _oldNodeDistance = Manager.NodeDistance;
-                Manager.NodeDistance = generator.SetNodeDistance();
                 generator.Generate();
 
                 // Form connections between nodes.
@@ -155,13 +153,6 @@ namespace EasyAI.Navigation.Nodes
                     {
                         // Cannot connect the same node.
                         if (x == z)
-                        {
-                            continue;
-                        }
-
-                        // Ensure the nodes are in range to form a connection.
-                        float d = Vector3.Distance(_nodes[x], _nodes[z]);
-                        if (Manager.NodeDistance > 0 && d > Manager.NodeDistance)
                         {
                             continue;
                         }
@@ -181,7 +172,7 @@ namespace EasyAI.Navigation.Nodes
                             Vector3 p2 = _nodes[z];
                             p2.y += Manager.NavigationRadius;
                             Vector3 direction = (p2 - p1).normalized;
-                            if (Physics.SphereCast(p1, Manager.NavigationRadius, direction, out _, d, Manager.ObstacleLayers))
+                            if (Physics.SphereCast(p1, Manager.NavigationRadius, direction, out _, Vector3.Distance(_nodes[x], _nodes[z]), Manager.ObstacleLayers))
                             {
                                 continue;
                             }
@@ -198,8 +189,6 @@ namespace EasyAI.Navigation.Nodes
                     }
                 }
             }
-
-            Manager.NodeDistance = _oldNodeDistance;
 
             // Cleanup all generators.
             foreach (NodeGenerator g in generators)

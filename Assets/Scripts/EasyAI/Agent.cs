@@ -809,36 +809,33 @@ namespace EasyAI
             // If there is a path the agent is following, follow it.
             if (Path.Count > 0)
             {
-                // If we are at the end of the path, see if the agent can skip to the end in case it was off of a node and thus sub-optimal.
-                if (Path.Count == 2)
+                // See if any points along the path can be skipped.
+                while (Path.Count >= 2)
                 {
-                    bool canReachEnd = false;
-            
                     if (Manager.NavigationRadius <= 0)
                     {
-                        if (!Physics.Linecast(transform.position, Path[^1], Manager.ObstacleLayers))
+                        if (!Physics.Linecast(transform.position, Path[1], Manager.ObstacleLayers))
                         {
-                            canReachEnd = true;
+                            Path.RemoveAt(0);
+                            continue;
                         }
+                        
+                        break;
                     }
-                    else
-                    {
-                        Vector3 p1 = transform.position;
-                        p1.y += Manager.NavigationRadius;
-                        Vector3 p2 = Path[^1];
-                        p2.y += Manager.NavigationRadius;
-                        if (!Physics.SphereCast(p1, Manager.NavigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(p1, p2), Manager.ObstacleLayers))
-                        {
-                            canReachEnd = true;
-                        }
-                    }
-                
-                    if (canReachEnd)
-                    {
-                        Path = new() { Path[^1] };
-                    }
-                }
 
+                    Vector3 p1 = positionVector3;
+                    p1.y += Manager.NavigationRadius;
+                    Vector3 p2 = Path[1];
+                    p2.y += Manager.NavigationRadius;
+                    if (!Physics.SphereCast(p1, Manager.NavigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(p1, p2), Manager.ObstacleLayers))
+                    {
+                        Path.RemoveAt(0);
+                        continue;
+                    }
+                    
+                    break;
+                }
+                
                 // Remove path locations which have been satisfied in being reached.
                 while (Path.Count > 0 && Vector2.Distance(position, new(Path[0].x, Path[0].z)) <= Manager.SeekAcceptableDistance)
                 {

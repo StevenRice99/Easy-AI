@@ -5,6 +5,7 @@ using System.Linq;
 using EasyAI.Navigation;
 using EasyAI.Navigation.Nodes;
 using EasyAI.Utility;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
@@ -102,15 +103,6 @@ namespace EasyAI
         public static LayerMask ObstacleLayers => Singleton.obstacleLayers;
 
         /// <summary>
-        /// How far nodes can connect between with zero meaning no limit.
-        /// </summary>
-        public static float NodeDistance
-        {
-            get => Singleton.nodeDistance;
-            set => Singleton.nodeDistance = value;
-        }
-
-        /// <summary>
         /// How wide is the agent radius for connecting nodes to ensure enough space for movement.
         /// </summary>
         public static float NavigationRadius => Singleton.navigationRadius;
@@ -153,7 +145,7 @@ namespace EasyAI
         /// <summary>
         /// How much height difference can there be between string pulls.
         /// </summary>
-        public static float PullMaxDifference => Singleton.pullMaxDifference;
+        public static float PullMaxHeight => Singleton.pullMaxHeight;
 
         /// <summary>
         /// All agents in the scene.
@@ -247,18 +239,13 @@ namespace EasyAI
         [SerializeField]
         private LayerMask obstacleLayers;
 
-        [Tooltip("How far nodes can connect between with zero meaning no limit.")]
-        [Min(0)]
-        [SerializeField]
-        private float nodeDistance;
-
         [Tooltip(
             "How much height difference can there be between string pulls, set to zero for no limit.\n" +
             "Increase this value if generated paths are being generated between too high of slopes/stairs."
         )]
         [Min(0)]
         [SerializeField]
-        private float pullMaxDifference;
+        private float pullMaxHeight;
 
         [Tooltip("Lookup table to save and load navigation.")]
         [SerializeField]
@@ -460,7 +447,7 @@ namespace EasyAI
                 // If forward pulling worked last time, try again.
                 if (forward)
                 {
-                    forward = AStar.StringPull(path);
+                    forward = StringPull(path);
                 }
 
                 // If reverse pulling worked last time, try again.
@@ -470,13 +457,63 @@ namespace EasyAI
                 }
 
                 path.Reverse();
-                reverse = AStar.StringPull(path);
+                reverse = StringPull(path);
                 path.Reverse();
 
             } while (forward || reverse);
 
 
             return path;
+        }
+        
+        /// <summary>
+        /// Perform string pulling to shorten a path. Path list does not need to be returned, simply remove nodes from it.
+        /// </summary>
+        /// <param name="path">The path to shorten.</param>
+        /// <returns>True if the string was pulled pulled, false otherwise.</returns>
+        private static bool StringPull(IList<Vector3> path)
+        {
+            bool pulled = false;
+            
+            // Loop through every point in the path less two as there must be at least two points in a path.
+            for (int i = 0; i < path.Count - 2; i++)
+            {
+                // Inner loop from two points ahead of the outer loop to check if a node can be skipped.
+                for (int j = i + 2; j < path.Count; j++)
+                {
+                    // Do not string pull for multi-level paths as these could skip over objects that require stairs.
+                    if (math.abs(path[i].y - path[j].y) > Manager.PullMaxHeight)
+                    {
+                        continue;
+                    }
+                
+                    // If a node can be skipped as there is line of sight without it, remove it.
+                    if (Manager.NavigationRadius <= 0)
+                    {
+                        if (!Physics.Linecast(path[i], path[j], Manager.ObstacleLayers))
+                        {
+                            path.RemoveAt(j-- - 1);
+                            pulled = true;
+                        }
+                        
+                        continue;
+                    }
+
+                    Vector3 p1 = path[i];
+                    p1.y += Manager.NavigationRadius;
+                    Vector3 p2 = path[j];
+                    p2.y += Manager.NavigationRadius;
+                    if (Physics.SphereCast(p1, Manager.NavigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(p1, p2), Manager.ObstacleLayers))
+                    {
+                        continue;
+                    }
+
+                    path.RemoveAt(j-- - 1);
+                    pulled = true;
+                }
+            }
+
+            return pulled;
         }
 
         /// <summary>
@@ -1741,13 +1778,6 @@ namespace EasyAI
                 
                     foreach (Vector3 v in _nodes)
                     {
-                        // Ensure the nodes are in range to form a connection.
-                        float d = Vector3.Distance(p, v);
-                        if (nodeDistance > 0 && d > nodeDistance)
-                        {
-                            continue;
-                        }
-                    
                         // Ensure the nodes have line of sight on each other.
                         if (navigationRadius <= 0)
                         {
@@ -1763,7 +1793,7 @@ namespace EasyAI
                             Vector3 p2 = v;
                             p2.y += navigationRadius;
                             Vector3 direction = (p2 - p1).normalized;
-                            if (Physics.SphereCast(p1, navigationRadius, direction, out _, d, obstacleLayers))
+                            if (Physics.SphereCast(p1, navigationRadius, direction, out _, Vector3.Distance(p, v), obstacleLayers))
                             {
                                 continue;
                             }

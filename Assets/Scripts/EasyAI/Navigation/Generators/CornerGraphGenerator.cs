@@ -8,22 +8,9 @@ namespace EasyAI.Navigation.Generators
     public class CornerGraphGenerator : NodeGenerator
     {
         [SerializeField]
-        [Tooltip("How far away can nodes connect to each other from. Setting to zero means there is no limit.")]
-        private float nodeDistance;
-    
-        [SerializeField]
         [Min(0)]
         [Tooltip("How far away from corners should the nodes be placed.")]
         private int cornerNodeSteps = 3;
-    
-        /// <summary>
-        /// Set the maximum distance that nodes can form connections between with zero or a negative value meaning no limit.
-        /// </summary>
-        /// <returns>The maximum distance that nodes can form connections between with zero or a negative value meaning no limit.</returns>
-        public override float SetNodeDistance()
-        {
-            return nodeDistance;
-        }
     
         /// <summary>
         /// Place nodes at convex corners.
