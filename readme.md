@@ -24,7 +24,7 @@ Agents, Sensors, and Actuators
 
 - In assignment one, you need to help a vacuum cleaning agent keep the floor clean.
 - Grey tiles are normal floor tiles which are clean. Shiny white floor tiles are also clean, but they are more likely to become dirty than normal floor tiles.
-- Tiles can become either dirty or very dirty, indicated by light brown and dark brown respectfully. Tiles will randomly become dirty over time.
+- Tiles can become either dirty or very dirty, indicated by light brown and dark brown. Tiles will randomly become dirty over time.
 - Your objective is to complete the cleaner agent's mind along with any sensors and actuators it needs to complete its task.
 - You should also create a performance measure to determine how well the cleaner is doing.
 
