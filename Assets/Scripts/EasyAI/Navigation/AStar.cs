@@ -94,18 +94,18 @@ namespace EasyAI.Navigation
             // Reverse the path so it is from start to goal and return it.
             path.Reverse();
         
-            // Reduce the path if possible.
-            StringPull(path);
-        
             return path;
         }
 
         /// <summary>
-        /// Perform string pulling to shorten a path.
+        /// Perform string pulling to shorten a path. Path list does not need to be returned, simply remove nodes from it.
         /// </summary>
         /// <param name="path">The path to shorten.</param>
-        public static void StringPull(IList<Vector3> path)
+        /// <returns>True if the string was pulled pulled, false otherwise.</returns>
+        public static bool StringPull(IList<Vector3> path)
         {
+            bool pulled = false;
+            
             // Loop through every point in the path less two as there must be at least two points in a path.
             for (int i = 0; i < path.Count - 2; i++)
             {
@@ -124,6 +124,7 @@ namespace EasyAI.Navigation
                         if (!Physics.Linecast(path[i], path[j], Manager.ObstacleLayers))
                         {
                             path.RemoveAt(j-- - 1);
+                            pulled = true;
                         }
                         
                         continue;
@@ -133,12 +134,17 @@ namespace EasyAI.Navigation
                     p1.y += Manager.NavigationRadius;
                     Vector3 p2 = path[j];
                     p2.y += Manager.NavigationRadius;
-                    if (!Physics.SphereCast(p1, Manager.NavigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(p1, p2), Manager.ObstacleLayers))
+                    if (Physics.SphereCast(p1, Manager.NavigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(p1, p2), Manager.ObstacleLayers))
                     {
-                        path.RemoveAt(j-- - 1);
+                        continue;
                     }
+
+                    path.RemoveAt(j-- - 1);
+                    pulled = true;
                 }
             }
+
+            return pulled;
         }
     }
 }

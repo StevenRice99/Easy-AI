@@ -451,25 +451,32 @@ namespace EasyAI
             {
                 path.Add(goal);
             }
-        
-            // Create a copy of the path in reverse from the end to the start.
-            List<Vector3> backwards = new();
-            backwards.AddRange(path);
-            backwards.Reverse();
 
-            // Pull the strings of both the forwards and backwards path.
-            AStar.StringPull(path);
-            AStar.StringPull(backwards);
-
-            // Return the path which is the shortest after string pulling.
-            if (PathLength(path) <= PathLength(backwards))
+            // Try to pull the string from both sides, trying at least once from each side.
+            bool forward = true;
+            bool reverse = true;
+            do
             {
-                return path;
-            }
+                // If forward pulling worked last time, try again.
+                if (forward)
+                {
+                    forward = AStar.StringPull(path);
+                }
 
-            // The backwards path needs to be reversed once again to switch it back to its original order.
-            backwards.Reverse();
-            return backwards;
+                // If reverse pulling worked last time, try again.
+                if (!reverse)
+                {
+                    continue;
+                }
+
+                path.Reverse();
+                reverse = AStar.StringPull(path);
+                path.Reverse();
+
+            } while (forward || reverse);
+
+
+            return path;
         }
 
         /// <summary>
@@ -512,33 +519,6 @@ namespace EasyAI
 
             // If no nodes are in line of sight, return the nearest node even though it is not in line of sight.
             return potential.First();
-        }
-
-        /// <summary>
-        /// Calculate how long a path is to determine which path is the most optimal to take.
-        /// </summary>
-        /// <param name="path">The path to get the length of.</param>
-        /// <returns>The length of the path.</returns>
-        private static float PathLength(IReadOnlyList<Vector3> path)
-        {
-            float length = 0;
-            for (int i = 0; i < path.Count - 1; i++)
-            {
-                length += Vector3.Distance(path[i], path[i + 1]);
-            }
-
-            return length;
-        }
-
-        /// <summary>
-        /// Set the currently selected agent.
-        /// </summary>
-        /// <param name="agent">The agent to select.</param>
-        public static void SetSelectedAgent(Agent agent)
-        {
-            Singleton._selectedComponent = null;
-            Singleton.SelectedAgent = agent;
-            Singleton._state = GuiState.Agent;
         }
 
         /// <summary>
