@@ -173,8 +173,7 @@ MonoBehaviour:
   controlsWidth: 120
   followBest: 1
   selectedCamera: {fileID: 821404258}
-  gizmos: 1
-  paths: 3
+  paths: 2
   startingHunger: -100
   maxHunger: 200
   hungerRestoredFromEating: 100

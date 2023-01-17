@@ -405,7 +405,6 @@ MonoBehaviour:
   fleeAcceptableDistance: 10
   restVelocity: 0.1
   navigationRadius: 0.5
-  sightHeight: 0
   groundLayers:
     serializedVersion: 2
     m_Bits: 8
@@ -422,8 +421,7 @@ MonoBehaviour:
   controlsWidth: 120
   followBest: 1
   selectedCamera: {fileID: 448259072}
-  gizmos: 2
-  paths: 3
+  paths: 2
 --- !u!1 &496596889
 GameObject:
   m_ObjectHideFlags: 0
@@ -1097,7 +1095,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a62c0dcf3d924bbabd793407fe8100c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  state: {fileID: 0}
   moveSpeed: 10
   moveAcceleration: 0
   lookSpeed: 0

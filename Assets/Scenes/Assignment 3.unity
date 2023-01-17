@@ -312,8 +312,7 @@ MonoBehaviour:
   controlsWidth: 120
   followBest: 1
   selectedCamera: {fileID: 843760097}
-  gizmos: 2
-  paths: 3
+  paths: 2
   targets:
   - {fileID: 1560240455}
   - {fileID: 1317554318}

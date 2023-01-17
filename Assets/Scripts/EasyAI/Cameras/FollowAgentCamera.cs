@@ -128,7 +128,7 @@ namespace EasyAI.Cameras
             Vector3 position = t.position;
 
             // Move to the location.
-            transform.position = moveSpeed <= 0 ? move : Vector3.Slerp(position, move, moveSpeed * Time.deltaTime);
+            transform.position = moveSpeed <= 0 ? move : Vector3.Slerp(position, move, moveSpeed * Time.unscaledDeltaTime);
 
             // Look at the agent.
             if (lookSpeed <= 0)
@@ -137,7 +137,7 @@ namespace EasyAI.Cameras
             }
             else
             {
-                transform.rotation = Quaternion.Slerp(t.rotation, Quaternion.LookRotation(target - position), lookSpeed * Time.deltaTime);
+                transform.rotation = Quaternion.Slerp(t.rotation, Quaternion.LookRotation(target - position), lookSpeed * Time.unscaledDeltaTime);
             }
         }
     }

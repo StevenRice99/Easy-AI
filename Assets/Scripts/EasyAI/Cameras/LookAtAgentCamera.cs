@@ -57,7 +57,7 @@ namespace EasyAI.Cameras
 
             // Look towards it.
             Transform t = transform;
-            transform.rotation = Quaternion.Slerp(t.rotation, Quaternion.LookRotation(target - t.position), lookSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.Slerp(t.rotation, Quaternion.LookRotation(target - t.position), lookSpeed * Time.unscaledDeltaTime);
         }
     }
 }

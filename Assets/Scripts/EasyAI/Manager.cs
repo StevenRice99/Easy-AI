@@ -5,7 +5,6 @@ using System.Linq;
 using EasyAI.Navigation;
 using EasyAI.Navigation.Nodes;
 using EasyAI.Utility;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
@@ -33,12 +32,11 @@ namespace EasyAI
         }
 
         /// <summary>
-        /// Determine what navigation lines are drawn.
-        /// "Determine what path lines are drawn.
-        /// "Off - No lines are drawn.
-        /// "All - Lines for every move, navigation, and connection is drawn.
-        /// "Active - Lines for every move and navigation drawn.
-        /// "Selected - Only lines for the moves and navigation of the selected agent are drawn."
+        /// Determine what path lines are drawn.
+        /// Off - No lines are drawn.
+        /// All - Lines for every move, navigation, and connection is drawn.
+        /// Active - Lines for every move and navigation drawn.
+        /// Selected - Only lines for the moves and navigation of the selected agent are drawn.
         /// </summary>
         private enum PathState : byte
         {
@@ -71,7 +69,7 @@ namespace EasyAI
         /// <summary>
         /// How much to visually offset navigation by so it does not clip into the ground.
         /// </summary>
-        public const float NavigationVisualOffset = 0.1f;
+        private const float NavigationVisualOffset = 0.1f;
 
         /// <summary>
         /// The mind or global state agents are in
@@ -357,12 +355,12 @@ namespace EasyAI
         /// <summary>
         /// If the details menu is currently open.
         /// </summary>
-        private bool _detailsOpen;
+        private bool _detailsOpen = true;
 
         /// <summary>
         /// If the controls menu is currently open.
         /// </summary>
-        private bool _controlsOpen;
+        private bool _controlsOpen = true;
 
         /// <summary>
         /// The currently selected component.
@@ -683,6 +681,8 @@ namespace EasyAI
             
             // If the agent had any cameras attached to it we need to add them.
             FindCameras();
+            
+            CheckGizmos();
         }
 
         /// <summary>
@@ -734,6 +734,8 @@ namespace EasyAI
 
             // If the agent had any cameras attached to it we need to remove them.
             FindCameras();
+            
+            CheckGizmos();
         }
 
         /// <summary>
@@ -840,6 +842,14 @@ namespace EasyAI
             Transform agentTransform = agent.transform;
             Vector3 position = agentTransform.position;
             Quaternion rotation = agentTransform.rotation;
+            
+            // If the agent is moving, draw a yellow line indicating the direction it is currently moving in.
+            if (agent.MoveAcceleration > 0 && agent.MoveVelocity != Vector2.zero)
+            {
+                GL.Color(Color.yellow);
+                GL.Vertex(position);
+                GL.Vertex(position + rotation * (agent.MoveVelocity3.normalized * 2));
+            }
 
             // Display the path the agent is following.
             if (agent.Path.Count > 0)
@@ -870,16 +880,6 @@ namespace EasyAI
                     GL.Vertex(new(movement.Position.x, position.y, movement.Position.y));
                 }
             }
-
-            // If the agent is moving, draw a yellow line indicating the direction it is currently moving in.
-            if (agent.MoveAcceleration <= 0 || agent.MoveVelocity == Vector2.zero)
-            {
-                return;
-            }
-
-            GL.Color(Color.yellow);
-            GL.Vertex(position);
-            GL.Vertex(position + rotation * (agent.MoveVelocity3.normalized * 2));
         }
 
         /// <summary>
@@ -1112,7 +1112,7 @@ namespace EasyAI
                 {
                     // Button to go back to the main view.
                     y = NextItem(y, h, p);
-                    if (GuiButton(x, y, w, h, "Back to Overview" + (Singleton.followBest ? " - Stop Following Best" : string.Empty)))
+                    if (GuiButton(x, y, w, h, "Back to Agent List" + (Singleton.followBest ? " - Stop Following Best" : string.Empty)))
                     {
                         Singleton.followBest = false;
                         Singleton._state = GuiState.Main;
@@ -1511,19 +1511,19 @@ namespace EasyAI
                 }
             }
 
-            if (Singleton._connections.Count > 0)
+            if (Singleton._connections.Count > 0 || Singleton.Agents.Count > 0)
             {
-                // Button to change navigation mode.
+                // Button to change paths rendering..
                 y = NextItem(y, h, p);
                 if (GuiButton(x, y, w, h, Singleton.paths switch
-                    {
-                        PathState.Off => "Nodes: Off",
-                        PathState.Active => "Nodes: Active",
-                        PathState.All => "Nodes: All",
-                        _ => "Nodes: Selected"
-                    }))
                 {
-                    ChangeNavigationState();
+                    PathState.Off => "Gizmos: Off",
+                    PathState.Active => "Gizmos: Active",
+                    PathState.All => "Gizmos: All",
+                    _ => "Gizmos: Selected"
+                }))
+                {
+                    ChangeGizmos();
                 }
             }
 
@@ -1559,17 +1559,55 @@ namespace EasyAI
                     }
                 }
             }
-
+            
+#if (!UNITY_EDITOR && !UNITY_WEBGL)
             // Button to quit.
             y = NextItem(y, h, p);
             if (GuiButton(x, y, w, h, "Quit"))
             {
-#if UNITY_EDITOR
-                EditorApplication.ExitPlaymode();
-#else
                 Application.Quit();
-#endif
             }
+#endif
+        }
+
+        /// <summary>
+        /// Change the gizmos mode.
+        /// </summary>
+        private static void ChangeGizmos()
+        {
+            Singleton.paths++;
+
+            CheckGizmos();
+        }
+
+        /// <summary>
+        /// Ensure gizmos are valid.
+        /// </summary>
+        private static void CheckGizmos()
+        {
+            bool change = true;
+            while (change)
+            {
+                change = false;
+                if (Singleton.paths == PathState.All && Singleton.Agents.Count == 0)
+                {
+                    change = true;
+                    Singleton.paths++;
+                }
+
+                if (Singleton.paths == PathState.Selected && Singleton.Agents.Count == 1)
+                {
+                    change = true;
+                    Singleton.paths++;
+                }
+            
+                if (Singleton.paths > PathState.Selected)
+                {
+                    change = true;
+                    Singleton.paths = PathState.Off;
+                }
+            }
+
         }
 
         /// <summary>
@@ -1606,20 +1644,6 @@ namespace EasyAI
         private static void Step()
         {
             Singleton.StartCoroutine(StepOneFrame());
-        }
-        
-        /// <summary>
-        /// Change to the next navigation state.
-        /// </summary>
-        private static void ChangeNavigationState()
-        {
-            if (Singleton.paths == PathState.Selected)
-            {
-                Singleton.paths = PathState.Off;
-                return;
-            }
-
-            Singleton.paths++;
         }
 
         /// <summary>
@@ -1834,6 +1858,8 @@ namespace EasyAI
                 {
                     lookupTable.Write(_navigationTable);
                 }
+
+                CheckGizmos();
             }
 
             // Clean up all node related components in the scene as they are no longer needed after generation.
@@ -1909,10 +1935,10 @@ namespace EasyAI
                     agent.IncreaseDeltaTime();
                     agent.LookCalculations();
                 }
-            }
 
-            // Move agents that do not require physics.
-            MoveAgents(_updateAgents);
+                // Move agents that do not require physics.
+                MoveAgents(_updateAgents);
+            }
 
             // Click to select an agent.
             if (Mouse.current.leftButton.wasPressedThisFrame && Physics.Raycast(selectedCamera.ScreenPointToRay(new(Mouse.current.position.x.ReadValue(), Mouse.current.position.y.ReadValue(), 0)), out RaycastHit hit, Mathf.Infinity))
