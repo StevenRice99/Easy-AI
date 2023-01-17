@@ -9308,8 +9308,7 @@ MonoBehaviour:
   obstacleLayers:
     serializedVersion: 2
     m_Bits: 64
-  nodeDistance: 0
-  pullMaxDifference: 0
+  pullMaxHeight: 0
   lookupTable: {fileID: 11400000, guid: 611124616ac13a840887e3fda70a9776, type: 2}
   loadLookupTable: 1
   maxAgentsPerUpdate: 0
@@ -9318,7 +9317,6 @@ MonoBehaviour:
   controlsWidth: 120
   followBest: 1
   selectedCamera: {fileID: 448259072}
-  gizmos: 1
   paths: 2
   soldiersPerTeam: 15
   health: 100
@@ -42980,7 +42978,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f34aef3661e4fc596e362090c5bca1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nodeDistance: 40
   cornerNodeSteps: 3
 --- !u!1 &2141623359
 GameObject:
