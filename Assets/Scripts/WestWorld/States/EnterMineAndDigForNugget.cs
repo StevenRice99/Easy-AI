@@ -4,6 +4,9 @@ using WestWorld.Agents;
 
 namespace WestWorld.States
 {
+    /// <summary>
+    /// State for the miner to collect gold.
+    /// </summary>
     [CreateAssetMenu(menuName = "West World/States/Enter Mine And Dig For Nugget State", fileName = "Enter Mine And Dig For Nugget State")]
     public class EnterMineAndDigForNugget : State
     {
@@ -16,6 +19,7 @@ namespace WestWorld.States
                 return;
             }
 
+            // Update the location to the gold mine.
             miner.ChangeLocation(Miner.WestWorldLocation.GoldMine);
             miner.Log("Walkin' to the gold mine.");
         }
@@ -24,16 +28,19 @@ namespace WestWorld.States
         {
             Miner miner = agent as Miner;
 
-            miner.IncreaseFatigue(1);
-            miner.AddToGoldCarried(1);
+            // Work and collect gold.
+            miner.IncreaseFatigue();
+            miner.AddToGoldCarried();
             miner.Log("Pickin' up a nugget.");
 
+            // If full on gold, start to deposit.
             if (miner.PocketsFull)
             {
                 miner.SetState<VisitBankAndDepositGold>();
                 return;
             }
 
+            // Otherwise if thirsty, start to quench thirst.
             if (miner.Thirsty)
             {
                 miner.SetState<QuenchThirst>();

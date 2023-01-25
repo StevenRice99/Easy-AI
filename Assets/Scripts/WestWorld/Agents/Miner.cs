@@ -3,104 +3,188 @@ using WestWorld.States;
 
 namespace WestWorld.Agents
 {
+    /// <summary>
+    /// The Miner, Bob, in the West World game.
+    /// </summary>
     public class Miner : WestWorldAgent
     {
-        public int GoldCarried { get; private set; }
-
+        /// <summary>
+        /// The money the miner has in total at the bank.
+        /// </summary>
         public int MoneyInBank { get; private set; }
 
-        public int Thirst { get; private set; }
+        /// <summary>
+        /// If the miner cannot carry any more gold.
+        /// </summary>
+        public bool PocketsFull => _goldCarried >= maxGoldCarried;
 
-        public int Fatigue{ get; private set; }
+        /// <summary>
+        /// If the miner is feeling thirsty.
+        /// </summary>
+        public bool Thirsty => _thirst >= maxThirst;
 
+        /// <summary>
+        /// If the miner is feeling tired.
+        /// </summary>
+        public bool Tired => _fatigue >= maxFatigue;
+
+        /// <summary>
+        /// If the miner is feeling rested.
+        /// </summary>
+        public bool Rested => _fatigue <= 0;
+
+        [Header("Miner Properties")]
+        [Tooltip("The maximum amount of gold the miner can carry before their pockets are full.")]
         [SerializeField]
         private int maxGoldCarried = 2;
 
+        [Tooltip("How thirsty the miner can get before they need a drink.")]
         [SerializeField]
         private int maxThirst = 5;
 
+        [Tooltip("How tired the miner can get before they need to rest.")]
         [SerializeField]
         private int maxFatigue = 4;
+        
+        /// <summary>
+        /// The current gold the miner is carrying.
+        /// </summary>
+        private int _goldCarried;
 
-        public bool PocketsFull => GoldCarried >= maxGoldCarried;
+        /// <summary>
+        /// The current thirst of the miner.
+        /// </summary>
+        private int _thirst;
 
-        public bool Thirsty => Thirst >= maxThirst;
+        /// <summary>
+        /// The current fatigue of the miner.
+        /// </summary>
+        private int _fatigue;
 
-        public bool Tired => Fatigue >= maxFatigue;
-
-        public bool Rested => Fatigue <= 0;
-
+        /// <summary>
+        /// The house keeper so the miner can communicate with them.
+        /// </summary>
         private HouseKeeper _houseKeeper;
 
-        public void AddToGoldCarried(int gold)
+        /// <summary>
+        /// Collect more gold to carry.
+        /// </summary>
+        public void AddToGoldCarried()
         {
+            // Can only collect at the gold mine.
             if (Location != WestWorldLocation.GoldMine)
             {
                 return;
             }
             
-            GoldCarried += gold;
-            if (GoldCarried > maxGoldCarried)
+            // Increase the gold carried and cap it.
+            _goldCarried += 1;
+            if (_goldCarried > maxGoldCarried)
             {
-                GoldCarried = maxGoldCarried;
+                _goldCarried = maxGoldCarried;
             }
         }
 
-        public void IncreaseFatigue(int fatigue)
+        /// <summary>
+        /// Increase the exhaustion of the miner.
+        /// </summary>
+        public void IncreaseFatigue()
         {
+            // Can only get tired when working at the gold mine.
             if (Location != WestWorldLocation.GoldMine)
             {
                 return;
             }
             
-            Fatigue += fatigue;
-            if (Fatigue >= maxFatigue)
+            // Increase the fatigue and cap it.
+            _fatigue += 1;
+            if (_fatigue >= maxFatigue)
             {
-                Fatigue = maxFatigue;
+                _fatigue = maxFatigue;
             }
         }
 
+        /// <summary>
+        /// Decrease the exhaustion of the miner.
+        /// </summary>
         public void Rest()
         {
+            // Can only rest at home.
             if (Location != WestWorldLocation.Home)
             {
                 return;
             }
 
-            Fatigue -= 1;
-            if (Fatigue < 0)
+            // Decrease the fatigue and cap it.
+            _fatigue -= 1;
+            if (_fatigue < 0)
             {
-                Fatigue = 0;
+                _fatigue = 0;
             }
         }
 
+        /// <summary>
+        /// Deposit all gold into the bank.
+        /// </summary>
         public void DepositGold()
         {
+            // Can only deposit at the bank.
             if (Location != WestWorldLocation.Bank)
             {
                 return;
             }
 
-            MoneyInBank += GoldCarried;
-            GoldCarried = 0;
+            // Add all gold to the bank and empty the gold carried.
+            MoneyInBank += _goldCarried;
+            _goldCarried = 0;
         }
 
+        /// <summary>
+        /// Quench thirst.
+        /// </summary>
         public void Drink()
         {
+            // Can only drink at the saloon.
             if (Location == WestWorldLocation.Saloon)
             {
-                Thirst = 0;
+                _thirst = 0;
             }
         }
 
-        public override void SendMessage(WestWorldMessage message)
+        /// <summary>
+        /// Increase thirst and cap it.
+        /// </summary>
+        public void IncreaseThirst()
         {
+            _thirst += 1;
+            if (_thirst > maxThirst)
+            {
+                _thirst = maxThirst;
+            }
+        }
+
+        /// <summary>
+        /// Send a message to the house keeper.
+        /// Easy-AI doesn't out-of-the-box way to communicate with other agents, so this is an example system.
+        /// You may want to explore adding a generic communication system into the base agent class.
+        /// </summary>
+        /// <param name="message">The message type to send.</param>
+        public void SendMessage(WestWorldMessage message)
+        {
+            // Simply pass the message to the house keeper.
             _houseKeeper.ReceiveMessage(message);
         }
 
-        public override void ReceiveMessage(WestWorldMessage message)
+        /// <summary>
+        /// Receive a message from the house keeper.
+        /// Easy-AI doesn't out-of-the-box way to communicate with other agents, so this is an example system.
+        /// You may want to explore adding a generic communication system into the base agent class.
+        /// </summary>
+        /// <param name="message">The message type received.</param>
+        public void ReceiveMessage(WestWorldMessage message)
         {
-            if (IsInState<GoHomeAndSleepTillRested>() && message == WestWorldMessage.StewReady)
+            // The only message relevant for the miner is when the stew is ready, and it can only respond to this when at home.
+            if (message == WestWorldMessage.StewReady && IsInState<GoHomeAndSleepTillRested>())
             {
                 SetState<EatStew>();
             }
@@ -110,16 +194,8 @@ namespace WestWorld.Agents
         {
             base.Start();
 
+            // Find the house keeper to communicate with.
             _houseKeeper = FindObjectOfType<HouseKeeper>();
-        }
-
-        private void Update()
-        {
-            Thirst += 1;
-            if (Thirst > maxThirst)
-            {
-                Thirst = maxThirst;
-            }
         }
     }
 }

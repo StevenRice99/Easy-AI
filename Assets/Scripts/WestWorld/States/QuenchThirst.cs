@@ -4,6 +4,9 @@ using WestWorld.Agents;
 
 namespace WestWorld.States
 {
+    /// <summary>
+    /// State for the miner to drink.
+    /// </summary>
     [CreateAssetMenu(menuName = "West World/States/Quench Thirst State", fileName = "Quench Thirst State")]
     public class QuenchThirst : State
     {
@@ -16,6 +19,7 @@ namespace WestWorld.States
                 return;
             }
             
+            // Update the location to the saloon.
             miner.ChangeLocation(Miner.WestWorldLocation.Saloon);
             miner.Log("Boy, ah sure is thusty! Walkin' to the saloon");
         }
@@ -24,9 +28,11 @@ namespace WestWorld.States
         {
             Miner miner = agent as Miner;;
             
+            // Drink up.
             miner.Drink();
             miner.Log("That's mighty fine sippin liquor.");
             
+            // Start heading back to the mines.
             miner.SetState<EnterMineAndDigForNugget>();
         }
 
