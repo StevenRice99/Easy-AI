@@ -1,4 +1,5 @@
 ﻿using EasyAI;
+using WestWorld.Agents;
 
 namespace WestWorld.States
 {
@@ -11,8 +12,9 @@ namespace WestWorld.States
 
         public override void Execute(Agent agent)
         {
-            agent.Log("Elsa: Ahhhhhh! Sweet relief!");
-            agent.SetState<DoHousework>();
+            HouseKeeper houseKeeper = agent as HouseKeeper;
+            houseKeeper.Log("Elsa: Ahhhhhh! Sweet relief!");
+            houseKeeper.ReturnToLastState();
         }
 
         public override void Exit(Agent agent)

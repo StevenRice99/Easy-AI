@@ -1,5 +1,4 @@
-﻿using System;
-using EasyAI;
+﻿using EasyAI;
 using UnityEngine;
 using WestWorld.Agents;
 
@@ -22,12 +21,15 @@ namespace WestWorld.States
 
         public override void Execute(Agent agent)
         {
-            if (agent is HouseKeeper)
+            if (agent is not HouseKeeper houseKeeper)
             {
-                if (new System.Random().Next(10) < 1)
-                {
-                    //agent.SetState<VisitBathroom>();
-                }
+                return;
+            }
+
+            if (new System.Random().Next(10) == 0)
+            {
+                houseKeeper.SaveLastState();
+                houseKeeper.SetState<VisitBathroom>();
             }
         }
     }

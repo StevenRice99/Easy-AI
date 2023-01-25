@@ -1,5 +1,5 @@
-﻿using EasyAI;
-using UnityEngine;
+﻿using UnityEngine;
+using WestWorld.States;
 
 namespace WestWorld.Agents
 {
@@ -29,6 +29,8 @@ namespace WestWorld.Agents
         public bool Tired => Fatigue >= maxFatigue;
 
         public bool Rested => Fatigue <= 0;
+
+        private HouseKeeper _houseKeeper;
 
         public void AddToGoldCarried(int gold)
         {
@@ -89,6 +91,26 @@ namespace WestWorld.Agents
             {
                 Thirst = 0;
             }
+        }
+
+        public override void SendMessage(WestWorldMessage message)
+        {
+            _houseKeeper.ReceiveMessage(message);
+        }
+
+        public override void ReceiveMessage(WestWorldMessage message)
+        {
+            if (IsInState<GoHomeAndSleepTillRested>() && message == WestWorldMessage.StewReady)
+            {
+                SetState<EatStew>();
+            }
+        }
+
+        protected override void Start()
+        {
+            base.Start();
+
+            _houseKeeper = FindObjectOfType<HouseKeeper>();
         }
 
         private void Update()

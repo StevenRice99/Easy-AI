@@ -18,6 +18,7 @@ namespace WestWorld.States
             
             miner.ChangeLocation(Miner.WestWorldLocation.Home);
             miner.Log("Walkin' home.");
+            miner.SendMessage(WestWorldAgent.WestWorldMessage.HiHoneyImHome);
         }
 
         public override void Execute(Agent agent)
