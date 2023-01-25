@@ -22,6 +22,15 @@ namespace T2.States
             
             // Create deplete energy action.
             agent.Act(new RestoreEnergyAction(agent.Sense<EnergySensor, EnergyComponent>()));
+            
+            // Get the energy component.
+            EnergyComponent energyComponent = agent.Sense<EnergySensor, EnergyComponent>();
+            
+            // If energy has fully recharged, go into the move state.
+            if (energyComponent.Energy >= energyComponent.MaxEnergy)
+            {
+                agent.SetState<EnergyMoveState>();
+            }
         }
 
         public override void Exit(Agent agent)

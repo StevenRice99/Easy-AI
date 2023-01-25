@@ -24,6 +24,15 @@ namespace T2.States
             
             // Create deplete energy action.
             agent.Act(new DepleteEnergyAction(agent.Sense<EnergySensor, EnergyComponent>()));
+            
+            // Get the energy component.
+            EnergyComponent energyComponent = agent.Sense<EnergySensor, EnergyComponent>();
+            
+            // If out of energy, go into the rest state.
+            if (energyComponent.Energy <= 0)
+            {
+                agent.SetState<EnergyRestState>();
+            }
         }
 
         public override void Exit(Agent agent)
