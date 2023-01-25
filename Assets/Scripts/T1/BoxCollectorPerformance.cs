@@ -24,7 +24,7 @@ namespace T1
         /// Calculate the performance as a percentage of the number of boxes which have been collected.
         /// </summary>
         /// <returns>The percentage of boxes which have been collected.</returns>
-        public override float CalculatePerformance() => (_totalBoxes - BoxCount) / _totalBoxes * 100;
+        public override float CalculatePerformance() => (float) (_totalBoxes - BoxCount) / _totalBoxes * 100;
 
         protected override void Start()
         {
