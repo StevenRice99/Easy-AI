@@ -1,6 +1,7 @@
-﻿using EasyAI;
+﻿using System;
+using EasyAI;
 using UnityEngine;
-using WestWorld.Sensors;
+using WestWorld.Agents;
 
 namespace WestWorld.States
 {
@@ -9,10 +10,24 @@ namespace WestWorld.States
     {
         public override void Enter(Agent agent)
         {
-            Miner miner = agent.Sense<Miner, Miner>();
-            if (miner != null)
+            if (agent is Miner)
             {
                 agent.SetState<EnterMineAndDigForNugget>();
+            }
+            else
+            {
+                agent.SetState<DoHousework>();
+            }
+        }
+
+        public override void Execute(Agent agent)
+        {
+            if (agent is HouseKeeper)
+            {
+                if (new System.Random().Next(10) < 1)
+                {
+                    //agent.SetState<VisitBathroom>();
+                }
             }
         }
     }

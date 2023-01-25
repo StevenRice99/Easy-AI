@@ -1,20 +1,10 @@
 ﻿using EasyAI;
 using UnityEngine;
 
-namespace WestWorld.Sensors
+namespace WestWorld.Agents
 {
-    public class Miner : Sensor
+    public class Miner : WestWorldAgent
     {
-        public enum WestWorldLocation
-        {
-            GoldMine,
-            Bank,
-            Saloon,
-            Home
-        }
-
-        public WestWorldLocation Location { get; private set; }
-        
         public int GoldCarried { get; private set; }
 
         public int MoneyInBank { get; private set; }
@@ -39,16 +29,6 @@ namespace WestWorld.Sensors
         public bool Tired => Fatigue >= maxFatigue;
 
         public bool Rested => Fatigue <= 0;
-
-        public override object Sense()
-        {
-            return this;
-        }
-
-        public void ChangeLocation(WestWorldLocation location)
-        {
-            Location = location;
-        }
 
         public void AddToGoldCarried(int gold)
         {

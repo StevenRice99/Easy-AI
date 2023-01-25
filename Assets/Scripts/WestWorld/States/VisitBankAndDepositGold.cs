@@ -1,6 +1,6 @@
 ﻿using EasyAI;
 using UnityEngine;
-using WestWorld.Sensors;
+using WestWorld.Agents;
 
 namespace WestWorld.States
 {
@@ -9,7 +9,7 @@ namespace WestWorld.States
     {
         public override void Enter(Agent agent)
         {
-            Miner miner = agent.Sense<Miner, Miner>();
+            Miner miner = agent as Miner;;
 
             if (miner.Location == Miner.WestWorldLocation.Bank)
             {
@@ -17,24 +17,24 @@ namespace WestWorld.States
             }
             
             miner.ChangeLocation(Miner.WestWorldLocation.Bank);
-            agent.Log("Goin' to the bank. Yes siree.");
+            miner.Log("Goin' to the bank. Yes siree.");
         }
 
         public override void Execute(Agent agent)
         {
-            Miner miner = agent.Sense<Miner, Miner>();
+            Miner miner = agent as Miner;;
             
             miner.DepositGold();
             miner.Log($"Depositin’ gold. Total savings now: {miner.MoneyInBank}");
 
             if (!miner.Tired)
             {
-                agent.SetState<EnterMineAndDigForNugget>();
+                miner.SetState<EnterMineAndDigForNugget>();
                 return;
             }
 
-            agent.Log("Woohoo! Rich enough for now. Back home to mah li'l lady.");
-            agent.SetState<GoHomeAndSleepTillRested>();
+            miner.Log("Woohoo! Rich enough for now. Back home to mah li'l lady.");
+            miner.SetState<GoHomeAndSleepTillRested>();
         }
 
         public override void Exit(Agent agent)

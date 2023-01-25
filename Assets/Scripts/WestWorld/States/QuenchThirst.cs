@@ -1,6 +1,6 @@
 ﻿using EasyAI;
 using UnityEngine;
-using WestWorld.Sensors;
+using WestWorld.Agents;
 
 namespace WestWorld.States
 {
@@ -9,7 +9,7 @@ namespace WestWorld.States
     {
         public override void Enter(Agent agent)
         {
-            Miner miner = agent.Sense<Miner, Miner>();
+            Miner miner = agent as Miner;;
 
             if (miner.Location == Miner.WestWorldLocation.Saloon)
             {
@@ -17,17 +17,17 @@ namespace WestWorld.States
             }
             
             miner.ChangeLocation(Miner.WestWorldLocation.Saloon);
-            agent.Log("Boy, ah sure is thusty! Walkin' to the saloon");
+            miner.Log("Boy, ah sure is thusty! Walkin' to the saloon");
         }
 
         public override void Execute(Agent agent)
         {
-            Miner miner = agent.Sense<Miner, Miner>();
+            Miner miner = agent as Miner;;
             
             miner.Drink();
-            agent.Log("That's mighty fine sippin liquor.");
+            miner.Log("That's mighty fine sippin liquor.");
             
-            agent.SetState<EnterMineAndDigForNugget>();
+            miner.SetState<EnterMineAndDigForNugget>();
         }
 
         public override void Exit(Agent agent)
