@@ -1,0 +1,123 @@
+﻿using EasyAI;
+using UnityEngine;
+
+namespace WestWorld.Sensors
+{
+    public class Miner : Sensor
+    {
+        public enum WestWorldLocation
+        {
+            GoldMine,
+            Bank,
+            Saloon,
+            Home
+        }
+
+        public WestWorldLocation Location { get; private set; }
+        
+        public int GoldCarried { get; private set; }
+
+        public int MoneyInBank { get; private set; }
+
+        public int Thirst { get; private set; }
+
+        public int Fatigue{ get; private set; }
+
+        [SerializeField]
+        private int maxGoldCarried = 2;
+
+        [SerializeField]
+        private int maxThirst = 5;
+
+        [SerializeField]
+        private int maxFatigue = 4;
+
+        public bool PocketsFull => GoldCarried >= maxGoldCarried;
+
+        public bool Thirsty => Thirst >= maxThirst;
+
+        public bool Tired => Fatigue >= maxFatigue;
+
+        public bool Rested => Fatigue <= 0;
+
+        public override object Sense()
+        {
+            return this;
+        }
+
+        public void ChangeLocation(WestWorldLocation location)
+        {
+            Location = location;
+        }
+
+        public void AddToGoldCarried(int gold)
+        {
+            if (Location != WestWorldLocation.GoldMine)
+            {
+                return;
+            }
+            
+            GoldCarried += gold;
+            if (GoldCarried > maxGoldCarried)
+            {
+                GoldCarried = maxGoldCarried;
+            }
+        }
+
+        public void IncreaseFatigue(int fatigue)
+        {
+            if (Location != WestWorldLocation.GoldMine)
+            {
+                return;
+            }
+            
+            Fatigue += fatigue;
+            if (Fatigue >= maxFatigue)
+            {
+                Fatigue = maxFatigue;
+            }
+        }
+
+        public void Rest()
+        {
+            if (Location != WestWorldLocation.Home)
+            {
+                return;
+            }
+
+            Fatigue -= 1;
+            if (Fatigue < 0)
+            {
+                Fatigue = 0;
+            }
+        }
+
+        public void DepositGold()
+        {
+            if (Location != WestWorldLocation.Bank)
+            {
+                return;
+            }
+
+            MoneyInBank += GoldCarried;
+            GoldCarried = 0;
+        }
+
+        public void Drink()
+        {
+            if (Location == WestWorldLocation.Saloon)
+            {
+                Thirst = 0;
+            }
+        }
+
+        private void Update()
+        {
+            Thirst += 1;
+            if (Thirst > maxThirst)
+            {
+                Thirst = maxThirst;
+            }
+        }
+    }
+}
