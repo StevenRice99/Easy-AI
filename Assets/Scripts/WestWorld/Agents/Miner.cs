@@ -62,9 +62,19 @@ namespace WestWorld.Agents
         private int _fatigue;
 
         /// <summary>
-        /// The house keeper so the miner can communicate with them.
+        /// Receive a message from the house keeper.
+        /// Easy-AI doesn't out-of-the-box way to communicate with other agents, so this is an example system.
+        /// You may want to explore adding a generic communication system into the base agent class.
         /// </summary>
-        private HouseKeeper _houseKeeper;
+        /// <param name="message">The message type received.</param>
+        public override void ReceiveMessage(WestWorldMessage message)
+        {
+            // The only message relevant for the miner is when the stew is ready, and it can only respond to this when at home.
+            if (message == WestWorldMessage.StewReady && IsInState<GoHomeAndSleepTillRested>())
+            {
+                SetState<EatStew>();
+            }
+        }
 
         /// <summary>
         /// Collect more gold to carry.
@@ -163,39 +173,12 @@ namespace WestWorld.Agents
             }
         }
 
-        /// <summary>
-        /// Send a message to the house keeper.
-        /// Easy-AI doesn't out-of-the-box way to communicate with other agents, so this is an example system.
-        /// You may want to explore adding a generic communication system into the base agent class.
-        /// </summary>
-        /// <param name="message">The message type to send.</param>
-        public void SendMessage(WestWorldMessage message)
-        {
-            // Simply pass the message to the house keeper.
-            _houseKeeper.ReceiveMessage(message);
-        }
-
-        /// <summary>
-        /// Receive a message from the house keeper.
-        /// Easy-AI doesn't out-of-the-box way to communicate with other agents, so this is an example system.
-        /// You may want to explore adding a generic communication system into the base agent class.
-        /// </summary>
-        /// <param name="message">The message type received.</param>
-        public void ReceiveMessage(WestWorldMessage message)
-        {
-            // The only message relevant for the miner is when the stew is ready, and it can only respond to this when at home.
-            if (message == WestWorldMessage.StewReady && IsInState<GoHomeAndSleepTillRested>())
-            {
-                SetState<EatStew>();
-            }
-        }
-
         protected override void Start()
         {
             base.Start();
 
             // Find the house keeper to communicate with.
-            _houseKeeper = FindObjectOfType<HouseKeeper>();
+            Other = FindObjectOfType<HouseKeeper>();
         }
     }
 }

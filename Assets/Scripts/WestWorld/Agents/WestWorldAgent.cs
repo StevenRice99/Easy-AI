@@ -10,14 +10,6 @@ namespace WestWorld.Agents
     public abstract class WestWorldAgent : TransformAgent
     {
         /// <summary>
-        /// Easy-AI doesn't out-of-the-box have a previous state remembering mechanic.
-        /// Here is an example way of storing it in the extended agent class.
-        /// If previous states are something you think you may use in your project, looking into working them into the
-        /// base agent class could be something you try to do.
-        /// </summary>
-        private Type _previousStateType;
-        
-        /// <summary>
         /// Different locations in West World for the agents to be at.
         /// Note these locations are only logical, the agents do not actually move in this demonstration.
         /// </summary>
@@ -45,6 +37,19 @@ namespace WestWorld.Agents
         public WestWorldLocation Location { get; private set; } = WestWorldLocation.Undefined;
 
         /// <summary>
+        /// Reference to the other agent in the scene.
+        /// </summary>
+        protected WestWorldAgent Other;
+
+        /// <summary>
+        /// Easy-AI doesn't out-of-the-box have a previous state remembering mechanic.
+        /// Here is an example way of storing it in the extended agent class.
+        /// If previous states are something you think you may use in your project, looking into working them into the
+        /// base agent class could be something you try to do.
+        /// </summary>
+        private Type _previousStateType;
+
+        /// <summary>
         /// Store the last state of an agent if it is needed to go back to.
         /// Again, this is because Easy-AI doesn't out-of-the-box have a previous state remembering mechanic,
         /// and this is something you may want to improve or make automatic when transitioning all scenes.
@@ -63,7 +68,7 @@ namespace WestWorld.Agents
         /// </summary>
         public void ReturnToLastState()
         {
-            MethodInfo method = GetType().GetMethod("SetState")?.MakeGenericMethod(_previousStateType);
+            MethodInfo method = GetType().GetMethod(nameof(SetState))?.MakeGenericMethod(_previousStateType);
             if (method != null)
             {
                 method.Invoke(this, null);
@@ -78,5 +83,25 @@ namespace WestWorld.Agents
         {
             Location = location;
         }
+
+        /// <summary>
+        /// Send a message to the other agent.
+        /// Easy-AI doesn't out-of-the-box way to communicate with other agents, so this is an example system.
+        /// You may want to explore adding a generic communication system into the base agent class.
+        /// </summary>
+        /// <param name="message">The message type to send.</param>
+        public void SendMessage(WestWorldMessage message)
+        {
+            // Simply pass the message to the house keeper.
+            Other.ReceiveMessage(message);
+        }
+
+        /// <summary>
+        /// Receive a message from the other agent.
+        /// Easy-AI doesn't out-of-the-box way to communicate with other agents, so this is an example system.
+        /// You may want to explore adding a generic communication system into the base agent class.
+        /// </summary>
+        /// <param name="message">The message type received.</param>
+        public abstract void ReceiveMessage(WestWorldMessage message);
     }
 }
