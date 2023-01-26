@@ -21,7 +21,7 @@ namespace WestWorld.Agents
                 Log("Hi honey. Let me make you some of mah fine country stew.");
                 SetState<CookStew>();
             }
-            // Otherwise, the only other message type is that the stw is ready, so pass the message to the miner.
+            // Otherwise, the only other message type is that the stew is ready, so pass the message to the miner.
             else
             {
                 Other.ReceiveMessage(WestWorldMessage.StewReady);
