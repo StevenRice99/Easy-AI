@@ -1699,6 +1699,12 @@ namespace EasyAI
 #endif
         public static void BakeNavigation()
         {
+            if (Application.isPlaying)
+            {
+                Debug.Log("Can't bake in play mode.");
+                return;
+            }
+            
             Stopwatch stopwatch = new();
             stopwatch.Start();
             
@@ -1824,12 +1830,11 @@ namespace EasyAI
 #else
             });
 #endif
-
             // Write the lookup table to a file for fast reading on future runs.
             Singleton.lookupTable.Write(table.ToArray());
             
             stopwatch.Stop();
-            Debug.Log($"Navigation Baked | {Singleton._nodes.Count} Nodes | {table.Count} Connections | {stopwatch.Elapsed}");
+            Debug.Log($"Navigation Baked | {Singleton._nodes.Count} Nodes | {Singleton._connections.Count} Connections | {table.Count} Lookups | {stopwatch.Elapsed}");
         }
 
         protected virtual void Start()
