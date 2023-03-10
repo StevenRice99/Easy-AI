@@ -139,16 +139,6 @@ namespace EasyAI
         public static List<Agent> CurrentAgents => Singleton.Agents;
 
         /// <summary>
-        /// List of all navigation nodes.
-        /// </summary>
-        public static List<Vector3> Nodes => Singleton._nodes;
-
-        /// <summary>
-        /// List of all navigation connections.
-        /// </summary>
-        public static List<Connection> Connections => Singleton._connections;
-
-        /// <summary>
         /// How much height difference can there be between string pulls.
         /// </summary>
         public static float PullMaxHeight => Singleton.pullMaxHeight;
@@ -1696,7 +1686,6 @@ namespace EasyAI
         /// </summary>
 #if UNITY_EDITOR
         [MenuItem("Easy-AI/Bake Navigation")]
-#endif
         public static void BakeNavigation()
         {
             if (Application.isPlaying)
@@ -1721,24 +1710,29 @@ namespace EasyAI
                 return;
             }
 
-            List<Vector3> nodes = new();
+            Singleton._nodes.Clear();
             
             // Generate all node areas in the scene.
             foreach (NodeArea nodeArea in FindObjectsOfType<NodeArea>())
             {
-                nodes.AddRange(nodeArea.Generate());
+                Singleton._nodes.AddRange(nodeArea.Generate());
             }
 
             foreach (Node node in FindObjectsOfType<Node>())
             {
-                nodes.Add(node.transform.position);
+                Singleton._nodes.Add(node.transform.position);
             }
 
             // Setup all freely-placed nodes.
-            foreach (Vector3 p in nodes)
+            foreach (Vector3 p in Singleton._nodes)
             {
                 foreach (Vector3 v in Singleton._nodes)
                 {
+                    if (p == v)
+                    {
+                        continue;
+                    }
+                    
                     // Ensure the nodes have line of sight on each other.
                     if (Singleton.navigationRadius <= 0)
                     {
@@ -1769,8 +1763,6 @@ namespace EasyAI
                     // Add the connection to the list.
                     Singleton._connections.Add(new(p, v));
                 }
-            
-                Singleton._nodes.Add(p);
             }
 
             // If any nodes are not a part of any connections, remove them.
@@ -1786,11 +1778,7 @@ namespace EasyAI
             List<NavigationLookup> table = new();
     
             // Loop through all nodes.
-#if UNITY_WEBGL
-            for (int i = 0; i < Singleton._nodes.Count; i++)
-#else
             System.Threading.Tasks.Parallel.For(0, Singleton._nodes.Count, i =>
-#endif
             {
                 // Loop through all nodes again so pathfinding can be done on each pair.
                 for (int j = 0; j < Singleton._nodes.Count; j++)
@@ -1825,17 +1813,15 @@ namespace EasyAI
                         }
                     }
                 }
-#if UNITY_WEBGL
-            }
-#else
             });
-#endif
+            
             // Write the lookup table to a file for fast reading on future runs.
             Singleton.lookupTable.Write(table.ToArray());
             
             stopwatch.Stop();
             Debug.Log($"Navigation Baked | {Singleton._nodes.Count} Nodes | {Singleton._connections.Count} Connections | {table.Count} Lookups | {stopwatch.Elapsed}");
         }
+#endif
 
         protected virtual void Start()
         {

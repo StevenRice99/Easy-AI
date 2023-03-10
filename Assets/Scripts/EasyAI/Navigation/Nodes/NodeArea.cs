@@ -210,11 +210,6 @@ namespace EasyAI.Navigation.Nodes
             {
                 _nodes.Add(v);
             }
-
-            if (!Manager.Nodes.Contains(v))
-            {
-                Manager.Nodes.Add(v);
-            }
         }
 
         public override string ToString()
