@@ -14,13 +14,13 @@ namespace WestWorld.States
         {
             Miner miner = agent as Miner;;
 
-            if (miner.Location == Miner.WestWorldLocation.Saloon)
+            if (miner.Location == WestWorldAgent.WestWorldLocation.Saloon)
             {
                 return;
             }
             
             // Update the location to the saloon.
-            miner.ChangeLocation(Miner.WestWorldLocation.Saloon);
+            miner.ChangeLocation(WestWorldAgent.WestWorldLocation.Saloon);
             miner.Log("Boy, ah sure is thusty! Walkin' to the saloon");
         }
 

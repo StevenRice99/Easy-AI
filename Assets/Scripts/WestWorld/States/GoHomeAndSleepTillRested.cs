@@ -14,13 +14,13 @@ namespace WestWorld.States
         {
             Miner miner = agent as Miner;
 
-            if (miner.Location == Miner.WestWorldLocation.Home)
+            if (miner.Location == WestWorldAgent.WestWorldLocation.Home)
             {
                 return;
             }
             
             // Update the location to the home.
-            miner.ChangeLocation(Miner.WestWorldLocation.Home);
+            miner.ChangeLocation(WestWorldAgent.WestWorldLocation.Home);
             miner.Log("Walkin' home.");
             
             // Tell the house keeper they are home.

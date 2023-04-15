@@ -812,22 +812,7 @@ namespace EasyAI
                 // See if any points along the path can be skipped.
                 while (Path.Count >= 2)
                 {
-                    if (Manager.NavigationRadius <= 0)
-                    {
-                        if (!Physics.Linecast(transform.position, Path[1], Manager.ObstacleLayers))
-                        {
-                            Path.RemoveAt(0);
-                            continue;
-                        }
-                        
-                        break;
-                    }
-
-                    Vector3 p1 = positionVector3;
-                    p1.y += Manager.NavigationRadius;
-                    Vector3 p2 = Path[1];
-                    p2.y += Manager.NavigationRadius;
-                    if (!Physics.SphereCast(p1, Manager.NavigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(p1, p2), Manager.ObstacleLayers))
+                    if (!Manager.HitObstacle(positionVector3, Path[1]))
                     {
                         Path.RemoveAt(0);
                         continue;

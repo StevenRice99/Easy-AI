@@ -359,27 +359,13 @@ namespace EasyAI
             {
                 return new() { goal };
             }
-            
+
             // Check if there is a direct line of sight so we can skip pathing and just move directly towards the goal.
-            if (Singleton.navigationRadius <= 0)
+            if (!HitObstacle(position, goal))
             {
-                if (!Physics.Linecast(position, goal, Singleton.obstacleLayers))
-                {
-                    return new() { goal };
-                }
+                return new() { goal };
             }
-            else
-            {
-                Vector3 p1 = position;
-                p1.y += Singleton.navigationRadius;
-                Vector3 p2 = goal;
-                p2.y += Singleton.navigationRadius;
-                if (!Physics.SphereCast(p1, Singleton.navigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(p1, p2), Singleton.obstacleLayers))
-                {
-                    return new() { goal };
-                }
-            }
-        
+
             // Get the starting node and end nodes closest to their positions.
             Vector3 nodePosition = Nearest(position);
             Vector3 nodeGoal = Nearest(goal);
@@ -447,33 +433,29 @@ namespace EasyAI
                 // Inner loop from two points ahead of the outer loop to check if a node can be skipped.
                 for (int j = i + 2; j < path.Count; j++)
                 {
-                    // Do not string pull for multi-level paths as these could skip over objects that require stairs.
-                    if (math.abs(path[i].y - path[j].y) > Manager.PullMaxHeight)
-                    {
-                        continue;
-                    }
-                
-                    // If a node can be skipped as there is line of sight without it, remove it.
-                    if (Manager.NavigationRadius <= 0)
-                    {
-                        if (!Physics.Linecast(path[i], path[j], Manager.ObstacleLayers))
-                        {
-                            path.RemoveAt(j-- - 1);
-                        }
-                        
-                        continue;
-                    }
-
-                    Vector3 p1 = path[i];
-                    p1.y += Manager.NavigationRadius;
-                    Vector3 p2 = path[j];
-                    p2.y += Manager.NavigationRadius;
-                    if (!Physics.SphereCast(p1, Manager.NavigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(p1, p2), Manager.ObstacleLayers))
+                    // Do not string pull for multi-level paths as these could skip over objects that require stairs and no obstacles hit.
+                    if (math.abs(path[i].y - path[j].y) <= PullMaxHeight && !HitObstacle(path[i], path[j]))
                     {
                         path.RemoveAt(j-- - 1);
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Check if there is any obstacles between two positions.
+        /// </summary>
+        /// <param name="a">The first position.</param>
+        /// <param name="b">The second position.</param>
+        /// <returns>True if an obstacle was hit, false otherwise.</returns>
+        public static bool HitObstacle(Vector3 a, Vector3 b)
+        {
+            // Offset above the ground, mainly for sphere casting.
+            a.y += Singleton.navigationRadius;
+            b.y += Singleton.navigationRadius;
+
+            // Always do a simple line cast which ensures not clipping inside of close walls, and also do a sphere cast if there is a set navigation radius.
+            return Physics.Linecast(a, b, Singleton.obstacleLayers) || (Singleton.navigationRadius > 0 && Physics.SphereCast(a, Singleton.navigationRadius, (b - a).normalized, out _, Vector3.Distance(a, b), Singleton.obstacleLayers));
         }
 
         /// <summary>
@@ -485,33 +467,9 @@ namespace EasyAI
         {
             // Order all nodes by distance to the position.
             List<Vector3> potential = Singleton._nodes.OrderBy(n => Vector3.Distance(n, position)).ToList();
-            foreach (Vector3 node in potential)
+            foreach (Vector3 node in potential.Where(node => !HitObstacle(position, node)))
             {
-                // If the node is directly at the position, return it.
-                if (node == position)
-                {
-                    return node;
-                }
-            
-                // Otherwise if there is a line of sight to the node, return it.
-                if (Singleton.navigationRadius <= 0)
-                {
-                    if (!Physics.Linecast(position, node, Singleton.obstacleLayers))
-                    {
-                        return node;
-                    }
-                    
-                    continue;
-                }
-
-                Vector3 p1 = position;
-                p1.y += Singleton.navigationRadius;
-                Vector3 p2 = node;
-                p2.y += Singleton.navigationRadius;
-                if (!Physics.SphereCast(p1, Singleton.navigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(p1, p2), Singleton.obstacleLayers))
-                {
-                    return node;
-                }
+                return node;
             }
 
             // If no nodes are in line of sight, return the nearest node even though it is not in line of sight.
@@ -947,7 +905,7 @@ namespace EasyAI
             _lineMaterial.SetPass(0);
 
             GL.PushMatrix();
-            GL.MultMatrix(transform.localToWorldMatrix);
+            GL.MultMatrix(Matrix4x4.identity);
             GL.Begin(GL.LINES);
 
             // Render all nodes as white if they should be.
@@ -1728,22 +1686,15 @@ namespace EasyAI
             {
                 for (int j = i + 1; j < Singleton._nodes.Count; j++)
                 {
+                    Vector3 p1 = Singleton._nodes[i];
+                    p1.y += Singleton.navigationRadius;
+                    Vector3 p2 = Singleton._nodes[j];
+                    p2.y += Singleton.navigationRadius;
+                    
                     // Ensure the nodes have line of sight on each other.
-                    if (Physics.Linecast(Singleton._nodes[i], Singleton._nodes[j], Singleton.obstacleLayers))
+                    if (Physics.Linecast(p1, p2, Singleton.obstacleLayers) || (Singleton.navigationRadius > 0 && Physics.SphereCast(p1, Singleton.navigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(Singleton._nodes[i], Singleton._nodes[j]), Singleton.obstacleLayers)))
                     {
                         continue;
-                    }
-                    if (Singleton.navigationRadius > 0)
-                    {
-                        Vector3 p1 = Singleton._nodes[i];
-                        p1.y += Singleton.navigationRadius;
-                        Vector3 p2 = Singleton._nodes[j];
-                        p2.y += Singleton.navigationRadius;
-                        Vector3 direction = (p2 - p1).normalized;
-                        if (Physics.SphereCast(p1, Singleton.navigationRadius, direction, out _, Vector3.Distance(Singleton._nodes[i], Singleton._nodes[j]), Singleton.obstacleLayers))
-                        {
-                            continue;
-                        }
                     }
 
                     // Add the connection to the list.
@@ -1867,8 +1818,6 @@ namespace EasyAI
 
         protected virtual void Update()
         {
-            transform.position = Vector3.zero;
-            
             if (Agents.Count == 1)
             {
                 SelectedAgent = Agents[0];
