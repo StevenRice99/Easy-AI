@@ -189,10 +189,16 @@ namespace EasyAI.Navigation.Nodes
         /// <summary>
         /// Add a node at a given position.
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="z"></param>
+        /// <param name="x">The X coordinate.</param>
+        /// <param name="z">The Z coordinate.</param>
         public void AddNode(int x, int z)
         {
+            // If already opened, nothing to do.
+            if (_data[x, z] == Node)
+            {
+                return;
+            }
+            
             // Set that it is a node in the map data.
             _data[x, z] = Node;
         

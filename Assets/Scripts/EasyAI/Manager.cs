@@ -1681,10 +1681,10 @@ namespace EasyAI
             Singleton = this;
         }
         
+#if UNITY_EDITOR
         /// <summary>
         /// Bake navigation data.
         /// </summary>
-#if UNITY_EDITOR
         [MenuItem("Easy-AI/Bake Navigation")]
         public static void BakeNavigation()
         {
@@ -1724,44 +1724,30 @@ namespace EasyAI
             }
 
             // Setup all freely-placed nodes.
-            foreach (Vector3 p in Singleton._nodes)
+            for (int i = 0; i < Singleton._nodes.Count; i++)
             {
-                foreach (Vector3 v in Singleton._nodes)
+                for (int j = i + 1; j < Singleton._nodes.Count; j++)
                 {
-                    if (p == v)
+                    // Ensure the nodes have line of sight on each other.
+                    if (Physics.Linecast(Singleton._nodes[i], Singleton._nodes[j], Singleton.obstacleLayers))
                     {
                         continue;
                     }
-                    
-                    // Ensure the nodes have line of sight on each other.
-                    if (Singleton.navigationRadius <= 0)
+                    if (Singleton.navigationRadius > 0)
                     {
-                        if (Physics.Linecast(p, v, Singleton.obstacleLayers))
-                        {
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        Vector3 p1 = p;
+                        Vector3 p1 = Singleton._nodes[i];
                         p1.y += Singleton.navigationRadius;
-                        Vector3 p2 = v;
+                        Vector3 p2 = Singleton._nodes[j];
                         p2.y += Singleton.navigationRadius;
                         Vector3 direction = (p2 - p1).normalized;
-                        if (Physics.SphereCast(p1, Singleton.navigationRadius, direction, out _, Vector3.Distance(p, v), Singleton.obstacleLayers))
+                        if (Physics.SphereCast(p1, Singleton.navigationRadius, direction, out _, Vector3.Distance(Singleton._nodes[i], Singleton._nodes[j]), Singleton.obstacleLayers))
                         {
                             continue;
                         }
                     }
-                
-                    // Ensure there is not already an entry for this connection in the list.
-                    if (Singleton._connections.Any(c => c.A == p && c.B == v || c.A == v && c.B == p))
-                    {
-                        continue;
-                    }
-            
+
                     // Add the connection to the list.
-                    Singleton._connections.Add(new(p, v));
+                    Singleton._connections.Add(new(Singleton._nodes[i], Singleton._nodes[j]));
                 }
             }
 
