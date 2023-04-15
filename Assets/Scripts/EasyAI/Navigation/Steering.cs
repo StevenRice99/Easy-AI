@@ -93,6 +93,30 @@ namespace EasyAI.Navigation
                     return Color.blue;
             }
         }
+
+        /// <summary>
+        /// Get the speed in units per second.
+        /// </summary>
+        /// <param name="current">Current position.</param>
+        /// <param name="previous">Position at the previous time step.</param>
+        /// <param name="deltaTime">The time elapsed between when the target is in its current position and its previous.</param>
+        /// <returns>The speed in units per second.</returns>
+        private static float Speed(Vector2 current, Vector2 previous, float deltaTime)
+        {
+            return Vector2.Distance(current, previous) * deltaTime;
+        }
+
+        /// <summary>
+        /// Get the velocity across axis.
+        /// </summary>
+        /// <param name="current">Current position.</param>
+        /// <param name="previous">Position at the previous time step.</param>
+        /// <param name="deltaTime">The time elapsed between when the target is in its current position and its previous.</param>
+        /// <returns>The velocity across axis</returns>
+        private static Vector2 Velocity(Vector2 current, Vector2 previous, float deltaTime)
+        {
+            return (current - previous) / deltaTime;
+        }
         
         /// <summary>
         /// Seek - Move directly towards a position.
@@ -138,11 +162,11 @@ namespace EasyAI.Navigation
         
             // The time to look ahead is equal to the vector magnitude divided by the sum of the speed of both the agent and the target,
             // with the target's speed calculated by determining how far it has traveled during the elapsed time.
-            float lookAheadTime = toEvader.magnitude / (speed + Vector2.Distance(evader, evaderLastPosition) * deltaTime);
+            float lookAheadTime = toEvader.magnitude / (speed + Speed(evader, evaderLastPosition, deltaTime));
         
             // Seek the predicted target position based upon adding its position to its velocity multiplied by the look ahead time,
             // with the velocity calculated by subtracting the current and previous positions over the elapsed time.
-            return Seek(position, velocity, evader + (evader - evaderLastPosition) / deltaTime * lookAheadTime, speed);
+            return Seek(position, velocity, evader + Velocity(evader, evaderLastPosition, deltaTime) * lookAheadTime, speed);
         }
 
         /// <summary>
@@ -162,11 +186,11 @@ namespace EasyAI.Navigation
         
             // The time to look ahead is equal to the vector magnitude divided by the sum of the speed of both the agent and the target,
             // with the target's speed calculated by determining how far it has traveled during the elapsed time.
-            float lookAheadTime = toPursuer.magnitude / (speed + Vector2.Distance(pursuer, pursuerLastPosition) * deltaTime);
+            float lookAheadTime = toPursuer.magnitude / (speed + Speed(pursuer, pursuerLastPosition, deltaTime));
         
             // Flee the predicted target position based upon adding its position to its velocity multiplied by the look ahead time,
             // with the velocity calculated by subtracting the current and previous positions over the elapsed time.
-            return Flee(position, velocity, pursuer + (pursuer - pursuerLastPosition) / deltaTime * lookAheadTime, speed);
+            return Flee(position, velocity, pursuer + Velocity(pursuer, pursuerLastPosition, deltaTime) * lookAheadTime, speed);
         }
     }
 }
