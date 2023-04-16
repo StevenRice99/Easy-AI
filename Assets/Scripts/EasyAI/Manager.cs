@@ -1668,6 +1668,7 @@ namespace EasyAI
                 return;
             }
 
+            // Remove any lingering nodes.
             Singleton._nodes.Clear();
             
             // Generate all node areas in the scene.
@@ -1680,6 +1681,9 @@ namespace EasyAI
             {
                 Singleton._nodes.Add(node.transform.position);
             }
+            
+            // Remove any lingering connections.
+            Singleton._connections.Clear();
 
             // Setup all freely-placed nodes.
             for (int i = 0; i < Singleton._nodes.Count; i++)
@@ -1721,14 +1725,8 @@ namespace EasyAI
             System.Threading.Tasks.Parallel.For(0, Singleton._nodes.Count, i =>
             {
                 // Loop through all nodes again so pathfinding can be done on each pair.
-                for (int j = 0; j < Singleton._nodes.Count; j++)
+                for (int j = i + 1; j < Singleton._nodes.Count; j++)
                 {
-                    // Skip if each node is the same.
-                    if (i == j)
-                    {
-                        continue;
-                    }
-
                     // Get the A* path from one node to another.
                     AStarNode node = AStar.Perform(new() {new(Singleton._nodes[i], Singleton._nodes[j])}, Singleton._nodes[j], paths);
                     
@@ -1736,23 +1734,44 @@ namespace EasyAI
                     List<Vector3> path = new();
                     while (node != null)
                     {
-                        path.Add(node.Position);
+                        if (!path.Contains(node.Position))
+                        {
+                            path.Add(node.Position);
+                        }
                         node = node.Previous;
                     }
 
+                    // Get the path in the right order.
                     path.Reverse();
 
                     // Loop through all nodes in the path and add them to the lookup table.
                     lock (table)
                     {
+                        // Forward pass.
                         for (int k = 0; k < path.Count - 1; k++)
                         {
+                            // Cached values for locking.
+                            int goal = j;
+                            int current = k;
+                            
                             // Ensure there are no duplicates in the lookup table.
-                            int j1 = j;
-                            int k1 = k;
-                            if (path[k1] != Singleton._nodes[j1] && !table.Any(t => t.current == path[k1] && t.goal == Singleton._nodes[j1] && t.next == path[k1 + 1]))
+                            if (path[current] != Singleton._nodes[goal] && !table.Any(t => t.current == path[current] && t.goal == Singleton._nodes[goal] && t.next == path[current + 1]))
                             {
-                                table.Add(new(path[k1], Singleton._nodes[j1], path[k1 + 1]));
+                                table.Add(new(path[current], Singleton._nodes[goal], path[current + 1]));
+                            }
+                        }
+
+                        // Backwards pass to save time instead of doing this later since it will be the same path.
+                        for (int k = path.Count - 1; k > 0; k--)
+                        {
+                            // Cached values for locking.
+                            int goal = i;
+                            int current = k;
+                            
+                            // Ensure there are no duplicates in the lookup table.
+                            if (path[current] != Singleton._nodes[goal] && !table.Any(t => t.current == path[current] && t.goal == Singleton._nodes[goal] && t.next == path[current - 1]))
+                            {
+                                table.Add(new(path[current], Singleton._nodes[goal], path[current - 1]));
                             }
                         }
                     }
