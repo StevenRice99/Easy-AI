@@ -189,16 +189,6 @@ namespace EasyAI
         private static Material _lineMaterial;
 
         /// <summary>
-        /// List of all navigation connections.
-        /// </summary>
-        private readonly List<Connection> _connections = new();
-    
-        /// <summary>
-        /// List of all navigation nodes.
-        /// </summary>
-        private readonly List<Vector3> _nodes = new();
-
-        /// <summary>
         /// The currently selected agent.
         /// </summary>
         protected Agent SelectedAgent;
@@ -355,7 +345,7 @@ namespace EasyAI
         public static List<Vector3> LookupPath(Vector3 position, Vector3 goal)
         {
             // If there are no nodes in the lookup table simply return the end goal position.
-            if (Singleton._nodes.Count == 0)
+            if (Singleton.lookupTable == null || Singleton.lookupTable.Nodes.Length == 0)
             {
                 return new() { goal };
             }
@@ -466,7 +456,7 @@ namespace EasyAI
         private static Vector3 Nearest(Vector3 position)
         {
             // Order all nodes by distance to the position.
-            List<Vector3> potential = Singleton._nodes.OrderBy(n => Vector3.Distance(n, position)).ToList();
+            List<Vector3> potential = Singleton.lookupTable.Nodes.OrderBy(n => Vector3.Distance(n, position)).ToList();
             foreach (Vector3 node in potential.Where(node => !HitObstacle(position, node)))
             {
                 return node;
@@ -874,7 +864,7 @@ namespace EasyAI
             switch (paths)
             {
                 case PathState.All:
-                    if (_connections.Count > 0 || Agents.Any(a => a.Path.Count > 0 || a.Moves.Count > 0))
+                    if ((lookupTable != null && lookupTable.ConnectionLookups.Length > 0) || Agents.Any(a => a.Path.Count > 0 || a.Moves.Count > 0))
                     {
                         break;
                     }
@@ -909,14 +899,14 @@ namespace EasyAI
             GL.Begin(GL.LINES);
 
             // Render all nodes as white if they should be.
-            if (paths == PathState.All)
+            if (paths == PathState.All && lookupTable != null)
             {
                 GL.Color(Color.white);
-                foreach (Connection connection in _connections)
+                foreach (ConnectionLookup connection in lookupTable.ConnectionLookups)
                 {
-                    Vector3 a = connection.A;
+                    Vector3 a = Singleton.lookupTable.Nodes[connection.A];
                     a.y += NavigationVisualOffset;
-                    Vector3 b = connection.B;
+                    Vector3 b = Singleton.lookupTable.Nodes[connection.B];
                     b.y += NavigationVisualOffset;
                     GL.Vertex(a);
                     GL.Vertex(b);
@@ -1446,7 +1436,7 @@ namespace EasyAI
                 }
             }
 
-            if (Singleton._connections.Count > 0 || Singleton.Agents.Count > 0)
+            if ((Singleton.lookupTable != null && Singleton.lookupTable.Lookups.Length > 0) || Singleton.Agents.Count > 0)
             {
                 // Button to change paths rendering..
                 y = NextItem(y, h, p);
@@ -1664,63 +1654,61 @@ namespace EasyAI
 
             if (Singleton.lookupTable == null)
             {
-                Debug.Log("No lookup table attached to the manager.");
+                Debug.LogError("No lookup table attached to the manager.");
                 return;
             }
 
-            // Remove any lingering nodes.
-            Singleton._nodes.Clear();
+            List<Vector3> nodes = new();
             
             // Generate all node areas in the scene.
             foreach (NodeArea nodeArea in FindObjectsOfType<NodeArea>())
             {
-                Singleton._nodes.AddRange(nodeArea.Generate());
+                nodes.AddRange(nodeArea.Generate());
             }
 
-            foreach (Node node in FindObjectsOfType<Node>())
-            {
-                Singleton._nodes.Add(node.transform.position);
-            }
-            
-            // Remove any lingering connections.
-            Singleton._connections.Clear();
+            nodes.AddRange(FindObjectsOfType<Node>().Select(node => node.transform.position));
+
+            List<Connection> connections = new();
 
             // Setup all freely-placed nodes.
-            for (int i = 0; i < Singleton._nodes.Count; i++)
+            for (int i = 0; i < nodes.Count; i++)
             {
-                for (int j = i + 1; j < Singleton._nodes.Count; j++)
+                for (int j = i + 1; j < nodes.Count; j++)
                 {
                     // If a clear path, add the connection.
-                    if (!HitObstacle(Singleton._nodes[i], Singleton._nodes[j]))
+                    if (!HitObstacle(nodes[i], nodes[j]))
                     {
-                        Singleton._connections.Add(new(Singleton._nodes[i], Singleton._nodes[j]));
+                        connections.Add(new(nodes[i], nodes[j]));
                     }
                 }
             }
 
             // If any nodes are not a part of any connections, remove them.
-            for (int i = 0; i < Singleton._nodes.Count; i++)
+            for (int i = 0; i < nodes.Count; i++)
             {
-                if (!Singleton._connections.Any(c => c.A == Singleton._nodes[i] || c.B == Singleton._nodes[i]))
+                if (!connections.Any(c => c.A == nodes[i] || c.B == nodes[i]))
                 {
-                    Singleton._nodes.RemoveAt(i--);
+                    nodes.RemoveAt(i--);
                 }
             }
+
+            // Convert the connections to index-based lookup values.
+            List<ConnectionLookup> connectionLookups = connections.Select(connection => new ConnectionLookup(nodes.IndexOf(connection.A), nodes.IndexOf(connection.B))).ToList();
 
             // Store all new lookup tables.
             List<NavigationLookup> table = new();
 
             // Create helper class to help with A*.
-            AStarPaths paths = new(Singleton._connections);
+            AStarPaths paths = new(connections);
     
             // Loop through all nodes.
-            System.Threading.Tasks.Parallel.For(0, Singleton._nodes.Count, i =>
+            System.Threading.Tasks.Parallel.For(0, nodes.Count, i =>
             {
                 // Loop through all nodes again so pathfinding can be done on each pair.
-                for (int j = i + 1; j < Singleton._nodes.Count; j++)
+                for (int j = i + 1; j < nodes.Count; j++)
                 {
                     // Get the A* path from one node to another.
-                    AStarNode node = AStar.Perform(new() {new(Singleton._nodes[i], Singleton._nodes[j])}, Singleton._nodes[j], paths);
+                    AStarNode node = AStar.Perform(new() {new(nodes[i], nodes[j])}, nodes[j], paths);
                     
                     // Go from the last to node to the first adding all positions to the path.
                     List<Vector3> path = new();
@@ -1741,57 +1729,43 @@ namespace EasyAI
                         for (int k = 0; k < path.Count - 1; k++)
                         {
                             // Forward pass.
-                            AddLookup(table, path, k, i, k + 1);
+                            AddLookup(nodes, table, path, k, i, k + 1);
                             
                             // Backwards pass since it is the same path in reverse.
-                            AddLookup(table, path, path.Count - 1 - k, j, path.Count - 2 - k);
+                            AddLookup(nodes, table, path, path.Count - 1 - k, j, path.Count - 2 - k);
                         }
                     }
                 }
             });
             
             // Write the lookup table to a file for fast reading on future runs.
-            Singleton.lookupTable.Write(Singleton._nodes, table);
+            Singleton.lookupTable.Write(nodes, connectionLookups, table);
             
             stopwatch.Stop();
-            Debug.Log($"Navigation Baked | {Singleton._nodes.Count} Nodes | {Singleton._connections.Count} Connections | {table.Count} Lookups | {stopwatch.Elapsed}");
+            Debug.Log($"Navigation Baked | {nodes.Count} Nodes | {connections.Count} Connections | {table.Count} Lookups | {stopwatch.Elapsed}");
         }
 
         /// <summary>
         /// Helper method to add a point on a navigation path to the lookup table.
         /// </summary>
+        /// <param name="nodes">The nodes being built from.</param>
         /// <param name="table">The lookup table being built.</param>
         /// <param name="path">The path currently being added.</param>
         /// <param name="current">The current index.</param>
         /// <param name="goal">The goal index.</param>
         /// <param name="next">The next index.</param>
-        private static void AddLookup(ICollection<NavigationLookup> table, IReadOnlyList<Vector3> path, int current, int goal, int next)
+        private static void AddLookup(IReadOnlyList<Vector3> nodes, ICollection<NavigationLookup> table, IReadOnlyList<Vector3> path, int current, int goal, int next)
         {
             // Ensure there are no duplicates in the lookup table.
-            if (path[current] != Singleton._nodes[goal] && !table.Any(t => t.current == path[current] && t.goal == Singleton._nodes[goal] && t.next == path[next]))
+            if (path[current] != nodes[goal] && !table.Any(t => t.current == path[current] && t.goal == nodes[goal] && t.next == path[next]))
             {
-                table.Add(new(path[current], Singleton._nodes[goal], path[next]));
+                table.Add(new(path[current], nodes[goal], path[next]));
             }
         }
 #endif
 
         protected virtual void Start()
         {
-            // Load lookup data if it exists.
-            if (lookupTable != null)
-            {
-                _nodes.AddRange(lookupTable.Nodes);
-                
-                foreach (NavigationLookup lookup in lookupTable.Lookups)
-                {
-                    // Ensure a connection between the current and next nodes exists.
-                    if (!_connections.Any(c => c.A == lookup.current && c.B == lookup.next || c.A == lookup.next && c.B == lookup.current))
-                    {
-                        _connections.Add(new(lookup.current, lookup.next));
-                    }
-                }
-            }
-
             CheckGizmos();
 
             // Clean up all node related components in the scene as they are no longer needed after generation.
