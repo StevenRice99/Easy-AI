@@ -6,7 +6,6 @@ using System.Linq;
 using EasyAI.Navigation;
 using EasyAI.Navigation.Nodes;
 using EasyAI.Utility;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
@@ -139,11 +138,6 @@ namespace EasyAI
         public static List<Agent> CurrentAgents => Singleton.Agents;
 
         /// <summary>
-        /// How much height difference can there be between string pulls.
-        /// </summary>
-        public static float PullMaxHeight => Singleton.pullMaxHeight;
-
-        /// <summary>
         /// All agents in the scene.
         /// </summary>
         public List<Agent> Agents { get; private set; } = new();
@@ -224,14 +218,6 @@ namespace EasyAI
         [Tooltip("Which layers are obstacles that nodes cannot be placed on.")]
         [SerializeField]
         private LayerMask obstacleLayers;
-
-        [Tooltip(
-            "How much height difference can there be between string pulls, set to zero for no limit.\n" +
-            "Increase this value if generated paths are being generated between too high off slopes/stairs."
-        )]
-        [Min(0)]
-        [SerializeField]
-        private float pullMaxHeight;
 
         [Tooltip("Lookup table to save and load navigation.")]
         [SerializeField]
@@ -416,8 +402,8 @@ namespace EasyAI
                 // Inner loop from two points ahead of the outer loop to check if a node can be skipped.
                 for (int j = i + 2; j < path.Count; j++)
                 {
-                    // Do not string pull for multi-level paths as these could skip over objects that require stairs and no obstacles hit.
-                    if (math.abs(path[i].y - path[j].y) <= PullMaxHeight && !HitObstacle(path[i], path[j]))
+                    // Remove connections that are not needed..
+                    if (!HitObstacle(path[i], path[j]))
                     {
                         path.RemoveAt(j-- - 1);
                     }
