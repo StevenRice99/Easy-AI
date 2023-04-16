@@ -385,7 +385,7 @@ namespace EasyAI
                 try
                 {
                     // Get the next node to move to.
-                    NavigationLookup lookup = Singleton.lookupTable.Data.First(l => l.current == nodePosition && l.goal == nodeGoal);
+                    NavigationLookup lookup = Singleton.lookupTable.Lookups.First(l => l.current == nodePosition && l.goal == nodeGoal);
                 
                     // If the node is the goal destination, all nodes in the path have been finished so stop the loop.
                     if (lookup.next == nodeGoal)
@@ -1690,19 +1690,11 @@ namespace EasyAI
             {
                 for (int j = i + 1; j < Singleton._nodes.Count; j++)
                 {
-                    Vector3 p1 = Singleton._nodes[i];
-                    p1.y += Singleton.navigationRadius;
-                    Vector3 p2 = Singleton._nodes[j];
-                    p2.y += Singleton.navigationRadius;
-                    
-                    // Ensure the nodes have line of sight on each other.
-                    if (Physics.Linecast(p1, p2, Singleton.obstacleLayers) || (Singleton.navigationRadius > 0 && Physics.SphereCast(p1, Singleton.navigationRadius, (p2 - p1).normalized, out _, Vector3.Distance(Singleton._nodes[i], Singleton._nodes[j]), Singleton.obstacleLayers)))
+                    // If a clear path, add the connection.
+                    if (!HitObstacle(Singleton._nodes[i], Singleton._nodes[j]))
                     {
-                        continue;
+                        Singleton._connections.Add(new(Singleton._nodes[i], Singleton._nodes[j]));
                     }
-
-                    // Add the connection to the list.
-                    Singleton._connections.Add(new(Singleton._nodes[i], Singleton._nodes[j]));
                 }
             }
 
@@ -1759,7 +1751,7 @@ namespace EasyAI
             });
             
             // Write the lookup table to a file for fast reading on future runs.
-            Singleton.lookupTable.Write(table);
+            Singleton.lookupTable.Write(Singleton._nodes, table);
             
             stopwatch.Stop();
             Debug.Log($"Navigation Baked | {Singleton._nodes.Count} Nodes | {Singleton._connections.Count} Connections | {table.Count} Lookups | {stopwatch.Elapsed}");
@@ -1788,24 +1780,10 @@ namespace EasyAI
             // Load lookup data if it exists.
             if (lookupTable != null)
             {
-                foreach (NavigationLookup lookup in lookupTable.Data)
+                _nodes.AddRange(lookupTable.Nodes);
+                
+                foreach (NavigationLookup lookup in lookupTable.Lookups)
                 {
-                    // Ensure all nodes are added.
-                    if (!_nodes.Contains(lookup.current))
-                    {
-                        _nodes.Add(lookup.current);
-                    }
-            
-                    if (!_nodes.Contains(lookup.goal))
-                    {
-                        _nodes.Add(lookup.goal);
-                    }
-            
-                    if (!_nodes.Contains(lookup.next))
-                    {
-                        _nodes.Add(lookup.next);
-                    }
-
                     // Ensure a connection between the current and next nodes exists.
                     if (!_connections.Any(c => c.A == lookup.current && c.B == lookup.next || c.A == lookup.next && c.B == lookup.current))
                     {

@@ -14,20 +14,26 @@ namespace EasyAI.Navigation.Nodes
     [CreateAssetMenu(menuName = "Easy-AI/Lookup Table", fileName = "Lookup Table", order = 0)]
     public class LookupTable : ScriptableObject
     {
+        [field: Tooltip("Navigation nodes.")]
+        [field: SerializeField]
+        public Vector3[] Nodes { get; private set; }
+        
         /// <summary>
         /// The connections.
         /// </summary>
-        [Tooltip("Navigation data.")]
+        [field: Tooltip("Navigation lookups.")]
         [field: SerializeField]
-        public NavigationLookup[] Data { get; private set; }
+        public NavigationLookup[] Lookups { get; private set; }
 
         /// <summary>
         /// Set connections.
         /// </summary>
-        /// <param name="data">The data to write.</param>
-        public void Write(IEnumerable<NavigationLookup> data)
+        /// <param name="nodes">The nodes to write.</param>
+        /// <param name="lookups">The lookups to write.</param>
+        public void Write(IEnumerable<Vector3> nodes,IEnumerable<NavigationLookup> lookups)
         {
-            Data = data.ToArray();
+            Nodes = nodes.ToArray();
+            Lookups = lookups.ToArray();
 #if UNITY_EDITOR
             EditorUtility.SetDirty(this);
             AssetDatabase.SaveAssets();
