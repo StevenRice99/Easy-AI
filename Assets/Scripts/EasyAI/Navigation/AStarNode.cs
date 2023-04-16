@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace EasyAI.Navigation
 {
@@ -64,7 +65,7 @@ namespace EasyAI.Navigation
             // Cannot set to the same position.
             if (previous == this || previous?.Position == Position)
             {
-                return;
+                throw new("Trying to set own position as previous in A*.");
             }
             
             Previous = previous;

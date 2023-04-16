@@ -1699,43 +1699,56 @@ namespace EasyAI
 
             // Create helper class to help with A*.
             AStarPaths paths = new(raw);
-    
-            // Loop through all nodes.
-            System.Threading.Tasks.Parallel.For(0, nodes.Count, i =>
-            {
-                // Loop through all nodes again so pathfinding can be done on each pair.
-                for (int j = i + 1; j < nodes.Count; j++)
-                {
-                    // Get the A* path from one node to another.
-                    AStarNode node = AStar.Perform(new() {new(nodes[i], nodes[j])}, nodes[j], paths);
-                    
-                    // Go from the last to node to the first adding all positions to the path.
-                    List<Vector3> path = new();
-                    while (node != null)
-                    {
-                        // Ensure no duplicates in the path.
-                        if (!path.Contains(node.Position))
-                        {
-                            path.Add(node.Position);
-                        }
-                        node = node.Previous;
-                    }
 
-                    // Ensure multithreading does not add duplicate values.
-                    lock (lookups)
+            try
+            {
+                // Loop through all nodes.
+                System.Threading.Tasks.Parallel.For(0, nodes.Count, i =>
+                {
+                    // Loop through all nodes again so pathfinding can be done on each pair.
+                    for (int j = i + 1; j < nodes.Count; j++)
                     {
-                        // Loop through all nodes in the path and add them to the lookup table.
-                        for (int k = 0; k < path.Count - 1; k++)
+                        // Get the A* path from one node to another.
+                        AStarNode node = AStar.Perform(new() {new(nodes[i], nodes[j])}, nodes[j], paths);
+
+                        if (node == null)
                         {
-                            // Forward pass.
-                            AddLookup(nodes, lookups, path, k, i, k + 1, set);
-                            
-                            // Backwards pass since it is the same path in reverse.
-                            AddLookup(nodes, lookups, path, path.Count - 1 - k, j, path.Count - 2 - k, set);
+                            throw new("Always return a node even if destination can't be reached. Return the closest node when unable to reach.");
+                        }
+
+                        // Go from the last to node to the first adding all positions to the path.
+                        List<Vector3> path = new();
+                        while (node != null)
+                        {
+                            // Ensure no duplicates in the path.
+                            if (!path.Contains(node.Position))
+                            {
+                                path.Add(node.Position);
+                            }
+
+                            node = node.Previous;
+                        }
+
+                        // Ensure multithreading does not add duplicate values.
+                        lock (lookups)
+                        {
+                            // Loop through all nodes in the path and add them to the lookup table.
+                            for (int k = 0; k < path.Count - 1; k++)
+                            {
+                                // Forward pass.
+                                AddLookup(nodes, lookups, path, k, i, k + 1, set);
+
+                                // Backwards pass since it is the same path in reverse.
+                                AddLookup(nodes, lookups, path, path.Count - 1 - k, j, path.Count - 2 - k, set);
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e.Message);
+            }
 
             // Compare how many lookups are expected with how many were actually defined to ensure the pathfinding is valid.
             int expected = nodes.Count * (nodes.Count - 1);
@@ -1755,6 +1768,9 @@ namespace EasyAI
             {
                 Debug.LogError($"{nodes.Count} Nodes | {raw.Count} Connections | {expected} Expected Lookups | {created} Created Lookups | {stopwatch.Elapsed}");
             }
+            
+            // Select the lookup table in the inspector for easily checking it.
+            Selection.SetActiveObjectWithContext(Singleton.lookupTable, Singleton.lookupTable);
         }
 
         /// <summary>
