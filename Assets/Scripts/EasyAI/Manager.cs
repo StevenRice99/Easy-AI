@@ -375,16 +375,16 @@ namespace EasyAI
                 try
                 {
                     // Get the next node to move to.
-                    NavigationLookup lookup = Singleton.lookupTable.Lookups.First(l => l.current == nodePosition && l.goal == nodeGoal);
+                    NavigationLookup lookup = Singleton.lookupTable.Lookups.First(l => Singleton.lookupTable.Nodes[l.Current] == nodePosition && Singleton.lookupTable.Nodes[l.Goal] == nodeGoal);
                 
                     // If the node is the goal destination, all nodes in the path have been finished so stop the loop.
-                    if (lookup.next == nodeGoal)
+                    if (Singleton.lookupTable.Nodes[lookup.Next] == nodeGoal)
                     {
                         break;
                     }
                 
                     // Move to the next node and add it to the path.
-                    nodePosition = lookup.next;
+                    nodePosition = Singleton.lookupTable.Nodes[lookup.Next];
                     path.Add(nodePosition);
                 }
                 catch
@@ -864,7 +864,7 @@ namespace EasyAI
             switch (paths)
             {
                 case PathState.All:
-                    if ((lookupTable != null && lookupTable.ConnectionLookups.Length > 0) || Agents.Any(a => a.Path.Count > 0 || a.Moves.Count > 0))
+                    if ((lookupTable != null && lookupTable.Connections.Length > 0) || Agents.Any(a => a.Path.Count > 0 || a.Moves.Count > 0))
                     {
                         break;
                     }
@@ -902,7 +902,7 @@ namespace EasyAI
             if (paths == PathState.All && lookupTable != null)
             {
                 GL.Color(Color.white);
-                foreach (ConnectionLookup connection in lookupTable.ConnectionLookups)
+                foreach (ConnectionLookup connection in lookupTable.Connections)
                 {
                     Vector3 a = Singleton.lookupTable.Nodes[connection.A];
                     a.y += NavigationVisualOffset;
@@ -1754,12 +1754,15 @@ namespace EasyAI
         /// <param name="current">The current index.</param>
         /// <param name="goal">The goal index.</param>
         /// <param name="next">The next index.</param>
-        private static void AddLookup(IReadOnlyList<Vector3> nodes, ICollection<NavigationLookup> table, IReadOnlyList<Vector3> path, int current, int goal, int next)
+        private static void AddLookup(IList<Vector3> nodes, ICollection<NavigationLookup> table, IReadOnlyList<Vector3> path, int current, int goal, int next)
         {
+            current = nodes.IndexOf(path[current]);
+            next = nodes.IndexOf(path[next]);
+            
             // Ensure there are no duplicates in the lookup table.
-            if (path[current] != nodes[goal] && !table.Any(t => t.current == path[current] && t.goal == nodes[goal] && t.next == path[next]))
+            if (nodes[current] != nodes[goal] && !table.Any(t => nodes[t.Current] == nodes[current] && nodes[t.Goal] == nodes[goal] && nodes[t.Next] == nodes[next]))
             {
-                table.Add(new(path[current], nodes[goal], path[next]));
+                table.Add(new(current, goal, next));
             }
         }
 #endif

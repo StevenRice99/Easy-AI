@@ -9,32 +9,29 @@ namespace EasyAI.Navigation.Nodes
     [Serializable]
     public struct NavigationLookup
     {
-        /// <summary>
-        /// The current or starting node.
-        /// </summary>
-        public Vector3 current;
+        [field: Tooltip("The current node index.")]
+        [field: SerializeField]
+        public int Current { get; private set; }
         
-        /// <summary>
-        /// Where the end goal of the navigation is.
-        /// </summary>
-        public Vector3 goal;
+        [field: Tooltip("The node trying to reach index.")]
+        [field: SerializeField]
+        public int Goal { get; private set; }
         
-        /// <summary>
-        /// The node to move to from the current node in order to navigate towards the goal.
-        /// </summary>
-        public Vector3 next;
+        [field: Tooltip("The next node to move to index.")]
+        [field: SerializeField]
+        public int Next { get; private set; }
 
         /// <summary>
         /// Create a data entry for a navigation lookup table.
         /// </summary>
-        /// <param name="current">The current or starting node.</param>
-        /// <param name="goal">Where the end goal of the navigation is.</param>
-        /// <param name="next">The node to move to from the current node in order to navigate towards the goal.</param>
-        public NavigationLookup(Vector3 current, Vector3 goal, Vector3 next)
+        /// <param name="current">The current node index.</param>
+        /// <param name="goal">The node trying to reach index.</param>
+        /// <param name="next">The next node to move to index.</param>
+        public NavigationLookup(int current, int goal, int next)
         {
-            this.current = current;
-            this.goal = goal;
-            this.next = next;
+            Current = current;
+            Goal = goal;
+            Next = next;
         }
     }
 }

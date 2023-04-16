@@ -18,9 +18,9 @@ namespace EasyAI.Navigation.Nodes
         [field: SerializeField]
         public Vector3[] Nodes { get; private set; }
         
-        [field: Tooltip("Connection Lookups nodes.")]
+        [field: Tooltip("Connection lookups.")]
         [field: SerializeField]
-        public ConnectionLookup[] ConnectionLookups { get; private set; }
+        public ConnectionLookup[] Connections { get; private set; }
         
         [field: Tooltip("Navigation lookups.")]
         [field: SerializeField]
@@ -35,7 +35,7 @@ namespace EasyAI.Navigation.Nodes
         public void Write(IEnumerable<Vector3> nodes, IEnumerable<ConnectionLookup> connectionLookups, IEnumerable<NavigationLookup> lookups)
         {
             Nodes = nodes.ToArray();
-            ConnectionLookups = connectionLookups.ToArray();
+            Connections = connectionLookups.ToArray();
             Lookups = lookups.ToArray();
 #if UNITY_EDITOR
             EditorUtility.SetDirty(this);
