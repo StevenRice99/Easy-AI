@@ -1703,9 +1703,11 @@ namespace EasyAI
 
             // Store all new lookup tables.
             NavigationLookup[] table = new NavigationLookup[nodes.Count];
+            bool[][] set = new bool[table.Length][];
             for (int i = 0; i < table.Length; i++)
             {
                 table[i].goal = new int[nodes.Count - 1];
+                set[i] = new bool[table[i].goal.Length];
             }
 
             // Create helper class to help with A*.
@@ -1739,10 +1741,10 @@ namespace EasyAI
                         for (int k = 0; k < path.Count - 1; k++)
                         {
                             // Forward pass.
-                            AddLookup(nodes, table, path, k, i, k + 1);
+                            AddLookup(nodes, table, path, k, i, k + 1, set);
                             
                             // Backwards pass since it is the same path in reverse.
-                            AddLookup(nodes, table, path, path.Count - 1 - k, j, path.Count - 2 - k);
+                            AddLookup(nodes, table, path, path.Count - 1 - k, j, path.Count - 2 - k, set);
                         }
                     }
                 }
@@ -1750,9 +1752,11 @@ namespace EasyAI
             
             // Write the lookup table to a file for fast reading on future runs.
             Singleton.lookupTable.Write(nodes, connectionLookups, table);
-            
+
+            int numberSet = set.Sum(t => t.Count(t1 => t1));
+
             stopwatch.Stop();
-            Debug.Log($"Navigation Baked | {nodes.Count} Nodes | {connections.Count} Connections | {table.Length} Lookups | {stopwatch.Elapsed}");
+            Debug.Log($"Navigation Baked | {nodes.Count} Nodes | {connections.Count} Connections | {nodes.Count * (nodes.Count - 1)} Expected Lookups | {numberSet} Created Lookups | {stopwatch.Elapsed}");
         }
 
         /// <summary>
@@ -1764,7 +1768,8 @@ namespace EasyAI
         /// <param name="current">The current index.</param>
         /// <param name="goal">The goal index.</param>
         /// <param name="next">The next index.</param>
-        private static void AddLookup(IList<Vector3> nodes, IList<NavigationLookup> table, IReadOnlyList<Vector3> path, int current, int goal, int next)
+        /// <param name="set">Helper to track how many lookups are set.</param>
+        private static void AddLookup(IList<Vector3> nodes, IList<NavigationLookup> table, IReadOnlyList<Vector3> path, int current, int goal, int next, bool[][] set)
         {
             current = nodes.IndexOf(path[current]);
             next = nodes.IndexOf(path[next]);
@@ -1775,6 +1780,7 @@ namespace EasyAI
             }
 
             table[current].goal[goal] = next;
+            set[current][goal] = true;
         }
 #endif
 
