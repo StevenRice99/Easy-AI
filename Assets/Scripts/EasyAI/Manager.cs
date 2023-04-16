@@ -1707,12 +1707,15 @@ namespace EasyAI
             {
                 if (!Singleton._connections.Any(c => c.A == Singleton._nodes[i] || c.B == Singleton._nodes[i]))
                 {
-                    Singleton._nodes.RemoveAt(i);
+                    Singleton._nodes.RemoveAt(i--);
                 }
             }
 
             // Store all new lookup tables.
             List<NavigationLookup> table = new();
+
+            // Create helper class to help with A*.
+            AStarPaths paths = new(Singleton._connections);
     
             // Loop through all nodes.
             System.Threading.Tasks.Parallel.For(0, Singleton._nodes.Count, i =>
@@ -1727,13 +1730,17 @@ namespace EasyAI
                     }
 
                     // Get the A* path from one node to another.
-                    List<Vector3> path = AStar.Perform(Singleton._nodes[i], Singleton._nodes[j], Singleton._connections);
-                
-                    // Skip if there was no path.
-                    if (path.Count < 2)
+                    AStarNode node = AStar.Perform(new() {new(Singleton._nodes[i], Singleton._nodes[j])}, Singleton._nodes[j], paths);
+                    
+                    // Go from the last to node to the first adding all positions to the path.
+                    List<Vector3> path = new();
+                    while (node != null)
                     {
-                        continue;
+                        path.Add(node.Position);
+                        node = node.Previous;
                     }
+
+                    path.Reverse();
 
                     // Loop through all nodes in the path and add them to the lookup table.
                     lock (table)
@@ -1743,9 +1750,9 @@ namespace EasyAI
                             // Ensure there are no duplicates in the lookup table.
                             int j1 = j;
                             int k1 = k;
-                            if (path[k] != Singleton._nodes[j] && !table.Any(t => t.current == path[k1] && t.goal == Singleton._nodes[j1] && t.next == path[k1 + 1]))
+                            if (path[k1] != Singleton._nodes[j1] && !table.Any(t => t.current == path[k1] && t.goal == Singleton._nodes[j1] && t.next == path[k1 + 1]))
                             {
-                                table.Add(new(path[k], Singleton._nodes[j], path[k + 1]));
+                                table.Add(new(path[k1], Singleton._nodes[j1], path[k1 + 1]));
                             }
                         }
                     }

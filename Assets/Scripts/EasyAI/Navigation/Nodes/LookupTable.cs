@@ -9,20 +9,25 @@ using UnityEditor;
 namespace EasyAI.Navigation.Nodes
 {
     /// <summary>
-    /// 
+    /// The connections path data for pathfinding.
     /// </summary>
     [CreateAssetMenu(menuName = "Easy-AI/Lookup Table", fileName = "Lookup Table", order = 0)]
     public class LookupTable : ScriptableObject
     {
-        public NavigationLookup[] Data => data?.ToArray();
-        
+        /// <summary>
+        /// The connections.
+        /// </summary>
         [Tooltip("Navigation data.")]
-        [SerializeField]
-        private NavigationLookup[] data;
+        [field: SerializeField]
+        public NavigationLookup[] Data { get; private set; }
 
-        public void Write(IEnumerable<NavigationLookup> write)
+        /// <summary>
+        /// Set connections.
+        /// </summary>
+        /// <param name="data">The data to write.</param>
+        public void Write(IEnumerable<NavigationLookup> data)
         {
-            data = write.ToArray();
+            Data = data.ToArray();
 #if UNITY_EDITOR
             EditorUtility.SetDirty(this);
             AssetDatabase.SaveAssets();
