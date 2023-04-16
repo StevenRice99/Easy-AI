@@ -1631,7 +1631,7 @@ namespace EasyAI
         {
             if (Application.isPlaying)
             {
-                Debug.Log("Can't bake in play mode.");
+                Debug.LogError("Can't bake in play mode.");
                 return;
             }
             
@@ -1737,14 +1737,24 @@ namespace EasyAI
                 }
             });
 
+            // Compare how many lookups are expected with how many were actually defined to ensure the pathfinding is valid.
             int expected = nodes.Count * (nodes.Count - 1);
             int created = set.Sum(t => t.Count(t1 => t1));
             
             // Write the lookup table to a file for fast reading on future runs.
+            // To avoid navigation errors, the lookups are only stored if they are valid.
             Singleton.lookupTable.Write(nodes, connections, expected == created ? lookups : Array.Empty<Lookup>());
-
+            
             stopwatch.Stop();
-            Debug.Log($"Navigation Baked | {nodes.Count} Nodes | {raw.Count} Connections | {expected} Expected Lookups | {created} Created Lookups | {stopwatch.Elapsed}");
+
+            if (expected == created)
+            {
+                Debug.Log($"{nodes.Count} Nodes | {raw.Count} Connections | {created} Lookups | {stopwatch.Elapsed}");
+            }
+            else
+            {
+                Debug.LogError($"{nodes.Count} Nodes | {raw.Count} Connections | {expected} Expected Lookups | {created} Created Lookups | {stopwatch.Elapsed}");
+            }
         }
 
         /// <summary>
