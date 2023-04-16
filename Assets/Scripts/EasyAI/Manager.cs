@@ -344,14 +344,9 @@ namespace EasyAI
         /// <returns>A list of the points to move to to reach the goal destination.</returns>
         public static List<Vector3> LookupPath(Vector3 position, Vector3 goal)
         {
-            // If there are no nodes in the lookup table simply return the end goal position.
-            if (Singleton.lookupTable == null || Singleton.lookupTable.Lookups.Length == 0)
-            {
-                return new() { goal };
-            }
-
             // Check if there is a direct line of sight so we can skip pathing and just move directly towards the goal.
-            if (!HitObstacle(position, goal))
+            // Also if there are no nodes in the lookup table simply return the end goal position.
+            if (!HitObstacle(position, goal) || Singleton.lookupTable == null || Singleton.lookupTable.Lookups.Length == 0)
             {
                 return new() { goal };
             }
@@ -387,6 +382,7 @@ namespace EasyAI
                 }
                 catch
                 {
+                    // Should never happen but just in case an invalid index was attempted.
                     break;
                 }
             }
