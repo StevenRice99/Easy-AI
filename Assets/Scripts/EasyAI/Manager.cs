@@ -337,9 +337,11 @@ namespace EasyAI
                 return new() { goal };
             }
 
-            // Get the starting node and end nodes closest to their positions.
-            int positionIndex = Nearest(position);
-            int goalIndex = Nearest(goal);
+            // Start at the node that is closest to the goal but visible from the current position.
+            int positionIndex = Best(goal, position);
+            
+            // End at the node that is closest to and visible from the goal position.
+            int goalIndex = Best(goal, goal);
 
             // Add the starting index to the path.
             List<int> path = new() { positionIndex };
@@ -428,21 +430,22 @@ namespace EasyAI
         }
 
         /// <summary>
-        /// Find the nearest node to a position.
+        /// Find the best node index for a position with it having sight of a position and the closest to another.
         /// </summary>
-        /// <param name="position">The position to find the nearest node to.</param>
+        /// <param name="close">The position to find a node nearest to.</param>
+        /// <param name="visible">The position which a node is visible to.</param>
         /// <returns>The index of the nearest node.</returns>
-        private static int Nearest(Vector3 position)
+        private static int Best(Vector3 close, Vector3 visible)
         {
             // Order all nodes by distance to the position.
-            List<Vector3> potential = Singleton.lookupTable.Nodes.OrderBy(n => Vector3.Distance(n, position)).ToList();
-            foreach (Vector3 node in potential.Where(node => !HitObstacle(position, node)))
+            List<Vector3> potential = Singleton.lookupTable.Nodes.OrderBy(n => Vector3.Distance(n, close)).ToList();
+            foreach (Vector3 node in potential.Where(node => !HitObstacle(visible, node)))
             {
                 return Array.IndexOf(Singleton.lookupTable.Nodes, node);
             }
 
-            // If no nodes are in line of sight, return the nearest node even though it is not in line of sight.
-            return Array.IndexOf(Singleton.lookupTable.Nodes, potential.First());
+            // If no nodes are in line of sight, return the best option.
+            return Array.IndexOf(Singleton.lookupTable.Nodes,Singleton.lookupTable.Nodes.OrderBy(n => Vector3.Distance(n, visible)).First());
         }
 
         /// <summary>
