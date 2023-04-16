@@ -1734,10 +1734,7 @@ namespace EasyAI
                     List<Vector3> path = new();
                     while (node != null)
                     {
-                        if (!path.Contains(node.Position))
-                        {
-                            path.Add(node.Position);
-                        }
+                        path.Add(node.Position);
                         node = node.Previous;
                     }
 

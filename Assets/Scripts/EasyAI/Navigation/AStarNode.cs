@@ -61,9 +61,15 @@ namespace EasyAI.Navigation
         /// <param name="previous">The previous node in the A* pathfinding.</param>
         public void UpdatePrevious(AStarNode previous)
         {
+            // Cannot set to the same position.
+            if (previous == this || previous?.Position == Position)
+            {
+                return;
+            }
+            
             Previous = previous;
             Open();
-            CostG = Previous == null ? 0 : previous.CostG + Vector3.Distance(Position, Previous.Position);
+            CostG = Previous == null ? 0 : Previous.CostG + Vector3.Distance(Position, Previous.Position);
             CostF = CostG + CostH;
         }
 
