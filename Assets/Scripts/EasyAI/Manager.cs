@@ -341,7 +341,7 @@ namespace EasyAI
             int positionIndex = Best(goal, position);
             
             // End at the node that is closest to and visible from the goal position.
-            int goalIndex = Best(goal, goal);
+            int goalIndex = Best(position, goal);
 
             // Add the starting index to the path.
             List<int> path = new() { positionIndex };
@@ -432,20 +432,20 @@ namespace EasyAI
         /// <summary>
         /// Find the best node index for a position with it having sight of a position and the closest to another.
         /// </summary>
-        /// <param name="close">The position to find a node nearest to.</param>
-        /// <param name="visible">The position which a node is visible to.</param>
+        /// <param name="ideal">The position to find a node ideally close to.</param>
+        /// <param name="near">The position which a node is close to starting at and must be visible to.</param>
         /// <returns>The index of the nearest node.</returns>
-        private static int Best(Vector3 close, Vector3 visible)
+        private static int Best(Vector3 ideal, Vector3 near)
         {
             // Order all nodes by distance to the position.
-            List<Vector3> potential = Singleton.lookupTable.Nodes.OrderBy(n => Vector3.Distance(n, close)).ToList();
-            foreach (Vector3 node in potential.Where(node => !HitObstacle(visible, node)))
+            List<Vector3> potential = Singleton.lookupTable.Nodes.OrderBy(n => Vector3.Distance(n, ideal) + Vector3.Distance(n, near)).ToList();
+            foreach (Vector3 node in potential.Where(node => !HitObstacle(near, node)))
             {
                 return Array.IndexOf(Singleton.lookupTable.Nodes, node);
             }
 
-            // If no nodes are in line of sight, return the best option.
-            return Array.IndexOf(Singleton.lookupTable.Nodes,Singleton.lookupTable.Nodes.OrderBy(n => Vector3.Distance(n, visible)).First());
+            // If no nodes are in line of sight, return the closest node.
+            return Array.IndexOf(Singleton.lookupTable.Nodes,Singleton.lookupTable.Nodes.OrderBy(n => Vector3.Distance(n, near)).First());
         }
 
         /// <summary>
