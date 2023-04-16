@@ -20,7 +20,12 @@ namespace EasyAI.Navigation
         /// <summary>
         /// The final cost of this node.
         /// </summary>
-        public float CostF => CostG + CostH;
+        public float CostF { get; private set; }
+
+        /// <summary>
+        /// If the goal position has been reached, H cost will be zero.
+        /// </summary>
+        public bool Reached => CostH <= 0;
 
         /// <summary>
         /// The previous node which was moved to prior to this node.
@@ -45,32 +50,27 @@ namespace EasyAI.Navigation
         /// <param name="previous">The previous node in the A* pathfinding.</param>
         public AStarNode(Vector3 pos, Vector3 goal, AStarNode previous = null)
         {
-            Open();
             Position = pos;
             CostH = Vector3.Distance(Position, goal);
             UpdatePrevious(previous);
         }
 
         /// <summary>
-        /// Update the node to have a new previous node and then update its G cost.
+        /// Update the node to have a new previous node and then update its G cost and open it.
         /// </summary>
         /// <param name="previous">The previous node in the A* pathfinding.</param>
         public void UpdatePrevious(AStarNode previous)
         {
             Previous = previous;
-            if (Previous == null)
-            {
-                CostG = 0;
-                return;
-            }
-
-            CostG = previous.CostG + Vector3.Distance(Position, Previous.Position);
+            Open();
+            CostG = Previous == null ? 0 : previous.CostG + Vector3.Distance(Position, Previous.Position);
+            CostF = CostG + CostH;
         }
 
         /// <summary>
         /// Open the node.
         /// </summary>
-        public void Open()
+        private void Open()
         {
             IsOpen = true;
         }

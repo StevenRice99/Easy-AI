@@ -15,7 +15,7 @@ namespace EasyAI.Navigation
         /// <param name="nodes">The list of open and closed nodes, seeded with the starting node.</param>
         /// <param name="goal">The end goal position.</param>
         /// <param name="paths">All paths the algorithm can take.</param>
-        /// <returns>The path of nodes to take to get from the starting position to the ending position.</returns>
+        /// <returns>The destination node or the closest node if A* could not find a complete path.</returns>
         public static AStarNode Perform(List<AStarNode> nodes, Vector3 goal, AStarPaths paths)
         {
             // No best node by default.
@@ -37,34 +37,27 @@ namespace EasyAI.Navigation
                 }
             
                 // Loop through all nodes which connect to the current node.
-                foreach (Vector3 position in paths.Successors(node))
+                foreach (AStarNode successor in paths.Successors(node, goal))
                 {
-                    // Create the A* node.
-                    AStarNode successor = new(position, goal, node);
-
-                    // If this node is the goal destination, A* is done so set it as the best and clear the node list so the loop ends.
-                    if (position == goal)
+                    // If this node is the goal destination, A* is done.
+                    if (successor.Reached)
                     {
                         return successor;
                     }
 
                     // If the node is not yet in the list, add it.
-                    AStarNode existing = nodes.FirstOrDefault(n => n.Position == position);
+                    AStarNode existing = nodes.FirstOrDefault(n => n.Position == successor.Position);
                     if (existing == null)
                     {
                         nodes.Add(successor);
                         continue;
                     }
 
-                    // If it did already exist in the list but this path takes longer do nothing. 
-                    if (existing.CostF <= successor.CostF)
+                    // If the new path is shorter, update its previous node which opens it again.
+                    if (existing.CostF > successor.CostF)
                     {
-                        continue;
+                        existing.UpdatePrevious(node);
                     }
-
-                    // If the new path is shorter, update its previous node and open it again.
-                    existing.UpdatePrevious(node);
-                    existing.Open();
                 }
             }
 

@@ -27,21 +27,12 @@ namespace EasyAI.Navigation
         /// <summary>
         /// Get all successor positions.
         /// </summary>
-        /// <param name="current">The current node.</param>
-        /// <returns>All successor positions.</returns>
-        public IEnumerable<Vector3> Successors(AStarNode current)
-        {
-            return Successors(current.Position);
-        }
-
-        /// <summary>
-        /// Get all successor positions.
-        /// </summary>
         /// <param name="current">The current node position.</param>
+        /// <param name="goal">The goal for the A* to reach.</param>
         /// <returns>All successor positions.</returns>
-        public IEnumerable<Vector3> Successors(Vector3 current)
+        public IEnumerable<AStarNode> Successors(AStarNode current, Vector3 goal)
         {
-            return _connections.Where(c => c.A == current || c.B == current).Select(connection => connection.A == current ? connection.B : connection.A);
+            return _connections.Where(c => c.A == current.Position || c.B == current.Position).Select(connection => new AStarNode(connection.A == current.Position ? connection.B : connection.A, goal, current));
         }
     }
 }
