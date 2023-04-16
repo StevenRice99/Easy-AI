@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using EasyAI.Navigation;
-using EasyAI.Navigation.Nodes;
+using EasyAI.Navigation.Utility;
 using EasyAI.Utility;
 using UnityEngine;
 using UnityEngine.InputSystem;

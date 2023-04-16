@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using EasyAI.Navigation.Nodes;
 using UnityEngine;
 
-namespace EasyAI.Navigation
+namespace EasyAI.Navigation.Utility
 {
     /// <summary>
     /// Helper class to easily get successor nodes for positions.

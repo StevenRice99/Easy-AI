@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace EasyAI.Navigation.Nodes
+namespace EasyAI.Navigation.Utility
 {
     /// <summary>
     /// Hold a connection between two nodes.

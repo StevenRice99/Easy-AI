@@ -1,12 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
-namespace EasyAI.Navigation.Nodes
+namespace EasyAI.Navigation.Utility
 {
     /// <summary>
     /// The connections path data for pathfinding.

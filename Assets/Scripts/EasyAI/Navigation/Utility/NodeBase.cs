@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using UnityEngine;
 
-namespace EasyAI.Navigation.Nodes
+namespace EasyAI.Navigation.Utility
 {
     /// <summary>
     /// Base class for node creation components.

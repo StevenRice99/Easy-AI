@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using EasyAI.Navigation.Utility;
 using UnityEngine;
 
 namespace EasyAI.Navigation

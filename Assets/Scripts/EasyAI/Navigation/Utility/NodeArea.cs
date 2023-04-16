@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using EasyAI.Navigation.Generators;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace EasyAI.Navigation.Nodes
+namespace EasyAI.Navigation.Utility
 {
     /// <summary>
     /// Define an area for nodes to be placed in by an associated node generator.
@@ -50,6 +49,11 @@ namespace EasyAI.Navigation.Nodes
         )]
         private int nodesPerStep = 4;
 
+        [field: SerializeField]
+        [field: Min(0)]
+        [field: Tooltip("How far away from corners should the nodes be placed.")]
+        public int CornerNodeSteps { get; private set; } = 3;
+
         /// <summary>
         /// How many node spaces there are on the X axis.
         /// </summary>
@@ -91,7 +95,7 @@ namespace EasyAI.Navigation.Nodes
             Gizmos.DrawLine(new(corner2.x, floorCeiling.x, corner2.y), new(corner2.x, floorCeiling.x, corner1.y));
         }
 
-        public List<Vector3> Generate()
+        public IEnumerable<Vector3> Generate()
         {
             // Ensure X coordinates are in the required order.
             if (corner2.x > corner1.x)
@@ -120,21 +124,11 @@ namespace EasyAI.Navigation.Nodes
                 for (int z = 0; z < RangeZ; z++)
                 {
                     float2 pos = GetRealPosition(x, z);
-                    _data[x, z] = Physics.Raycast(new(pos.x, floorCeiling.y, pos.y), Vector3.down, out RaycastHit hit, floorCeiling.y - floorCeiling.x, Manager.GroundLayers | Manager.ObstacleLayers) && (Manager.GroundLayers.value & (1 << hit.transform.gameObject.layer)) > 0
-                        ? Open
-                        : Closed;
+                    _data[x, z] = Physics.Raycast(new(pos.x, floorCeiling.y, pos.y), Vector3.down, out RaycastHit hit, floorCeiling.y - floorCeiling.x, Manager.GroundLayers | Manager.ObstacleLayers) && (Manager.GroundLayers.value & (1 << hit.transform.gameObject.layer)) > 0 ? Open : Closed;
                 }
             }
         
-            // Get the node generator.
-            List<NodeGenerator> generators = GetComponents<NodeGenerator>().ToList();
-            generators.AddRange(GetComponentsInChildren<NodeGenerator>());
-            foreach (NodeGenerator generator in generators)
-            {
-                // Run the node generator.
-                generator.NodeArea = this;
-                generator.Generate();
-            }
+            CornerGraph.Perform(this);
 
 #if UNITY_EDITOR
             // Ensure the folder to save the map data exists.

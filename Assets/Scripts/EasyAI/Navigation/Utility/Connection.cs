@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace EasyAI.Navigation.Nodes
+namespace EasyAI.Navigation.Utility
 {
     /// <summary>
     /// Hold a connection lookup between two nodes.

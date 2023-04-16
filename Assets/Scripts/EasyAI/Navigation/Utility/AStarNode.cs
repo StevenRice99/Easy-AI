@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace EasyAI.Navigation
+namespace EasyAI.Navigation.Utility
 {
     /// <summary>
     /// Class to hold data for each node during A* pathfinding.

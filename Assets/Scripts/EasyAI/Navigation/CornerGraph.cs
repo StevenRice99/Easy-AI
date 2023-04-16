@@ -1,64 +1,54 @@
-﻿using UnityEngine;
+﻿using EasyAI.Navigation.Utility;
 
-namespace EasyAI.Navigation.Generators
+namespace EasyAI.Navigation
 {
-    /// <summary>
-    /// Convex corner graph placement for nodes.
-    /// </summary>
-    public class CornerGraphGenerator : NodeGenerator
+    public static class CornerGraph
     {
-        [SerializeField]
-        [Min(0)]
-        [Tooltip("How far away from corners should the nodes be placed.")]
-        private int cornerNodeSteps = 3;
-    
-        /// <summary>
-        /// Place nodes at convex corners.
-        /// </summary>
-        public override void Generate()
+        public static void Perform(NodeArea area)
         {
             // Check all X coordinates, skipping the padding required.
-            for (int x = cornerNodeSteps * 2; x < NodeArea.RangeX - cornerNodeSteps * 2; x++)
+            for (int x = area.CornerNodeSteps * 2; x < area.RangeX - area.CornerNodeSteps * 2; x++)
             {
                 // Check all Z coordinates, skipping the padding required.
-                for (int z = cornerNodeSteps * 2; z < NodeArea.RangeZ - cornerNodeSteps * 2; z++)
+                for (int z = area.CornerNodeSteps * 2; z < area.RangeZ - area.CornerNodeSteps * 2; z++)
                 {
                     // If this space is open it cannot be a corner so continue.
-                    if (NodeArea.IsOpen(x, z))
+                    if (area.IsOpen(x, z))
                     {
                         continue;
                     }
                 
                     // Otherwise it could be a corner so check in all directions.
-                    UpperUpper(x, z);
-                    UpperLower(x, z);
-                    LowerUpper(x, z);
-                    LowerLower(x, z);
+                    UpperUpper(area, x, z);
+                    UpperLower(area, x, z);
+                    LowerUpper(area, x, z);
+                    LowerLower(area, x, z);
                 }
             }
         }
-
+        
         /// <summary>
         /// Check coordinates for an open corner to place a node in the positive X and positive Z directions.
         /// </summary>
+        /// <param name="area">The node area to perform on.</param>
         /// <param name="x">The X coordinate of the potential corner.</param>
         /// <param name="z">The Z coordinate of the potential corner.</param>
-        private void UpperUpper(int x, int z)
+        private static void UpperUpper(NodeArea area, int x, int z)
         {
             // If the adjacent X or Z nodes are not open, return as it is not a convex corner.
-            if (!NodeArea.IsOpen(x + 1, z) || !NodeArea.IsOpen(x, z + 1))
+            if (!area.IsOpen(x + 1, z) || !area.IsOpen(x, z + 1))
             {
                 return;
             }
         
             // Loop through all X coordinates to check the required space to place a node.
-            for (int x1 = x + 1; x1 <= x + 1 + cornerNodeSteps * 2; x1++)
+            for (int x1 = x + 1; x1 <= x + 1 + area.CornerNodeSteps * 2; x1++)
             {
                 // Loop through all Z coordinates to check the required space to place a node.
-                for (int z1 = z + 1; z1 <= z + 1 + cornerNodeSteps * 2; z1++)
+                for (int z1 = z + 1; z1 <= z + 1 + area.CornerNodeSteps * 2; z1++)
                 {
                     // If the node is not open return as there is no enough space to place the node.
-                    if (!NodeArea.IsOpen(x1, z1))
+                    if (!area.IsOpen(x1, z1))
                     {
                         return;
                     }
@@ -66,30 +56,31 @@ namespace EasyAI.Navigation.Generators
             }
 
             // Place the node at the given offset from the convex corner.
-            NodeArea.AddNode(x + 1 + cornerNodeSteps, z + 1 + cornerNodeSteps);
+            area.AddNode(x + 1 + area.CornerNodeSteps, z + 1 + area.CornerNodeSteps);
         }
 
         /// <summary>
         /// Check coordinates for an open corner to place a node in the positive X and negative Z directions.
         /// </summary>
+        /// <param name="area">The node area to perform on.</param>
         /// <param name="x">The X coordinate of the potential corner.</param>
         /// <param name="z">The Z coordinate of the potential corner.</param>
-        private void UpperLower(int x, int z)
+        private static void UpperLower(NodeArea area, int x, int z)
         {
             // If the adjacent X or Z nodes are not open, return as it is not a convex corner.
-            if (!NodeArea.IsOpen(x + 1, z) || !NodeArea.IsOpen(x, z - 1))
+            if (!area.IsOpen(x + 1, z) || !area.IsOpen(x, z - 1))
             {
                 return;
             }
 
             // Loop through all X coordinates to check the required space to place a node.
-            for (int x1 = x + 1; x1 <= x + 1 + cornerNodeSteps * 2; x1++)
+            for (int x1 = x + 1; x1 <= x + 1 + area.CornerNodeSteps * 2; x1++)
             {
                 // Loop through all Z coordinates to check the required space to place a node.
-                for (int z1 = z - 1; z1 >= z - 1 - cornerNodeSteps * 2; z1--)
+                for (int z1 = z - 1; z1 >= z - 1 - area.CornerNodeSteps * 2; z1--)
                 {
                     // If the node is not open return as there is no enough space to place the node.
-                    if (!NodeArea.IsOpen(x1, z1))
+                    if (!area.IsOpen(x1, z1))
                     {
                         return;
                     }
@@ -97,30 +88,31 @@ namespace EasyAI.Navigation.Generators
             }
 
             // Place the node at the given offset from the convex corner.
-            NodeArea.AddNode(x + 1 + cornerNodeSteps, z - 1 - cornerNodeSteps);
+            area.AddNode(x + 1 + area.CornerNodeSteps, z - 1 - area.CornerNodeSteps);
         }
     
         /// <summary>
         /// Check coordinates for an open corner to place a node in the negative X and positive Z directions.
         /// </summary>
+        /// <param name="area">The node area to perform on.</param>
         /// <param name="x">The X coordinate of the potential corner.</param>
         /// <param name="z">The Z coordinate of the potential corner.</param>
-        private void LowerUpper(int x, int z)
+        private static void LowerUpper(NodeArea area, int x, int z)
         {
             // If the adjacent X or Z nodes are not open, return as it is not a convex corner.
-            if (!NodeArea.IsOpen(x - 1, z) || !NodeArea.IsOpen(x, z + 1))
+            if (!area.IsOpen(x - 1, z) || !area.IsOpen(x, z + 1))
             {
                 return;
             }
         
             // Loop through all X coordinates to check the required space to place a node.
-            for (int x1 = x - 1; x1 >= x - 1 - cornerNodeSteps * 2; x1--)
+            for (int x1 = x - 1; x1 >= x - 1 - area.CornerNodeSteps * 2; x1--)
             {
                 // Loop through all Z coordinates to check the required space to place a node.
-                for (int z1 = z + 1; z1 <= z + 1 + cornerNodeSteps * 2; z1++)
+                for (int z1 = z + 1; z1 <= z + 1 + area.CornerNodeSteps * 2; z1++)
                 {
                     // If the node is not open return as there is no enough space to place the node.
-                    if (!NodeArea.IsOpen(x1, z1))
+                    if (!area.IsOpen(x1, z1))
                     {
                         return;
                     }
@@ -128,30 +120,31 @@ namespace EasyAI.Navigation.Generators
             }
 
             // Place the node at the given offset from the convex corner.
-            NodeArea.AddNode(x - 1 - cornerNodeSteps, z + 1 + cornerNodeSteps);
+            area.AddNode(x - 1 - area.CornerNodeSteps, z + 1 + area.CornerNodeSteps);
         }
 
         /// <summary>
         /// Check coordinates for an open corner to place a node in the negative X and negative Z directions.
         /// </summary>
+        /// <param name="area">The node area to perform on.</param>
         /// <param name="x">The X coordinate of the potential corner.</param>
         /// <param name="z">The Z coordinate of the potential corner.</param>
-        private void LowerLower(int x, int z)
+        private static void LowerLower(NodeArea area, int x, int z)
         {
             // If the adjacent X or Z nodes are not open, return as it is not a convex corner.
-            if (!NodeArea.IsOpen(x - 1, z) || !NodeArea.IsOpen(x, z - 1))
+            if (!area.IsOpen(x - 1, z) || !area.IsOpen(x, z - 1))
             {
                 return;
             }
         
             // Loop through all X coordinates to check the required space to place a node.
-            for (int x1 = x - 1; x1 >= x - 1 - cornerNodeSteps * 2; x1--)
+            for (int x1 = x - 1; x1 >= x - 1 - area.CornerNodeSteps * 2; x1--)
             {
                 // Loop through all Z coordinates to check the required space to place a node.
-                for (int z1 = z - 1; z1 >= z - 1 - cornerNodeSteps * 2; z1--)
+                for (int z1 = z - 1; z1 >= z - 1 - area.CornerNodeSteps * 2; z1--)
                 {
                     // If the node is not open return as there is no enough space to place the node.
-                    if (!NodeArea.IsOpen(x1, z1))
+                    if (!area.IsOpen(x1, z1))
                     {
                         return;
                     }
@@ -159,7 +152,7 @@ namespace EasyAI.Navigation.Generators
             }
 
             // Place the node at the given offset from the convex corner.
-            NodeArea.AddNode(x - 1 - cornerNodeSteps, z - 1 - cornerNodeSteps);
+            area.AddNode(x - 1 - area.CornerNodeSteps, z - 1 - area.CornerNodeSteps);
         }
     }
 }

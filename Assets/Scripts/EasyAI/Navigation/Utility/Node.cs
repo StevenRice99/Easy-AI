@@ -1,4 +1,4 @@
-﻿namespace EasyAI.Navigation.Nodes
+﻿namespace EasyAI.Navigation.Utility
 {
     /// <summary>
     /// These manually placed will be connected by an agent manager but have no other logic themselves.
