@@ -357,17 +357,11 @@ namespace EasyAI
             }
 
             // Get the starting node and end nodes closest to their positions.
-            Vector3 nodePosition = Nearest(position);
-            Vector3 nodeGoal = Nearest(goal);
+            int positionIndex = Nearest(position);
+            int goalIndex = Nearest(goal);
 
-            // Add the starting position to the path.
-            List<Vector3> path = new() { position };
-        
-            // If the first node is not the same as the starting position, add it as well.
-            if (nodePosition != position)
-            {
-                path.Add(nodePosition);
-            }
+            // Add the starting index to the path.
+            List<int> path = new() { positionIndex };
 
             // Loop until the path is finished or the end goal cannot be reached.
             while (true)
@@ -375,17 +369,21 @@ namespace EasyAI
                 try
                 {
                     // Get the next node to move to.
-                    NavigationLookup lookup = Singleton.lookupTable.Lookups.First(l => Singleton.lookupTable.Nodes[l.Current] == nodePosition && Singleton.lookupTable.Nodes[l.Goal] == nodeGoal);
-                
+                    int shifted = goalIndex;
+                    if (goalIndex > positionIndex)
+                    {
+                        shifted--;
+                    }
+                    
                     // If the node is the goal destination, all nodes in the path have been finished so stop the loop.
-                    if (Singleton.lookupTable.Nodes[lookup.Next] == nodeGoal)
+                    if (Singleton.lookupTable.Lookups[positionIndex].goal[shifted] == goalIndex)
                     {
                         break;
                     }
                 
                     // Move to the next node and add it to the path.
-                    nodePosition = Singleton.lookupTable.Nodes[lookup.Next];
-                    path.Add(nodePosition);
+                    positionIndex = Singleton.lookupTable.Lookups[positionIndex].goal[shifted];
+                    path.Add(positionIndex);
                 }
                 catch
                 {
@@ -394,21 +392,29 @@ namespace EasyAI
             }
         
             // Add the goal node to the path.
-            path.Add(nodeGoal);
+            path.Add(goalIndex);
+
+            List<Vector3> positions = new(path.Select(index => Singleton.lookupTable.Nodes[index]));
         
-            // If the goal node and the goal itself are not the same, add the goal itself to the path as well.
-            if (goal != nodeGoal)
+            // If the first node is not the same as the starting position, add it as well.
+            if (Singleton.lookupTable.Nodes[positionIndex] != position)
             {
-                path.Add(goal);
+                positions.Insert(0, position);
+            }
+            
+            // If the goal node and the goal itself are not the same, add the goal itself to the path as well.
+            if (Singleton.lookupTable.Nodes[goalIndex] != goal)
+            {
+                positions.Add(goal);
             }
 
             // Try to pull the string from both sides.
-            StringPull(path);
+            StringPull(positions);
             path.Reverse();
-            StringPull(path);
+            StringPull(positions);
             path.Reverse();
 
-            return path;
+            return positions;
         }
         
         /// <summary>
@@ -452,18 +458,18 @@ namespace EasyAI
         /// Find the nearest node to a position.
         /// </summary>
         /// <param name="position">The position to find the nearest node to.</param>
-        /// <returns></returns>
-        private static Vector3 Nearest(Vector3 position)
+        /// <returns>The index of the nearest node.</returns>
+        private static int Nearest(Vector3 position)
         {
             // Order all nodes by distance to the position.
             List<Vector3> potential = Singleton.lookupTable.Nodes.OrderBy(n => Vector3.Distance(n, position)).ToList();
             foreach (Vector3 node in potential.Where(node => !HitObstacle(position, node)))
             {
-                return node;
+                return Array.IndexOf(Singleton.lookupTable.Nodes, node);
             }
 
             // If no nodes are in line of sight, return the nearest node even though it is not in line of sight.
-            return potential.First();
+            return Array.IndexOf(Singleton.lookupTable.Nodes, potential.First());
         }
 
         /// <summary>
@@ -1696,7 +1702,11 @@ namespace EasyAI
             List<ConnectionLookup> connectionLookups = connections.Select(connection => new ConnectionLookup(nodes.IndexOf(connection.A), nodes.IndexOf(connection.B))).ToList();
 
             // Store all new lookup tables.
-            List<NavigationLookup> table = new();
+            NavigationLookup[] table = new NavigationLookup[nodes.Count];
+            for (int i = 0; i < table.Length; i++)
+            {
+                table[i].goal = new int[nodes.Count - 1];
+            }
 
             // Create helper class to help with A*.
             AStarPaths paths = new(connections);
@@ -1742,7 +1752,7 @@ namespace EasyAI
             Singleton.lookupTable.Write(nodes, connectionLookups, table);
             
             stopwatch.Stop();
-            Debug.Log($"Navigation Baked | {nodes.Count} Nodes | {connections.Count} Connections | {table.Count} Lookups | {stopwatch.Elapsed}");
+            Debug.Log($"Navigation Baked | {nodes.Count} Nodes | {connections.Count} Connections | {table.Length} Lookups | {stopwatch.Elapsed}");
         }
 
         /// <summary>
@@ -1754,16 +1764,17 @@ namespace EasyAI
         /// <param name="current">The current index.</param>
         /// <param name="goal">The goal index.</param>
         /// <param name="next">The next index.</param>
-        private static void AddLookup(IList<Vector3> nodes, ICollection<NavigationLookup> table, IReadOnlyList<Vector3> path, int current, int goal, int next)
+        private static void AddLookup(IList<Vector3> nodes, IList<NavigationLookup> table, IReadOnlyList<Vector3> path, int current, int goal, int next)
         {
             current = nodes.IndexOf(path[current]);
             next = nodes.IndexOf(path[next]);
-            
-            // Ensure there are no duplicates in the lookup table.
-            if (nodes[current] != nodes[goal] && !table.Any(t => nodes[t.Current] == nodes[current] && nodes[t.Goal] == nodes[goal] && nodes[t.Next] == nodes[next]))
+
+            if (goal > current)
             {
-                table.Add(new(current, goal, next));
+                goal--;
             }
+
+            table[current].goal[goal] = next;
         }
 #endif
 
