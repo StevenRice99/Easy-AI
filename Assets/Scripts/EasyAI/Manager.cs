@@ -1734,52 +1734,52 @@ namespace EasyAI
                     List<Vector3> path = new();
                     while (node != null)
                     {
-                        path.Add(node.Position);
+                        // Ensure no duplicates in the path.
+                        if (!path.Contains(node.Position))
+                        {
+                            path.Add(node.Position);
+                        }
                         node = node.Previous;
                     }
 
-                    // Get the path in the right order.
-                    path.Reverse();
-
-                    // Loop through all nodes in the path and add them to the lookup table.
+                    // Ensure multithreading does not add duplicate values.
                     lock (table)
                     {
-                        // Forward pass.
+                        // Loop through all nodes in the path and add them to the lookup table.
                         for (int k = 0; k < path.Count - 1; k++)
                         {
-                            // Cached values for locking.
-                            int goal = j;
-                            int current = k;
+                            // Forward pass.
+                            AddLookup(table, path, k, i, k + 1);
                             
-                            // Ensure there are no duplicates in the lookup table.
-                            if (path[current] != Singleton._nodes[goal] && !table.Any(t => t.current == path[current] && t.goal == Singleton._nodes[goal] && t.next == path[current + 1]))
-                            {
-                                table.Add(new(path[current], Singleton._nodes[goal], path[current + 1]));
-                            }
-                        }
-
-                        // Backwards pass to save time instead of doing this later since it will be the same path.
-                        for (int k = path.Count - 1; k > 0; k--)
-                        {
-                            // Cached values for locking.
-                            int goal = i;
-                            int current = k;
-                            
-                            // Ensure there are no duplicates in the lookup table.
-                            if (path[current] != Singleton._nodes[goal] && !table.Any(t => t.current == path[current] && t.goal == Singleton._nodes[goal] && t.next == path[current - 1]))
-                            {
-                                table.Add(new(path[current], Singleton._nodes[goal], path[current - 1]));
-                            }
+                            // Backwards pass since it is the same path in reverse.
+                            AddLookup(table, path, path.Count - 1 - k, j, path.Count - 2 - k);
                         }
                     }
                 }
             });
             
             // Write the lookup table to a file for fast reading on future runs.
-            Singleton.lookupTable.Write(table.ToArray());
+            Singleton.lookupTable.Write(table);
             
             stopwatch.Stop();
             Debug.Log($"Navigation Baked | {Singleton._nodes.Count} Nodes | {Singleton._connections.Count} Connections | {table.Count} Lookups | {stopwatch.Elapsed}");
+        }
+
+        /// <summary>
+        /// Helper method to add a point on a navigation path to the lookup table.
+        /// </summary>
+        /// <param name="table">The lookup table being built.</param>
+        /// <param name="path">The path currently being added.</param>
+        /// <param name="current">The current index.</param>
+        /// <param name="goal">The goal index.</param>
+        /// <param name="next">The next index.</param>
+        private static void AddLookup(ICollection<NavigationLookup> table, IReadOnlyList<Vector3> path, int current, int goal, int next)
+        {
+            // Ensure there are no duplicates in the lookup table.
+            if (path[current] != Singleton._nodes[goal] && !table.Any(t => t.current == path[current] && t.goal == Singleton._nodes[goal] && t.next == path[next]))
+            {
+                table.Add(new(path[current], Singleton._nodes[goal], path[next]));
+            }
         }
 #endif
 
