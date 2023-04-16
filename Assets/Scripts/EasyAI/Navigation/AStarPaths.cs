@@ -13,13 +13,13 @@ namespace EasyAI.Navigation
         /// <summary>
         /// Reference to the connections.
         /// </summary>
-        private readonly List<Connection> _connections;
+        private readonly List<RawConnection> _connections;
 
         /// <summary>
         /// Set the connections for this helper class.
         /// </summary>
         /// <param name="connections">Reference to the connections.</param>
-        public AStarPaths(List<Connection> connections)
+        public AStarPaths(List<RawConnection> connections)
         {
             _connections = connections;
         }

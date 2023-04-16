@@ -4,10 +4,10 @@ using UnityEngine;
 namespace EasyAI.Navigation.Nodes
 {
     /// <summary>
-    /// Hold data for the navigation lookup table.
+    /// Hold data for the navigation lookup.
     /// </summary>
     [Serializable]
-    public struct NavigationLookup
+    public struct Lookup
     {
         [Tooltip("The node trying to reach index.")]
         [SerializeField]

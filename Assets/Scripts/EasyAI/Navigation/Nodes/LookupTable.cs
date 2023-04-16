@@ -20,11 +20,11 @@ namespace EasyAI.Navigation.Nodes
         
         [field: Tooltip("Connection lookups.")]
         [field: SerializeField]
-        public ConnectionLookup[] Connections { get; private set; }
+        public Connection[] Connections { get; private set; }
         
         [field: Tooltip("Navigation lookups.")]
         [field: SerializeField]
-        public NavigationLookup[] Lookups { get; private set; }
+        public Lookup[] Lookups { get; private set; }
 
         /// <summary>
         /// Set connections.
@@ -32,7 +32,7 @@ namespace EasyAI.Navigation.Nodes
         /// <param name="nodes">The nodes to write.</param>
         /// <param name="connectionLookups">The connection lookups to write.</param>
         /// <param name="lookups">The lookups to write.</param>
-        public void Write(IEnumerable<Vector3> nodes, IEnumerable<ConnectionLookup> connectionLookups, IEnumerable<NavigationLookup> lookups)
+        public void Write(IEnumerable<Vector3> nodes, IEnumerable<Connection> connectionLookups, IEnumerable<Lookup> lookups)
         {
             Nodes = nodes.ToArray();
             Connections = connectionLookups.ToArray();

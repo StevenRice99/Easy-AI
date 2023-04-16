@@ -345,7 +345,7 @@ namespace EasyAI
         public static List<Vector3> LookupPath(Vector3 position, Vector3 goal)
         {
             // If there are no nodes in the lookup table simply return the end goal position.
-            if (Singleton.lookupTable == null || Singleton.lookupTable.Nodes.Length == 0)
+            if (Singleton.lookupTable == null || Singleton.lookupTable.Lookups.Length == 0)
             {
                 return new() { goal };
             }
@@ -374,45 +374,36 @@ namespace EasyAI
                     {
                         shifted--;
                     }
-                    
-                    // If the node is the goal destination, all nodes in the path have been finished so stop the loop.
-                    if (Singleton.lookupTable.Lookups[positionIndex].goal[shifted] == goalIndex)
-                    {
-                        break;
-                    }
                 
                     // Move to the next node and add it to the path.
                     positionIndex = Singleton.lookupTable.Lookups[positionIndex].goal[shifted];
                     path.Add(positionIndex);
+                    
+                    // If the node is the goal destination, all nodes in the path have been finished so stop the loop.
+                    if (positionIndex == goalIndex)
+                    {
+                        break;
+                    }
                 }
                 catch
                 {
                     break;
                 }
             }
-        
-            // Add the goal node to the path.
-            path.Add(goalIndex);
 
-            List<Vector3> positions = new(path.Select(index => Singleton.lookupTable.Nodes[index]));
-        
-            // If the first node is not the same as the starting position, add it as well.
-            if (Singleton.lookupTable.Nodes[positionIndex] != position)
+            // List to convert indexes to positions, seeded with the actual goal as it may not be directly on a node.
+            List<Vector3> positions = new(path.Count + 1) { goal };
+
+            // Build path in reverse so only one reverse call is needed when string pulling.
+            for (int i = path.Count - 1; i >= 0; i--)
             {
-                positions.Insert(0, position);
-            }
-            
-            // If the goal node and the goal itself are not the same, add the goal itself to the path as well.
-            if (Singleton.lookupTable.Nodes[goalIndex] != goal)
-            {
-                positions.Add(goal);
+                positions.Add(Singleton.lookupTable.Nodes[path[i]]);
             }
 
             // Try to pull the string from both sides.
             StringPull(positions);
-            path.Reverse();
+            positions.Reverse();
             StringPull(positions);
-            path.Reverse();
 
             return positions;
         }
@@ -908,7 +899,7 @@ namespace EasyAI
             if (paths == PathState.All && lookupTable != null)
             {
                 GL.Color(Color.white);
-                foreach (ConnectionLookup connection in lookupTable.Connections)
+                foreach (Connection connection in lookupTable.Connections)
                 {
                     Vector3 a = Singleton.lookupTable.Nodes[connection.A];
                     a.y += NavigationVisualOffset;
@@ -1674,7 +1665,7 @@ namespace EasyAI
 
             nodes.AddRange(FindObjectsOfType<Node>().Select(node => node.transform.position));
 
-            List<Connection> connections = new();
+            List<RawConnection> raw = new();
 
             // Setup all freely-placed nodes.
             for (int i = 0; i < nodes.Count; i++)
@@ -1684,7 +1675,7 @@ namespace EasyAI
                     // If a clear path, add the connection.
                     if (!HitObstacle(nodes[i], nodes[j]))
                     {
-                        connections.Add(new(nodes[i], nodes[j]));
+                        raw.Add(new(nodes[i], nodes[j]));
                     }
                 }
             }
@@ -1692,26 +1683,26 @@ namespace EasyAI
             // If any nodes are not a part of any connections, remove them.
             for (int i = 0; i < nodes.Count; i++)
             {
-                if (!connections.Any(c => c.A == nodes[i] || c.B == nodes[i]))
+                if (!raw.Any(c => c.A == nodes[i] || c.B == nodes[i]))
                 {
                     nodes.RemoveAt(i--);
                 }
             }
 
             // Convert the connections to index-based lookup values.
-            List<ConnectionLookup> connectionLookups = connections.Select(connection => new ConnectionLookup(nodes.IndexOf(connection.A), nodes.IndexOf(connection.B))).ToList();
+            List<Connection> connections = raw.Select(connection => new Connection(nodes.IndexOf(connection.A), nodes.IndexOf(connection.B))).ToList();
 
-            // Store all new lookup tables.
-            NavigationLookup[] table = new NavigationLookup[nodes.Count];
-            bool[][] set = new bool[table.Length][];
-            for (int i = 0; i < table.Length; i++)
+            // Store all new lookup tables and a helper variable to flag which lookups are properly set.
+            Lookup[] lookups = new Lookup[nodes.Count];
+            bool[][] set = new bool[lookups.Length][];
+            for (int i = 0; i < lookups.Length; i++)
             {
-                table[i].goal = new int[nodes.Count - 1];
-                set[i] = new bool[table[i].goal.Length];
+                lookups[i].goal = new int[nodes.Count - 1];
+                set[i] = new bool[lookups[i].goal.Length];
             }
 
             // Create helper class to help with A*.
-            AStarPaths paths = new(connections);
+            AStarPaths paths = new(raw);
     
             // Loop through all nodes.
             System.Threading.Tasks.Parallel.For(0, nodes.Count, i =>
@@ -1735,41 +1726,42 @@ namespace EasyAI
                     }
 
                     // Ensure multithreading does not add duplicate values.
-                    lock (table)
+                    lock (lookups)
                     {
                         // Loop through all nodes in the path and add them to the lookup table.
                         for (int k = 0; k < path.Count - 1; k++)
                         {
                             // Forward pass.
-                            AddLookup(nodes, table, path, k, i, k + 1, set);
+                            AddLookup(nodes, lookups, path, k, i, k + 1, set);
                             
                             // Backwards pass since it is the same path in reverse.
-                            AddLookup(nodes, table, path, path.Count - 1 - k, j, path.Count - 2 - k, set);
+                            AddLookup(nodes, lookups, path, path.Count - 1 - k, j, path.Count - 2 - k, set);
                         }
                     }
                 }
             });
+
+            int expected = nodes.Count * (nodes.Count - 1);
+            int created = set.Sum(t => t.Count(t1 => t1));
             
             // Write the lookup table to a file for fast reading on future runs.
-            Singleton.lookupTable.Write(nodes, connectionLookups, table);
-
-            int numberSet = set.Sum(t => t.Count(t1 => t1));
+            Singleton.lookupTable.Write(nodes, connections, expected == created ? lookups : Array.Empty<Lookup>());
 
             stopwatch.Stop();
-            Debug.Log($"Navigation Baked | {nodes.Count} Nodes | {connections.Count} Connections | {nodes.Count * (nodes.Count - 1)} Expected Lookups | {numberSet} Created Lookups | {stopwatch.Elapsed}");
+            Debug.Log($"Navigation Baked | {nodes.Count} Nodes | {raw.Count} Connections | {expected} Expected Lookups | {created} Created Lookups | {stopwatch.Elapsed}");
         }
 
         /// <summary>
         /// Helper method to add a point on a navigation path to the lookup table.
         /// </summary>
         /// <param name="nodes">The nodes being built from.</param>
-        /// <param name="table">The lookup table being built.</param>
+        /// <param name="lookups">The lookup table being built.</param>
         /// <param name="path">The path currently being added.</param>
         /// <param name="current">The current index.</param>
         /// <param name="goal">The goal index.</param>
         /// <param name="next">The next index.</param>
         /// <param name="set">Helper to track how many lookups are set.</param>
-        private static void AddLookup(IList<Vector3> nodes, IList<NavigationLookup> table, IReadOnlyList<Vector3> path, int current, int goal, int next, bool[][] set)
+        private static void AddLookup(IList<Vector3> nodes, IList<Lookup> lookups, IReadOnlyList<Vector3> path, int current, int goal, int next, bool[][] set)
         {
             current = nodes.IndexOf(path[current]);
             next = nodes.IndexOf(path[next]);
@@ -1779,7 +1771,7 @@ namespace EasyAI
                 goal--;
             }
 
-            table[current].goal[goal] = next;
+            lookups[current].goal[goal] = next;
             set[current][goal] = true;
         }
 #endif
