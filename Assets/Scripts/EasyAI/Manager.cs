@@ -432,20 +432,20 @@ namespace EasyAI
         /// <summary>
         /// Find the best node index for a position with it having sight of a position and the closest to another.
         /// </summary>
-        /// <param name="ideal">The position to find a node ideally close to.</param>
-        /// <param name="near">The position which a node is close to starting at and must be visible to.</param>
+        /// <param name="goal">The position to find a node with line of sight to.</param>
+        /// <param name="start">The position which will later try to find a path towards.</param>
         /// <returns>The index of the nearest node.</returns>
-        private static int Best(Vector3 ideal, Vector3 near)
+        private static int Best(Vector3 goal, Vector3 start)
         {
-            // Order all nodes by distance to the position.
-            List<Vector3> potential = Singleton.lookupTable.Nodes.OrderBy(n => Vector3.Distance(n, ideal) + Vector3.Distance(n, near)).ToList();
-            foreach (Vector3 node in potential.Where(node => !HitObstacle(near, node)))
+            // Try to find the most ideal nodes being the ones with the lowest total distance between both positions.
+            List<Vector3> potential = Singleton.lookupTable.Nodes.OrderBy(n => Vector3.Distance(n, goal) + Vector3.Distance(n, start)).ToList();
+            foreach (Vector3 node in potential.Where(node => !HitObstacle(start, node)))
             {
                 return Array.IndexOf(Singleton.lookupTable.Nodes, node);
             }
 
             // If no nodes are in line of sight, return the closest node.
-            return Array.IndexOf(Singleton.lookupTable.Nodes,Singleton.lookupTable.Nodes.OrderBy(n => Vector3.Distance(n, near)).First());
+            return Array.IndexOf(Singleton.lookupTable.Nodes,Singleton.lookupTable.Nodes.OrderBy(n => Vector3.Distance(n, start)).First());
         }
 
         /// <summary>
