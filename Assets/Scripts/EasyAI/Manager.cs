@@ -332,7 +332,7 @@ namespace EasyAI
         {
             // Check if there is a direct line of sight so we can skip pathing and just move directly towards the goal.
             // Also if there are no nodes in the lookup table simply return the end goal position.
-            if (!HitObstacle(position, goal) || Singleton.lookupTable == null || Singleton.lookupTable.Lookups.Length == 0)
+            if (!HitObstacle(position, goal) || Singleton.lookupTable == null || Singleton.lookupTable.Paths.Length == 0)
             {
                 return new() { goal };
             }
@@ -359,7 +359,7 @@ namespace EasyAI
                     }
                 
                     // Move to the next node and add it to the path.
-                    positionIndex = Singleton.lookupTable.Lookups[positionIndex].goal[shifted];
+                    positionIndex = Singleton.lookupTable.Paths[positionIndex].goal[shifted];
                     path.Add(positionIndex);
                     
                     // If the node is the goal destination, all nodes in the path have been finished so stop the loop.
@@ -1418,7 +1418,7 @@ namespace EasyAI
                 }
             }
 
-            if ((Singleton.lookupTable != null && Singleton.lookupTable.Lookups.Length > 0) || Singleton.Agents.Count > 0)
+            if ((Singleton.lookupTable != null && Singleton.lookupTable.Paths.Length > 0) || Singleton.Agents.Count > 0)
             {
                 // Button to change paths rendering..
                 y = NextItem(y, h, p);
@@ -1678,7 +1678,7 @@ namespace EasyAI
             List<Connection> connections = raw.Select(connection => new Connection(nodes.IndexOf(connection.A), nodes.IndexOf(connection.B))).ToList();
 
             // Store all new lookup tables and a helper variable to flag which lookups are properly set.
-            Lookup[] lookups = new Lookup[nodes.Count];
+            Path[] lookups = new Path[nodes.Count];
             bool[][] set = new bool[lookups.Length][];
             for (int i = 0; i < lookups.Length; i++)
             {
@@ -1745,7 +1745,7 @@ namespace EasyAI
             
             // Write the lookup table to a file for fast reading on future runs.
             // To avoid navigation errors, the lookups are only stored if they are valid.
-            Singleton.lookupTable.Write(nodes, connections, expected == created ? lookups : Array.Empty<Lookup>());
+            Singleton.lookupTable.Write(nodes, connections, expected == created ? lookups : Array.Empty<Path>());
             
             stopwatch.Stop();
 
@@ -1772,7 +1772,7 @@ namespace EasyAI
         /// <param name="goal">The goal index.</param>
         /// <param name="next">The next index.</param>
         /// <param name="set">Helper to track how many lookups are set.</param>
-        private static void AddLookup(IList<Vector3> nodes, IList<Lookup> lookups, IReadOnlyList<Vector3> path, int current, int goal, int next, bool[][] set)
+        private static void AddLookup(IList<Vector3> nodes, IList<Path> lookups, IReadOnlyList<Vector3> path, int current, int goal, int next, bool[][] set)
         {
             current = nodes.IndexOf(path[current]);
             next = nodes.IndexOf(path[next]);

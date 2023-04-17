@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using EasyAI.Navigation.Utility;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace EasyAI.Navigation.Utility
+namespace EasyAI.Navigation
 {
     /// <summary>
     /// Define an area for nodes to be placed in by an associated node generator.
