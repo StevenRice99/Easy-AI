@@ -12,9 +12,8 @@ namespace WestWorld.States
     {
         public override void Enter(Agent agent)
         {
-            Miner miner = agent as Miner;;
-
-            if (miner.Location == WestWorldAgent.WestWorldLocation.Bank)
+            Miner miner = agent as Miner;
+            if (miner == null || miner.Location == WestWorldAgent.WestWorldLocation.Bank)
             {
                 return;
             }
@@ -27,6 +26,10 @@ namespace WestWorld.States
         public override void Execute(Agent agent)
         {
             Miner miner = agent as Miner;
+            if (miner == null)
+            {
+                return;
+            }
 
             // Deposit all gold to the bank.
             miner.DepositGold();

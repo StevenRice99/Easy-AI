@@ -1,6 +1,4 @@
-﻿using EasyAI.Navigation.Utility;
-
-namespace EasyAI.Navigation
+﻿namespace EasyAI.Navigation
 {
     /// <summary>
     /// Corner graph generation.

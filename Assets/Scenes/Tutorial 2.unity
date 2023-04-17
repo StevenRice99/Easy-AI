@@ -400,7 +400,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90b0995b5a8860d478c5247ae4a1d783, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mind: {fileID: 11400000, guid: 055d2049bcce52741a017f6ce75222a4, type: 2}
+  mind: {fileID: 0}
   seekAcceptableDistance: 0.1
   fleeAcceptableDistance: 10
   restVelocity: 0.1
@@ -1095,6 +1095,13 @@ MonoBehaviour:
   moveSpeed: 10
   moveAcceleration: 0
   lookSpeed: 0
+  <Sensors>k__BackingField: []
+  <Actuators>k__BackingField: []
+  <Visuals>k__BackingField: {fileID: 0}
+  <PerformanceMeasure>k__BackingField: {fileID: 0}
+  <Mind>k__BackingField: {fileID: 0}
+  <State>k__BackingField: {fileID: 11400000, guid: 19934e35346ed0146805ac61c33f5249, type: 2}
+  <Body>k__BackingField: {fileID: 1617995068}
 --- !u!54 &1617995068
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1105,11 +1112,11 @@ Rigidbody:
   serializedVersion: 2
   m_Mass: 1
   m_Drag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 0
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 1
-  m_Constraints: 0
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!136 &1617995069
 CapsuleCollider:

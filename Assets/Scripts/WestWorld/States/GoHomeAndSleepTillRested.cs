@@ -13,8 +13,7 @@ namespace WestWorld.States
         public override void Enter(Agent agent)
         {
             Miner miner = agent as Miner;
-
-            if (miner.Location == WestWorldAgent.WestWorldLocation.Home)
+            if (miner == null || miner.Location == WestWorldAgent.WestWorldLocation.Home)
             {
                 return;
             }
@@ -24,12 +23,16 @@ namespace WestWorld.States
             miner.Log("Walkin' home.");
             
             // Tell the house keeper they are home.
-            miner.SendMessage(WestWorldAgent.WestWorldMessage.HiHoneyImHome);
+            miner.FirstResponseMessage((int) WestWorldAgent.WestWorldMessage.HiHoneyImHome);
         }
 
         public override void Execute(Agent agent)
         {
             Miner miner = agent as Miner;
+            if (miner == null)
+            {
+                return;
+            }
             
             // Rest up.
             miner.Rest();
@@ -45,6 +48,18 @@ namespace WestWorld.States
         public override void Exit(Agent agent)
         {
             agent.Log("What a God-darn fantastic nap! Time to find more gold.");
+        }
+
+        public override bool HandleMessage(Agent agent, Agent sender, int id)
+        {
+            if (id != (int) WestWorldAgent.WestWorldMessage.StewReady)
+            {
+                return false;
+            }
+
+            agent.SetState<EatStew>();
+            return true;
+
         }
     }
 }

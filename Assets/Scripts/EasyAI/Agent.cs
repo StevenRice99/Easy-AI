@@ -5,6 +5,7 @@ using EasyAI.Utility;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using WestWorld.Agents;
 
 namespace EasyAI
 {
@@ -114,21 +115,18 @@ namespace EasyAI
         /// The actions of this agent that are not yet completed.
         /// </summary>
         private readonly List<object> _inProgressActions = new();
-    
+
         [Tooltip("How fast this agent can move in units per second.")]
         [Min(0)]
-        [SerializeField]
-        private float moveSpeed = 10;
-    
+        public float moveSpeed = 10;
+
         [Tooltip("How fast this agent can increase in move speed in units per second. Set to zero for instant.")]
         [Min(0)]
-        [SerializeField]
-        private float moveAcceleration;
+        public float moveAcceleration;
     
         [Tooltip("How fast this agent can look in degrees per second. Set to zero for instant.")]
         [Min(0)]
-        [SerializeField]
-        private float lookSpeed;
+        public float lookSpeed;
 
         /// <summary>
         /// The current move velocity if move acceleration is being used.
@@ -158,21 +156,29 @@ namespace EasyAI
         /// <summary>
         /// The sensors of this agent.
         /// </summary>
+        [field: HideInInspector]
+        [field: SerializeField]
         public Sensor[] Sensors { get; private set; }
 
         /// <summary>
         /// The actuators of this agent.
         /// </summary>
+        [field: HideInInspector]
+        [field: SerializeField]
         public Actuator[] Actuators { get; private set; }
 
         /// <summary>
         /// The root transform that holds the visuals for this agent used to rotate the agent towards its look target.
         /// </summary>
+        [field: HideInInspector]
+        [field: SerializeField]
         public Transform Visuals { get; private set; }
 
         /// <summary>
         /// The performance measure of this agent.
         /// </summary>
+        [field: HideInInspector]
+        [field: SerializeField]
         public PerformanceMeasure PerformanceMeasure { get; private set; }
 
         /// <summary>
@@ -189,26 +195,19 @@ namespace EasyAI
         /// True if the agent is trying to move, false otherwise.
         /// </summary>
         public bool Moving => Moves.Count > 0 || Path.Count > 0;
-
-        /// <summary>
-        /// How fast this agent can move in units per second.
-        /// </summary>
-        public float MoveSpeed => moveSpeed;
-
-        /// <summary>
-        /// How fast this agent can increase in move speed in units per second. Set to zero for instant.
-        /// </summary>
-        public float MoveAcceleration => moveAcceleration;
-
-        /// <summary>
-        /// How fast this agent can look in degrees per second. Set to zero for instant.
-        /// </summary>
-        public float LookSpeed => lookSpeed;
-
-        /// <summary>
-        /// The state the agent is in.
-        /// </summary>
+        
+        [field: Tooltip("The mind of the agent.")]
+        [field: SerializeField]
+        public State Mind { get; private set; }
+        
+        [field: Tooltip("The state the agent is in.")]
+        [field: SerializeField]
         public State State { get; private set; }
+        
+        /// <summary>
+        /// The state the agent was last in.
+        /// </summary>
+        public State PreviousState { get; private set; }
 
         /// <summary>
         /// The path destination.
@@ -221,36 +220,9 @@ namespace EasyAI
         public Vector3 MoveVelocity3 => new(MoveVelocity.x, 0, MoveVelocity.y);
 
         /// <summary>
-        /// Set the move speed.
-        /// </summary>
-        /// <param name="speed">The move speed to set.</param>
-        public void SetMoveSpeed(float speed)
-        {
-            moveSpeed = speed;
-        }
-
-        /// <summary>
-        /// Set the move acceleration.
-        /// </summary>
-        /// <param name="acceleration">The move acceleration to set.</param>
-        public void SetMoveAcceleration(float acceleration)
-        {
-            moveAcceleration = acceleration;
-        }
-
-        /// <summary>
-        /// Set the look speed.
-        /// </summary>
-        /// <param name="speed">The move acceleration to set.</param>
-        public void SetLookSpeed(float speed)
-        {
-            lookSpeed = speed;
-        }
-
-        /// <summary>
         /// Increase the time that has elapsed.
         /// </summary>
-        public void IncreaseDeltaTime()
+        public void StepDeltaTime()
         {
             DeltaTime += Time.deltaTime;
         }
@@ -258,8 +230,9 @@ namespace EasyAI
         /// <summary>
         /// Set the state the agent is in.
         /// </summary>
+        /// <param name="execute">If the new state should be executed after entering it.</param>
         /// <typeparam name="T">The state to put the agent in.</typeparam>
-        public void SetState<T>() where T : State
+        public void SetState<T>(bool execute = false) where T : State
         {
             State value = Manager.GetState<T>();
             
@@ -275,17 +248,99 @@ namespace EasyAI
                 State.Exit(this);
             }
 
+            PreviousState = State;
+
             // Set the new state.
             State = value;
 
-            // Enter the new state.
-            if (State != null)
+            if (State == null)
             {
-                State.Enter(this);
+                return;
+            }
+
+            // Enter the new state.
+            State.Enter(this);
+
+            // Execute the new state if set to do so.
+            if (execute)
+            {
+                State.Execute(this);
             }
         }
-        
-        
+
+        /// <summary>
+        /// Return to the agent's last state.
+        /// </summary>
+        /// <param name="execute">If the previous state should be executed after entering it.</param>
+        public void ReturnToPreviousState(bool execute = false)
+        {
+            // Exit the current state.
+            if (State != null)
+            {
+                State.Exit(this);
+            }
+
+            // Return to the previous state.
+            State = PreviousState;
+            
+            if (State == null)
+            {
+                return;
+            }
+            
+            // Enter the previous state.
+            State.Enter(this);
+            
+            // Execute the previous state if set to do so.
+            if (execute)
+            {
+                State.Execute(this);
+            }
+        }
+
+        /// <summary>
+        /// Handle a message.
+        /// </summary>
+        /// <param name="sender">The agent that sent the message.</param>
+        /// <param name="id">The message type.</param>
+        /// <returns>True if the message was accepted and acted upon, false otherwise.</returns>
+        public bool HandleMessage(Agent sender, int id)
+        {
+            return State != null && State.HandleMessage(this, sender, id) || Mind != null && Mind.HandleMessage(this, sender, id);
+        }
+
+        /// <summary>
+        /// Send a message to an agent.
+        /// </summary>
+        /// <param name="receiver">The agent to receive the message.</param>
+        /// <param name="id">The message type.</param>
+        /// <returns>True if the agent accepted and acted upon the message, false otherwise.</returns>
+        public bool SendMessage(Agent receiver, int id)
+        {
+            return receiver.HandleMessage(this, id);
+        }
+
+        /// <summary>
+        /// Send a message and get the first agent that accepts and acts upon the message.
+        /// Agents are sent the message in order of distance from the sender.
+        /// </summary>
+        /// <param name="id">The message type.</param>
+        /// <returns>The first agent that accepts and acts upon the message or null otherwise.</returns>
+        public Agent FirstResponseMessage(int id)
+        {
+            return Manager.CurrentAgents.Where(a => a != this).OrderBy(a => Vector3.Distance(transform.position, a.transform.position)).FirstOrDefault(a => a.HandleMessage(this, id));
+        }
+
+        /// <summary>
+        /// Send a message to every agent.
+        /// </summary>
+        /// <param name="id">The message type.</param>
+        /// <returns>All agents that accepted and acted upon the message.</returns>
+        public IEnumerable<Agent> BroadcastMessage(int id)
+        {
+            return Manager.CurrentAgents.Where(a => a != this).Where(a => a.HandleMessage(this, id));
+        }
+
         /// <summary>
         /// Get if the agent is in a given state.
         /// </summary>
@@ -599,22 +654,19 @@ namespace EasyAI
         /// </summary>
         public virtual void Perform()
         {
-            if (Manager.Mind != null)
+            if (Mind != null)
             {
-                Manager.Mind.Execute(this);
+                Mind.Execute(this);
             }
-            else
-            {
-                if (Manager.CurrentlySelectedAgent == this && Mouse.current.rightButton.wasPressedThisFrame && Physics.Raycast(Manager.SelectedCamera.ScreenPointToRay(new(Mouse.current.position.x.ReadValue(), Mouse.current.position.y.ReadValue(), 0)), out RaycastHit hit, Mathf.Infinity, Manager.GroundLayers | Manager.ObstacleLayers))
-                {
-                    StopMoving();
-                    Navigate(hit.point);
-                }
-            }
-
+            
             if (State != null)
             {
                 State.Execute(this);
+            }
+            else if (Mind == null && Manager.CurrentlySelectedAgent == this && Mouse.current.rightButton.wasPressedThisFrame && Physics.Raycast(Manager.SelectedCamera.ScreenPointToRay(new(Mouse.current.position.x.ReadValue(), Mouse.current.position.y.ReadValue(), 0)), out RaycastHit hit, Mathf.Infinity, Manager.GroundLayers | Manager.ObstacleLayers))
+            {
+                StopMoving();
+                Navigate(hit.point);
             }
 
             // Act on the actions.
@@ -743,9 +795,9 @@ namespace EasyAI
             Setup();
         
             // Enter its global and normal states if they are set.
-            if (Manager.Mind != null)
+            if (Mind != null)
             {
-                Manager.Mind.Enter(this);
+                Mind.Enter(this);
             }
 
             if (State != null)

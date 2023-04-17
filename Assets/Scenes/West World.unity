@@ -276,7 +276,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90b0995b5a8860d478c5247ae4a1d783, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mind: {fileID: 11400000, guid: 4e3363507b328d04f97c1e3d4d8919d0, type: 2}
   seekAcceptableDistance: 0.1
   fleeAcceptableDistance: 10
   restVelocity: 0.1
@@ -724,6 +723,12 @@ MonoBehaviour:
   moveSpeed: 10
   moveAcceleration: 0
   lookSpeed: 0
+  <Sensors>k__BackingField: []
+  <Actuators>k__BackingField: []
+  <Visuals>k__BackingField: {fileID: 0}
+  <PerformanceMeasure>k__BackingField: {fileID: 0}
+  <Mind>k__BackingField: {fileID: 11400000, guid: 4e3363507b328d04f97c1e3d4d8919d0, type: 2}
+  <State>k__BackingField: {fileID: 11400000, guid: 5b8a9ecf8d156bf44a256354e4aa65cc, type: 2}
   maxGoldCarried: 2
   maxThirst: 5
   maxFatigue: 4
@@ -852,7 +857,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1784089739}
   - component: {fileID: 1784089738}
-  - component: {fileID: 1784089737}
+  - component: {fileID: 1784089740}
   m_Layer: 0
   m_Name: Elsa
   m_TagString: Untagged
@@ -860,21 +865,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
   m_IsActive: 1
---- !u!114 &1784089737
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1784089736}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1bdc2dc32e584287bd0cb4b25f1245d9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 10
-  moveAcceleration: 0
-  lookSpeed: 0
 --- !u!136 &1784089738
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -905,6 +895,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1784089740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1784089736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acc227f37eec44dc930ba4b34002b958, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 10
+  moveAcceleration: 0
+  lookSpeed: 0
+  <Sensors>k__BackingField: []
+  <Actuators>k__BackingField: []
+  <Visuals>k__BackingField: {fileID: 0}
+  <PerformanceMeasure>k__BackingField: {fileID: 0}
+  <Mind>k__BackingField: {fileID: 11400000, guid: cde14041e88d8734387f15389b0ea25c, type: 2}
+  <State>k__BackingField: {fileID: 11400000, guid: 38a74a84ab52af540b574bfa12649126, type: 2}
 --- !u!1 &1945197315
 GameObject:
   m_ObjectHideFlags: 0

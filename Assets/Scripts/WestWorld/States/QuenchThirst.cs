@@ -12,9 +12,8 @@ namespace WestWorld.States
     {
         public override void Enter(Agent agent)
         {
-            Miner miner = agent as Miner;;
-
-            if (miner.Location == WestWorldAgent.WestWorldLocation.Saloon)
+            Miner miner = agent as Miner;
+            if (miner == null || miner.Location == WestWorldAgent.WestWorldLocation.Saloon)
             {
                 return;
             }
@@ -27,6 +26,10 @@ namespace WestWorld.States
         public override void Execute(Agent agent)
         {
             Miner miner = agent as Miner;;
+            if (miner == null)
+            {
+                return;
+            }
             
             // Drink up.
             miner.Drink();

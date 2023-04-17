@@ -405,10 +405,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09db045164814ff69ff77d2096462d6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  state: {fileID: 0}
   moveSpeed: 10
   moveAcceleration: 0
   lookSpeed: 0
+  <Sensors>k__BackingField: []
+  <Actuators>k__BackingField: []
+  <Visuals>k__BackingField: {fileID: 0}
+  <PerformanceMeasure>k__BackingField: {fileID: 0}
+  <Mind>k__BackingField: {fileID: 11400000, guid: 249f12d7bbd1c774ebf6b5f07af99145, type: 2}
+  <State>k__BackingField: {fileID: 0}
+  <Character>k__BackingField: {fileID: 4324690102972426155}
   headPosition: {fileID: 4324690103535426265}
   shootPosition: {fileID: 6347862280369580931}
   flagPosition: {fileID: 4324690102426246913}

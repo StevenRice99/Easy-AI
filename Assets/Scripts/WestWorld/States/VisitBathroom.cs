@@ -17,11 +17,10 @@ namespace WestWorld.States
 
         public override void Execute(Agent agent)
         {
-            HouseKeeper houseKeeper = agent as HouseKeeper;
-            houseKeeper.Log("Elsa: Ahhhhhh! Sweet relief!");
+            agent.Log("Elsa: Ahhhhhh! Sweet relief!");
             
             // Once done in the bathroom, return to whatever they were doing last.
-            houseKeeper.ReturnToLastState();
+            agent.ReturnToPreviousState();
         }
 
         public override void Exit(Agent agent)

@@ -998,6 +998,12 @@ MonoBehaviour:
   moveSpeed: 5
   moveAcceleration: 0
   lookSpeed: 30
+  <Sensors>k__BackingField: []
+  <Actuators>k__BackingField: []
+  <Visuals>k__BackingField: {fileID: 0}
+  <PerformanceMeasure>k__BackingField: {fileID: 0}
+  <Mind>k__BackingField: {fileID: 11400000, guid: 1981f3141acece944a2db3c58b7c90c4, type: 2}
+  <State>k__BackingField: {fileID: 0}
 --- !u!4 &1617995063
 Transform:
   m_ObjectHideFlags: 0

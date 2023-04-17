@@ -62,21 +62,6 @@ namespace WestWorld.Agents
         private int _fatigue;
 
         /// <summary>
-        /// Receive a message from the house keeper.
-        /// Easy-AI doesn't out-of-the-box way to communicate with other agents, so this is an example system.
-        /// You may want to explore adding a generic communication system into the base agent class.
-        /// </summary>
-        /// <param name="message">The message type received.</param>
-        public override void ReceiveMessage(WestWorldMessage message)
-        {
-            // The only message relevant for the miner is when the stew is ready, and it can only respond to this when at home.
-            if (message == WestWorldMessage.StewReady && IsInState<GoHomeAndSleepTillRested>())
-            {
-                SetState<EatStew>();
-            }
-        }
-
-        /// <summary>
         /// Collect more gold to carry.
         /// </summary>
         public void AddToGoldCarried()
@@ -171,14 +156,6 @@ namespace WestWorld.Agents
             {
                 _thirst = maxThirst;
             }
-        }
-
-        protected override void Start()
-        {
-            base.Start();
-
-            // Find the house keeper to communicate with.
-            Other = FindObjectOfType<HouseKeeper>();
         }
     }
 }

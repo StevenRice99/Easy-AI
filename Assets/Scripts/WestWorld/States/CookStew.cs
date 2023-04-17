@@ -29,13 +29,12 @@ namespace WestWorld.States
 
         public override void Exit(Agent agent)
         {
-            HouseKeeper houseKeeper = agent as HouseKeeper;
-            houseKeeper.Log("Stew ready! Let's eat.");
+            agent.Log("Stew ready! Let's eat.");
             
             // Tell the miner that the stew is ready.
-            houseKeeper.SendMessage(WestWorldAgent.WestWorldMessage.StewReady);
+            agent.FirstResponseMessage((int) WestWorldAgent.WestWorldMessage.StewReady);
             
-            houseKeeper.Log("Puttin' the stew on the table.");
+            agent.Log("Puttin' the stew on the table.");
         }
     }
 }

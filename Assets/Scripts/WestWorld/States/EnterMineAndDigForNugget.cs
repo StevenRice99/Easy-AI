@@ -13,6 +13,10 @@ namespace WestWorld.States
         public override void Enter(Agent agent)
         {
             Miner miner = agent as Miner;;
+            if (miner == null)
+            {
+                return;
+            }
 
             if (miner.Location == WestWorldAgent.WestWorldLocation.GoldMine)
             {
@@ -27,6 +31,10 @@ namespace WestWorld.States
         public override void Execute(Agent agent)
         {
             Miner miner = agent as Miner;
+            if (miner == null)
+            {
+                return;
+            }
 
             // Work and collect gold.
             miner.IncreaseFatigue();

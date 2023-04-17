@@ -50,10 +50,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8a214ef07764d35a10e171fa2154a14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  state: {fileID: 11400000, guid: 0dbbbbfc37da2304bbd48180d5f98c02, type: 2}
   moveSpeed: 10
   moveAcceleration: 10
   lookSpeed: 5
+  <Sensors>k__BackingField: []
+  <Actuators>k__BackingField: []
+  <Visuals>k__BackingField: {fileID: 0}
+  <PerformanceMeasure>k__BackingField: {fileID: 0}
+  <Mind>k__BackingField: {fileID: 11400000, guid: 1c5677af39d17c748bb3dbf33fc8c7cb, type: 2}
+  <State>k__BackingField: {fileID: 11400000, guid: bb731d10f7244aa43b9b30bd5f32458b, type: 2}
   stateVisualization: {fileID: 6820371204410465446}
   spawnAudio: {fileID: 8300000, guid: 9812aa10de2ee6542a47b4ae7c446f01, type: 3}
   eatAudio: {fileID: 8300000, guid: 1d3e1885790d34f468dd787e3a5a8123, type: 3}

@@ -78,11 +78,6 @@ namespace EasyAI
         private const float NavigationVisualOffset = 0.1f;
 
         /// <summary>
-        /// The mind or global state agents are in
-        /// </summary>
-        public static State Mind => Singleton.mind;
-
-        /// <summary>
         /// How close an agent can be to a location its seeking or pursuing to declare it as reached.
         /// </summary>
         public static float SeekAcceptableDistance => Singleton.seekAcceptableDistance;
@@ -186,11 +181,6 @@ namespace EasyAI
         /// The currently selected agent.
         /// </summary>
         protected Agent SelectedAgent;
-
-        [Header("Agents")]
-        [Tooltip("The mind or global state agents are in. Initialize it with the global state to start it. If left empty the agent will have manual right-click-to-move controls.")]
-        [SerializeField]
-        private State mind;
         
         [Tooltip("How close an agent can be to a location its seeking or pursuing to declare it as reached. Set negative for none.")]
         [SerializeField]
@@ -751,7 +741,7 @@ namespace EasyAI
             Quaternion rotation = agentTransform.rotation;
             
             // If the agent is moving, draw a yellow line indicating the direction it is currently moving in.
-            if (agent.MoveAcceleration > 0 && agent.MoveVelocity != Vector2.zero)
+            if (agent.moveAcceleration > 0 && agent.MoveVelocity != Vector2.zero)
             {
                 GL.Color(Color.yellow);
                 GL.Vertex(position);
@@ -1171,7 +1161,7 @@ namespace EasyAI
             GuiLabel(x, y, w, h, p, $"Position: {Singleton.SelectedAgent.transform.position} | Velocity: {Singleton.SelectedAgent.MoveVelocity.magnitude}");
         
             y = NextItem(y, h, p);
-            GuiLabel(x, y, w, h, p, $"Rotation: {Singleton.SelectedAgent.Visuals.rotation.eulerAngles.y} Degrees" + (Singleton.SelectedAgent.LookingToTarget ? $" | Looking to {Singleton.SelectedAgent.LookTarget} at {Singleton.SelectedAgent.LookSpeed} degrees/second." : string.Empty));
+            GuiLabel(x, y, w, h, p, $"Rotation: {Singleton.SelectedAgent.Visuals.rotation.eulerAngles.y} Degrees" + (Singleton.SelectedAgent.LookingToTarget ? $" | Looking to {Singleton.SelectedAgent.LookTarget} at {Singleton.SelectedAgent.lookSpeed} degrees/second." : string.Empty));
 
             if (Singleton.SelectedAgent.Destination != null)
             {
@@ -1859,7 +1849,7 @@ namespace EasyAI
                 // Update the delta time for all agents and look towards their targets.
                 foreach (Agent agent in Agents)
                 {
-                    agent.IncreaseDeltaTime();
+                    agent.StepDeltaTime();
                     agent.LookCalculations();
                 }
 
