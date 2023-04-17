@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using WestWorld.States;
 
 namespace WestWorld.Agents
 {

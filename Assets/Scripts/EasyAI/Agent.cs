@@ -5,7 +5,6 @@ using EasyAI.Utility;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using WestWorld.Agents;
 
 namespace EasyAI
 {

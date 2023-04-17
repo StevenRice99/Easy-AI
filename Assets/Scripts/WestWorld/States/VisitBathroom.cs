@@ -1,6 +1,5 @@
 ﻿using EasyAI;
 using UnityEngine;
-using WestWorld.Agents;
 
 namespace WestWorld.States
 {
