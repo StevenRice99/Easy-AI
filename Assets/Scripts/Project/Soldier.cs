@@ -303,7 +303,7 @@ namespace Project
         public override void MovementCalculations()
         {
             // Only move when the controller is enabled to avoid throwing an error as it needs to be disabled when dead.
-            if (CharacterController != null && CharacterController.enabled)
+            if (Character != null && Character.enabled)
             {
                 base.MovementCalculations();
             }
@@ -465,7 +465,7 @@ namespace Project
             SpawnPoint spawn = open.Length > 0 ? open[Random.Range(0, open.Length)] : points[Random.Range(0, points.Length)];
 
             // Since there is a character controller attached, it needs to be disabled to move the soldier to the spawn.
-            CharacterController.enabled = false;
+            Character.enabled = false;
 
             // Move to the spawn point.
             Transform spawnTr = spawn.transform;
@@ -477,7 +477,7 @@ namespace Project
             
             // Reenable the character controller.
             // ReSharper disable once Unity.InefficientPropertyAccess
-            CharacterController.enabled = true;
+            Character.enabled = true;
             
             // Set a dummy role to indicate the soldier is no longer dead.
             Role = SoliderRole.Collector;

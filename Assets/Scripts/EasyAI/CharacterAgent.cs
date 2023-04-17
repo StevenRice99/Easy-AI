@@ -12,37 +12,22 @@ namespace EasyAI
         /// <summary>
         /// This agent's character controller.
         /// </summary>
-        protected CharacterController CharacterController;
+        [field: HideInInspector]
+        [field: SerializeField]
+        public CharacterController Character { get; private set; }
 
         /// <summary>
         /// Used to manually apply gravity.
         /// </summary>
         private float _velocityY;
 
-        protected override void Start()
-        {
-            base.Start();
-            
-            // Get the character controller.
-            CharacterController = GetComponent<CharacterController>();
-            if (CharacterController == null)
-            {
-                CharacterController = gameObject.AddComponent<CharacterController>();
-            }
-        }
-
         /// <summary>
         /// Character controller movement.
         /// </summary>
         public override void MovementCalculations()
         {
-            if (CharacterController == null)
-            {
-                return;
-            }
-        
             // Reset gravity if grounded.
-            if (CharacterController.isGrounded)
+            if (Character.isGrounded)
             {
                 _velocityY = 0;
             }
@@ -52,7 +37,17 @@ namespace EasyAI
 
             CalculateMoveVelocity(Time.deltaTime);
             Vector2 scaled = MoveVelocity * Time.deltaTime;
-            CharacterController.Move(new(scaled.x, _velocityY, scaled.y));
+            Character.Move(new(scaled.x, _velocityY, scaled.y));
+        }
+
+        private void OnValidate()
+        {
+            // Get the character controller.
+            Character = GetComponent<CharacterController>();
+            if (Character == null)
+            {
+                Character = gameObject.AddComponent<CharacterController>();
+            }
         }
     }
 }
