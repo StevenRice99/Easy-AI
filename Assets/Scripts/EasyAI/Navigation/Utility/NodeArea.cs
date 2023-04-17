@@ -57,12 +57,12 @@ namespace EasyAI.Navigation.Utility
         /// <summary>
         /// How many node spaces there are on the X axis.
         /// </summary>
-        public int RangeX => (corner1.x - corner2.x) * nodesPerStep + 1;
+        private int RangeX => (corner1.x - corner2.x) * nodesPerStep + 1;
     
         /// <summary>
         /// How many node spaces there are on the Z axis.
         /// </summary>
-        public int RangeZ => (corner1.y - corner2.y) * nodesPerStep + 1;
+        private int RangeZ => (corner1.y - corner2.y) * nodesPerStep + 1;
 
         /// <summary>
         /// Data map.
@@ -128,7 +128,17 @@ namespace EasyAI.Navigation.Utility
                 }
             }
         
-            CornerGraph.Perform(this);
+            
+            
+            // Check all X coordinates, skipping the padding required.
+            for (int x = CornerNodeSteps * 2; x < RangeX - CornerNodeSteps * 2; x++)
+            {
+                // Check all Z coordinates, skipping the padding required.
+                for (int z = CornerNodeSteps * 2; z < RangeZ - CornerNodeSteps * 2; z++)
+                {
+                    CornerGraph.Perform(this, x, z);
+                }
+            }
 
 #if UNITY_EDITOR
             // Ensure the folder to save the map data exists.
@@ -177,7 +187,7 @@ namespace EasyAI.Navigation.Utility
         /// <returns>True if the space is open, false otherwise.</returns>
         public bool IsOpen(int x, int z)
         {
-            return _data[x, z] != Closed;
+            return x >= 0 && x < RangeX && z >= 0 && z < RangeZ && _data[x, z] != Closed;
         }
 
         /// <summary>
@@ -187,8 +197,8 @@ namespace EasyAI.Navigation.Utility
         /// <param name="z">The Z coordinate.</param>
         public void AddNode(int x, int z)
         {
-            // If already opened, nothing to do.
-            if (_data[x, z] == Node)
+            // If out of bounds or already opened, nothing to do.
+            if (x < 0 || x >= RangeX || z < 0 || z >= RangeZ || _data[x, z] == Node)
             {
                 return;
             }
