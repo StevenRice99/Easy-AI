@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using EasyAI.Navigation;
@@ -152,33 +153,21 @@ namespace EasyAI
         /// </summary>
         public float Performance { get; private set; }
 
-        /// <summary>
-        /// The sensors of this agent.
-        /// </summary>
-        [field: HideInInspector]
-        [field: SerializeField]
-        public Sensor[] Sensors { get; private set; }
+        [Tooltip("The sensors of this agent.")]
+        [SerializeField]
+        public Sensor[] sensors = Array.Empty<Sensor>();
 
-        /// <summary>
-        /// The actuators of this agent.
-        /// </summary>
-        [field: HideInInspector]
-        [field: SerializeField]
-        public Actuator[] Actuators { get; private set; }
+        [Tooltip("The actuators of this agent.")]
+        [SerializeField]
+        public Actuator[] actuators = Array.Empty<Actuator>();
 
-        /// <summary>
-        /// The root transform that holds the visuals for this agent used to rotate the agent towards its look target.
-        /// </summary>
-        [field: HideInInspector]
-        [field: SerializeField]
-        public Transform Visuals { get; private set; }
-
-        /// <summary>
-        /// The performance measure of this agent.
-        /// </summary>
-        [field: HideInInspector]
+        [field: Tooltip("The performance measure of this agent.")]
         [field: SerializeField]
         public PerformanceMeasure PerformanceMeasure { get; private set; }
+
+        [field: Tooltip("The root transform that holds the visuals for this agent used to rotate the agent towards its look target.")]
+        [field: SerializeField]
+        public Transform Visuals { get; private set; }
 
         /// <summary>
         /// All movement the agent is doing without path finding.
@@ -359,7 +348,7 @@ namespace EasyAI
         public TData Sense<TSensor, TData>() where TSensor : Sensor
         {
             // Loop through all sensors.
-            foreach (Sensor sensor in Sensors)
+            foreach (Sensor sensor in sensors)
             {
                 if (sensor is not TSensor)
                 {
@@ -389,7 +378,7 @@ namespace EasyAI
             List<TData> dataList = new();
             
             // Loop through all sensors.
-            foreach (Sensor sensor in Sensors)
+            foreach (Sensor sensor in sensors)
             {
                 if (sensor is not TSensor)
                 {
@@ -414,7 +403,7 @@ namespace EasyAI
         /// <returns>A list of the objects returned by the given sensors.</returns>
         public List<object> SenseAll<TSensor>() where TSensor : Sensor
         {
-            return (from sensor in Sensors where sensor is TSensor select sensor.Sense()).ToList();
+            return (from sensor in sensors where sensor is TSensor select sensor.Sense()).ToList();
         }
 
         /// <summary>
@@ -423,7 +412,7 @@ namespace EasyAI
         /// <returns>A list of the objects returned by all the sensors.</returns>
         public List<object> SenseAll()
         {
-            return (from sensor in Sensors select sensor.Sense()).ToList();
+            return (from sensor in sensors select sensor.Sense()).ToList();
         }
 
         /// <summary>
@@ -433,7 +422,7 @@ namespace EasyAI
         public void Act(object action)
         {
             // Try the action on all actuators.
-            if (Actuators.Any(actuator => actuator.Act(action)))
+            if (actuators.Any(actuator => actuator.Act(action)))
             {
                 for (int i = 0; i < _inProgressActions.Count; i++)
                 {
@@ -690,41 +679,35 @@ namespace EasyAI
             return GetType().Name;
         }
 
-        /// <summary>
-        /// Setup the agent.
-        /// </summary>
-        public void Setup()
+        protected virtual void OnValidate()
         {
-            // Register this agent with the manager.
-            Manager.AddAgent(this);
-            
             // Find the performance measure.
             PerformanceMeasure = GetComponent<PerformanceMeasure>();
             if (PerformanceMeasure == null)
             {
                 PerformanceMeasure = GetComponentInChildren<PerformanceMeasure>();
             }
-
-            ConfigurePerformanceMeasure();
+            if (PerformanceMeasure != null)
+            {
+                PerformanceMeasure.agent = this;
+            }
 
             // Find all attached actuators.
-            List<Actuator> actuators = GetComponents<Actuator>().ToList();
-            actuators.AddRange(GetComponentsInChildren<Actuator>());
-            Actuators = actuators.Distinct().ToArray();
-            foreach (Actuator actuator in Actuators)
+            List<Actuator> a = GetComponents<Actuator>().ToList();
+            a.AddRange(GetComponentsInChildren<Actuator>());
+            actuators = a.Distinct().ToArray();
+            foreach (Actuator actuator in actuators)
             {
-                actuator.Agent = this;
+                actuator.agent = this;
             }
         
             // Find all attached sensors.
-            List<Sensor> sensors = GetComponents<Sensor>().ToList();
-            sensors.AddRange(GetComponentsInChildren<Sensor>());
-            Sensors = sensors.Distinct().ToArray();
-            
-            // Setup the percepts array to match the size of the sensors so each sensor can return a percepts to its index.
-            foreach (Sensor sensor in Sensors)
+            List<Sensor> s = GetComponents<Sensor>().ToList();
+            s.AddRange(GetComponentsInChildren<Sensor>());
+            sensors = s.Distinct().ToArray();
+            foreach (Sensor sensor in sensors)
             {
-                sensor.Agent = this;
+                sensor.agent = this;
             }
 
             // Setup the root visuals transform for agent rotation.
@@ -745,7 +728,7 @@ namespace EasyAI
                 Visuals = children[0];
             }
         }
-    
+
         /// <summary>
         /// Implement movement behaviour.
         /// </summary>
@@ -788,23 +771,6 @@ namespace EasyAI
             Visuals.rotation = rotation == Vector3.zero || float.IsNaN(rotation.x) || float.IsNaN(rotation.y) || float.IsNaN(rotation.z) ? Visuals.rotation : Quaternion.LookRotation(rotation);
         }
 
-        protected virtual void Start()
-        {
-            // Setup the agent.
-            Setup();
-        
-            // Enter its global and normal states if they are set.
-            if (Mind != null)
-            {
-                Mind.Enter(this);
-            }
-
-            if (State != null)
-            {
-                State.Enter(this);
-            }
-        }
-
         protected virtual void OnEnable()
         {
             try
@@ -814,6 +780,16 @@ namespace EasyAI
             catch
             {
                 // Ignored.
+            }
+            
+            if (Mind != null)
+            {
+                Mind.Enter(this);
+            }
+
+            if (State != null)
+            {
+                State.Enter(this);
             }
         }
 
@@ -827,17 +803,15 @@ namespace EasyAI
             {
                 // Ignored.
             }
-        }
-
-        protected virtual void OnDestroy()
-        {
-            try
+            
+            if (Mind != null)
             {
-                Manager.RemoveAgent(this);
+                Mind.Exit(this);
             }
-            catch
+
+            if (State != null)
             {
-                // Ignored.
+                State.Exit(this);
             }
         }
 
@@ -965,7 +939,7 @@ namespace EasyAI
             {
                 bool completed = false;
                 
-                foreach (Actuator actuator in Actuators)
+                foreach (Actuator actuator in actuators)
                 {
                     completed = actuator.Act(_inProgressActions[i]);
                     if (completed)
@@ -980,17 +954,6 @@ namespace EasyAI
                 }
 
                 _inProgressActions.RemoveAt(i--);
-            }
-        }
-        
-        /// <summary>
-        /// Link the performance measure to this agent.
-        /// </summary>
-        private void ConfigurePerformanceMeasure()
-        {
-            if (PerformanceMeasure != null)
-            {
-                PerformanceMeasure.Agent = this;
             }
         }
 

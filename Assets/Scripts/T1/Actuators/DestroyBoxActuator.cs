@@ -30,7 +30,7 @@ namespace T1.Actuators
             }
 
             // Return false if not close enough to pickup the box.
-            if (Vector3.Distance(Agent.transform.position, box.position) > collectDistance)
+            if (Vector3.Distance(agent.transform.position, box.position) > collectDistance)
             {
                 Log("Not close enough to pick up the box.");
                 return false;

@@ -1,4 +1,6 @@
-﻿using EasyAI.Utility;
+﻿using System;
+using System.Linq;
+using EasyAI.Utility;
 
 namespace EasyAI
 {
@@ -13,5 +15,18 @@ namespace EasyAI
         /// <param name="agentAction">The action the agent wants to perform.</param>
         /// <returns>True if the action has been completed, false otherwise.</returns>
         public abstract bool Act(object agentAction);
+        
+        protected override void OnValidate()
+        {
+            base.OnValidate();
+
+            if (agent == null || agent.actuators.Contains(this))
+            {
+                return;                
+            }
+
+            Array.Resize(ref agent.actuators, agent.actuators.Length + 1);
+            agent.actuators[^1] = this;
+        }
     }
 }

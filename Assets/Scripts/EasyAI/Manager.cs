@@ -449,17 +449,6 @@ namespace EasyAI
         }
 
         /// <summary>
-        /// Setup all agents again.
-        /// </summary>
-        public static void RefreshAgents()
-        {
-            foreach (Agent agent in Singleton.Agents)
-            {
-                agent.Setup();
-            }
-        }
-
-        /// <summary>
         /// Render a GUI button.
         /// </summary>
         /// <param name="x">X rendering position. In most cases this should remain unchanged.</param>
@@ -1193,7 +1182,7 @@ namespace EasyAI
             y = Singleton.SelectedAgent.DisplayDetails(x, y, w, h, p);
 
             // Display all sensors for the agent.
-            if (Singleton.SelectedAgent.Sensors.Length > 0 && Singleton.SelectedAgent.Actuators.Length > 0)
+            if (Singleton.SelectedAgent.sensors.Length > 0 && Singleton.SelectedAgent.actuators.Length > 0)
             {
                 y = NextItem(y, h, p);
                 if (GuiButton(x, y, w, h, "Sensors, Actuators, Percepts, and Actions"))
@@ -1239,14 +1228,14 @@ namespace EasyAI
             // List all sensors.
             y = NextItem(y, h, p);
             GuiBox(x, y, w, h, p, 1);
-            GuiLabel(x, y, w, h, p, Singleton.SelectedAgent.Sensors.Length switch
+            GuiLabel(x, y, w, h, p, Singleton.SelectedAgent.sensors.Length switch
             {
                 0 => "No Sensors",
                 1 => "1 Sensor",
-                _ => $"{Singleton.SelectedAgent.Sensors.Length} Sensors"
+                _ => $"{Singleton.SelectedAgent.sensors.Length} Sensors"
             });
 
-            foreach (Sensor sensor in Singleton.SelectedAgent.Sensors)
+            foreach (Sensor sensor in Singleton.SelectedAgent.sensors)
             {
                 // Button to select a sensor.
                 y = NextItem(y, h, p);
@@ -1262,14 +1251,14 @@ namespace EasyAI
             // Display all actuators.
             y = NextItem(y, h, p);
             GuiBox(x, y, w, h, p, 1);
-            GuiLabel(x, y, w, h, p, Singleton.SelectedAgent.Actuators.Length switch
+            GuiLabel(x, y, w, h, p, Singleton.SelectedAgent.actuators.Length switch
             {
                 0 => "No Actuators",
                 1 => "1 Actuator",
-                _ => $"{Singleton.SelectedAgent.Actuators.Length} Actuators"
+                _ => $"{Singleton.SelectedAgent.actuators.Length} Actuators"
             });
             
-            foreach (Actuator actuator in Singleton.SelectedAgent.Actuators)
+            foreach (Actuator actuator in Singleton.SelectedAgent.actuators)
             {
                 // Button to select an actuator.
                 y = NextItem(y, h, p);
@@ -1779,7 +1768,7 @@ namespace EasyAI
 
         protected virtual void Start()
         {
-            // Clean up all node related components in the scene as they are no longer needed after generation.
+            // Clean up all navigation related components in the scene as they are no longer needed after generation.
             foreach (NavigationSetup nodeBase in FindObjectsOfType<NavigationSetup>().OrderBy(n => n.transform.childCount))
             {
                 nodeBase.Remove();

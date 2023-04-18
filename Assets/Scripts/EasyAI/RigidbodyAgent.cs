@@ -22,8 +22,10 @@ namespace EasyAI
             Body.velocity = new(MoveVelocity.x, Body.velocity.y, MoveVelocity.y);
         }
 
-        private void OnValidate()
+        protected override void OnValidate()
         {
+            base.OnValidate();
+            
             // Get the rigidbody.
             Body = GetComponent<Rigidbody>();
             if (Body == null)

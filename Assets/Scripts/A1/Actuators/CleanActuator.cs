@@ -45,7 +45,7 @@ namespace A1.Actuators
             }
 
             // Increment how long the floor has been getting cleaned for.
-            _timeSpentCleaning += Agent.DeltaTime;
+            _timeSpentCleaning += agent.DeltaTime;
 
             // If the tile has not been cleaned long enough, return false as it has not finished getting cleaned.
             if (_timeSpentCleaning < timeToClean)
@@ -63,9 +63,8 @@ namespace A1.Actuators
             return true;
         }
 
-        protected override void Start()
+        protected void Start()
         {
-            base.Start();
             DisableParticles();
         }
 

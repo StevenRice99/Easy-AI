@@ -40,8 +40,10 @@ namespace EasyAI
             Character.Move(new(scaled.x, _velocityY, scaled.y));
         }
 
-        private void OnValidate()
+        protected override void OnValidate()
         {
+            base.OnValidate();
+            
             // Get the character controller.
             Character = GetComponent<CharacterController>();
             if (Character == null)

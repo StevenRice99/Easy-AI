@@ -443,10 +443,8 @@ namespace A2
             return y;
         }
 
-        protected override void Start()
+        protected void Start()
         {
-            base.Start();
-            
             SetStateVisual();
 
             _audioSource = GetComponent<AudioSource>();

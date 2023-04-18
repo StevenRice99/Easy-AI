@@ -1,4 +1,6 @@
-﻿namespace EasyAI.Utility
+﻿using UnityEngine;
+
+namespace EasyAI.Utility
 {
     /// <summary>
     /// Base component for sensors, actuators, minds, and performance measures.
@@ -8,58 +10,23 @@
         /// <summary>
         /// The agent this component is connected to.
         /// </summary>
-        public Agent Agent { get; set; }
+        [HideInInspector]
+        public Agent agent;
 
-        protected virtual void Start()
+        protected virtual void OnValidate()
         {
-            Setup();
-        }
-    
-        protected virtual void OnEnable()
-        {
-            try
+            // Find the agent to attach to.
+            Transform t = transform;
+            do
             {
-                Setup();
-            }
-            catch
-            {
-                // Ignored.
-            }
-        }
+                agent = t.GetComponent<Agent>();
+                if (agent != null)
+                {
+                    return;
+                }
 
-        protected virtual void OnDisable()
-        {
-            try
-            {
-                Setup();
-            }
-            catch
-            {
-                // Ignored.
-            }
-        }
-
-        protected virtual void OnDestroy()
-        {
-            try
-            {
-                Setup();
-            }
-            catch
-            {
-                // Ignored.
-            }
-        }
-
-        /// <summary>
-        /// If this was added to the agent later, it won't yet be connected to it, so call the configuration again.
-        /// </summary>
-        private void Setup()
-        {
-            if (Agent == null)
-            {
-                Manager.RefreshAgents();
-            }
+                t = t.parent;
+            } while (t != null);
         }
     }
 }

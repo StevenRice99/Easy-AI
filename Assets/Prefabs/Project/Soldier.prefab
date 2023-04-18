@@ -410,8 +410,8 @@ MonoBehaviour:
   lookSpeed: 0
   <Sensors>k__BackingField: []
   <Actuators>k__BackingField: []
-  <Visuals>k__BackingField: {fileID: 0}
-  <PerformanceMeasure>k__BackingField: {fileID: 0}
+  <PerformanceMeasure>k__BackingField: {fileID: 8853428054890282905}
+  <Visuals>k__BackingField: {fileID: 7700828181764947109}
   <Mind>k__BackingField: {fileID: 11400000, guid: 249f12d7bbd1c774ebf6b5f07af99145, type: 2}
   <State>k__BackingField: {fileID: 0}
   <Character>k__BackingField: {fileID: 4324690102972426155}
@@ -437,6 +437,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3165693eb3434517a183d226fda87c21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  agent: {fileID: 0}
 --- !u!114 &5577938744223524275
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -449,6 +450,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8406e71b6b834e45ac96e97f4f769390, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  agent: {fileID: 0}
 --- !u!114 &4027915266740351254
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -461,6 +463,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f9693aa16a34e91879af66fdc02fd47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  agent: {fileID: 0}
 --- !u!114 &5596074528344541089
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -473,6 +476,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc4694f673314f349fc145b28f8109ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  agent: {fileID: 0}
 --- !u!114 &8853428054890282905
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -485,6 +489,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87189abe381745dfb3fba3dd2387c137, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  agent: {fileID: 0}
 --- !u!1 &4324690103502335292
 GameObject:
   m_ObjectHideFlags: 0

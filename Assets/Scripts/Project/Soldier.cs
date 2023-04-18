@@ -531,11 +531,8 @@ namespace Project
             Spawn();
         }
 
-        protected override void Start()
+        protected void Start()
         {
-            // Perform default setup.
-            base.Start();
-
             // Setup all weapons.
             Weapons = GetComponentsInChildren<Weapon>();
             for (int i = 0; i < Weapons.Length; i++)
@@ -573,7 +570,7 @@ namespace Project
             Spawn();
         }
 
-        protected override void OnDestroy()
+        protected override void OnDisable()
         {
             try
             {
@@ -593,7 +590,7 @@ namespace Project
                 // Ignored.
             }
             
-            base.OnDestroy();
+            base.OnDisable();
         }
 
         /// <summary>

@@ -19,7 +19,7 @@ namespace A2
         /// </summary>
         /// <returns>The score for the microbe.</returns>
         public override float CalculatePerformance() =>
-            Agent is not Microbe microbe
+            agent is not Microbe microbe
                 ? int.MinValue
                 : _timeAlive * MicrobeManager.ScoreSeconds + microbe.Offspring * MicrobeManager.ScoreOffspring;
 
