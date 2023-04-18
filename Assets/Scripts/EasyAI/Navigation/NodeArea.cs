@@ -11,7 +11,7 @@ namespace EasyAI.Navigation
     /// <summary>
     /// Define an area for nodes to be placed in by an associated node generator.
     /// </summary>
-    public class NodeArea : NodeBase
+    public class NodeArea : NavigationSetup
     {
         /// <summary>
         /// Open symbol.

@@ -5,7 +5,7 @@ namespace EasyAI.Navigation.Utility
     /// <summary>
     /// Hold a connection between two nodes.
     /// </summary>
-    public struct RawConnection
+    public struct VectorConnection
     {
         /// <summary>
         /// A node in the connection.
@@ -22,7 +22,7 @@ namespace EasyAI.Navigation.Utility
         /// </summary>
         /// <param name="a">The first node.</param>
         /// <param name="b">The second node.</param>
-        public RawConnection(Vector3 a, Vector3 b)
+        public VectorConnection(Vector3 a, Vector3 b)
         {
             A = a;
             B = b;

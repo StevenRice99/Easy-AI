@@ -35,9 +35,9 @@ namespace EasyAI.Navigation
             switch (behaviour)
             {
                 case Behaviour.Evade:
-                    return Evade(position, velocity, targetCurrent, targetLast, speed, deltaTime);
+                    return Evade(position, velocity, targetCurrent, speed, Speed(targetCurrent, targetLast, deltaTime), Velocity(targetCurrent, targetLast, deltaTime));
                 case Behaviour.Pursue:
-                    return Pursue(position, velocity, targetCurrent, targetLast, speed, deltaTime);
+                    return Pursue(position, velocity, targetCurrent, speed, Speed(targetCurrent, targetLast, deltaTime), Velocity(targetCurrent, targetLast, deltaTime));
                 case Behaviour.Flee:
                     return Flee(position, velocity, targetCurrent, speed);
                 case Behaviour.Seek:
@@ -150,23 +150,14 @@ namespace EasyAI.Navigation
         /// </summary>
         /// <param name="position">The position of the agent.</param>
         /// <param name="velocity">The current velocity of the agent.</param>
-        /// <param name="evader">The position of the evader to pursuit to.</param>
-        /// <param name="evaderLastPosition">The position of the evader during the last time step.</param>
+        /// <param name="evader">The position of the evader to pursue.</param>
         /// <param name="speed">The speed at which the agent can move.</param>
-        /// <param name="deltaTime">The time elapsed between when the target is in its current position and its previous.</param>
+        /// <param name="evaderSpeed">The movement speed for the evader to pursue.</param>
+        /// <param name="evaderVelocity">The movement velocity across axis for the evader to pursue.</param>
         /// <returns>The velocity to apply to the agent to perform the pursuit.</returns>
-        private static Vector2 Pursue(Vector2 position, Vector2 velocity, Vector2 evader, Vector2 evaderLastPosition, float speed, float deltaTime)
+        private static Vector2 Pursue(Vector2 position, Vector2 velocity, Vector2 evader, float speed, float evaderSpeed, Vector2 evaderVelocity)
         {
-            // Get the vector between the agent and the target.
-            Vector2 toEvader = evader - position;
-        
-            // The time to look ahead is equal to the vector magnitude divided by the sum of the speed of both the agent and the target,
-            // with the target's speed calculated by determining how far it has traveled during the elapsed time.
-            float lookAheadTime = toEvader.magnitude / (speed + Speed(evader, evaderLastPosition, deltaTime));
-        
-            // Seek the predicted target position based upon adding its position to its velocity multiplied by the look ahead time,
-            // with the velocity calculated by subtracting the current and previous positions over the elapsed time.
-            return Seek(position, velocity, evader + Velocity(evader, evaderLastPosition, deltaTime) * lookAheadTime, speed);
+            return Seek(position, velocity, evader + evaderVelocity * ((evader - position).magnitude / (speed + evaderSpeed)), speed);
         }
 
         /// <summary>
@@ -174,23 +165,14 @@ namespace EasyAI.Navigation
         /// </summary>
         /// <param name="position">The position of the agent.</param>
         /// <param name="velocity">The current velocity of the agent.</param>
-        /// <param name="pursuer">The position of the pursuer to evade from.</param>
-        /// <param name="pursuerLastPosition">The position of the pursuer during the last time step.</param>
+        /// <param name="pursuer">The position of the pursuer to evade.</param>
         /// <param name="speed">The speed at which the agent can move.</param>
-        /// <param name="deltaTime">The time elapsed between when the target is in its current position and its previous.</param>
+        /// <param name="pursuerSpeed">The movement speed for the pursuer to evade.</param>
+        /// <param name="pursuerVelocity">The movement velocity across axis for the pursuer to evade.</param>
         /// <returns>The velocity to apply to the agent to perform the evade.</returns>
-        private static Vector2 Evade(Vector2 position, Vector2 velocity, Vector2 pursuer, Vector2 pursuerLastPosition, float speed, float deltaTime)
+        private static Vector2 Evade(Vector2 position, Vector2 velocity, Vector2 pursuer, float speed, float pursuerSpeed, Vector2 pursuerVelocity)
         {
-            // Get the vector between the agent and the target.
-            Vector2 toPursuer = pursuer - position;
-        
-            // The time to look ahead is equal to the vector magnitude divided by the sum of the speed of both the agent and the target,
-            // with the target's speed calculated by determining how far it has traveled during the elapsed time.
-            float lookAheadTime = toPursuer.magnitude / (speed + Speed(pursuer, pursuerLastPosition, deltaTime));
-        
-            // Flee the predicted target position based upon adding its position to its velocity multiplied by the look ahead time,
-            // with the velocity calculated by subtracting the current and previous positions over the elapsed time.
-            return Flee(position, velocity, pursuer + Velocity(pursuer, pursuerLastPosition, deltaTime) * lookAheadTime, speed);
+            return Flee(position, velocity, pursuer + pursuerVelocity * ((pursuer - position).magnitude / (speed + pursuerSpeed)), speed);
         }
     }
 }

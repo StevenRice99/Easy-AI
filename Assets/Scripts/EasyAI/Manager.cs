@@ -1640,7 +1640,7 @@ namespace EasyAI
 
             nodes.AddRange(FindObjectsOfType<Node>().Select(node => node.transform.position));
 
-            List<RawConnection> raw = new();
+            List<VectorConnection> raw = new();
 
             // Setup all freely-placed nodes.
             for (int i = 0; i < nodes.Count; i++)
@@ -1779,14 +1779,14 @@ namespace EasyAI
 
         protected virtual void Start()
         {
+            // Clean up all node related components in the scene as they are no longer needed after generation.
+            foreach (NavigationSetup nodeBase in FindObjectsOfType<NavigationSetup>().OrderBy(n => n.transform.childCount))
+            {
+                nodeBase.Remove();
+            }
+            
             CheckGizmos();
 
-            // Clean up all node related components in the scene as they are no longer needed after generation.
-            foreach (NodeBase nodeBase in FindObjectsOfType<NodeBase>().OrderBy(n => n.transform.childCount))
-            {
-                nodeBase.Finish();
-            }
-        
             // Setup cameras.
             FindCameras();
             if (selectedCamera != null)
