@@ -542,15 +542,6 @@ namespace EasyAI
             DeltaTime = 0;
         }
 
-        /// <summary>
-        /// Override to easily display the type of the component for easy usage in messages.
-        /// </summary>
-        /// <returns>Name of this type.</returns>
-        public override string ToString()
-        {
-            return GetType().Name;
-        }
-
         protected virtual void OnValidate()
         {
             // Find the performance measure.
@@ -572,7 +563,7 @@ namespace EasyAI
             {
                 actuator.agent = this;
             }
-        
+            
             // Find all attached sensors.
             List<Sensor> s = GetComponents<Sensor>().ToList();
             s.AddRange(GetComponentsInChildren<Sensor>());
@@ -638,8 +629,7 @@ namespace EasyAI
             }
 
             // Face towards the target.
-            float maxSpeed = lookSpeed > 0 ? lookSpeed : Mathf.Infinity;
-            Vector3 rotation = Vector3.RotateTowards(Visuals.forward, target - Visuals.position, maxSpeed * Time.deltaTime, 0.0f);
+            Vector3 rotation = Vector3.RotateTowards(Visuals.forward, target - Visuals.position, (lookSpeed > 0 ? lookSpeed : Mathf.Infinity) * Time.deltaTime, 0.0f);
             Visuals.rotation = rotation == Vector3.zero || float.IsNaN(rotation.x) || float.IsNaN(rotation.y) || float.IsNaN(rotation.z) ? Visuals.rotation : Quaternion.LookRotation(rotation);
         }
 
