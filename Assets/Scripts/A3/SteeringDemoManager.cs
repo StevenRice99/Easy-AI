@@ -1,6 +1,7 @@
 ﻿using EasyAI;
 using EasyAI.Navigation;
 using UnityEngine;
+using Manager = EasyAI.Manager;
 
 namespace A3
 {

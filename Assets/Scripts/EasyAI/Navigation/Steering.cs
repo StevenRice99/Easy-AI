@@ -66,10 +66,10 @@ namespace EasyAI.Navigation
         public static bool IsMoveComplete(Behaviour behaviour, Vector2 position, Vector2 target)
         {
             return !IsApproachingBehaviour(behaviour)
-                ? Manager.FleeAcceptableDistance >= 0 &&
-                  Vector2.Distance(position, target) >= Manager.FleeAcceptableDistance
-                : Manager.SeekAcceptableDistance >= 0 &&
-                  Vector2.Distance(position, target) <= Manager.SeekAcceptableDistance;
+                ? Manager.FleeDistance >= 0 &&
+                  Vector2.Distance(position, target) >= Manager.FleeDistance
+                : Manager.SeekDistance >= 0 &&
+                  Vector2.Distance(position, target) <= Manager.SeekDistance;
         }
 
         /// <summary>

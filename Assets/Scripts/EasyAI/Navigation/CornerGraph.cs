@@ -8,46 +8,46 @@
         /// <summary>
         /// Perform corner graph generation.
         /// </summary>
-        /// <param name="area">The area to perform corner graph generation on.</param>
+        /// <param name="manager">The manager to perform corner graph generation on.</param>
         /// <param name="x">The current X position to check.</param>
         /// <param name="z">The current Z position to check.</param>
-        public static void Perform(NodeArea area, int x, int z)
+        public static void Perform(Manager manager, int x, int z)
         {
             // If this space is open it cannot be a corner so continue.
-            if (area.IsOpen(x, z))
+            if (manager.IsOpen(x, z))
             {
                 return;
             }
             
             // Otherwise it could be a corner so check in all directions.
-            UpperUpper(area, x, z);
-            UpperLower(area, x, z);
-            LowerUpper(area, x, z);
-            LowerLower(area, x, z);
+            UpperUpper(manager, x, z);
+            UpperLower(manager, x, z);
+            LowerUpper(manager, x, z);
+            LowerLower(manager, x, z);
         }
         
         /// <summary>
         /// Check coordinates for an open corner to place a node in the positive X and positive Z directions.
         /// </summary>
-        /// <param name="area">The node area to perform on.</param>
-        /// <param name="x">The X coordinate of the potential corner.</param>
-        /// <param name="z">The Z coordinate of the potential corner.</param>
-        private static void UpperUpper(NodeArea area, int x, int z)
+        /// <param name="manager">The manager to perform corner graph generation on.</param>
+        /// <param name="x">The current X position to check.</param>
+        /// <param name="z">The current Z position to check.</param>
+        private static void UpperUpper(Manager manager, int x, int z)
         {
             // If the adjacent X or Z nodes are not open, return as it is not a convex corner.
-            if (!area.IsOpen(x + 1, z) || !area.IsOpen(x, z + 1))
+            if (!manager.IsOpen(x + 1, z) || !manager.IsOpen(x, z + 1))
             {
                 return;
             }
         
             // Loop through all X coordinates to check the required space to place a node.
-            for (int x1 = x + 1; x1 <= x + 1 + area.CornerNodeSteps * 2; x1++)
+            for (int x1 = x + 1; x1 <= x + 1 + manager.CornerSteps * 2; x1++)
             {
                 // Loop through all Z coordinates to check the required space to place a node.
-                for (int z1 = z + 1; z1 <= z + 1 + area.CornerNodeSteps * 2; z1++)
+                for (int z1 = z + 1; z1 <= z + 1 + manager.CornerSteps * 2; z1++)
                 {
                     // If the node is not open return as there is no enough space to place the node.
-                    if (!area.IsOpen(x1, z1))
+                    if (!manager.IsOpen(x1, z1))
                     {
                         return;
                     }
@@ -55,31 +55,31 @@
             }
 
             // Place the node at the given offset from the convex corner.
-            area.AddNode(x + 1 + area.CornerNodeSteps, z + 1 + area.CornerNodeSteps);
+            manager.AddNode(x + 1 + manager.CornerSteps, z + 1 + manager.CornerSteps);
         }
 
         /// <summary>
         /// Check coordinates for an open corner to place a node in the positive X and negative Z directions.
         /// </summary>
-        /// <param name="area">The node area to perform on.</param>
-        /// <param name="x">The X coordinate of the potential corner.</param>
-        /// <param name="z">The Z coordinate of the potential corner.</param>
-        private static void UpperLower(NodeArea area, int x, int z)
+        /// <param name="manager">The manager to perform corner graph generation on.</param>
+        /// <param name="x">The current X position to check.</param>
+        /// <param name="z">The current Z position to check.</param>
+        private static void UpperLower(Manager manager, int x, int z)
         {
             // If the adjacent X or Z nodes are not open, return as it is not a convex corner.
-            if (!area.IsOpen(x + 1, z) || !area.IsOpen(x, z - 1))
+            if (!manager.IsOpen(x + 1, z) || !manager.IsOpen(x, z - 1))
             {
                 return;
             }
 
             // Loop through all X coordinates to check the required space to place a node.
-            for (int x1 = x + 1; x1 <= x + 1 + area.CornerNodeSteps * 2; x1++)
+            for (int x1 = x + 1; x1 <= x + 1 + manager.CornerSteps * 2; x1++)
             {
                 // Loop through all Z coordinates to check the required space to place a node.
-                for (int z1 = z - 1; z1 >= z - 1 - area.CornerNodeSteps * 2; z1--)
+                for (int z1 = z - 1; z1 >= z - 1 - manager.CornerSteps * 2; z1--)
                 {
                     // If the node is not open return as there is no enough space to place the node.
-                    if (!area.IsOpen(x1, z1))
+                    if (!manager.IsOpen(x1, z1))
                     {
                         return;
                     }
@@ -87,31 +87,31 @@
             }
 
             // Place the node at the given offset from the convex corner.
-            area.AddNode(x + 1 + area.CornerNodeSteps, z - 1 - area.CornerNodeSteps);
+            manager.AddNode(x + 1 + manager.CornerSteps, z - 1 - manager.CornerSteps);
         }
     
         /// <summary>
         /// Check coordinates for an open corner to place a node in the negative X and positive Z directions.
         /// </summary>
-        /// <param name="area">The node area to perform on.</param>
-        /// <param name="x">The X coordinate of the potential corner.</param>
-        /// <param name="z">The Z coordinate of the potential corner.</param>
-        private static void LowerUpper(NodeArea area, int x, int z)
+        /// <param name="manager">The manager to perform corner graph generation on.</param>
+        /// <param name="x">The current X position to check.</param>
+        /// <param name="z">The current Z position to check.</param>
+        private static void LowerUpper(Manager manager, int x, int z)
         {
             // If the adjacent X or Z nodes are not open, return as it is not a convex corner.
-            if (!area.IsOpen(x - 1, z) || !area.IsOpen(x, z + 1))
+            if (!manager.IsOpen(x - 1, z) || !manager.IsOpen(x, z + 1))
             {
                 return;
             }
         
             // Loop through all X coordinates to check the required space to place a node.
-            for (int x1 = x - 1; x1 >= x - 1 - area.CornerNodeSteps * 2; x1--)
+            for (int x1 = x - 1; x1 >= x - 1 - manager.CornerSteps * 2; x1--)
             {
                 // Loop through all Z coordinates to check the required space to place a node.
-                for (int z1 = z + 1; z1 <= z + 1 + area.CornerNodeSteps * 2; z1++)
+                for (int z1 = z + 1; z1 <= z + 1 + manager.CornerSteps * 2; z1++)
                 {
                     // If the node is not open return as there is no enough space to place the node.
-                    if (!area.IsOpen(x1, z1))
+                    if (!manager.IsOpen(x1, z1))
                     {
                         return;
                     }
@@ -119,31 +119,31 @@
             }
 
             // Place the node at the given offset from the convex corner.
-            area.AddNode(x - 1 - area.CornerNodeSteps, z + 1 + area.CornerNodeSteps);
+            manager.AddNode(x - 1 - manager.CornerSteps, z + 1 + manager.CornerSteps);
         }
 
         /// <summary>
         /// Check coordinates for an open corner to place a node in the negative X and negative Z directions.
         /// </summary>
-        /// <param name="area">The node area to perform on.</param>
-        /// <param name="x">The X coordinate of the potential corner.</param>
-        /// <param name="z">The Z coordinate of the potential corner.</param>
-        private static void LowerLower(NodeArea area, int x, int z)
+        /// <param name="manager">The manager to perform corner graph generation on.</param>
+        /// <param name="x">The current X position to check.</param>
+        /// <param name="z">The current Z position to check.</param>
+        private static void LowerLower(Manager manager, int x, int z)
         {
             // If the adjacent X or Z nodes are not open, return as it is not a convex corner.
-            if (!area.IsOpen(x - 1, z) || !area.IsOpen(x, z - 1))
+            if (!manager.IsOpen(x - 1, z) || !manager.IsOpen(x, z - 1))
             {
                 return;
             }
             
             // Loop through all X coordinates to check the required space to place a node.
-            for (int x1 = x - 1; x1 >= x - 1 - area.CornerNodeSteps * 2; x1--)
+            for (int x1 = x - 1; x1 >= x - 1 - manager.CornerSteps * 2; x1--)
             {
                 // Loop through all Z coordinates to check the required space to place a node.
-                for (int z1 = z - 1; z1 >= z - 1 - area.CornerNodeSteps * 2; z1--)
+                for (int z1 = z - 1; z1 >= z - 1 - manager.CornerSteps * 2; z1--)
                 {
                     // If the node is not open return as there is no enough space to place the node.
-                    if (!area.IsOpen(x1, z1))
+                    if (!manager.IsOpen(x1, z1))
                     {
                         return;
                     }
@@ -151,7 +151,7 @@
             }
             
             // Place the node at the given offset from the convex corner.
-            area.AddNode(x - 1 - area.CornerNodeSteps, z - 1 - area.CornerNodeSteps);
+            manager.AddNode(x - 1 - manager.CornerSteps, z - 1 - manager.CornerSteps);
         }
     }
 }

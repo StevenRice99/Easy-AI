@@ -276,10 +276,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90b0995b5a8860d478c5247ae4a1d783, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seekAcceptableDistance: 0.1
-  fleeAcceptableDistance: 10
-  restVelocity: 0.1
-  navigationRadius: 0.5
   groundLayers:
     serializedVersion: 2
     m_Bits: 8
@@ -287,6 +283,21 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   lookupTable: {fileID: 0}
+  corner1:
+    x: 0
+    y: 0
+  corner2:
+    x: 0
+    y: 0
+  floorCeiling:
+    x: 0
+    y: 0
+  nodesPerUnit: 4
+  <CornerSteps>k__BackingField: 3
+  seekDistance: 0.1
+  fleeDistance: 10
+  restVelocity: 0.1
+  agentRadius: 0.5
   maxAgentsPerUpdate: 0
   maxMessages: 100
   detailsWidth: 500
@@ -723,10 +734,10 @@ MonoBehaviour:
   moveSpeed: 10
   moveAcceleration: 0
   lookSpeed: 0
-  <Sensors>k__BackingField: []
-  <Actuators>k__BackingField: []
-  <Visuals>k__BackingField: {fileID: 0}
-  <PerformanceMeasure>k__BackingField: {fileID: 0}
+  sensors: []
+  actuators: []
+  performanceMeasure: {fileID: 0}
+  <Visuals>k__BackingField: {fileID: 1945197316}
   <Mind>k__BackingField: {fileID: 11400000, guid: 4e3363507b328d04f97c1e3d4d8919d0, type: 2}
   <State>k__BackingField: {fileID: 11400000, guid: 5b8a9ecf8d156bf44a256354e4aa65cc, type: 2}
   maxGoldCarried: 2
@@ -910,10 +921,10 @@ MonoBehaviour:
   moveSpeed: 10
   moveAcceleration: 0
   lookSpeed: 0
-  <Sensors>k__BackingField: []
-  <Actuators>k__BackingField: []
-  <Visuals>k__BackingField: {fileID: 0}
-  <PerformanceMeasure>k__BackingField: {fileID: 0}
+  sensors: []
+  actuators: []
+  performanceMeasure: {fileID: 0}
+  <Visuals>k__BackingField: {fileID: 706698232}
   <Mind>k__BackingField: {fileID: 11400000, guid: cde14041e88d8734387f15389b0ea25c, type: 2}
   <State>k__BackingField: {fileID: 11400000, guid: 38a74a84ab52af540b574bfa12649126, type: 2}
 --- !u!1 &1945197315

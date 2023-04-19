@@ -385,18 +385,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7158d8becec45b9ab424f32de69e108, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mind: {fileID: 11400000, guid: 98f525b2c2195bb40be697efa5f08ece, type: 2}
-  seekAcceptableDistance: 0.1
-  fleeAcceptableDistance: 10
-  restVelocity: 0.1
-  navigationRadius: 0.5
   groundLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   obstacleLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   lookupTable: {fileID: 0}
+  corner1:
+    x: 0
+    y: 0
+  corner2:
+    x: 0
+    y: 0
+  floorCeiling:
+    x: 0
+    y: 0
+  nodesPerUnit: 4
+  <CornerSteps>k__BackingField: 3
+  seekDistance: 0.1
+  fleeDistance: 10
+  restVelocity: 0.1
+  agentRadius: 0.5
   maxAgentsPerUpdate: 0
   maxMessages: 100
   detailsWidth: 500

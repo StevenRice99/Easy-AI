@@ -102,12 +102,12 @@ namespace Project
         /// </summary>
         private static SoldierManager SoldierSingleton => Singleton as SoldierManager;
 
+        [Header("Match Settings")]
         [Tooltip("How many soldiers to have on each team.")]
         [Range(1, 15)]
         [SerializeField]
         private int soldiersPerTeam = 3;
-
-        [Header("Match Settings")]
+        
         [Tooltip("How much health each soldier has.")]
         [Min(1)]
         [SerializeField]

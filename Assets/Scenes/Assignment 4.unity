@@ -871,7 +871,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!114 &448259074
 MonoBehaviour:
@@ -946,6 +946,17 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   lookupTable: {fileID: 11400000, guid: b97faee4dc8b6cc47ba1e72cde9506f3, type: 2}
+  corner1:
+    x: 16
+    y: 16
+  corner2:
+    x: -16
+    y: -16
+  floorCeiling:
+    x: -1
+    y: 5
+  nodesPerStep: 4
+  <CornerNodeSteps>k__BackingField: 3
   maxAgentsPerUpdate: 0
   maxMessages: 100
   detailsWidth: 500
@@ -1063,7 +1074,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &711938544
 GameObject:
@@ -1967,7 +1978,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1559026831
 MonoBehaviour:
@@ -2118,10 +2129,10 @@ MonoBehaviour:
   moveSpeed: 10
   moveAcceleration: 0
   lookSpeed: 0
-  <Sensors>k__BackingField: []
-  <Actuators>k__BackingField: []
-  <PerformanceMeasure>k__BackingField: {fileID: 0}
-  <Visuals>k__BackingField: {fileID: 0}
+  sensors: []
+  actuators: []
+  performanceMeasure: {fileID: 0}
+  <Visuals>k__BackingField: {fileID: 1081866193}
   <Mind>k__BackingField: {fileID: 0}
   <State>k__BackingField: {fileID: 0}
   <Body>k__BackingField: {fileID: 1658188432}
@@ -2169,7 +2180,7 @@ Transform:
   m_Children:
   - {fileID: 1081866193}
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1678594198
 GameObject:
@@ -2264,7 +2275,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!114 &1678594201
 MonoBehaviour:
@@ -2446,7 +2457,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!1 &1830223746
 GameObject:
@@ -2770,60 +2781,5 @@ Transform:
   - {fileID: 384591239}
   - {fileID: 112677403}
   m_Father: {fileID: 0}
-  m_RootOrder: 7
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &2139949935
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2139949937}
-  - component: {fileID: 2139949936}
-  m_Layer: 0
-  m_Name: Node Area
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
---- !u!114 &2139949936
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2139949935}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 159bfd9a85fd43cd829700c1b6e5e75d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  corner1:
-    x: 16
-    y: 16
-  corner2:
-    x: -16
-    y: -16
-  floorCeiling:
-    x: -1
-    y: 5
-  nodesPerStep: 4
-  <CornerNodeSteps>k__BackingField: 3
---- !u!4 &2139949937
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2139949935}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

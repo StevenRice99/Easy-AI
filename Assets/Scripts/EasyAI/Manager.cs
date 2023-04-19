@@ -6,13 +6,16 @@ using System.Linq;
 using EasyAI.Navigation;
 using EasyAI.Navigation.Utility;
 using EasyAI.Utility;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using Debug = UnityEngine.Debug;
+using Path = EasyAI.Navigation.Utility.Path;
 
 #if UNITY_EDITOR
+using System.IO;
 using UnityEditor;
 #endif
 
@@ -76,16 +79,31 @@ namespace EasyAI
         /// How much to visually offset navigation by so it does not clip into the ground.
         /// </summary>
         private const float NavigationVisualOffset = 0.1f;
+        
+        /// <summary>
+        /// Open symbol.
+        /// </summary>
+        private const char Open = ' ';
+    
+        /// <summary>
+        /// Closed symbol.
+        /// </summary>
+        private const char Closed = '#';
+
+        /// <summary>
+        /// Node symbol.
+        /// </summary>
+        private const char Node = '*';
 
         /// <summary>
         /// How close an agent can be to a location its seeking or pursuing to declare it as reached.
         /// </summary>
-        public static float SeekAcceptableDistance => Singleton.seekAcceptableDistance;
+        public static float SeekDistance => Singleton.seekDistance;
 
         /// <summary>
         /// How far an agent can be to a location its fleeing or evading from to declare it as reached.
         /// </summary>
-        public static float FleeAcceptableDistance => Singleton.fleeAcceptableDistance;
+        public static float FleeDistance => Singleton.fleeDistance;
 
         /// <summary>
         /// If an agent is not moving, ensure it comes to a complete stop when its velocity is less than this.
@@ -101,11 +119,6 @@ namespace EasyAI
         /// Which layers are obstacles that nodes cannot be placed on.
         /// </summary>
         public static LayerMask ObstacleLayers => Singleton.obstacleLayers;
-
-        /// <summary>
-        /// How wide is the agent radius for connecting nodes to ensure enough space for movement.
-        /// </summary>
-        public static float NavigationRadius => Singleton.navigationRadius;
 
         /// <summary>
         /// The maximum number of messages any component can hold.
@@ -182,24 +195,6 @@ namespace EasyAI
         /// </summary>
         protected Agent SelectedAgent;
         
-        [Tooltip("How close an agent can be to a location its seeking or pursuing to declare it as reached. Set negative for none.")]
-        [SerializeField]
-        private float seekAcceptableDistance = 0.1f;
-
-        [Tooltip("How far an agent can be to a location its fleeing or evading from to declare it as reached. Set negative for none.")]
-        [SerializeField]
-        private float fleeAcceptableDistance = 10f;
-
-        [Tooltip("If an agent is not moving, ensure it comes to a complete stop when its velocity is less than this.")]
-        [Min(0)]
-        [SerializeField]
-        private float restVelocity = 0.1f;
-
-        [Tooltip("The radius of agents. This is for connecting navigation nodes to ensure enough space for movement.")]
-        [Min(0)]
-        [SerializeField]
-        private float navigationRadius = 0.5f;
-        
         [Header("Navigation")]
         [Tooltip("Which layers can nodes be placed on.")]
         [SerializeField]
@@ -212,6 +207,51 @@ namespace EasyAI
         [Tooltip("Lookup table to save and load navigation.")]
         [SerializeField]
         private LookupTable lookupTable;
+        
+        [SerializeField]
+        [Tooltip("One of the corner coordinates (X, Z) of the area to generate nodes in.")]
+        private int2 corner1 = new(5, 5);
+    
+        [SerializeField]
+        [Tooltip("One of the corner coordinates (X, Z) of the area to generate nodes in.")]
+        private int2 corner2 = new(-5, -5);
+
+        [SerializeField]
+        [Tooltip("The floor and ceiling of the area to generate nodes in.")]
+        private float2 floorCeiling = new(-1, 10);
+
+        [SerializeField]
+        [Min(1)]
+        [Tooltip(
+            "How many nodes to place for every unit of world space. Example values:\n" +
+            "1 - Node per every 1 unit.\n" +
+            "2 - Node per every 0.5 units.\n" +
+            "4 - Node per every 0.25 units."
+        )]
+        private int nodesPerUnit = 4;
+
+        [field: SerializeField]
+        [field: Min(0)]
+        [field: Tooltip("How far away from corners should the nodes be placed.")]
+        public int CornerSteps { get; private set; } = 3;        
+        
+        [Tooltip("How close an agent can be to a location its seeking or pursuing to declare it as reached. Set negative for none.")]
+        [SerializeField]
+        private float seekDistance = 0.1f;
+
+        [Tooltip("How far an agent can be to a location its fleeing or evading from to declare it as reached. Set negative for none.")]
+        [SerializeField]
+        private float fleeDistance = 10f;
+
+        [Tooltip("If an agent is not moving, ensure it comes to a complete stop when its velocity is less than this.")]
+        [Min(0)]
+        [SerializeField]
+        private float restVelocity = 0.1f;
+
+        [Tooltip("The radius of agents. This is for connecting navigation nodes to ensure enough space for movement.")]
+        [Min(0)]
+        [SerializeField]
+        private float agentRadius = 0.5f;
 
         [Header("Performance")]
         [Tooltip("The maximum number of agents which can be updated in a single frame. Set to zero to be unlimited.")]
@@ -291,6 +331,26 @@ namespace EasyAI
         /// The agent which is currently thinking.
         /// </summary>
         private int _currentAgentIndex;
+
+        /// <summary>
+        /// How many node spaces there are on the X axis.
+        /// </summary>
+        private int RangeX => (corner1.x - corner2.x) * nodesPerUnit + 1;
+    
+        /// <summary>
+        /// How many node spaces there are on the Z axis.
+        /// </summary>
+        private int RangeZ => (corner1.y - corner2.y) * nodesPerUnit + 1;
+
+        /// <summary>
+        /// Data map.
+        /// </summary>
+        private char[,] _data;
+
+        /// <summary>
+        /// The nodes.
+        /// </summary>
+        private readonly List<Vector3> _nodes = new();
 
         /// <summary>
         /// True if the scene is taking a single time step.
@@ -412,11 +472,11 @@ namespace EasyAI
         public static bool HitObstacle(Vector3 a, Vector3 b)
         {
             // Offset above the ground, mainly for sphere casting.
-            a.y += Singleton.navigationRadius;
-            b.y += Singleton.navigationRadius;
+            a.y += Singleton.agentRadius;
+            b.y += Singleton.agentRadius;
 
             // Always do a simple line cast which ensures not clipping inside of close walls, and also do a sphere cast if there is a set navigation radius.
-            return Physics.Linecast(a, b, Singleton.obstacleLayers) || (Singleton.navigationRadius > 0 && Physics.SphereCast(a, Singleton.navigationRadius, (b - a).normalized, out _, Vector3.Distance(a, b), Singleton.obstacleLayers));
+            return Physics.Linecast(a, b, Singleton.obstacleLayers) || (Singleton.agentRadius > 0 && Physics.SphereCast(a, Singleton.agentRadius, (b - a).normalized, out _, Vector3.Distance(a, b), Singleton.obstacleLayers));
         }
 
         /// <summary>
@@ -1572,49 +1632,98 @@ namespace EasyAI
                 return;
             }
 
-            List<Vector3> nodes = new();
+            Singleton._nodes.Clear();
             
-            // Generate all node areas in the scene.
-            foreach (NodeArea nodeArea in FindObjectsOfType<NodeArea>())
+            // Ensure X coordinates are in the required order.
+            if (Singleton.corner2.x > Singleton.corner1.x)
             {
-                nodes.AddRange(nodeArea.Generate());
+                (Singleton.corner1.x, Singleton.corner2.x) = (Singleton.corner2.x, Singleton.corner1.x);
+            }
+        
+            // Ensure Z coordinates are in the required order.
+            if (Singleton.corner2.y > Singleton.corner1.y)
+            {
+                (Singleton.corner1.y, Singleton.corner2.y) = (Singleton.corner2.y, Singleton.corner1.y);
             }
 
-            nodes.AddRange(FindObjectsOfType<Node>().Select(node => node.transform.position));
+            // Ensure floor and ceiling are in the required order.
+            if (Singleton.floorCeiling.x > Singleton.floorCeiling.y)
+            {
+                (Singleton.floorCeiling.x, Singleton.floorCeiling.y) = (Singleton.floorCeiling.y, Singleton.floorCeiling.x);
+            }
+
+            // Initialize the data table.
+            Singleton._data = new char[Singleton.RangeX, Singleton.RangeZ];
+        
+            // Scan each position to determine if it is open or closed.
+            for (int x = 0; x < Singleton.RangeX; x++)
+            {
+                for (int z = 0; z < Singleton.RangeZ; z++)
+                {
+                    float2 pos = Singleton.GetRealPosition(x, z);
+                    Singleton._data[x, z] = Physics.Raycast(new(pos.x, Singleton.floorCeiling.y, pos.y), Vector3.down, out RaycastHit hit, Singleton.floorCeiling.y - Singleton.floorCeiling.x, GroundLayers | ObstacleLayers) && (GroundLayers.value & (1 << hit.transform.gameObject.layer)) > 0 ? Open : Closed;
+                }
+            }
+
+            // Check all X coordinates, skipping the padding required.
+            for (int x = Singleton.CornerSteps * 2; x < Singleton.RangeX - Singleton.CornerSteps * 2; x++)
+            {
+                // Check all Z coordinates, skipping the padding required.
+                for (int z = Singleton.CornerSteps * 2; z < Singleton.RangeZ - Singleton.CornerSteps * 2; z++)
+                {
+                    CornerGraph.Perform(Singleton, x, z);
+                }
+            }
+
+            // Ensure the folder to save the map data exists.
+            const string folder = "Maps";
+            if (!Directory.Exists(folder))
+            {
+                DirectoryInfo info = Directory.CreateDirectory(folder);
+                if (info.Exists)
+                {
+                    // Write to the file.
+                    StreamWriter writer = new( $"{folder}/{SceneManager.GetActiveScene().name}.txt", false);
+                    writer.Write(Singleton.ToString());
+                    writer.Close();
+                }
+            }
+
+            Singleton._nodes.AddRange(FindObjectsOfType<Node>().Select(node => node.transform.position));
 
             List<VectorConnection> raw = new();
 
             // Setup all freely-placed nodes.
-            for (int i = 0; i < nodes.Count; i++)
+            for (int i = 0; i < Singleton._nodes.Count; i++)
             {
-                for (int j = i + 1; j < nodes.Count; j++)
+                for (int j = i + 1; j < Singleton._nodes.Count; j++)
                 {
                     // If a clear path, add the connection.
-                    if (!HitObstacle(nodes[i], nodes[j]))
+                    if (!HitObstacle(Singleton._nodes[i], Singleton._nodes[j]))
                     {
-                        raw.Add(new(nodes[i], nodes[j]));
+                        raw.Add(new(Singleton._nodes[i], Singleton._nodes[j]));
                     }
                 }
             }
 
             // If any nodes are not a part of any connections, remove them.
-            for (int i = 0; i < nodes.Count; i++)
+            for (int i = 0; i < Singleton._nodes.Count; i++)
             {
-                if (!raw.Any(c => c.A == nodes[i] || c.B == nodes[i]))
+                if (!raw.Any(c => c.A == Singleton._nodes[i] || c.B == Singleton._nodes[i]))
                 {
-                    nodes.RemoveAt(i--);
+                    Singleton._nodes.RemoveAt(i--);
                 }
             }
 
             // Convert the connections to index-based lookup values.
-            List<Connection> connections = raw.Select(connection => new Connection(nodes.IndexOf(connection.A), nodes.IndexOf(connection.B))).ToList();
+            List<Connection> connections = raw.Select(connection => new Connection(Singleton._nodes.IndexOf(connection.A), Singleton._nodes.IndexOf(connection.B))).ToList();
 
             // Store all new lookup tables and a helper variable to flag which lookups are properly set.
-            Path[] lookups = new Path[nodes.Count];
+            Path[] lookups = new Path[Singleton._nodes.Count];
             bool[][] set = new bool[lookups.Length][];
             for (int i = 0; i < lookups.Length; i++)
             {
-                lookups[i].goal = new int[nodes.Count - 1];
+                lookups[i].goal = new int[Singleton._nodes.Count - 1];
                 set[i] = new bool[lookups[i].goal.Length];
             }
 
@@ -1624,13 +1733,13 @@ namespace EasyAI
             try
             {
                 // Loop through all nodes.
-                System.Threading.Tasks.Parallel.For(0, nodes.Count, i =>
+                System.Threading.Tasks.Parallel.For(0, Singleton._nodes.Count, i =>
                 {
                     // Loop through all nodes again so pathfinding can be done on each pair.
-                    for (int j = i + 1; j < nodes.Count; j++)
+                    for (int j = i + 1; j < Singleton._nodes.Count; j++)
                     {
                         // Get the A* path from one node to another.
-                        AStarNode node = AStar.Perform(new() {new(nodes[i], nodes[j])}, nodes[j], paths);
+                        AStarNode node = AStar.Perform(new() {new(Singleton._nodes[i], Singleton._nodes[j])}, Singleton._nodes[j], paths);
 
                         if (node == null)
                         {
@@ -1657,10 +1766,10 @@ namespace EasyAI
                             for (int k = 0; k < path.Count - 1; k++)
                             {
                                 // Forward pass.
-                                AddLookup(nodes, lookups, path, k, i, k + 1, set);
+                                AddLookup(Singleton._nodes, lookups, path, k, i, k + 1, set);
 
                                 // Backwards pass since it is the same path in reverse.
-                                AddLookup(nodes, lookups, path, path.Count - 1 - k, j, path.Count - 2 - k, set);
+                                AddLookup(Singleton._nodes, lookups, path, path.Count - 1 - k, j, path.Count - 2 - k, set);
                             }
                         }
                     }
@@ -1672,22 +1781,22 @@ namespace EasyAI
             }
 
             // Compare how many lookups are expected with how many were actually defined to ensure the pathfinding is valid.
-            int expected = nodes.Count * (nodes.Count - 1);
+            int expected = Singleton._nodes.Count * (Singleton._nodes.Count - 1);
             int created = set.Sum(t => t.Count(t1 => t1));
             
             // Write the lookup table to a file for fast reading on future runs.
             // To avoid navigation errors, the lookups are only stored if they are valid.
-            Singleton.lookupTable.Write(nodes, connections, expected == created ? lookups : Array.Empty<Path>());
+            Singleton.lookupTable.Write(Singleton._nodes, connections, expected == created ? lookups : Array.Empty<Path>());
             
             stopwatch.Stop();
 
             if (expected == created)
             {
-                Debug.Log($"{nodes.Count} Nodes | {raw.Count} Connections | {created} Lookups | {stopwatch.Elapsed}");
+                Debug.Log($"{Singleton._nodes.Count} Nodes | {raw.Count} Connections | {created} Lookups | {stopwatch.Elapsed}");
             }
             else
             {
-                Debug.LogError($"{nodes.Count} Nodes | {raw.Count} Connections | {expected} Expected Lookups | {created} Created Lookups | {stopwatch.Elapsed}");
+                Debug.LogError($"{Singleton._nodes.Count} Nodes | {raw.Count} Connections | {expected} Expected Lookups | {created} Created Lookups | {stopwatch.Elapsed}");
             }
             
             // Select the lookup table in the inspector for easily checking it.
@@ -1717,14 +1826,93 @@ namespace EasyAI
             lookups[current].goal[goal] = next;
             set[current][goal] = true;
         }
+
+        /// <summary>
+        /// Get the actual coordinate from the node generator indexes.
+        /// </summary>
+        /// <param name="x">The X coordinate.</param>
+        /// <param name="z">The Z coordinate.</param>
+        /// <returns>The real (X, Z) position.</returns>
+        private float2 GetRealPosition(int x, int z)
+        {
+            return new(corner2.x + x * 1f / nodesPerUnit, corner2.y + z * 1f / nodesPerUnit);
+        }
+
+        /// <summary>
+        /// Check if a given coordinate is open.
+        /// </summary>
+        /// <param name="x">The X coordinate.</param>
+        /// <param name="z">The Z coordinate.</param>
+        /// <returns>True if the space is open, false otherwise.</returns>
+        public bool IsOpen(int x, int z)
+        {
+            return x >= 0 && x < RangeX && z >= 0 && z < RangeZ && _data[x, z] != Closed;
+        }
+        
+        /// <summary>
+        /// Add a node at a given position.
+        /// </summary>
+        /// <param name="x">The X coordinate.</param>
+        /// <param name="z">The Z coordinate.</param>
+        public void AddNode(int x, int z)
+        {
+            // If out of bounds or already opened, nothing to do.
+            if (x < 0 || x >= RangeX || z < 0 || z >= RangeZ || _data[x, z] == Node)
+            {
+                return;
+            }
+            
+            // Set that it is a node in the map data.
+            _data[x, z] = Node;
+        
+            // Get the position of the node.
+            float2 pos = GetRealPosition(x, z);
+            float y = floorCeiling.x;
+            if (Physics.Raycast(new(pos.x, floorCeiling.y, pos.y), Vector3.down, out RaycastHit hit, floorCeiling.y - floorCeiling.x, Manager.GroundLayers))
+            {
+                y = hit.point.y;
+            }
+        
+            // Add the node.
+            Vector3 v = new(pos.x, y, pos.y);
+            if (!_nodes.Contains(v))
+            {
+                _nodes.Add(v);
+            }
+        }
 #endif
+        public override string ToString()
+        {
+            // Nothing to write if there is no data.
+            if (_data == null)
+            {
+                return "No data.";
+            }
+
+            // Add all map data.
+            string s = string.Empty;
+            for (int i = 0; i < RangeX; i++)
+            {
+                for (int j = 0; j < RangeZ; j++)
+                {
+                    s += _data[i, j];
+                }
+
+                if (i != RangeX - 1)
+                {
+                    s += '\n';
+                }
+            }
+
+            return s;
+        }
 
         protected virtual void Start()
         {
             // Clean up all navigation related components in the scene as they are no longer needed after generation.
-            foreach (NavigationSetup nodeBase in FindObjectsOfType<NavigationSetup>().OrderBy(n => n.transform.childCount))
+            foreach (Node node in FindObjectsOfType<Node>().OrderBy(n => n.transform.childCount))
             {
-                nodeBase.Remove();
+                node.Remove();
             }
             
             CheckGizmos();
@@ -1870,6 +2058,27 @@ namespace EasyAI
         protected virtual float CustomRendering(float x, float y, float w, float h, float p)
         {
             return y;
+        }
+        
+        private void OnDrawGizmosSelected()
+        {
+            // Vertical lines.
+            Gizmos.DrawLine(new(corner1.x, floorCeiling.x, corner1.y), new(corner1.x, floorCeiling.y, corner1.y));
+            Gizmos.DrawLine(new(corner1.x, floorCeiling.x, corner2.y), new(corner1.x, floorCeiling.y, corner2.y));
+            Gizmos.DrawLine(new(corner2.x, floorCeiling.x, corner1.y), new(corner2.x, floorCeiling.y, corner1.y));
+            Gizmos.DrawLine(new(corner2.x, floorCeiling.x, corner2.y), new(corner2.x, floorCeiling.y, corner2.y));
+        
+            // Top horizontal lines.
+            Gizmos.DrawLine(new(corner1.x, floorCeiling.y, corner1.y), new(corner1.x, floorCeiling.y, corner2.y));
+            Gizmos.DrawLine(new(corner1.x, floorCeiling.y, corner1.y), new(corner2.x, floorCeiling.y, corner1.y));
+            Gizmos.DrawLine(new(corner2.x, floorCeiling.y, corner2.y), new(corner1.x, floorCeiling.y, corner2.y));
+            Gizmos.DrawLine(new(corner2.x, floorCeiling.y, corner2.y), new(corner2.x, floorCeiling.y, corner1.y));
+        
+            // Bottom horizontal lines.
+            Gizmos.DrawLine(new(corner1.x, floorCeiling.x, corner1.y), new(corner1.x, floorCeiling.x, corner2.y));
+            Gizmos.DrawLine(new(corner1.x, floorCeiling.x, corner1.y), new(corner2.x, floorCeiling.x, corner1.y));
+            Gizmos.DrawLine(new(corner2.x, floorCeiling.x, corner2.y), new(corner1.x, floorCeiling.x, corner2.y));
+            Gizmos.DrawLine(new(corner2.x, floorCeiling.x, corner2.y), new(corner2.x, floorCeiling.x, corner1.y));
         }
     }
 }

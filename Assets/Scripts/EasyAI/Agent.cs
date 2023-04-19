@@ -427,6 +427,12 @@ namespace EasyAI
         public void Move(Transform tr, Steering.Behaviour behaviour = Steering.Behaviour.Seek)
         {
             MoveTarget = tr;
+            if (MoveTarget == null)
+            {
+                Path.Clear();
+                return;
+            }
+            
             Vector3 pos = MoveTarget.position;
             _moveTargetLastPosition = new(pos.x, pos.z);
             MoveType = behaviour;
@@ -442,6 +448,8 @@ namespace EasyAI
         {
             MoveTarget = null;
             _moveTargetLastPosition = new(pos.x, pos.z);
+            
+            // When going to a static position only, pursue and evade have no impact so ensure only seek or flee.
             MoveType = Steering.IsApproachingBehaviour(behaviour) ? Steering.Behaviour.Seek : Steering.Behaviour.Flee;
             CreatePath(pos);
         }
@@ -455,6 +463,8 @@ namespace EasyAI
         {
             MoveTarget = null;
             _moveTargetLastPosition = pos;
+            
+            // When going to a static position only, pursue and evade have no impact so ensure only seek or flee.
             MoveType = Steering.IsApproachingBehaviour(behaviour) ? Steering.Behaviour.Seek : Steering.Behaviour.Flee;
             CreatePath(new(pos.x, transform.position.y, pos.y));
         }
@@ -713,7 +723,7 @@ namespace EasyAI
             if (Path.Count > 0)
             {
                 // Remove path locations which have been satisfied in being reached.
-                while (Path.Count > 0 && Vector2.Distance(position, new(Path[0].x, Path[0].z)) <= Manager.SeekAcceptableDistance)
+                while (Path.Count > 0 && Vector2.Distance(position, new(Path[0].x, Path[0].z)) <= Manager.SeekDistance)
                 {
                     Path.RemoveAt(0);
                 }
