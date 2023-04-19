@@ -74,7 +74,7 @@ namespace EasyAI.Navigation
 
         /// <summary>
         /// The color to make a certain move type appear with gizmos.
-        /// Note that although not listed here, white and green are for pathfinding display and yellow for velocity.
+        /// Note that although not listed here, white displays all paths and yellow displays velocity.
         /// </summary>
         /// <param name="behaviour">The behaviour type.</param>
         /// <returns>The color to display.</returns>
@@ -90,7 +90,7 @@ namespace EasyAI.Navigation
                     return Color.red;
                 case Behaviour.Seek:
                 default:
-                    return Color.blue;
+                    return Color.green;
             }
         }
 
@@ -126,7 +126,7 @@ namespace EasyAI.Navigation
         /// <param name="evader">The position of the evader to seek to.</param>
         /// <param name="speed">The speed at which the agent can move.</param>
         /// <returns>The velocity to apply to the agent to perform the seek.</returns>
-        public static Vector2 Seek(Vector2 position, Vector2 velocity, Vector2 evader, float speed)
+        private static Vector2 Seek(Vector2 position, Vector2 velocity, Vector2 evader, float speed)
         {
             return (evader - position).normalized * speed - velocity;
         }

@@ -16,97 +16,6 @@ namespace EasyAI
     public abstract class Agent : MessageComponent
     {
         /// <summary>
-        /// Class to store all targets the agent is moving in relation to.
-        /// </summary>
-        public class Movement
-        {
-            /// <summary>
-            /// The move type so proper behaviours can be performed.
-            /// </summary>
-            public readonly Steering.Behaviour Behaviour;
-
-            /// <summary>
-            /// The transform to move in relation to.
-            /// </summary>
-            public readonly Transform Transform;
-
-            /// <summary>
-            /// True if this move data was setup with a transform so if at any point the transform is destroyed this is removed as well.
-            /// </summary>
-            public readonly bool IsTransformTarget;
-            
-            /// <summary>
-            /// Store the position which is only used if the transform is null.
-            /// </summary>
-            private readonly Vector2 _position;
-
-            /// <summary>
-            /// The last position this was in since 
-            /// </summary>
-            public Vector2 LastPosition;
-        
-            /// <summary>
-            /// The movement vector for visualizing move data.
-            /// </summary>
-            public Vector2 MoveVector = Vector2.zero;
-        
-            /// <summary>
-            /// Get the position of the transform if it has one otherwise the position it was set to have.
-            /// </summary>
-            public Vector2 Position
-            {
-                get
-                {
-                    if (Transform == null)
-                    {
-                        return _position;
-                    }
-
-                    Vector3 pos3 = Transform.position;
-                    return new(pos3.x, pos3.z);
-                }
-            }
-
-            /// <summary>
-            /// Create a move data for a transform.
-            /// </summary>
-            /// <param name="behaviour">The move type.</param>
-            /// <param name="transform">The transform.</param>
-            public Movement(Steering.Behaviour behaviour, Transform transform)
-            {
-                Behaviour = behaviour;
-                Transform = transform;
-                Vector3 pos3 = transform.position;
-                _position = new(pos3.x, pos3.z);
-                LastPosition = _position;
-                IsTransformTarget = true;
-            }
-
-            /// <summary>
-            /// Create a move data for a position.
-            /// </summary>
-            /// <param name="behaviour">The move type.</param>
-            /// <param name="position">The position.</param>
-            public Movement(Steering.Behaviour behaviour, Vector2 position)
-            {
-                // Since pursuit and evade are for moving objects and this is only with a static position,
-                // switch pursuit to seek and evade to flee.
-                behaviour = behaviour switch
-                {
-                    Steering.Behaviour.Pursue => Steering.Behaviour.Seek,
-                    Steering.Behaviour.Evade => Steering.Behaviour.Flee,
-                    _ => behaviour
-                };
-
-                Behaviour = behaviour;
-                Transform = null;
-                _position = position;
-                LastPosition = _position;
-                IsTransformTarget = false;
-            }
-        }
-
-        /// <summary>
         /// The actions of this agent that are not yet completed.
         /// </summary>
         private readonly List<object> _inProgressActions = new();
@@ -171,9 +80,19 @@ namespace EasyAI
         public Transform Visuals { get; private set; }
 
         /// <summary>
-        /// The movement the agent is doing without path finding.
+        /// The current move behaviour.
         /// </summary>
-        public Movement AgentMove;
+        public Steering.Behaviour MoveType { get; private set; }
+
+        /// <summary>
+        /// The target to move in relation to.
+        /// </summary>
+        public Transform MoveTarget { get; private set; }
+
+        /// <summary>
+        /// The last position of the target to move in relation to.
+        /// </summary>
+        private Vector2 _moveTargetLastPosition;
 
         /// <summary>
         /// The current path an agent is following.
@@ -183,7 +102,7 @@ namespace EasyAI
         /// <summary>
         /// True if the agent is trying to move, false otherwise.
         /// </summary>
-        public bool Moving => AgentMove != null || Path.Count > 0;
+        public bool Moving => Path.Count > 0;
         
         [field: Tooltip("The mind of the agent.")]
         [field: SerializeField]
@@ -495,15 +414,9 @@ namespace EasyAI
         /// </summary>
         /// <param name="goal">The position to navigate to.</param>
         /// <returns>True if the path has been set, false if the agent was already navigating towards this point.</returns>
-        public bool Navigate(Vector3 goal)
+        private void CreatePath(Vector3 goal)
         {
-            if (Destination == goal)
-            {
-                return false;
-            }
-        
             Path = Manager.LookupPath(transform.position, goal);
-            return true;
         }
 
         /// <summary>
@@ -513,7 +426,11 @@ namespace EasyAI
         /// <param name="behaviour">The move type.</param>
         public void Move(Transform tr, Steering.Behaviour behaviour = Steering.Behaviour.Seek)
         {
-            AgentMove = new(behaviour, tr);
+            MoveTarget = tr;
+            Vector3 pos = MoveTarget.position;
+            _moveTargetLastPosition = new(pos.x, pos.z);
+            MoveType = behaviour;
+            CreatePath(pos);
         }
 
         /// <summary>
@@ -523,7 +440,10 @@ namespace EasyAI
         /// <param name="behaviour">The move type.</param>
         public void Move(Vector3 pos, Steering.Behaviour behaviour = Steering.Behaviour.Seek)
         {
-            AgentMove = new(behaviour, new Vector2(pos.x, pos.z));
+            MoveTarget = null;
+            _moveTargetLastPosition = new(pos.x, pos.z);
+            MoveType = Steering.IsApproachingBehaviour(behaviour) ? Steering.Behaviour.Seek : Steering.Behaviour.Flee;
+            CreatePath(pos);
         }
 
         /// <summary>
@@ -533,7 +453,10 @@ namespace EasyAI
         /// <param name="behaviour">The move type.</param>
         public void Move(Vector2 pos, Steering.Behaviour behaviour = Steering.Behaviour.Seek)
         {
-            AgentMove = new(behaviour, pos);
+            MoveTarget = null;
+            _moveTargetLastPosition = pos;
+            MoveType = Steering.IsApproachingBehaviour(behaviour) ? Steering.Behaviour.Seek : Steering.Behaviour.Flee;
+            CreatePath(new(pos.x, transform.position.y, pos.y));
         }
 
         /// <summary>
@@ -541,7 +464,7 @@ namespace EasyAI
         /// </summary>
         public void StopMoving()
         {
-            AgentMove = null;
+            MoveTarget = null;
             Path.Clear();
         }
 
@@ -603,7 +526,7 @@ namespace EasyAI
             else if (Mind == null && Manager.CurrentlySelectedAgent == this && Mouse.current.rightButton.wasPressedThisFrame && Physics.Raycast(Manager.SelectedCamera.ScreenPointToRay(new(Mouse.current.position.x.ReadValue(), Mouse.current.position.y.ReadValue(), 0)), out RaycastHit hit, Mathf.Infinity, Manager.GroundLayers | Manager.ObstacleLayers))
             {
                 StopMoving();
-                Navigate(hit.point);
+                CreatePath(hit.point);
             }
 
             // Act on the actions.
@@ -779,56 +702,49 @@ namespace EasyAI
             // Convert the position into a Vector2 for use with steering methods.
             Vector3 positionVector3 = transform.position;
             Vector2 position = new(positionVector3.x, positionVector3.z);
+            
+            // If there is move data, perform it.
+            if (MoveTarget != null)
+            {
+                Vector3 target3 = MoveTarget.position;
+                Vector2 target = new(target3.x, target3.z);
+
+                if (Steering.IsMoveComplete(MoveType, position, target))
+                {
+                    MoveTarget = null;
+                }
+                else if (_moveTargetLastPosition != target)
+                {
+                    CreatePath(target3);
+                }
+            }
 
             // If there is a path the agent is following, follow it.
             if (Path.Count > 0)
             {
-                // See if any points along the path can be skipped.
-                while (Path.Count >= 2)
-                {
-                    if (!Manager.HitObstacle(positionVector3, Path[1]))
-                    {
-                        Path.RemoveAt(0);
-                        continue;
-                    }
-                    
-                    break;
-                }
-                
                 // Remove path locations which have been satisfied in being reached.
                 while (Path.Count > 0 && Vector2.Distance(position, new(Path[0].x, Path[0].z)) <= Manager.SeekAcceptableDistance)
                 {
+                    Path.RemoveAt(0);
+                }
+                
+                // See if any points along the path can be skipped.
+                while (Path.Count >= 2)
+                {
+                    if (Manager.HitObstacle(positionVector3, Path[1]))
+                    {
+                        break;
+                    }
+
                     Path.RemoveAt(0);
                 }
 
                 // If there is still a path to follow, seek towards the next point and if not, remove the path list.
                 if (Path.Count > 0)
                 {
-                    movement += Steering.Seek(position, MoveVelocity, new(Path[0].x, Path[0].z), acceleration);
-                }
-            }
-
-            // If there is move data, perform it.
-            if (Path.Count == 0 && AgentMove != null)
-            {
-                // Get the position to move to/from.
-                Vector2 target = AgentMove.Position;
-
-                // If this was a transform movement and the transform is now gone or the move has been satisfied, remove it.
-                if (AgentMove.IsTransformTarget && AgentMove.Transform == null || Steering.IsMoveComplete(AgentMove.Behaviour, position, target))
-                {
-                    AgentMove = null;
-                }
-                else
-                {
-                    // Update the movement vector of the data based on its given move type.
-                    AgentMove.MoveVector = Steering.Move(AgentMove.Behaviour, position, MoveVelocity, target, AgentMove.LastPosition, acceleration, deltaTime);
-
-                    // Add the newly calculated movement data to the movement vector for this time step.
-                    movement += AgentMove.MoveVector;
-
-                    // Update the last position so the next time step could calculated predictive movement.
-                    AgentMove.LastPosition = target;
+                    Vector2 current = new(Path[0].x, Path[0].z);
+                    movement += Steering.Move(MoveType, position, MoveVelocity, current, _moveTargetLastPosition, acceleration, deltaTime);
+                    _moveTargetLastPosition = current;
                 }
             }
 

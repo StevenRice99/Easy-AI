@@ -199,10 +199,8 @@ namespace Project.States
             // If carrying the flag, attempt to move directly back to base.
             if (soldier.CarryingFlag)
             {
-                if (soldier.Navigate(soldier.BasePosition))
-                {
-                    soldier.Log("Have the flag, returning it to base.");
-                }
+                soldier.Move(soldier.BasePosition);
+                soldier.Log("Have the flag, returning it to base.");
                 return;
             }
 
@@ -210,18 +208,14 @@ namespace Project.States
             {
                 // If the flag collector, move to collect the enemy flag.
                 case Soldier.SoliderRole.Collector:
-                    if (soldier.Navigate(soldier.EnemyFlagPosition))
-                    {
-                        soldier.Log("Moving to collect enemy flag.");
-                    }
+                    soldier.Move(soldier.EnemyFlagPosition);
+                    soldier.Log("Moving to collect enemy flag.");
                     return;
                 
                 // If a defender and the flag has been taken, move to it to kill the enemy flag carried and return it.
                 case Soldier.SoliderRole.Defender when !soldier.FlagAtBase:
-                    if (soldier.Navigate(soldier.TeamFlagPosition))
-                    {
-                        soldier.Log("Moving to return flag.");
-                    }
+                    soldier.Move(soldier.TeamFlagPosition);
+                    soldier.Log("Moving to return flag.");
                     return;
 
                 case Soldier.SoliderRole.Attacker:
@@ -234,10 +228,8 @@ namespace Project.States
                         HealthAmmoPickup health = soldier.Sense<NearestHealthPickupSensor, HealthAmmoPickup>();
                         if (health != null)
                         {
-                            if (soldier.Navigate(health.transform.position))
-                            {
-                                soldier.Log("Moving to pickup health.");
-                            }
+                            soldier.Move(health.transform.position);
+                            soldier.Log("Moving to pickup health.");
                             return;
                         }
                     }
@@ -251,10 +243,8 @@ namespace Project.States
                             HealthAmmoPickup health = soldier.Sense<NearestHealthPickupSensor, HealthAmmoPickup>();
                             if (health != null)
                             {
-                                if (soldier.Navigate(health.transform.position))
-                                {
-                                    soldier.Log("Moving to pickup health.");
-                                }
+                                soldier.Move(health.transform.position);
+                                soldier.Log("Moving to pickup health.");
                                 return;
                             }
                         }
@@ -262,17 +252,15 @@ namespace Project.States
                         HealthAmmoPickup ammo = soldier.Sense<NearestAmmoPickupSensor, HealthAmmoPickup>();
                         if (ammo != null)
                         {
-                            if (soldier.Navigate(ammo.transform.position))
+                            soldier.Move(ammo.transform.position);
+                            soldier.Log("Moving to pickup ammo for " + (Soldier.WeaponIndexes) ammo.weaponIndex switch
                             {
-                                soldier.Log("Moving to pickup ammo for " + (Soldier.WeaponIndexes) ammo.weaponIndex switch
-                                {
-                                    Soldier.WeaponIndexes.MachineGun => "machine gun.",
-                                    Soldier.WeaponIndexes.Shotgun => "shotgun.",
-                                    Soldier.WeaponIndexes.Sniper => "sniper.",
-                                    Soldier.WeaponIndexes.RocketLauncher => "rocket launcher.",
-                                    _=> "pistol."
-                                });
-                            }
+                                Soldier.WeaponIndexes.MachineGun => "machine gun.",
+                                Soldier.WeaponIndexes.Shotgun => "shotgun.",
+                                Soldier.WeaponIndexes.Sniper => "sniper.",
+                                Soldier.WeaponIndexes.RocketLauncher => "rocket launcher.",
+                                _=> "pistol."
+                            });
                             return;
                         }
                     }
@@ -286,13 +274,13 @@ namespace Project.States
                     // If an attacker, move to a random offensive position.
                     if (soldier.Role == Soldier.SoliderRole.Attacker)
                     {
-                        soldier.Navigate(soldier.Sense<RandomOffensivePositionSensor, Vector3>());
+                        soldier.Move(soldier.Sense<RandomOffensivePositionSensor, Vector3>());
                         soldier.Log("Moving to offensive position.");
                         return;
                     }
                     
                     // If a defender, move to a random defensive position.
-                    soldier.Navigate(soldier.Sense<RandomDefensivePositionSensor, Vector3>());
+                    soldier.Move(soldier.Sense<RandomDefensivePositionSensor, Vector3>());
                     soldier.Log("Moving to defensive position.");
                     return;
             }
