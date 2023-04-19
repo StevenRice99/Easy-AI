@@ -440,15 +440,14 @@ namespace Project
                 if (agent is not Soldier { Alive: true } soldier)
                 {
                     agent.StopMoving();
-                    agent.StopNavigating();
                     agent.StopLooking();
                     if (agent == SelectedAgent)
                     {
-                        Soldier[] aliveSoldiers = Agents.Where(a => a is Soldier {Alive: true, PerformanceMeasure: not null}).Cast<Soldier>().ToArray();
+                        Soldier[] aliveSoldiers = Agents.Where(a => a is Soldier {Alive: true, performanceMeasure: not null}).Cast<Soldier>().ToArray();
                         float best = float.MinValue;
                         foreach (Soldier s in aliveSoldiers)
                         {
-                            float score = s.PerformanceMeasure.CalculatePerformance();
+                            float score = s.performanceMeasure.CalculatePerformance();
                             if (score <= best)
                             {
                                 continue;

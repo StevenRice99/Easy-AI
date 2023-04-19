@@ -41,11 +41,6 @@ namespace EasyAI
             private readonly Vector2 _position;
 
             /// <summary>
-            /// How much time has elapsed since the last time this was called for predictive move types.
-            /// </summary>
-            public float DeltaTime;
-
-            /// <summary>
             /// The last position this was in since 
             /// </summary>
             public Vector2 LastPosition;
@@ -153,26 +148,32 @@ namespace EasyAI
         /// </summary>
         public float Performance { get; private set; }
 
-        [Tooltip("The sensors of this agent.")]
-        [SerializeField]
+        /// <summary>
+        /// The sensors of this agent.
+        /// </summary>
+        [HideInInspector]
         public Sensor[] sensors = Array.Empty<Sensor>();
 
-        [Tooltip("The actuators of this agent.")]
-        [SerializeField]
+        /// <summary>
+        /// The actuators of this agent.
+        /// </summary>
+        [HideInInspector]
         public Actuator[] actuators = Array.Empty<Actuator>();
 
-        [field: Tooltip("The performance measure of this agent.")]
-        [field: SerializeField]
-        public PerformanceMeasure PerformanceMeasure { get; private set; }
+        /// <summary>
+        /// The performance measure of this agent.
+        /// </summary>
+        [HideInInspector]
+        public PerformanceMeasure performanceMeasure;
 
         [field: Tooltip("The root transform that holds the visuals for this agent used to rotate the agent towards its look target.")]
         [field: SerializeField]
         public Transform Visuals { get; private set; }
 
         /// <summary>
-        /// All movement the agent is doing without path finding.
+        /// The movement the agent is doing without path finding.
         /// </summary>
-        public List<Movement> Moves { get; private set; } = new();
+        public Movement AgentMove;
 
         /// <summary>
         /// The current path an agent is following.
@@ -182,7 +183,7 @@ namespace EasyAI
         /// <summary>
         /// True if the agent is trying to move, false otherwise.
         /// </summary>
-        public bool Moving => Moves.Count > 0 || Path.Count > 0;
+        public bool Moving => AgentMove != null || Path.Count > 0;
         
         [field: Tooltip("The mind of the agent.")]
         [field: SerializeField]
@@ -504,14 +505,6 @@ namespace EasyAI
             Path = Manager.LookupPath(transform.position, goal);
             return true;
         }
-    
-        /// <summary>
-        /// Clear the path.
-        /// </summary>
-        public void StopNavigating()
-        {
-            Path.Clear();
-        }
 
         /// <summary>
         /// Set a transform to move based upon.
@@ -520,8 +513,7 @@ namespace EasyAI
         /// <param name="behaviour">The move type.</param>
         public void Move(Transform tr, Steering.Behaviour behaviour = Steering.Behaviour.Seek)
         {
-            Moves.Clear();
-            AddMove(tr, behaviour);
+            AgentMove = new(behaviour, tr);
         }
 
         /// <summary>
@@ -531,8 +523,7 @@ namespace EasyAI
         /// <param name="behaviour">The move type.</param>
         public void Move(Vector3 pos, Steering.Behaviour behaviour = Steering.Behaviour.Seek)
         {
-            Moves.Clear();
-            AddMove(pos, behaviour);
+            AgentMove = new(behaviour, new Vector2(pos.x, pos.z));
         }
 
         /// <summary>
@@ -542,50 +533,7 @@ namespace EasyAI
         /// <param name="behaviour">The move type.</param>
         public void Move(Vector2 pos, Steering.Behaviour behaviour = Steering.Behaviour.Seek)
         {
-            Moves.Clear();
-            AddMove(pos, behaviour);
-        }
-    
-        /// <summary>
-        /// Add a transform to move based upon.
-        /// </summary>
-        /// <param name="tr">The transform.</param>
-        /// <param name="behaviour">The move type.</param>
-        public void AddMove(Transform tr, Steering.Behaviour behaviour = Steering.Behaviour.Seek)
-        {
-            if (Moves.Exists(m => m.Behaviour == behaviour && m.Transform == tr) || Steering.IsMoveComplete(behaviour, new(transform.position.x, transform.position.z), new(tr.position.x, tr.position.z)))
-            {
-                return;
-            }
-            
-            RemoveMove(tr);
-            Moves.Add(new(behaviour, tr));
-        }
-
-        /// <summary>
-        /// Add a position to move based upon.
-        /// </summary>
-        /// <param name="pos">The position.</param>
-        /// <param name="behaviour">The move type.</param>
-        public void AddMove(Vector3 pos, Steering.Behaviour behaviour = Steering.Behaviour.Seek)
-        {
-            AddMove(new Vector2(pos.x, pos.z), behaviour);
-        }
-
-        /// <summary>
-        /// Add a position to move based upon.
-        /// </summary>
-        /// <param name="pos">The position.</param>
-        /// <param name="behaviour">The move type.</param>
-        public void AddMove(Vector2 pos, Steering.Behaviour behaviour = Steering.Behaviour.Seek)
-        {
-            if (Moves.Exists(m => m.Behaviour == behaviour && m.Transform == null && m.Position == pos) || Steering.IsMoveComplete(behaviour, new(transform.position.x, transform.position.z), pos))
-            {
-                return;
-            }
-            
-            RemoveMove(pos);
-            Moves.Add(new(behaviour, pos));
+            AgentMove = new(behaviour, pos);
         }
 
         /// <summary>
@@ -593,7 +541,8 @@ namespace EasyAI
         /// </summary>
         public void StopMoving()
         {
-            Moves.Clear();
+            AgentMove = null;
+            Path.Clear();
         }
 
         /// <summary>
@@ -661,9 +610,9 @@ namespace EasyAI
             ActIncomplete();
 
             // After all actions are performed, calculate the agent's new performance.
-            if (PerformanceMeasure != null)
+            if (performanceMeasure != null)
             {
-                Performance = PerformanceMeasure.CalculatePerformance();
+                Performance = performanceMeasure.CalculatePerformance();
             }
             
             // Reset the elapsed time for the next time this method is called.
@@ -682,14 +631,14 @@ namespace EasyAI
         protected virtual void OnValidate()
         {
             // Find the performance measure.
-            PerformanceMeasure = GetComponent<PerformanceMeasure>();
-            if (PerformanceMeasure == null)
+            performanceMeasure = GetComponent<PerformanceMeasure>();
+            if (performanceMeasure == null)
             {
-                PerformanceMeasure = GetComponentInChildren<PerformanceMeasure>();
+                performanceMeasure = GetComponentInChildren<PerformanceMeasure>();
             }
-            if (PerformanceMeasure != null)
+            if (performanceMeasure != null)
             {
-                PerformanceMeasure.agent = this;
+                performanceMeasure.agent = this;
             }
 
             // Find all attached actuators.
@@ -860,35 +809,26 @@ namespace EasyAI
             }
 
             // If there is move data, perform it.
-            if (Path.Count == 0 && Moves.Count > 0)
+            if (Path.Count == 0 && AgentMove != null)
             {
-                // Look through every move data.
-                for (int i = 0; i < Moves.Count; i++)
+                // Get the position to move to/from.
+                Vector2 target = AgentMove.Position;
+
+                // If this was a transform movement and the transform is now gone or the move has been satisfied, remove it.
+                if (AgentMove.IsTransformTarget && AgentMove.Transform == null || Steering.IsMoveComplete(AgentMove.Behaviour, position, target))
                 {
-                    // Get the position to move to/from.
-                    Vector2 target = Moves[i].Position;
-
-                    // If this was a transform movement and the transform is now gone or the move has been satisfied, remove it.
-                    if (Moves[i].IsTransformTarget && Moves[i].Transform == null || Steering.IsMoveComplete(Moves[i].Behaviour, position, target))
-                    {
-                        Moves.RemoveAt(i--);
-                        continue;
-                    }
-
-                    // Increase the elapsed time for the move data.
-                    Moves[i].DeltaTime += deltaTime;
-                    
+                    AgentMove = null;
+                }
+                else
+                {
                     // Update the movement vector of the data based on its given move type.
-                    Moves[i].MoveVector = Steering.Move(Moves[i].Behaviour, position, MoveVelocity, target, Moves[i].LastPosition, acceleration, Moves[i].DeltaTime);
+                    AgentMove.MoveVector = Steering.Move(AgentMove.Behaviour, position, MoveVelocity, target, AgentMove.LastPosition, acceleration, deltaTime);
 
                     // Add the newly calculated movement data to the movement vector for this time step.
-                    movement += Moves[i].MoveVector;
+                    movement += AgentMove.MoveVector;
 
                     // Update the last position so the next time step could calculated predictive movement.
-                    Moves[i].LastPosition = target;
-
-                    // Zero the elapsed time since the action was completed for this move data.
-                    Moves[i].DeltaTime = 0;
+                    AgentMove.LastPosition = target;
                 }
             }
 
@@ -955,24 +895,6 @@ namespace EasyAI
 
                 _inProgressActions.RemoveAt(i--);
             }
-        }
-
-        /// <summary>
-        /// Remove move data for a transform.
-        /// </summary>
-        /// <param name="tr">The transform.</param>
-        private void RemoveMove(Transform tr)
-        {
-            Moves = Moves.Where(m => m.Transform != tr).ToList();
-        }
-
-        /// <summary>
-        /// Remove move data for a position.
-        /// </summary>
-        /// <param name="pos">The position.</param>
-        private void RemoveMove(Vector2 pos)
-        {
-            Moves = Moves.Where(m => m.Transform == null && m.Position != pos).ToList();
         }
     }
 }

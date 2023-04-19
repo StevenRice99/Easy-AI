@@ -749,22 +749,18 @@ namespace EasyAI
                     GL.Vertex(agent.Path[i + 1]);
                 }
             }
-            else
+            else if (agent.AgentMove != null)
             {
-                // Display the movement vectors of all move types.
-                foreach (Agent.Movement movement in agent.Moves)
-                {
-                    // Assign different colors for different behaviours.
-                    GL.Color(Steering.GizmosColor(movement.Behaviour));
+                // Assign different colors for different behaviours.
+                GL.Color(Steering.GizmosColor(agent.AgentMove.Behaviour));
             
-                    // Draw a line from the agent's position showing the force of this movement.
-                    GL.Vertex(position);
-                    GL.Vertex(position + rotation * (new Vector3(movement.MoveVector.x, position.y, movement.MoveVector.y).normalized * 2));
+                // Draw a line from the agent's position showing the force of this movement.
+                GL.Vertex(position);
+                GL.Vertex(position + rotation * (new Vector3(agent.AgentMove.MoveVector.x, position.y, agent.AgentMove.MoveVector.y).normalized * 2));
             
-                    // Draw another line from the agent's position to where the agent is seeking/pursuing/fleeing/evading to/from.
-                    GL.Vertex(position);
-                    GL.Vertex(new(movement.Position.x, position.y, movement.Position.y));
-                }
+                // Draw another line from the agent's position to where the agent is seeking/pursuing/fleeing/evading to/from.
+                GL.Vertex(position);
+                GL.Vertex(new(agent.AgentMove.Position.x, position.y, agent.AgentMove.Position.y));
             }
         }
 
@@ -825,14 +821,14 @@ namespace EasyAI
             switch (paths)
             {
                 case PathState.All:
-                    if ((lookupTable != null && lookupTable.Connections.Length > 0) || Agents.Any(a => a.Path.Count > 0 || a.Moves.Count > 0))
+                    if ((lookupTable != null && lookupTable.Connections.Length > 0) || Agents.Any(a => a.Path.Count > 0 || a.AgentMove != null))
                     {
                         break;
                     }
                     return;
                 case PathState.Active:
                 {
-                    if (Agents.Any(a => a.Path.Count > 0 || a.Moves.Count > 0))
+                    if (Agents.Any(a => a.Path.Count > 0 || a.AgentMove != null))
                     {
                         break;
                     }
@@ -843,7 +839,7 @@ namespace EasyAI
                 case PathState.Selected:
                 default:
                 {
-                    if (SelectedAgent != null && (SelectedAgent.Path.Count > 0 || SelectedAgent.Moves.Count > 0))
+                    if (SelectedAgent != null && (SelectedAgent.Path.Count > 0 || SelectedAgent.AgentMove != null))
                     {
                         break;
                     }
@@ -1095,7 +1091,7 @@ namespace EasyAI
             }
             
             y = NextItem(y, h, p);
-            int length = 2;
+            int length = 0;
             if (Singleton.Agents.Count > 1)
             {
                 length++;
@@ -1106,7 +1102,7 @@ namespace EasyAI
                 length++;
             }
 
-            if (Singleton.SelectedAgent.PerformanceMeasure != null)
+            if (Singleton.SelectedAgent.performanceMeasure != null)
             {
                 length++;
             }
@@ -1117,9 +1113,9 @@ namespace EasyAI
             }
             else
             {
-                if (Singleton.SelectedAgent.Moves.Count > 0)
+                if (Singleton.SelectedAgent.AgentMove != null)
                 {
-                    length += Singleton.SelectedAgent.Moves.Count;
+                    length += Singleton.SelectedAgent.AgentMove != null ? 1 : 0;
                 }
                 else
                 {
@@ -1128,7 +1124,11 @@ namespace EasyAI
             }
 
             // Display all agent details.
-            GuiBox(x, y, w, h, p, length);
+            if (length > 0)
+            {
+                GuiBox(x, y, w, h, p, length);
+            }
+            
             if (Singleton.Agents.Count > 1)
             {
                 GuiLabel(x, y, w, h, p, Singleton.SelectedAgent.name);
@@ -1141,39 +1141,28 @@ namespace EasyAI
                 y = NextItem(y, h, p);
             }
         
-            if (Singleton.SelectedAgent.PerformanceMeasure != null)
+            if (Singleton.SelectedAgent.performanceMeasure != null)
             {
                 GuiLabel(x, y, w, h, p, $"Performance: {Singleton.SelectedAgent.Performance}");
                 y = NextItem(y, h, p);
             }
-        
-            GuiLabel(x, y, w, h, p, $"Position: {Singleton.SelectedAgent.transform.position} | Velocity: {Singleton.SelectedAgent.MoveVelocity.magnitude}");
-        
-            y = NextItem(y, h, p);
-            GuiLabel(x, y, w, h, p, $"Rotation: {Singleton.SelectedAgent.Visuals.rotation.eulerAngles.y} Degrees" + (Singleton.SelectedAgent.LookingToTarget ? $" | Looking to {Singleton.SelectedAgent.LookTarget} at {Singleton.SelectedAgent.lookSpeed} degrees/second." : string.Empty));
 
             if (Singleton.SelectedAgent.Destination != null)
             {
                 Vector3 destination = Singleton.SelectedAgent.Destination.Value;
-                y = NextItem(y, h, p);
                 GuiLabel(x, y, w, h, p, $"Navigating to ({destination.x}, {destination.z})");
             }
             else
             {
-                if (Singleton.SelectedAgent.Moves.Count > 0)
+                if (Singleton.SelectedAgent.AgentMove != null)
                 {
-                    foreach (Agent.Movement movement in Singleton.SelectedAgent.Moves)
-                    {
-                        string toFrom = Steering.IsApproachingBehaviour(movement.Behaviour) ? " towards" : " from";
-                        Vector3 pos3 = movement.Transform != null ? movement.Transform.position : Vector3.zero;
-                        string pos = movement.Transform != null ? $" ({pos3.x}, {pos3.z})" : $" ({movement.Position.x}, {movement.Position.y})";
-                        y = NextItem(y, h, p);
-                        GuiLabel(x, y, w, h, p, $"{movement.Behaviour}{toFrom}{pos}");
-                    }
+                    string toFrom = Steering.IsApproachingBehaviour(Singleton.SelectedAgent.AgentMove.Behaviour) ? " towards" : " from";
+                    Vector3 pos3 = Singleton.SelectedAgent.AgentMove.Transform != null ? Singleton.SelectedAgent.AgentMove.Transform.position : Vector3.zero;
+                    string pos = Singleton.SelectedAgent.AgentMove.Transform != null ? $" ({pos3.x}, {pos3.z})" : $" ({Singleton.SelectedAgent.AgentMove.Position.x}, {Singleton.SelectedAgent.AgentMove.Position.y})";
+                    GuiLabel(x, y, w, h, p, $"{Singleton.SelectedAgent.AgentMove.Behaviour}{toFrom}{pos}");
                 }
                 else
                 {
-                    y = NextItem(y, h, p);
                     GuiLabel(x, y, w, h, p, $"Not moving");
                 }
             }
@@ -1872,9 +1861,9 @@ namespace EasyAI
             // If locked to following the best agent, select the best agent.
             float best = float.MinValue;
             SelectedAgent = null;
-            foreach (Agent agent in Agents.Where(a => a.PerformanceMeasure != null))
+            foreach (Agent agent in Agents.Where(a => a.performanceMeasure != null))
             {
-                float score = agent.PerformanceMeasure.CalculatePerformance();
+                float score = agent.performanceMeasure.CalculatePerformance();
                 if (score <= best)
                 {
                     continue;

@@ -430,7 +430,6 @@ namespace Project
             {
                 // Clear any current movement data.
                 team[i].StopMoving();
-                team[i].StopNavigating();
                 
                 // The closest soldier to the enemy flag becomes the collector.
                 if (i == 0)
@@ -519,7 +518,6 @@ namespace Project
             // Clear data the soldier had.
             DetectedEnemies.Clear();
             Target = null;
-            StopNavigating();
             StopMoving();
             StopLooking();
             MoveVelocity = Vector2.zero;
