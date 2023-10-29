@@ -9,7 +9,6 @@ Unity library to easily learn and prototype artificial intelligence for games.
 - [Assignment 2](#assignment-2 "Assignment 2")
   - [Tutorial 2](#tutorial-2 "Tutorial 2")
 - [Assignment 3](#assignment-3 "Assignment 3")
-- [Assignment 4](#assignment-4 "Assignment 4")
 - [Project](#project "Project")
 - [Assets](#assets "Assets")
 
