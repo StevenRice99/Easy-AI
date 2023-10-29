@@ -1621,7 +1621,9 @@ namespace EasyAI
         /// <summary>
         /// Bake navigation data.
         /// </summary>
+#if UNITY_EDITOR
         [MenuItem("Easy-AI/Bake Navigation")]
+#endif
         public static void BakeNavigation()
         {
             if (Application.isPlaying)
