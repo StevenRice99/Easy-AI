@@ -13,9 +13,6 @@ EditorBuildSettings:
     guid: 964ce0f3ab281494b957ba36c30ae95b
   - enabled: 1
     path: Assets/Scenes/Assignment 3.unity
-    guid: 8172c9cb28a4d5643a3a3d923d09cead
-  - enabled: 1
-    path: Assets/Scenes/Assignment 4.unity
     guid: ac84502638894624daf362cb7760b85c
   - enabled: 1
     path: Assets/Scenes/Project.unity

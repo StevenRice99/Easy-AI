@@ -1,17 +1,16 @@
-﻿using EasyAI;
-using EasyAI.Navigation;
+﻿using EasyAI.Navigation;
 using UnityEngine;
 using Manager = EasyAI.Manager;
 
-namespace A3
+namespace SteeringTesting
 {
     /// <summary>
     /// Manager that displays some buttons in its controls move the selected agent to various objects.
     /// </summary>
     [DisallowMultipleComponent]
-    public class SteeringDemoManager : Manager
+    public class SteeringTestingManager : Manager
     {
-        [Header("Steering Demo Parameters")]
+        [Header("Steering Testing Parameters")]
         [Tooltip("The objects to list controls for the agent to move in relation to.")]
         [SerializeField]
         private Transform[] targets;

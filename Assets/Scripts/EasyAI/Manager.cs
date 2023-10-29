@@ -987,6 +987,20 @@ namespace EasyAI
         }
 
         /// <summary>
+        /// Override for custom detail rendering on the automatic GUI.
+        /// </summary>
+        /// <param name="x">X rendering position. In most cases this should remain unchanged.</param>
+        /// <param name="y">Y rendering position. Update this with every component added and return it.</param>
+        /// <param name="w">Width of components. In most cases this should remain unchanged.</param>
+        /// <param name="h">Height of components. In most cases this should remain unchanged.</param>
+        /// <param name="p">Padding of components. In most cases this should remain unchanged.</param>
+        /// <returns>The updated Y position after all custom rendering has been done.</returns>
+        protected virtual float DisplayDetails(float x, float y, float w, float h, float p)
+        {
+            return y;
+        }
+
+        /// <summary>
         /// Render the automatic details GUI.
         /// </summary>
         /// <param name="x">X rendering position. In most cases this should remain unchanged.</param>
@@ -1021,6 +1035,7 @@ namespace EasyAI
             {
                 return;
             }
+            y = Singleton.DisplayDetails(x, y, w, h, p);
 
             if (Singleton.SelectedAgent == null && Singleton._state == GuiState.Agent || Singleton._selectedComponent == null && Singleton._state == GuiState.Component)
             {

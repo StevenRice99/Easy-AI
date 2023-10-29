@@ -1,9 +1,9 @@
 using UnityEngine;
 
-namespace A3
+namespace A2
 {
     /// <summary>
-    /// Simple class for spinning the cube in the steering demo level.
+    /// Simple class for spinning an object.
     /// </summary>
     public class Spinner : MonoBehaviour
     {
