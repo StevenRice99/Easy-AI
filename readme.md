@@ -15,7 +15,7 @@ Unity library to easily learn and prototype artificial intelligence for games.
 
 # Overview
 
-- Easy-AI consists of templates for four assignments that aim to build the skills necessary to complete the included project. Source code is fully commented with guidance to where sections are to be completed in each assignment. Assignments one and two focus on utilizing the Easy-AI library, whereas assignments three and four focus on developing the Easy-AI library itself. Each assignment is designed to be a building block to prepare for the final project of creating a game of capture the flag.
+- Easy-AI consists of three assignments and a final project. Assignment one introduces students to sensors and actuators for agents, assignment two teaches state machines and has students develop steering behaviors, and assignment three has students implement corner-graph node placement and A* pathfinding navigation. Each assignment is designed to be a building block to prepare for the final project of creating a game of capture the flag. Source code is fully commented with guidance to where sections are to be completed in each assignment.
 
 # Assignment 1
 
@@ -35,10 +35,11 @@ Agents, Sensors, and Actuators
 
 # Assignment 2
 
-Finite State Machines
+Finite State Machines and Steering Behaviors
 -
 
-- Now understanding the basics of how agents can interact with the world from assignment one, it’s now time to create more complex behaviours.
+- Now understanding the basics of how agents can interact with the world from assignment one, it’s now time to create more complex behaviours and movement.
+- Complete the flee, pursue, and evade steering behaviours in the Easy-AI library.
 - You need to complete the mind and states for microbes to allow them to hunt and mate with each other.
 - Some sensors you may find useful to use have already been provided. As microbes can only eat or mate with others of certain colors, these sensors will help you get valid prey or mates.
 - Explore the microbe agent API as it provides easy ways to access properties of the microbe such as its hunger and if it has mated yet.
@@ -61,16 +62,6 @@ Finite State Machines
 - This scene shows an agent moving between two states. When it has energy, it is moving around randomly. When it is out of energy, it rests in place.
 
 # Assignment 3
-
-Steering Behaviours
--
-
-- Our agents can now interact with the world and make more complex decisions, but the available tools to move them are limiting.
-- So far, agents can only seek a position. For instance, as seen with microbes, the library is missing behaviour to make a microbe run away when being hunted.
-- Complete the flee, pursue, and evade steering behaviours in the Easy-AI library.
-- Then, use these completed behaviours to go back and improve the microbes from assignment two, and see how the addition of a few new steering behaviours gives the scene more life.
-
-# Assignment 4
 
 Navigation
 -
