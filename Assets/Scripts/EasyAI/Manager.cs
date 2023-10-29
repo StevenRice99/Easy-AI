@@ -1623,7 +1623,6 @@ namespace EasyAI
         /// </summary>
 #if UNITY_EDITOR
         [MenuItem("Easy-AI/Bake Navigation")]
-#endif
         public static void BakeNavigation()
         {
             if (Application.isPlaying)
@@ -1818,6 +1817,7 @@ namespace EasyAI
             // Select the lookup table in the inspector for easily checking it.
             Selection.SetActiveObjectWithContext(Singleton.lookupTable, Singleton.lookupTable);
         }
+#endif
 
         /// <summary>
         /// Helper method to add a point on a navigation path to the lookup table.
