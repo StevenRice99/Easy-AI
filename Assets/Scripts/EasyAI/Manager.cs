@@ -14,8 +14,8 @@ using UnityEngine.SceneManagement;
 using Debug = UnityEngine.Debug;
 using Path = EasyAI.Navigation.Utility.Path;
 
-#if UNITY_EDITOR
 using System.IO;
+#if UNITY_EDITOR
 using UnityEditor;
 #endif
 
@@ -1618,7 +1618,6 @@ namespace EasyAI
             Singleton = this;
         }
         
-#if UNITY_EDITOR
         /// <summary>
         /// Bake navigation data.
         /// </summary>
@@ -1895,7 +1894,7 @@ namespace EasyAI
                 _nodes.Add(v);
             }
         }
-#endif
+        
         public override string ToString()
         {
             // Nothing to write if there is no data.
