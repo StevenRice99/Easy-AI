@@ -8,45 +8,57 @@ namespace A2.States
     /// State for microbes that are being hunted.
     /// </summary>
     [CreateAssetMenu(menuName = "A2/States/Microbe Hunted State", fileName = "Microbe Hunted State")]
-    public class MicrobeHuntedState : State
+    public class MicrobeHuntedState : EasyState
     {
-        public override void Enter(Agent agent)
+        /// <summary>
+        /// Called when an agent first enters this state.
+        /// </summary>
+        /// <param name="easyAgent">The agent.</param>
+        public override void Enter(EasyAgent easyAgent)
         {
-            agent.Log("Being hunted, starting to evade.");
+            easyAgent.Log("Being hunted, starting to evade.");
         }
 
-        public override void Execute(Agent agent)
+        /// <summary>
+        /// Called when an agent is in this state.
+        /// </summary>
+        /// <param name="easyAgent">The agent.</param>
+        public override void Execute(EasyAgent easyAgent)
         {
             // If no microbe is not being hunted, return.
-            if (agent is not Microbe {BeingHunted: true} microbe)
+            if (easyAgent is not Microbe {BeingHunted: true} microbe)
             {
-                agent.SetState<MicrobeRoamingState>();
+                easyAgent.SetState<MicrobeRoamingState>();
                 return;
             }
 
             // Check if the microbe can detect its pursuer.
             if (Vector3.Distance(microbe.transform.position, microbe.Hunter.transform.position) > microbe.DetectionRange)
             {
-                agent.Log("Have a feeling I am being hunted but don't know where they are.");
-                agent.SetState<MicrobeRoamingState>();
+                easyAgent.Log("Have a feeling I am being hunted but don't know where they are.");
+                easyAgent.SetState<MicrobeRoamingState>();
                 return;
             }
             
             // Otherwise move towards the microbe it is tracking.
-            agent.Log($"Evading {microbe.Hunter.name}.");
-            agent.Move(microbe.Hunter.transform, Steering.Behaviour.Evade);
+            easyAgent.Log($"Evading {microbe.Hunter.name}.");
+            easyAgent.Move(microbe.Hunter.transform, EasySteering.Behaviour.Evade);
         }
         
-        public override void Exit(Agent agent)
+        /// <summary>
+        /// Called when an agent exits this state.
+        /// </summary>
+        /// <param name="easyAgent">The agent.</param>
+        public override void Exit(EasyAgent easyAgent)
         {
-            if (agent is not Microbe microbe)
+            if (easyAgent is not Microbe microbe)
             {
                 return;
             }
 
             // Ensure the target microbe is null.
             microbe.RemoveTargetMicrobe();
-            agent.Log("No longer being hunted, stopping evading.");
+            easyAgent.Log("No longer being hunted, stopping evading.");
         }
     }
 }

@@ -9,35 +9,47 @@ namespace T2.States
     /// The state which the energy demo agent moves in.
     /// </summary>
     [CreateAssetMenu(menuName = "T2/States/Energy Move State", fileName = "Energy Move State")]
-    public class EnergyMoveState : State
+    public class EnergyMoveState : EasyState
     {
-        public override void Enter(Agent agent)
+        /// <summary>
+        /// Called when an agent first enters this state.
+        /// </summary>
+        /// <param name="easyAgent">The agent.</param>
+        public override void Enter(EasyAgent easyAgent)
         {
-            agent.Log("Ready to move.");
+            easyAgent.Log("Ready to move.");
         }
 
-        public override void Execute(Agent agent)
+        /// <summary>
+        /// Called when an agent is in this state.
+        /// </summary>
+        /// <param name="easyAgent">The agent.</param>
+        public override void Execute(EasyAgent easyAgent)
         {
-            agent.Log("Moving randomly to burn this energy.");
+            easyAgent.Log("Moving randomly to burn this energy.");
             Vector2 random = Random.insideUnitCircle;
-            agent.Move(agent.transform.position + new Vector3(random.x, 0, random.y));
+            easyAgent.Move(easyAgent.transform.position + new Vector3(random.x, 0, random.y));
             
             // Create deplete energy action.
-            agent.Act(new DepleteEnergyAction(agent.Sense<EnergySensor, EnergyComponent>()));
+            easyAgent.Act(new DepleteEnergyAction(easyAgent.Sense<EnergyEasySensor, EnergyComponent>()));
             
             // Get the energy component.
-            EnergyComponent energyComponent = agent.Sense<EnergySensor, EnergyComponent>();
+            EnergyComponent energyComponent = easyAgent.Sense<EnergyEasySensor, EnergyComponent>();
             
             // If out of energy, go into the rest state.
             if (energyComponent.Energy <= 0)
             {
-                agent.SetState<EnergyRestState>();
+                easyAgent.SetState<EnergyRestState>();
             }
         }
 
-        public override void Exit(Agent agent)
+        /// <summary>
+        /// Called when an agent exits this state.
+        /// </summary>
+        /// <param name="easyAgent">The agent.</param>
+        public override void Exit(EasyAgent easyAgent)
         {
-            agent.Log("Been moving for a while, getting tired.");
+            easyAgent.Log("Been moving for a while, getting tired.");
         }
     }
 }

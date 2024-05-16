@@ -157,6 +157,9 @@ namespace Project.Pickups
             return soldier.RedTeam && this == RedFlag || !soldier.RedTeam && this == BlueFlag;
         }
 
+        /// <summary>
+        /// Awake is called when an enabled script instance is being loaded.
+        /// </summary>
         private void Awake()
         {
             // Ensure only one flag for each team exists.
@@ -182,6 +185,9 @@ namespace Project.Pickups
             }
         }
         
+        /// <summary>
+        /// Update is called every frame, if the MonoBehaviour is enabled.
+        /// </summary>
         private void Update()
         {
             // Nothing to do if not being carried.

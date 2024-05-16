@@ -7,11 +7,15 @@ namespace A2.States
     /// The global state which microbes are always in.
     /// </summary>
     [CreateAssetMenu(menuName = "A2/States/Microbe Mind", fileName = "Microbe Mind")]
-    public class MicrobeMind : State
+    public class MicrobeMind : EasyState
     {
-        public override void Execute(Agent agent)
+        /// <summary>
+        /// Called when an agent is in this state.
+        /// </summary>
+        /// <param name="easyAgent">The agent.</param>
+        public override void Execute(EasyAgent easyAgent)
         {
-            if (agent is not Microbe microbe)
+            if (easyAgent is not Microbe microbe)
             {
                 return;
             }

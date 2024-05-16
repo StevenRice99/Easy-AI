@@ -7,7 +7,7 @@ namespace A2.Sensors
     /// Sensor to sense the nearest prey of the microbe.
     /// </summary>
     [DisallowMultipleComponent]
-    public class NearestPreySensor : EasyAI.Sensor
+    public class NearestPreySensor : EasyAI.EasySensor
     {
         /// <summary>
         /// Sense the nearest prey of the microbe.
@@ -15,7 +15,7 @@ namespace A2.Sensors
         /// <returns>The nearest prey of the microbe or null if none is found.</returns>
         public override object Sense()
         {
-            if (agent is not Microbe microbe)
+            if (easyAgent is not Microbe microbe)
             {
                 return null;
             }

@@ -7,7 +7,7 @@ namespace Project.Sensors
     /// Sensor to sense a random defensive position.
     /// </summary>
     [DisallowMultipleComponent]
-    public class RandomDefensivePositionSensor : Sensor
+    public class RandomDefensivePositionSensor : EasySensor
     {
         /// <summary>
         /// Sense a random defensive position.
@@ -15,7 +15,7 @@ namespace Project.Sensors
         /// <returns>A random defensive position.</returns>
         public override object Sense()
         {
-            return agent is not Soldier soldier ? null : SoldierManager.RandomStrategicPosition(soldier, true);
+            return easyAgent is not Soldier soldier ? null : SoldierManager.RandomStrategicPosition(soldier, true);
         }
     }
 }

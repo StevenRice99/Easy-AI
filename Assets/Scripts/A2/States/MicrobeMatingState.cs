@@ -9,38 +9,46 @@ namespace A2.States
     /// State for microbes that are seeking a mate.
     /// </summary>
     [CreateAssetMenu(menuName = "A2/States/Microbe Mating State", fileName = "Microbe Mating State")]
-    public class MicrobeMatingState : State
+    public class MicrobeMatingState : EasyState
     {
-        public override void Enter(Agent agent)
+        /// <summary>
+        /// Called when an agent first enters this state.
+        /// </summary>
+        /// <param name="easyAgent">The agent.</param>
+        public override void Enter(EasyAgent easyAgent)
         {
-            agent.Log("Looking for a mate.");
+            easyAgent.Log("Looking for a mate.");
         }
         
-        public override void Execute(Agent agent)
+        /// <summary>
+        /// Called when an agent is in this state.
+        /// </summary>
+        /// <param name="easyAgent">The agent.</param>
+        public override void Execute(EasyAgent easyAgent)
         {
             // If the microbe has already mated, return.
-            if (agent is not Microbe {DidMate: false} microbe)
+            if (easyAgent is not Microbe {DidMate: false} microbe)
             {
-                agent.SetState<MicrobeRoamingState>();
+                easyAgent.SetState<MicrobeRoamingState>();
                 return;
             }
 
             // If the microbe is not tracking another microbe to mate with yet, search for one.
             if (!microbe.HasTarget)
             {
-                microbe.AttractMate(agent.Sense<NearestMateSensor, Microbe>());
+                microbe.AttractMate(easyAgent.Sense<NearestMateSensor, Microbe>());
             }
 
             // If there are no microbes in detection range to mate with or the microbe was rejected, roam.
             if (!microbe.HasTarget)
             {
-                if (agent.Moving)
+                if (easyAgent.Moving)
                 {
                     return;
                 }
 
-                agent.Log("Cannot find a mate, roaming.");
-                agent.Move(Random.insideUnitCircle * MicrobeManager.FloorRadius);
+                easyAgent.Log("Cannot find a mate, roaming.");
+                easyAgent.Move(Random.insideUnitCircle * MicrobeManager.FloorRadius);
                 return;
             }
 
@@ -48,20 +56,24 @@ namespace A2.States
             if (!microbe.Mate())
             {
                 // Otherwise move towards the microbe it is tracking.
-                agent.Move(microbe.TargetMicrobeTransform, Steering.Behaviour.Pursue);
+                easyAgent.Move(microbe.TargetMicrobeTransform, EasySteering.Behaviour.Pursue);
             }
         }
         
-        public override void Exit(Agent agent)
+        /// <summary>
+        /// Called when an agent exits this state.
+        /// </summary>
+        /// <param name="easyAgent">The agent.</param>
+        public override void Exit(EasyAgent easyAgent)
         {
-            if (agent is not Microbe microbe)
+            if (easyAgent is not Microbe microbe)
             {
                 return;
             }
 
             // Ensure the target microbe is null.
             microbe.RemoveTargetMicrobe();
-            agent.Log("No longer looking for a mate.");
+            easyAgent.Log("No longer looking for a mate.");
         }
     }
 }

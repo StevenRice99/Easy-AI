@@ -11,15 +11,24 @@ namespace Project.Weapons
     [RequireComponent(typeof(AudioSource))]
     public class RaycastWeapon : Weapon
     {
+        /// <summary>
+        /// The material for the bullet trail.
+        /// </summary>
         [Tooltip("The material for the bullet trail.")]
         [SerializeField]
         private Material material;
 
+        /// <summary>
+        /// How many rounds to fire each shot.
+        /// </summary>
         [Tooltip("How many rounds to fire each shot.")]
         [Min(1)]
         [SerializeField]
         private int rounds = 1;
 
+        /// <summary>
+        /// How much spread should the shots have.
+        /// </summary>
         [Tooltip("How much spread should the shots have.")]
         [Range(0, 1)]
         [SerializeField]
@@ -140,6 +149,9 @@ namespace Project.Weapons
             base.ShootVisuals(positions);
         }
         
+        /// <summary>
+        /// Awake is called when an enabled script instance is being loaded.
+        /// </summary>
         protected override void Awake()
         {
             base.Awake();

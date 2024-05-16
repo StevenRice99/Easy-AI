@@ -9,11 +9,17 @@ namespace A2
     [DisallowMultipleComponent]
     public class DestroyAfterTime : MonoBehaviour
     {
-        [SerializeField]
+        /// <summary>
+        /// The time to wait before destroying this object.
+        /// </summary>
+        [Tooltip("The time to wait before destroying this object.")]
         [Min(float.Epsilon)]
-        [Tooltip("The time to wait before destroying this object")]
+        [SerializeField]
         private float duration = 1f;
 
+        /// <summary>
+        /// Start is called on the frame when a script is enabled just before any of the Update methods are called the first time.
+        /// </summary>
         private void Start()
         {
             StartCoroutine(DestroyAfterSeconds());

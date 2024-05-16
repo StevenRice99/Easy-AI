@@ -10,25 +10,38 @@ namespace Project.States
     /// The global state which soldiers are always in.
     /// </summary>
     [CreateAssetMenu(menuName = "Project/States/Soldier Mind", fileName = "Soldier Mind")]
-    public class SoldierMind : State
+    public class SoldierMind : EasyState
     {
+        /// <summary>
+        /// How much to consider low health.
+        /// </summary>
         [Tooltip("How much to consider low health.")]
         [SerializeField]
         private int lowHealth;
 
+        /// <summary>
+        /// How close in units is an enemy considered close.
+        /// </summary>
         [Tooltip("How close in units is an enemy considered close.")]
         [Min(0)]
         [SerializeField]
         private float distanceClose = 10;
 
+        /// <summary>
+        /// How far in units is an enemy considered far.
+        /// </summary>
         [Tooltip("How far in units is an enemy considered far.")]
         [Min(0)]
         [SerializeField]
         private float distanceFar = 20;
         
-        public override void Execute(Agent agent)
+        /// <summary>
+        /// Called when an agent is in this state.
+        /// </summary>
+        /// <param name="easyAgent">The agent.</param>
+        public override void Execute(EasyAgent easyAgent)
         {
-            if (agent is not Soldier soldier)
+            if (easyAgent is not Soldier soldier)
             {
                 return;
             }

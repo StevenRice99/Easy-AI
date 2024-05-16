@@ -11,7 +11,7 @@ namespace A1
     /// Extension of AgentManager to handle floor tile generation.
     /// </summary>
     [DisallowMultipleComponent]
-    public class CleanerManager : Manager
+    public class CleanerManager : EasyManager
     {
         /// <summary>
         /// All floors.
@@ -28,53 +28,86 @@ namespace A1
         /// </summary>
         private readonly List<Floor> _floors = new();
 
+        /// <summary>
+        /// How many floor sections will be generated.
+        /// </summary>
         [Header("Cleaner Parameters")]
         [Tooltip("How many floor sections will be generated.")]
         [SerializeField]
         private Vector2 floorSize = new(3, 1);
 
+        /// <summary>
+        /// How many units wide will each floor section be generated as.
+        /// </summary>
         [Tooltip("How many units wide will each floor section be generated as.")]
         [SerializeField]
         [Min(1)]
         private int floorScale = 1;
 
+        /// <summary>
+        /// The percentage chance that any floor section during generation will be likely to get dirty meaning the odds in increases in dirt level every time are double that of other floor sections.
+        /// </summary>
         [Tooltip("The percentage chance that any floor section during generation will be likely to get dirty meaning the odds in increases in dirt level every time are double that of other floor sections.")]
         [Range(0, 1)]
         [SerializeField]
         private float likelyToGetDirtyChance;
 
+        /// <summary>
+        /// How many seconds between every time dirt is randomly added to the floor.
+        /// </summary>
         [Tooltip("How many seconds between every time dirt is randomly added to the floor.")]
         [Min(0)]
         [SerializeField]
         private float timeBetweenDirtGeneration = 5;
 
+        /// <summary>
+        /// The percentage chance that a floor section will increase in dirt level during dirt generation.
+        /// </summary>
         [Tooltip("The percentage chance that a floor section will increase in dirt level during dirt generation.")]
         [Range(0, 1)]
         [SerializeField]
         private float chanceDirty;
         
+        /// <summary>
+        /// The prefab for the cleaning agent that will be spawned in.
+        /// </summary>
         [Header("Prefabs")]
         [Tooltip("The prefab for the cleaning agent that will be spawned in.")]
         [SerializeField]
         private GameObject cleanerAgentPrefab;
 
+        /// <summary>
+        /// The material applied to normal floor sections when they are clean.
+        /// </summary>
         [Header("Floor Materials")]
         [Tooltip("The material applied to normal floor sections when they are clean.")]
         [SerializeField]
         private Material materialCleanNormal;
 
+        /// <summary>
+        /// The material applied to like to get dirty floor sections when they are clean.
+        /// </summary>
         [Tooltip("The material applied to like to get dirty floor sections when they are clean.")]
         [SerializeField]
         private Material materialCleanLikelyToGetDirty;
 
+        /// <summary>
+        /// The material applied to a floor section when it is dirty.
+        /// </summary>
         [Tooltip("The material applied to a floor section when it is dirty.")]
         [SerializeField]
         private Material materialDirty;
 
+        /// <summary>
+        /// The material applied to a floor section when it is very dirty.
+        /// </summary>
         [Tooltip("The material applied to a floor section when it is very dirty.")]
         [SerializeField]
         private Material materialVeryDirty;
 
+        /// <summary>
+        /// The material applied to a floor section when it is extremely dirty.
+        /// </summary>
         [Tooltip("The material applied to a floor section when it is extremely dirty.")]
         [SerializeField]
         private Material materialExtremelyDirty;
@@ -142,7 +175,7 @@ namespace A1
             // Its collider is not needed.
             Destroy(go.GetComponent<Collider>());
             
-            // Add and setup its floor component.
+            // Add and se tup its floor component.
             Floor floor = go.AddComponent<Floor>();
             bool likelyToGetDirty = Random.value < CleanerSingleton.likelyToGetDirtyChance;
             floor.Setup(likelyToGetDirty, likelyToGetDirty ? CleanerSingleton.materialCleanLikelyToGetDirty : CleanerSingleton.materialCleanNormal, CleanerSingleton.materialDirty, CleanerSingleton.materialVeryDirty, CleanerSingleton.materialExtremelyDirty);
@@ -194,11 +227,13 @@ namespace A1
                     // Attempt to make each tile dirty three times meaning there is a chance a tile can gain multiple dirt levels at once.
                     for (int i = 0; i < 3; i++)
                     {
-                        if (Random.value <= dirtChance)
+                        if (Random.value > dirtChance)
                         {
-                            floor.Dirty();
-                            addedDirty = true;
+                            continue;
                         }
+
+                        floor.Dirty();
+                        addedDirty = true;
                     }
                 }
 
@@ -208,6 +243,9 @@ namespace A1
             while (!addedDirty);
         }
 
+        /// <summary>
+        /// Start is called on the frame when a script is enabled just before any of the Update methods are called the first time.
+        /// </summary>
         protected override void Start()
         {
             base.Start();
@@ -215,6 +253,9 @@ namespace A1
             SetFloorTiles();
         }
 
+        /// <summary>
+        /// Update is called every frame, if the MonoBehaviour is enabled.
+        /// </summary>
         protected override void Update()
         {
             base.Update();

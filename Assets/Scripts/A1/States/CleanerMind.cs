@@ -10,42 +10,46 @@ namespace A1.States
     /// The global state which the cleaner is always in.
     /// </summary>
     [CreateAssetMenu(menuName = "A1/States/Cleaner Mind", fileName = "Cleaner Mind")]
-    public class CleanerMind : State
+    public class CleanerMind : EasyState
     {
-        public override void Execute(Agent agent)
+        /// <summary>
+        /// Called when an agent first enters this state.
+        /// </summary>
+        /// <param name="easyAgent">The agent.</param>
+        public override void Execute(EasyAgent easyAgent)
         {
             // If currently cleaning, no need to make a new decision.
-            if (agent.HasAction<CleanAction>())
+            if (easyAgent.HasAction<CleanAction>())
             {
                 return;
             }
             
             // Read the dirty sensor to get the current tile.
-            Floor floor = agent.Sense<CurrentFloorSensor, Floor>();
+            Floor floor = easyAgent.Sense<CurrentFloorEasySensor, Floor>();
             
             // If there are no floor tiles to clean, determine where to move which will be the closest floor with the highest dirt level or the weighted midpoint.
             if (floor == null || !floor.IsDirty)
             {
-                agent.Log("Nothing to clean, preparing for more dirt.");
-                agent.Move(DetermineLocationToMove(agent));
+                easyAgent.Log("Nothing to clean, preparing for more dirt.");
+                easyAgent.Move(DetermineLocationToMove(easyAgent));
                 return;
             }
 
             // Otherwise we are on a dirty floor to so stop movement and start cleaning the current floor tile.
-            agent.Log("Cleaning current floor tile.");
-            agent.StopMoving();
-            agent.Act(new CleanAction(floor));
+            easyAgent.Log("Cleaning current floor tile.");
+            easyAgent.StopMoving();
+            easyAgent.Act(new CleanAction(floor));
         }
 
         /// <summary>
         /// Determine where the cleaner agent should move to.
         /// </summary>
-        /// <param name="agent">The agent.</param>
+        /// <param name="easyAgent">The agent.</param>
         /// <returns>The position of the closest dirtiest floor tile or the weighted midpoint if all floor tiles are clean.</returns>
-        private static Vector3 DetermineLocationToMove(Agent agent)
+        private static Vector3 DetermineLocationToMove(EasyAgent easyAgent)
         {
             // Read the dirty sensor to get the current tile.
-            FloorsData floorData = agent.Sense<AllFloorsSensor, FloorsData>();
+            FloorsData floorData = easyAgent.Sense<AllFloorsSensor, FloorsData>();
             if (floorData == null)
             {
                 return Vector3.zero;
@@ -71,7 +75,7 @@ namespace A1.States
                 }
             }
 
-            Vector3 position = agent.transform.position;
+            Vector3 position = easyAgent.transform.position;
 
             // If there are dirty floor tiles, return the position of the closest one.
             return dirty.Count > 0

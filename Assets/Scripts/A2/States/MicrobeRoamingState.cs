@@ -7,24 +7,36 @@ namespace A2.States
     /// Roaming state for the microbe, doesn't have any actions and only logs messages.
     /// </summary>
     [CreateAssetMenu(menuName = "A2/States/Microbe Roaming State", fileName = "Microbe Roaming State")]
-    public class MicrobeRoamingState : State
+    public class MicrobeRoamingState : EasyState
     {
-        public override void Enter(Agent agent)
+        /// <summary>
+        /// Called when an agent first enters this state.
+        /// </summary>
+        /// <param name="easyAgent">The agent.</param>
+        public override void Enter(EasyAgent easyAgent)
         {
-            agent.Log("Nothing to do, starting to roam.");
+            easyAgent.Log("Nothing to do, starting to roam.");
         }
 
-        public override void Execute(Agent agent)
+        /// <summary>
+        /// Called when an agent is in this state.
+        /// </summary>
+        /// <param name="easyAgent">The agent.</param>
+        public override void Execute(EasyAgent easyAgent)
         {
-            if (!agent.Moving)
+            if (!easyAgent.Moving)
             {
-                agent.Move(MicrobeManager.RandomPosition);
+                easyAgent.Move(MicrobeManager.RandomPosition);
             }
         }
         
-        public override void Exit(Agent agent)
+        /// <summary>
+        /// Called when an agent exits this state.
+        /// </summary>
+        /// <param name="easyAgent">The agent.</param>
+        public override void Exit(EasyAgent easyAgent)
         {
-            agent.Log("Got something to do, stopping roaming.");
+            easyAgent.Log("Got something to do, stopping roaming.");
         }
     }
 }

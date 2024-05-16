@@ -5,10 +5,10 @@ using UnityEngine;
 namespace A1.Sensors
 {
     /// <summary>
-    /// Senor to sense positions, dirt levels, and if they are likely to get dirty for all floor tiles in the scene.
+    /// Sensor to sense positions, dirt levels, and if they are likely to get dirty for all floor tiles in the scene.
     /// </summary>
     [DisallowMultipleComponent]
-    public class AllFloorsSensor : Sensor
+    public class AllFloorsSensor : EasySensor
     {
         /// <summary>
         /// Sense positions, dirt levels, and if they are likely to get dirty for all floor tiles in the scene.

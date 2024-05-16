@@ -14,10 +14,16 @@ namespace Project.Pickups
         /// </summary>
         private const float Speed = 180;
         
+        /// <summary>
+        /// Set to a negative number to be a health pickup, otherwise the weapon index of the player.
+        /// </summary>
         [Tooltip("Set to a negative number to be a health pickup, otherwise the weapon index of the player.")]
         [SerializeField]
         public int weaponIndex = -1;
 
+        /// <summary>
+        /// The visuals object to rotate.
+        /// </summary>
         [Tooltip("The visuals object to rotate.")]
         [SerializeField]
         private Transform visuals;
@@ -80,12 +86,18 @@ namespace Project.Pickups
             StartCoroutine(ReadyDelay());
         }
         
+        /// <summary>
+        /// Start is called on the frame when a script is enabled just before any of the Update methods are called the first time.
+        /// </summary>
         private void Start()
         {
             // Grab all meshes.
             _meshRenderers = GetComponentsInChildren<MeshRenderer>();
         }
 
+        /// <summary>
+        /// Update is called every frame, if the MonoBehaviour is enabled.
+        /// </summary>
         private void Update()
         {
             // Spin the visuals.

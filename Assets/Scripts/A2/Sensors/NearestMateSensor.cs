@@ -9,7 +9,7 @@ namespace A2.Sensors
     /// Sensor to sense the nearest potential mate of the microbe.
     /// </summary>
     [DisallowMultipleComponent]
-    public class NearestMateSensor : Sensor
+    public class NearestMateSensor : EasySensor
     {
         /// <summary>
         /// Sense the nearest potential mate of the microbe.
@@ -17,7 +17,7 @@ namespace A2.Sensors
         /// <returns>The nearest potential mate of the microbe or null if none is found.</returns>
         public override object Sense()
         {
-            if (agent is not Microbe microbe)
+            if (easyAgent is not Microbe microbe)
             {
                 return null;
             }

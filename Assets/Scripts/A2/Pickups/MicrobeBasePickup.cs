@@ -16,10 +16,13 @@ namespace A2.Pickups
         /// <param name="microbe">The microbe which picked up this pickup.</param>
         protected abstract void Execute(Microbe microbe);
 
+        /// <summary>
+        /// Update is called every frame, if the MonoBehaviour is enabled.
+        /// </summary>
         private void Update()
         {
             // Get all microbes near to this pickup.
-            Microbe[] microbes = Manager.CurrentAgents.Where(a => Vector3.Distance(a.transform.position, transform.position) <= MicrobeManager.MicrobeInteractRadius).Cast<Microbe>().ToArray();
+            Microbe[] microbes = EasyManager.CurrentAgents.Where(a => Vector3.Distance(a.transform.position, transform.position) <= MicrobeManager.MicrobeInteractRadius).Cast<Microbe>().ToArray();
             if (microbes.Length == 0)
             {
                 return;

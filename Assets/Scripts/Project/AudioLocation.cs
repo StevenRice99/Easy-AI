@@ -10,11 +10,14 @@ namespace Project
     [RequireComponent(typeof(AudioListener))]
     public class AudioLocation : MonoBehaviour
     {
+        /// <summary>
+        /// Update is called every frame, if the MonoBehaviour is enabled.
+        /// </summary>
         private void Update()
         {
-            if (Manager.SelectedCamera != null)
+            if (EasyManager.SelectedCamera != null)
             {
-                transform.position = Manager.SelectedCamera.transform.position;
+                transform.position = EasyManager.SelectedCamera.transform.position;
             }
         }
     }

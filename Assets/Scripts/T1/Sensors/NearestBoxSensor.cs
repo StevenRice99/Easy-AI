@@ -8,7 +8,7 @@ namespace T1.Sensors
     /// Senor to sense the nearest box to the agent.
     /// </summary>
     [DisallowMultipleComponent]
-    public class NearestBoxSensor : Sensor
+    public class NearestBoxSensor : EasySensor
     {
         /// <summary>
         /// Sense the nearest box to the agent.
@@ -18,7 +18,7 @@ namespace T1.Sensors
         {
             // Find all boxes in the scene.
             // Constantly finding objects is inefficient, in actual use look for ways to store values.
-            Transform[] boxes = FindObjectsOfType<Transform>().Where(t => t.name.Contains("Box")).ToArray();
+            Transform[] boxes = FindObjectsByType<Transform>(FindObjectsSortMode.None).Where(t => t.name.Contains("Box")).ToArray();
             
             // Return null if there are no boxes.
             if (boxes.Length == 0)
@@ -29,7 +29,7 @@ namespace T1.Sensors
 
             // Return the nearest box otherwise.
             Log("Getting nearest box.");
-            return boxes.OrderBy(b => Vector3.Distance(agent.transform.position, b.transform.position)).First();
+            return boxes.OrderBy(b => Vector3.Distance(easyAgent.transform.position, b.transform.position)).First();
         }
     }
 }

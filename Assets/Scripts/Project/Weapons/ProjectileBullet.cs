@@ -42,6 +42,9 @@ namespace Project.Weapons
         /// </summary>
         private Rigidbody _rb;
         
+        /// <summary>
+        /// Start is called on the frame when a script is enabled just before any of the Update methods are called the first time.
+        /// </summary>
         private void Start()
         {
             // Disable collisions with the soldier that shot it.
@@ -91,7 +94,7 @@ namespace Project.Weapons
                 int layerMask = LayerMask.GetMask("Default", "Obstacle", "Ground", "Projectile", "HitBox");
 
                 // Loop through all enemies.
-                foreach (Soldier soldier in FindObjectsOfType<Soldier>().Where(p => p != Shooter && p.RedTeam != Shooter.RedTeam && p != attacked).ToArray())
+                foreach (Soldier soldier in FindObjectsByType<Soldier>(FindObjectsSortMode.None).Where(p => p != Shooter && p.RedTeam != Shooter.RedTeam && p != attacked).ToArray())
                 {
                     // Get the points of every collider of an enemy.
                     Collider[] hitBoxes = soldier.GetComponentsInChildren<Collider>().Where(c => c.gameObject.layer == LayerMask.NameToLayer("HitBox")).ToArray();

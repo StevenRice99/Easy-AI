@@ -9,7 +9,7 @@ namespace A2.Sensors
     /// Sensor to sense the nearest pickup of the microbe.
     /// </summary>
     [DisallowMultipleComponent]
-    public class NearestPickupSensor : Sensor
+    public class NearestPickupSensor : EasySensor
     {
         /// <summary>
         /// Sense the nearest pickup of the microbe.
@@ -17,8 +17,8 @@ namespace A2.Sensors
         /// <returns>The nearest pickup of the microbe or null if none is found.</returns>
         public override object Sense()
         {
-            MicrobeBasePickup[] pickups = FindObjectsOfType<MicrobeBasePickup>();
-            return pickups.Length == 0 ? null : pickups.OrderBy(p => Vector3.Distance(agent.transform.position, p.transform.position)).FirstOrDefault();
+            MicrobeBasePickup[] pickups = FindObjectsByType<MicrobeBasePickup>(FindObjectsSortMode.None);
+            return pickups.Length == 0 ? null : pickups.OrderBy(p => Vector3.Distance(easyAgent.transform.position, p.transform.position)).FirstOrDefault();
         }
     }
 }

@@ -21,7 +21,7 @@ namespace A2.Pickups
         protected override void Execute(Microbe microbe)
         {
             microbe.Log("Powered up - magically spawned offspring!");
-            for (int i = 0; i < spawnCount && Manager.CurrentAgents.Count < MicrobeManager.MaxMicrobes; i++)
+            for (int i = 0; i < spawnCount && EasyManager.CurrentAgents.Count < MicrobeManager.MaxMicrobes; i++)
             {
                 // Treat this as mating but with the same parent passed in for both values.
                 MicrobeManager.Mate(microbe, microbe);

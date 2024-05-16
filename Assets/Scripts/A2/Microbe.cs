@@ -11,7 +11,7 @@ namespace A2
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(AudioSource))]
-    public class Microbe : TransformAgent
+    public class Microbe : EasyTransformAgent
     {
         /// <summary>
         /// The hunger of this microbe.
@@ -83,22 +83,37 @@ namespace A2
         /// </summary>
         public bool IsAdult => ElapsedLifespan >= LifeSpan / 2;
 
+        /// <summary>
+        /// The mesh renderer for the mesh that changes color depending on what state the agent is in.
+        /// </summary>
         [Tooltip("The mesh renderer for the mesh that changes color depending on what state the agent is in.")]
         [SerializeField]
         private MeshRenderer stateVisualization;
 
+        /// <summary>
+        /// Audio to play when spawning.
+        /// </summary>
         [Tooltip("Audio to play when spawning.")]
         [SerializeField]
         private AudioClip spawnAudio;
 
+        /// <summary>
+        /// Audio to play when eating another microbe.
+        /// </summary>
         [Tooltip("Audio to play when eating another microbe.")]
         [SerializeField]
         private AudioClip eatAudio;
 
+        /// <summary>
+        /// Audio to play when mating.
+        /// </summary>
         [Tooltip("Audio to play when mating.")]
         [SerializeField]
         private AudioClip mateAudio;
 
+        /// <summary>
+        /// Audio to play when picking up a pickup.
+        /// </summary>
         [Tooltip("Audio to play when picking up a pickup.")]
         [SerializeField]
         private AudioClip pickupAudio;
@@ -378,25 +393,25 @@ namespace A2
                 return;
             }
             
-            if (State as MicrobeRoamingState)
+            if (EasyState as MicrobeRoamingState)
             {
                 stateVisualization.material = MicrobeManager.SleepingIndicatorMaterial;
                 return;
             }
             
-            if (State as MicrobeHungryState)
+            if (EasyState as MicrobeHungryState)
             {
                 stateVisualization.material = MicrobeManager.FoodIndicatorMaterial;
                 return;
             }
             
-            if (State as MicrobeMatingState)
+            if (EasyState as MicrobeMatingState)
             {
                 stateVisualization.material = MicrobeManager.MateIndicatorMaterial;
                 return;
             }
             
-            if (State as MicrobeSeekingPickupState)
+            if (EasyState as MicrobeSeekingPickupState)
             {
                 stateVisualization.material = MicrobeManager.PickupIndicatorMaterial;
             }
@@ -429,20 +444,23 @@ namespace A2
         /// <returns>The updated Y position after all custom rendering has been done.</returns>
         public override float DisplayDetails(float x, float y, float w, float h, float p)
         {
-            y = Manager.NextItem(y, h, p);
-            Manager.GuiBox(x, y, w, h, p, 3);
+            y = EasyManager.NextItem(y, h, p);
+            EasyManager.GuiBox(x, y, w, h, p, 3);
 
-            Manager.GuiLabel(x, y, w, h, p, $"Hunger: {Hunger} | " + (IsHungry ? "Hungry" : "Not Hungry"));
-            y = Manager.NextItem(y, h, p);
+            EasyManager.GuiLabel(x, y, w, h, p, $"Hunger: {Hunger} | " + (IsHungry ? "Hungry" : "Not Hungry"));
+            y = EasyManager.NextItem(y, h, p);
 
-            Manager.GuiLabel(x, y, w, h, p, $"Lifespan: {ElapsedLifespan} / {LifeSpan} | " + (IsAdult ? "Adult" : "Infant"));
-            y = Manager.NextItem(y, h, p);
+            EasyManager.GuiLabel(x, y, w, h, p, $"Lifespan: {ElapsedLifespan} / {LifeSpan} | " + (IsAdult ? "Adult" : "Infant"));
+            y = EasyManager.NextItem(y, h, p);
             
-            Manager.GuiLabel(x, y, w, h, p, $"Mating: " + (DidMate ? "Already Mated" : IsAdult && !IsHungry ? _targetMicrobe == null ? "Searching for mate" : $"With {_targetMicrobe.name}" : "No"));
+            EasyManager.GuiLabel(x, y, w, h, p, $"Mating: " + (DidMate ? "Already Mated" : IsAdult && !IsHungry ? _targetMicrobe == null ? "Searching for mate" : $"With {_targetMicrobe.name}" : "No"));
             
             return y;
         }
 
+        /// <summary>
+        /// Start is called on the frame when a script is enabled just before any of the Update methods are called the first time.
+        /// </summary>
         protected void Start()
         {
             SetStateVisual();
@@ -471,6 +489,9 @@ namespace A2
             }
         }
 
+        /// <summary>
+        /// Update is called every frame, if the MonoBehaviour is enabled.
+        /// </summary>
         private void Update()
         {
             SetStateVisual();

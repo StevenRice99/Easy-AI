@@ -9,33 +9,45 @@ namespace T2.States
     /// The state which the energy demo agent rests in.
     /// </summary>
     [CreateAssetMenu(menuName = "T2/States/Energy Rest State", fileName = "Energy Rest State")]
-    public class EnergyRestState : State
+    public class EnergyRestState : EasyState
     {
-        public override void Enter(Agent agent)
+        /// <summary>
+        /// Called when an agent first enters this state.
+        /// </summary>
+        /// <param name="easyAgent">The agent.</param>
+        public override void Enter(EasyAgent easyAgent)
         {
-            agent.Log("I've got to recharge.");
+            easyAgent.Log("I've got to recharge.");
         }
 
-        public override void Execute(Agent agent)
+        /// <summary>
+        /// Called when an agent is in this state.
+        /// </summary>
+        /// <param name="easyAgent">The agent.</param>
+        public override void Execute(EasyAgent easyAgent)
         {
-            agent.Log("Replenishing...");
+            easyAgent.Log("Replenishing...");
             
             // Create deplete energy action.
-            agent.Act(new RestoreEnergyAction(agent.Sense<EnergySensor, EnergyComponent>()));
+            easyAgent.Act(new RestoreEnergyAction(easyAgent.Sense<EnergyEasySensor, EnergyComponent>()));
             
             // Get the energy component.
-            EnergyComponent energyComponent = agent.Sense<EnergySensor, EnergyComponent>();
+            EnergyComponent energyComponent = easyAgent.Sense<EnergyEasySensor, EnergyComponent>();
             
             // If energy has fully recharged, go into the move state.
             if (energyComponent.Energy >= energyComponent.MaxEnergy)
             {
-                agent.SetState<EnergyMoveState>();
+                easyAgent.SetState<EnergyMoveState>();
             }
         }
 
-        public override void Exit(Agent agent)
+        /// <summary>
+        /// Called when an agent exits this state.
+        /// </summary>
+        /// <param name="easyAgent">The agent.</param>
+        public override void Exit(EasyAgent easyAgent)
         {
-            agent.Log("Got all energy back.");
+            easyAgent.Log("Got all energy back.");
         }
     }
 }

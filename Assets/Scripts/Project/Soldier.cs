@@ -14,7 +14,7 @@ namespace Project
     /// <summary>
     /// Agent used to control the soldiers in the project.
     /// </summary>
-    public class Soldier : CharacterAgent
+    public class Soldier : EasyCharacterAgent
     {
         /// <summary>
         /// The behaviour of soldiers is dependent upon their role on the team.
@@ -71,22 +71,40 @@ namespace Project
             public bool Visible;
         }
 
+        /// <summary>
+        /// The position of the solder's head.
+        /// </summary>
         [Tooltip("The position of the solder's head.")]
         public Transform headPosition;
 
+        /// <summary>
+        /// The position of where to cast rays and spawn projectiles from.
+        /// </summary>
         [Tooltip("The position of where to cast rays and spawn projectiles from.")]
         public Transform shootPosition;
 
+        /// <summary>
+        /// The position of where to hold the flag when carrying it.
+        /// </summary>
         [Tooltip("The position of where to hold the flag when carrying it.")]
         public Transform flagPosition;
 
+        /// <summary>
+        /// The position of where weapons are held at by the soldier.
+        /// </summary>
         [Tooltip("The position of where weapons are held at by the soldier.")]
         public Transform weaponPosition;
 
+        /// <summary>
+        /// All visuals which change color based on the soldier's team.
+        /// </summary>
         [SerializeField]
         [Tooltip("All visuals which change color based on the soldier's team.")]
         private MeshRenderer[] colorVisuals;
 
+        /// <summary>
+        /// All remaining visuals that do not change color based on the soldier's team.
+        /// </summary>
         [SerializeField]
         [Tooltip("All remaining visuals that do not change color based on the soldier's team.")]
         private MeshRenderer[] otherVisuals;
@@ -151,6 +169,9 @@ namespace Project
         /// </summary>
         public Collider[] Colliders { get; private set; }
         
+        /// <summary>
+        /// Distance to the current target.
+        /// </summary>
         public float DistanceTarget => Target == null ? float.MaxValue : Vector3.Distance(shootPosition.position, Target.Value.Position);
 
         /// <summary>
@@ -199,27 +220,27 @@ namespace Project
         /// <returns>The updated Y position after all custom rendering has been done.</returns>
         public override float DisplayDetails(float x, float y, float w, float h, float p)
         {
-            y = Manager.NextItem(y, h, p);
-            Manager.GuiBox(x, y, w, h, p, 8);
+            y = EasyManager.NextItem(y, h, p);
+            EasyManager.GuiBox(x, y, w, h, p, 8);
             
             // Display overall flags captured for each team.
-            Manager.GuiLabel(x, y, w, h, p, $"Team Captures - Red: {SoldierManager.CapturedRed} | Blue: {SoldierManager.CapturedBlue}");
-            y = Manager.NextItem(y, h, p);
+            EasyManager.GuiLabel(x, y, w, h, p, $"Team Captures - Red: {SoldierManager.CapturedRed} | Blue: {SoldierManager.CapturedBlue}");
+            y = EasyManager.NextItem(y, h, p);
             
             // Display overall kills for each team.
-            Manager.GuiLabel(x, y, w, h, p, $"Team Kills - Red: {SoldierManager.KillsRed} | Blue: {SoldierManager.KillsBlue}");
-            y = Manager.NextItem(y, h, p);
+            EasyManager.GuiLabel(x, y, w, h, p, $"Team Kills - Red: {SoldierManager.KillsRed} | Blue: {SoldierManager.KillsBlue}");
+            y = EasyManager.NextItem(y, h, p);
 
             // Display the role of this soldier.
-            Manager.GuiLabel(x, y, w, h, p, Role == SoliderRole.Dead ? "Respawning" : $"Role: {Role}");
-            y = Manager.NextItem(y, h, p);
+            EasyManager.GuiLabel(x, y, w, h, p, Role == SoliderRole.Dead ? "Respawning" : $"Role: {Role}");
+            y = EasyManager.NextItem(y, h, p);
 
             // Display the health of this soldier.
-            Manager.GuiLabel(x, y, w, h, p, $"Health: {Health} / {SoldierManager.Health}");
-            y = Manager.NextItem(y, h, p);
+            EasyManager.GuiLabel(x, y, w, h, p, $"Health: {Health} / {SoldierManager.Health}");
+            y = EasyManager.NextItem(y, h, p);
 
             // Display the weapon this soldier is using.
-            Manager.GuiLabel(x, y, w, h, p, Role == SoliderRole.Dead ? "Weapon: None" : WeaponIndex switch
+            EasyManager.GuiLabel(x, y, w, h, p, Role == SoliderRole.Dead ? "Weapon: None" : WeaponIndex switch
             {
                 (int) WeaponIndexes.MachineGun => $"Weapon: Machine Gun | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].MaxAmmo}",
                 (int) WeaponIndexes.Shotgun => $"Weapon: Shotgun | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].MaxAmmo}",
@@ -227,19 +248,19 @@ namespace Project
                 (int) WeaponIndexes.RocketLauncher => $"Weapon: Rocket Launcher | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].MaxAmmo}",
                 _ => "Weapon: Pistol"
             });
-            y = Manager.NextItem(y, h, p);
+            y = EasyManager.NextItem(y, h, p);
             
             // Display the enemy this soldier is fighting.
-            Manager.GuiLabel(x, y, w, h, p, Target == null || Target.Value.Enemy == null ? "Fighting: Nobody" : $"Fighting: {Target.Value.Enemy.name}");
-            y = Manager.NextItem(y, h, p);
+            EasyManager.GuiLabel(x, y, w, h, p, Target == null || Target.Value.Enemy == null ? "Fighting: Nobody" : $"Fighting: {Target.Value.Enemy.name}");
+            y = EasyManager.NextItem(y, h, p);
 
             // Display all enemies this soldier has detected.
             int visible = DetectedEnemies.Count(e => e.Visible);
-            Manager.GuiLabel(x, y, w, h, p, $"Detected Enemies - See: {visible} | Hear: {DetectedEnemies.Count - visible}");
-            y = Manager.NextItem(y, h, p);
+            EasyManager.GuiLabel(x, y, w, h, p, $"Detected Enemies - See: {visible} | Hear: {DetectedEnemies.Count - visible}");
+            y = EasyManager.NextItem(y, h, p);
 
             // Display how many flag captures this soldier has.
-            Manager.GuiLabel(x, y, w, h, p, $"Captures: {Captures} | Returns: {Returns} | K/D : {Kills}/{Deaths}");
+            EasyManager.GuiLabel(x, y, w, h, p, $"Captures: {Captures} | Returns: {Returns} | K/D : {Kills}/{Deaths}");
             
             return y;
         }
@@ -326,11 +347,18 @@ namespace Project
             WeaponPriority[4] = pistol;
         }
         
+        /// <summary>
+        /// Set the target.
+        /// </summary>
+        /// <param name="targetData">The new target.</param>
         public void SetTarget(TargetData targetData)
         {
             Target = targetData;
         }
 
+        /// <summary>
+        /// Get rid of the current target.
+        /// </summary>
         public void NoTarget()
         {
             Target = null;
@@ -499,7 +527,7 @@ namespace Project
         /// <returns>All enemies in line of sight.</returns>
         public IEnumerable<Soldier> SeeEnemies()
         {
-            return GetEnemies().Where(enemy => !Physics.Linecast(headPosition.position, enemy.headPosition.position, Manager.ObstacleLayers)).ToArray();
+            return GetEnemies().Where(enemy => !Physics.Linecast(headPosition.position, enemy.headPosition.position, EasyManager.ObstacleLayers)).ToArray();
         }
 
         /// <summary>
@@ -529,6 +557,9 @@ namespace Project
             Spawn();
         }
 
+        /// <summary>
+        /// Start is called on the frame when a script is enabled just before any of the Update methods are called the first time.
+        /// </summary>
         protected void Start()
         {
             // Setup all weapons.
@@ -568,6 +599,9 @@ namespace Project
             Spawn();
         }
 
+        /// <summary>
+        /// This function is called when the behaviour becomes disabled.
+        /// </summary>
         protected override void OnDisable()
         {
             try

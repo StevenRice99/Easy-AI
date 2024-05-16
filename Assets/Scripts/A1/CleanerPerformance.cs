@@ -9,7 +9,7 @@ namespace A1
     /// Calculate how well the cleaner agent is performing based on how clean the floor is.
     /// </summary>
     [DisallowMultipleComponent]
-    public class CleanerPerformance : PerformanceMeasure
+    public class CleanerPerformance : EasyPerformanceMeasure
     {
         /// <summary>
         /// Calculate how well the cleaner agent is performing based on how clean the floor is.

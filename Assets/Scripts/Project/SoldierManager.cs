@@ -10,7 +10,7 @@ namespace Project
     /// <summary>
     /// Manager for soldiers.
     /// </summary>
-    public class SoldierManager : Manager
+    public class SoldierManager : EasyManager
     {
         /// <summary>
         /// How much health each soldier has.
@@ -102,63 +102,99 @@ namespace Project
         /// </summary>
         private static SoldierManager SoldierSingleton => Singleton as SoldierManager;
 
+        /// <summary>
+        /// How many soldiers to have on each team.
+        /// </summary>
         [Header("Match Settings")]
         [Tooltip("How many soldiers to have on each team.")]
         [Range(1, 15)]
         [SerializeField]
         private int soldiersPerTeam = 3;
         
+        /// <summary>
+        /// How much health each soldier has.
+        /// </summary>
         [Tooltip("How much health each soldier has.")]
         [Min(1)]
         [SerializeField]
         private int health = 100;
 
+        /// <summary>
+        /// How many seconds soldiers need to wait to respawn.
+        /// </summary>
         [Tooltip("How many seconds soldiers need to wait to respawn.")]
         [Min(0)]
         [SerializeField]
         private float respawn = 10;
 
+        /// <summary>
+        /// How many seconds before a pickup can be used again.
+        /// </summary>
         [Tooltip("How many seconds before a pickup can be used again.")]
         [Min(0)]
         [SerializeField]
         private float pickupTimer = 10;
 
+        /// <summary>
+        /// How many seconds before an old seen or hear enemy is removed from memory.
+        /// </summary>
         [Tooltip("How many seconds before an old seen or hear enemy is removed from memory.")]
         [Min(0)]
         [SerializeField]
         private float memoryTime = 5;
 
+        /// <summary>
+        /// How loud the audio is.
+        /// </summary>
         [Tooltip("How loud the audio is.")]
         [Range(0, 1)]
         [SerializeField]
         private float volume;
 
+        /// <summary>
+        /// How much score each flag capture is worth for a soldier's performance.
+        /// </summary>
         [Header("Performance Scores")]
         [Tooltip("How much score each flag capture is worth for a soldier's performance.")]
         [Min(0)]
         [SerializeField]
         private int scoreCapture = 10;
 
+        /// <summary>
+        /// How much score each flag return is worth for a soldier's performance.
+        /// </summary>
         [Tooltip("How much score each flag return is worth for a soldier's performance.")]
         [Min(0)]
         [SerializeField]
         private int scoreReturn = 5;
 
+        /// <summary>
+        /// How much score each kill gains for a soldier and each death loses.
+        /// </summary>
         [Tooltip("How much score each kill gains for a soldier and each death loses.")]
         [Min(0)]
         [SerializeField]
         private int scoreKillsDeaths = 1;
 
+        /// <summary>
+        /// The prefab for soldiers.
+        /// </summary>
         [Header("Prefabs")]
         [Tooltip("The prefab for soldiers.")]
         [SerializeField]
         private GameObject soldierPrefab;
 
+        /// <summary>
+        /// The material to apply to the red soldiers.
+        /// </summary>
         [Header("Materials")]
         [Tooltip("The material to apply to the red soldiers.")]
         [SerializeField]
         private Material red;
 
+        /// <summary>
+        /// The material to apply to the blue soldiers.
+        /// </summary>
         [Tooltip("The material to apply to the blue soldiers.")]
         [SerializeField]
         private Material blue;
@@ -209,9 +245,9 @@ namespace Project
         private readonly List<Soldier> _teamBlue = new();
 
         /// <summary>
-        /// 
+        /// Capture the flag.
         /// </summary>
-        /// <param name="flag"></param>
+        /// <param name="flag">The flag that was captured.</param>
         public static void CaptureFlag(FlagPickup flag)
         {
             if (flag.IsRedFlag)
@@ -287,27 +323,27 @@ namespace Project
         /// <summary>
         /// Get a health pack to move to.
         /// </summary>
-        /// <param name="agent">The agent.</param>
+        /// <param name="easyAgent">The agent.</param>
         /// <returns>The health pack to move to or null if none are ready.</returns>
-        public static HealthAmmoPickup NearestHealthPickup(Agent agent)
+        public static HealthAmmoPickup NearestHealthPickup(EasyAgent easyAgent)
         {
             // A health pickup is just a weapon pickup with an index of -1, so simply return that.
-            return NearestAmmoPickup(agent, -1);
+            return NearestAmmoPickup(easyAgent, -1);
         }
 
         /// <summary>
         /// Get an ammo pickup to move to.
         /// </summary>
-        /// <param name="agent">The agent.</param>
+        /// <param name="easyAgent">The agent.</param>
         /// <param name="weaponIndex">The weapon type to look for.</param>
         /// <returns>The ammo pickup to move to or null if none are ready.</returns>
-        public static HealthAmmoPickup NearestAmmoPickup(Agent agent, int weaponIndex)
+        public static HealthAmmoPickup NearestAmmoPickup(EasyAgent easyAgent, int weaponIndex)
         {
             // Get all pickups for the given type that can be picked up.
             HealthAmmoPickup[] ready = SoldierSingleton._healthWeaponPickups.Where(p => p.weaponIndex == weaponIndex && p.Ready).ToArray();
             
             // Get the nearest one if there are any, otherwise return null.
-            return ready.Length > 0 ? ready.OrderBy(p => Vector3.Distance(agent.transform.position, p.transform.position)).First() : null;
+            return ready.Length > 0 ? ready.OrderBy(p => Vector3.Distance(easyAgent.transform.position, p.transform.position)).First() : null;
         }
 
         /// <summary>
@@ -359,15 +395,18 @@ namespace Project
             SoldierSingleton._capturedBlue = 0;
         }
         
+        /// <summary>
+        /// Start is called on the frame when a script is enabled just before any of the Update methods are called the first time.
+        /// </summary>
         protected override void Start()
         {
             // Perform base agent manager setup.
             base.Start();
 
             // Get all points in the level.
-            _spawnPoints = FindObjectsOfType<SpawnPoint>();
-            _strategicPoints = FindObjectsOfType<StrategicPoint>();
-            _healthWeaponPickups = FindObjectsOfType<HealthAmmoPickup>();
+            _spawnPoints = FindObjectsByType<SpawnPoint>(FindObjectsSortMode.None);
+            _strategicPoints = FindObjectsByType<StrategicPoint>(FindObjectsSortMode.None);
+            _healthWeaponPickups = FindObjectsByType<HealthAmmoPickup>(FindObjectsSortMode.None);
 
             // Spawn all soldiers.
             for (int i = 0; i < soldiersPerTeam * 2; i++)
@@ -376,13 +415,16 @@ namespace Project
             }
         }
 
+        /// <summary>
+        /// Update is called every frame, if the MonoBehaviour is enabled.
+        /// </summary>
         protected override void Update()
         {
             // Perform base agent manager updates.
             base.Update();
 
             // Loop through every agent.
-            foreach (Agent agent in Agents)
+            foreach (EasyAgent agent in Agents)
             {
                 // Only perform on alive soldiers.
                 if (agent is not Soldier { Alive: true } soldier)
@@ -434,14 +476,14 @@ namespace Project
             int layerMask = LayerMask.GetMask("Default", "Obstacle", "Ground", "Projectile", "HitBox");
 
             // Loop through all agents again.
-            foreach (Agent agent in Agents)
+            foreach (EasyAgent agent in Agents)
             {
                 // Only perform for alive soldiers.
                 if (agent is not Soldier { Alive: true } soldier)
                 {
                     agent.StopMoving();
                     agent.StopLooking();
-                    if (agent == SelectedAgent)
+                    if (agent == SelectedEasyAgent)
                     {
                         Soldier[] aliveSoldiers = Agents.Where(a => a is Soldier {Alive: true, performanceMeasure: not null}).Cast<Soldier>().ToArray();
                         float best = float.MinValue;
@@ -454,7 +496,7 @@ namespace Project
                             }
 
                             best = score;
-                            SelectedAgent = s;
+                            SelectedEasyAgent = s;
                         }
                     }
                     continue;

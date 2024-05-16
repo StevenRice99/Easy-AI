@@ -26,6 +26,9 @@ namespace Project.Weapons
             public int Hits;
         }
 
+        /// <summary>
+        /// The maximum ammo of the weapon, setting to less than 0 will give unlimited ammo.
+        /// </summary>
         [Tooltip("The maximum ammo of the weapon, setting to less than 0 will give unlimited ammo.")]
         [SerializeField]
         private int maxAmmo = -1;
@@ -50,49 +53,85 @@ namespace Project.Weapons
         /// </summary>
         public int Ammo { get; private set; }
 
+        /// <summary>
+        /// The maximum ammo of the weapon, setting to less than 0 will give unlimited ammo.
+        /// </summary>
         public int MaxAmmo => maxAmmo;
 
+        /// <summary>
+        /// How fast an agent can move when using this weapon.
+        /// </summary>
         public float MoveSpeed => moveSpeed;
 
+        /// <summary>
+        /// How fast an agent can rotate when using this weapon.
+        /// </summary>
         public float RotationSpeed => rotationSpeed;
 
+        /// <summary>
+        /// The sound to make upon bullet impact.
+        /// </summary>
         [Tooltip("The sound to make upon bullet impact.")]
         [SerializeField]
         private AudioClip impactSound;
 
+        /// <summary>
+        /// The effect prefab to show upon bullet impact.
+        /// </summary>
         [Tooltip("The effect prefab to show upon bullet impact.")]
         [SerializeField]
         private GameObject impactEffectPrefab;
         
+        /// <summary>
+        /// The barrel of the weapon.
+        /// </summary>
         [Tooltip("The barrel of the weapon.")]
         [SerializeField]
         protected Transform barrel;
         
+        /// <summary>
+        /// How much damage the weapon should do.
+        /// </summary>
         [Tooltip("How much damage the weapon should do.")]
         [Min(1)]
         [SerializeField]
         protected int damage;
         
+        /// <summary>
+        /// How long between shots should there be.
+        /// </summary>
         [Tooltip("How long between shots should there be.")]
         [Min(0)]
         [SerializeField]
         protected float delay;
         
+        /// <summary>
+        /// How long bullet trails or projectiles last for.
+        /// </summary>
         [Tooltip("How long bullet trails or projectiles last for.")]
         [Min(0)]
         [SerializeField]
         protected float time;
 
+        /// <summary>
+        /// How fast an agent can move when using this weapon.
+        /// </summary>
         [Tooltip("How fast an agent can move when using this weapon.")]
         [Min(float.Epsilon)]
         [SerializeField]
         private float moveSpeed = 10;
 
+        /// <summary>
+        /// How fast an agent can rotate when using this weapon.
+        /// </summary>
         [Tooltip("How fast an agent can rotate when using this weapon.")]
         [Min(0)]
         [SerializeField]
         private float rotationSpeed = 30;
 
+        /// <summary>
+        /// How far away shots can be heard by agents.
+        /// </summary>
         [Tooltip("How far away shots can be heard by agents.")]
         [Min(0)]
         [SerializeField]
@@ -236,12 +275,18 @@ namespace Project.Weapons
             _shootSound.Play();
         }
 
+        /// <summary>
+        /// Awake is called when an enabled script instance is being loaded.
+        /// </summary>
         protected virtual void Awake()
         {
             // Ensure weapon is loaded to start.
             Replenish();
         }
 
+        /// <summary>
+        /// Start is called on the frame when a script is enabled just before any of the Update methods are called the first time.
+        /// </summary>
         private void Start()
         {
             // Ensure volume is good.

@@ -7,13 +7,19 @@ namespace A1.Actuators
     /// Actuator to clean a floor tile.
     /// </summary>
     [DisallowMultipleComponent]
-    public class CleanActuator : Actuator
+    public class CleanActuator : EasyActuator
     {
+        /// <summary>
+        /// The time in seconds it takes to clean a floor tile.
+        /// </summary>
         [SerializeField]
         [Min(0)]
         [Tooltip("The time in seconds it takes to clean a floor tile.")]
         private float timeToClean = 0.25f;
 
+        /// <summary>
+        /// Dirt particles system to display when cleaning.
+        /// </summary>
         [SerializeField]
         [Tooltip("Dirt particles system to display when cleaning.")]
         private ParticleSystem dirtParticles;
@@ -45,7 +51,7 @@ namespace A1.Actuators
             }
 
             // Increment how long the floor has been getting cleaned for.
-            _timeSpentCleaning += agent.DeltaTime;
+            _timeSpentCleaning += easyAgent.DeltaTime;
 
             // If the tile has not been cleaned long enough, return false as it has not finished getting cleaned.
             if (_timeSpentCleaning < timeToClean)
@@ -63,6 +69,9 @@ namespace A1.Actuators
             return true;
         }
 
+        /// <summary>
+        /// Start is called on the frame when a script is enabled just before any of the Update methods are called the first time.
+        /// </summary>
         protected void Start()
         {
             DisableParticles();

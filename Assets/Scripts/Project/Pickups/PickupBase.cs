@@ -16,11 +16,19 @@ namespace Project.Pickups
         /// <param name="ammo">The ammo array of the soldier.</param>
         protected abstract void OnPickedUp(Soldier soldier, int[] ammo);
         
+        /// <summary>
+        /// When a GameObject collides with another GameObject, Unity calls OnTriggerEnter.
+        /// </summary>
+        /// <param name="other">The trigger that was entered.</param>
         private void OnTriggerEnter(Collider other)
         {
             DetectPickup(other);
         }
 
+        /// <summary>
+        /// OnTriggerStay is called once per physics update for every Collider other that is touching the trigger.
+        /// </summary>
+        /// <param name="other">The trigger that this is in.</param>
         private void OnTriggerStay(Collider other)
         {
             DetectPickup(other);

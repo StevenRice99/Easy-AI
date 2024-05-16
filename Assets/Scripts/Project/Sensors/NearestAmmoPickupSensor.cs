@@ -8,7 +8,7 @@ namespace Project.Sensors
     /// Sensor to sense the nearest ammo pickup to a soldier.
     /// </summary>
     [DisallowMultipleComponent]
-    public class NearestAmmoPickupSensor : Sensor
+    public class NearestAmmoPickupSensor : EasySensor
     {
         /// <summary>
         /// Sense the nearest ammo pickup to a soldier.
@@ -16,7 +16,7 @@ namespace Project.Sensors
         /// <returns>The nearest available ammo pickup, prioritizing the soldier's weapon priority, or null if no pickups available.</returns>
         public override object Sense()
         {
-            if (agent is not Soldier soldier)
+            if (easyAgent is not Soldier soldier)
             {
                 return null;
             }

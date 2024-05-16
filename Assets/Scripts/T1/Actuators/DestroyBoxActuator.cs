@@ -7,7 +7,7 @@ namespace T1.Actuators
     /// Actuator to collect a box.
     /// </summary>
     [DisallowMultipleComponent]
-    public class DestroyBoxActuator : Actuator
+    public class DestroyBoxActuator : EasyActuator
     {
         [Tooltip("How far away from the box must the agent be to pick it up.")]
         [Min(float.Epsilon)]
@@ -29,8 +29,8 @@ namespace T1.Actuators
                 return false;
             }
 
-            // Return false if not close enough to pickup the box.
-            if (Vector3.Distance(agent.transform.position, box.position) > collectDistance)
+            // Return false if not close enough to destroy the box.
+            if (Vector3.Distance(easyAgent.transform.position, box.position) > collectDistance)
             {
                 Log("Not close enough to pick up the box.");
                 return false;

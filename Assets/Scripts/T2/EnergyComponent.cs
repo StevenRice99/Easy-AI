@@ -18,6 +18,9 @@ namespace T2
         /// </summary>
         public float Energy => energy;
         
+        /// <summary>
+        /// Current energy.
+        /// </summary>
         [Tooltip("Current energy.")]
         [SerializeField]
         private float energy = 5;
@@ -48,6 +51,9 @@ namespace T2
             }
         }
 
+        /// <summary>
+        /// Start is called on the frame when a script is enabled just before any of the Update methods are called the first time.
+        /// </summary>
         private void Start()
         {
             MaxEnergy = energy;
