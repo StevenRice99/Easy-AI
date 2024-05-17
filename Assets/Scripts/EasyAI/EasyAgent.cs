@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using EasyAI.Navigation;
 using Unity.Mathematics;
+using Unity.MLAgents;
+using Unity.MLAgents.Actuators;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -12,7 +14,7 @@ namespace EasyAI
     /// Base class for all agents.
     /// </summary>
     [DisallowMultipleComponent]
-    public abstract class EasyAgent : MonoBehaviour
+    public abstract class EasyAgent : Agent
     {
         /// <summary>
         /// The actions of this agent that are not yet completed.
@@ -56,11 +58,6 @@ namespace EasyAI
         public bool LookingToTarget { get; private set; }
 
         /// <summary>
-        /// The performance measure of the agent.
-        /// </summary>
-        public float Performance { get; private set; }
-
-        /// <summary>
         /// The sensors of this agent.
         /// </summary>
         [HideInInspector]
@@ -71,12 +68,6 @@ namespace EasyAI
         /// </summary>
         [HideInInspector]
         public EasyActuator[] actuators = Array.Empty<EasyActuator>();
-
-        /// <summary>
-        /// The performance measure of this agent.
-        /// </summary>
-        [HideInInspector]
-        public EasyPerformanceMeasure performanceMeasure;
 
         /// <summary>
         /// The root transform that holds the visuals for this agent used to rotate the agent towards its look target.
@@ -543,10 +534,7 @@ namespace EasyAI
             LookingToTarget = false;
         }
 
-        /// <summary>
-        /// Called by the AgentManager to have the agent sense, think, and act.
-        /// </summary>
-        public virtual void Perform()
+        public override void Heuristic(in ActionBuffers actionsOut)
         {
             if (Mind != null)
             {
@@ -559,22 +547,17 @@ namespace EasyAI
             }
         }
 
+        public override void OnActionReceived(ActionBuffers actions)
+        {
+            // Act on the actions.
+            ActIncomplete();
+        }
+
         /// <summary>
         /// Editor-only function that Unity calls when the script is loaded or a value changes in the Inspector.
         /// </summary>
         protected virtual void OnValidate()
         {
-            // Find the performance measure.
-            performanceMeasure = GetComponent<EasyPerformanceMeasure>();
-            if (performanceMeasure == null)
-            {
-                performanceMeasure = GetComponentInChildren<EasyPerformanceMeasure>();
-            }
-            if (performanceMeasure != null)
-            {
-                performanceMeasure.agent = this;
-            }
-
             // Find all attached actuators.
             List<EasyActuator> a = GetComponents<EasyActuator>().ToList();
             a.AddRange(GetComponentsInChildren<EasyActuator>());
@@ -648,8 +631,10 @@ namespace EasyAI
             Visuals.rotation = rotation == Vector3.zero || float.IsNaN(rotation.x) || float.IsNaN(rotation.y) || float.IsNaN(rotation.z) ? Visuals.rotation : Quaternion.LookRotation(rotation);
         }
 
-        protected virtual void OnEnable()
+        protected override void OnEnable()
         {
+            base.OnEnable();
+            
             Alive = true;
             
             try
@@ -672,8 +657,10 @@ namespace EasyAI
             }
         }
 
-        protected virtual void OnDisable()
+        protected override void OnDisable()
         {
+            base.OnDisable();
+            
             Alive = false;
             
             try
@@ -840,15 +827,6 @@ namespace EasyAI
                 CreatePath(hit.point);
             }
 
-            // Act on the actions.
-            ActIncomplete();
-
-            // After all actions are performed, calculate the agent's new performance.
-            if (performanceMeasure != null)
-            {
-                Performance = performanceMeasure.CalculatePerformance();
-            }
-
             LookCalculations();
         }
 
@@ -857,10 +835,12 @@ namespace EasyAI
         /// </summary>
         protected virtual void FixedUpdate()
         {
-            if (Alive)
+            if (!Alive)
             {
-                Perform();
+                return;
             }
+            
+            RequestDecision();
         }
 
         /// <summary>

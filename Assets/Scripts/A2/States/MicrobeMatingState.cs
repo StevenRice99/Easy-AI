@@ -53,9 +53,13 @@ namespace A2.States
             }
 
             // If close enough to mate with the microbe it is tracking, mate with it.
-            if (!microbe.Mate())
+            if (microbe.Mate())
             {
-                // Otherwise move towards the microbe it is tracking.
+                agent.AddReward(1);
+            }
+            // Otherwise move towards the microbe it is tracking.
+            else
+            {
                 agent.Move(microbe.TargetMicrobeTransform, EasySteering.Behaviour.Pursue);
             }
         }

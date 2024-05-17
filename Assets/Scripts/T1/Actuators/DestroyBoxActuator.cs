@@ -39,6 +39,7 @@ namespace T1.Actuators
             // Pickup (destroy) the box and return true indicating the action has been completed.
             Log("Picked up the box.");
             Destroy(box.gameObject);
+            agent.AddReward(1);
             return true;
         }
     }

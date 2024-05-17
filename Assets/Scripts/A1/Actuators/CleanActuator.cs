@@ -65,6 +65,7 @@ namespace A1.Actuators
             Log("Finished cleaning current floor tile.");
             _timeSpentCleaning = 0;
             cleanAction.Floor.Clean();
+            agent.AddReward(1);
             DisableParticles();
             return true;
         }

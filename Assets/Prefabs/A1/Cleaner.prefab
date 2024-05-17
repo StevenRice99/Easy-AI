@@ -5223,10 +5223,10 @@ GameObject:
   m_Component:
   - component: {fileID: 5829531856079109817}
   - component: {fileID: 8691464202373610256}
-  - component: {fileID: 8284675057619534058}
   - component: {fileID: 5790985627467025743}
   - component: {fileID: 2801934450942198308}
   - component: {fileID: 4693799808093474120}
+  - component: {fileID: 1186315675616364477}
   m_Layer: 0
   m_Name: Cleaner
   m_TagString: Untagged
@@ -5262,6 +5262,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c307137b9c4d4dc5af0399738b8ef9bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  agentParameters:
+    maxStep: 0
+  hasUpgradedFromAgentParameters: 1
+  MaxStep: 0
   moveSpeed: 10
   moveAcceleration: 10
   lookSpeed: 5
@@ -5270,23 +5274,9 @@ MonoBehaviour:
   - {fileID: 2801934450942198308}
   actuators:
   - {fileID: 4693799808093474120}
-  performanceMeasure: {fileID: 8284675057619534058}
   <Visuals>k__BackingField: {fileID: 3481397138808591294}
   <Mind>k__BackingField: {fileID: 11400000, guid: 98f525b2c2195bb40be697efa5f08ece, type: 2}
-  <EasyState>k__BackingField: {fileID: 0}
---- !u!114 &8284675057619534058
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5829531856079109815}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f8ed74442554815aa19f30a4490719b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  easyAgent: {fileID: 8691464202373610256}
+  <State>k__BackingField: {fileID: 0}
 --- !u!114 &5790985627467025743
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5299,7 +5289,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca87587434e44b098c8249a83632a841, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  easyAgent: {fileID: 8691464202373610256}
+  agent: {fileID: 8691464202373610256}
 --- !u!114 &2801934450942198308
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5312,7 +5302,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aa23aaed5994621af9b691745a8ae69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  easyAgent: {fileID: 8691464202373610256}
+  agent: {fileID: 8691464202373610256}
 --- !u!114 &4693799808093474120
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5325,6 +5315,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4e075c456364f6681877f34e5896ccd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  easyAgent: {fileID: 8691464202373610256}
+  agent: {fileID: 8691464202373610256}
   timeToClean: 0.25
   dirtParticles: {fileID: 3150242323630410865}
+--- !u!114 &1186315675616364477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5829531856079109815}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d1c4e0b1822b495aa52bc52839ecb30, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_BrainParameters:
+    VectorObservationSize: 1
+    NumStackedVectorObservations: 1
+    m_ActionSpec:
+      m_NumContinuousActions: 0
+      BranchSizes: 01000000
+    VectorActionSize: 01000000
+    VectorActionDescriptions: []
+    VectorActionSpaceType: 0
+    hasUpgradedBrainParametersWithActionSpec: 1
+  m_Model: {fileID: 0}
+  m_InferenceDevice: 0
+  m_BehaviorType: 0
+  m_BehaviorName: My Behavior
+  TeamId: 0
+  m_UseChildSensors: 1
+  m_UseChildActuators: 1
+  m_DeterministicInference: 0
+  m_ObservableAttributeHandling: 0

@@ -1,6 +1,7 @@
 ﻿using A2.Pickups;
 using A2.States;
 using EasyAI;
+using Unity.MLAgents.Actuators;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -372,7 +373,7 @@ namespace A2
         /// <summary>
         /// Called by the AgentManager to have the agent sense, think, and act.
         /// </summary>
-        public override void Perform()
+        public override void Heuristic(in ActionBuffers actionsOut)
         {
             // Determine if the microbe's hunger should increase.
             if (Random.value <= MicrobeManager.HungerChance * Time.deltaTime)
@@ -380,7 +381,7 @@ namespace A2
                 Hunger++;
             }
             
-            base.Perform();
+            base.Heuristic(actionsOut);
         }
 
         /// <summary>

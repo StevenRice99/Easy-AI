@@ -266,6 +266,7 @@ namespace Project
             // Finally return the flag and reassign roles.
             Soldier soldier = flag.carryingPlayer;
             flag.ReturnFlag(null);
+            flag.carryingPlayer.AddReward(1);
             soldier.AssignRoles();
         }
 
@@ -282,6 +283,7 @@ namespace Project
             
             // Add a kill for the shooter.
             shooter.Kills++;
+            shooter.AddReward(1);
             
             // Add messages to each.
             killed.Log($"Killed by {shooter.name}.");
@@ -481,24 +483,6 @@ namespace Project
                 // Only perform for alive soldiers.
                 if (agent is not Soldier { Alive: true } soldier)
                 {
-                    agent.StopMoving();
-                    agent.StopLooking();
-                    if (agent == SelectedAgent)
-                    {
-                        Soldier[] aliveSoldiers = Agents.Where(a => a is Soldier {Alive: true, performanceMeasure: not null}).Cast<Soldier>().ToArray();
-                        float best = float.MinValue;
-                        foreach (Soldier s in aliveSoldiers)
-                        {
-                            float score = s.performanceMeasure.CalculatePerformance();
-                            if (score <= best)
-                            {
-                                continue;
-                            }
-
-                            best = score;
-                            SelectedAgent = s;
-                        }
-                    }
                     continue;
                 }
 
