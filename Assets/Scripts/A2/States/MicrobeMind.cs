@@ -12,10 +12,10 @@ namespace A2.States
         /// <summary>
         /// Called when an agent is in this state.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
-        public override void Execute(EasyAgent easyAgent)
+        /// <param name="agent">The agent.</param>
+        public override void Execute(EasyAgent agent)
         {
-            if (easyAgent is not Microbe microbe)
+            if (agent is not Microbe microbe)
             {
                 return;
             }

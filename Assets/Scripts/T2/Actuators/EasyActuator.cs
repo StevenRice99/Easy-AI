@@ -20,11 +20,11 @@ namespace T2.Actuators
             {
                 // If it is a restore energy action, restore the energy.
                 case RestoreEnergyAction restoreEnergyAction:
-                    restoreEnergyAction.EnergyComponent.Replenish(easyAgent.DeltaTime);
+                    restoreEnergyAction.EnergyComponent.Replenish(agent.DeltaTime);
                     break;
                 // Otherwise if it is a deplete energy action, deplete the energy.
                 case DepleteEnergyAction depleteEnergyAction:
-                    depleteEnergyAction.EnergyComponent.Deplete(easyAgent.DeltaTime);
+                    depleteEnergyAction.EnergyComponent.Deplete(agent.DeltaTime);
                     break;
             }
 

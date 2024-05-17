@@ -16,7 +16,7 @@ namespace T2.Sensors
         public override object Sense()
         {
             // Getting a component every time is inefficient, in real use you should cache this value.
-            return easyAgent.GetComponent<EnergyComponent>();
+            return agent.GetComponent<EnergyComponent>();
         }
     }
 }

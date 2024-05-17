@@ -14,42 +14,42 @@ namespace T2.States
         /// <summary>
         /// Called when an agent first enters this state.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
-        public override void Enter(EasyAgent easyAgent)
+        /// <param name="agent">The agent.</param>
+        public override void Enter(EasyAgent agent)
         {
-            easyAgent.Log("Ready to move.");
+            agent.Log("Ready to move.");
         }
 
         /// <summary>
         /// Called when an agent is in this state.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
-        public override void Execute(EasyAgent easyAgent)
+        /// <param name="agent">The agent.</param>
+        public override void Execute(EasyAgent agent)
         {
-            easyAgent.Log("Moving randomly to burn this energy.");
+            agent.Log("Moving randomly to burn this energy.");
             Vector2 random = Random.insideUnitCircle;
-            easyAgent.Move(easyAgent.transform.position + new Vector3(random.x, 0, random.y));
+            agent.Move(agent.transform.position + new Vector3(random.x, 0, random.y));
             
             // Create deplete energy action.
-            easyAgent.Act(new DepleteEnergyAction(easyAgent.Sense<EnergySensor, EnergyComponent>()));
+            agent.Act(new DepleteEnergyAction(agent.Sense<EnergySensor, EnergyComponent>()));
             
             // Get the energy component.
-            EnergyComponent energyComponent = easyAgent.Sense<EnergySensor, EnergyComponent>();
+            EnergyComponent energyComponent = agent.Sense<EnergySensor, EnergyComponent>();
             
             // If out of energy, go into the rest state.
             if (energyComponent.Energy <= 0)
             {
-                easyAgent.SetState<EnergyRestState>();
+                agent.SetState<EnergyRestState>();
             }
         }
 
         /// <summary>
         /// Called when an agent exits this state.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
-        public override void Exit(EasyAgent easyAgent)
+        /// <param name="agent">The agent.</param>
+        public override void Exit(EasyAgent agent)
         {
-            easyAgent.Log("Been moving for a while, getting tired.");
+            agent.Log("Been moving for a while, getting tired.");
         }
     }
 }

@@ -14,40 +14,40 @@ namespace T2.States
         /// <summary>
         /// Called when an agent first enters this state.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
-        public override void Enter(EasyAgent easyAgent)
+        /// <param name="agent">The agent.</param>
+        public override void Enter(EasyAgent agent)
         {
-            easyAgent.Log("I've got to recharge.");
+            agent.Log("I've got to recharge.");
         }
 
         /// <summary>
         /// Called when an agent is in this state.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
-        public override void Execute(EasyAgent easyAgent)
+        /// <param name="agent">The agent.</param>
+        public override void Execute(EasyAgent agent)
         {
-            easyAgent.Log("Replenishing...");
+            agent.Log("Replenishing...");
             
             // Create deplete energy action.
-            easyAgent.Act(new RestoreEnergyAction(easyAgent.Sense<EnergySensor, EnergyComponent>()));
+            agent.Act(new RestoreEnergyAction(agent.Sense<EnergySensor, EnergyComponent>()));
             
             // Get the energy component.
-            EnergyComponent energyComponent = easyAgent.Sense<EnergySensor, EnergyComponent>();
+            EnergyComponent energyComponent = agent.Sense<EnergySensor, EnergyComponent>();
             
             // If energy has fully recharged, go into the move state.
             if (energyComponent.Energy >= energyComponent.MaxEnergy)
             {
-                easyAgent.SetState<EnergyMoveState>();
+                agent.SetState<EnergyMoveState>();
             }
         }
 
         /// <summary>
         /// Called when an agent exits this state.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
-        public override void Exit(EasyAgent easyAgent)
+        /// <param name="agent">The agent.</param>
+        public override void Exit(EasyAgent agent)
         {
-            easyAgent.Log("Got all energy back.");
+            agent.Log("Got all energy back.");
         }
     }
 }

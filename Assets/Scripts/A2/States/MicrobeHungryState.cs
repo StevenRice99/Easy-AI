@@ -14,41 +14,41 @@ namespace A2.States
         /// <summary>
         /// Called when an agent first enters this state.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
-        public override void Enter(EasyAgent easyAgent)
+        /// <param name="agent">The agent.</param>
+        public override void Enter(EasyAgent agent)
         {
-            easyAgent.Log("Starting to search for food.");
+            agent.Log("Starting to search for food.");
         }
         
         /// <summary>
         /// Called when an agent is in this state.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
-        public override void Execute(EasyAgent easyAgent)
+        /// <param name="agent">The agent.</param>
+        public override void Execute(EasyAgent agent)
         {
             // If the microbe is not hungry, stop hunting.
-            if (easyAgent is not Microbe {IsHungry: true} microbe)
+            if (agent is not Microbe {IsHungry: true} microbe)
             {
-                easyAgent.SetState<MicrobeRoamingState>();
+                agent.SetState<MicrobeRoamingState>();
                 return;
             }
 
             // If the microbe is not tracking another microbe to eat yet, search for one.
             if (!microbe.HasTarget)
             {
-                microbe.StartHunting(easyAgent.Sense<NearestPreySensor, Microbe>());
+                microbe.StartHunting(agent.Sense<NearestPreySensor, Microbe>());
             }
 
             // If there are no microbes in detection range to eat, roam.
             if (!microbe.HasTarget)
             {
-                if (easyAgent.Moving)
+                if (agent.Moving)
                 {
                     return;
                 }
 
-                easyAgent.Log("Cannot find any food, roaming.");
-                easyAgent.Move(Random.insideUnitCircle * MicrobeManager.FloorRadius);
+                agent.Log("Cannot find any food, roaming.");
+                agent.Move(Random.insideUnitCircle * MicrobeManager.FloorRadius);
                 return;
             }
 
@@ -56,24 +56,24 @@ namespace A2.States
             if (!microbe.Eat())
             {
                 // Otherwise move towards the microbe it is tracking.
-                easyAgent.Move(microbe.TargetMicrobeTransform, EasySteering.Behaviour.Pursue);
+                agent.Move(microbe.TargetMicrobeTransform, EasySteering.Behaviour.Pursue);
             }
         }
         
         /// <summary>
         /// Called when an agent exits this state.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
-        public override void Exit(EasyAgent easyAgent)
+        /// <param name="agent">The agent.</param>
+        public override void Exit(EasyAgent agent)
         {
-            if (easyAgent is not Microbe microbe)
+            if (agent is not Microbe microbe)
             {
                 return;
             }
 
             // Ensure the target microbe is null.
             microbe.RemoveTargetMicrobe();
-            easyAgent.Log("No longer searching for food.");
+            agent.Log("No longer searching for food.");
         }
     }
 }

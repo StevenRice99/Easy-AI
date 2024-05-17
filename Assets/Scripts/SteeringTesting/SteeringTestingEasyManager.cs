@@ -26,7 +26,7 @@ namespace SteeringTesting
         /// <returns>The updated Y position after all custom rendering has been done.</returns>
         protected override float CustomRendering(float x, float y, float w, float h, float p)
         {
-            if (SelectedEasyAgent == null)
+            if (SelectedAgent == null)
             {
                 return y;
             }
@@ -34,7 +34,7 @@ namespace SteeringTesting
             // Display a button to stop this agent.
             if (GuiButton(x, y, w, h, $"Stop Moving"))
             {
-                SelectedEasyAgent.StopMoving();
+                SelectedAgent.StopMoving();
             }
 
             // Display buttons to move in relation to all targets.
@@ -44,28 +44,28 @@ namespace SteeringTesting
                 y = NextItem(y, h, p);
                 if (GuiButton(x, y, w, h, $"Seek {target.name}"))
                 {
-                    SelectedEasyAgent.Move(target);
+                    SelectedAgent.Move(target);
                 }
                 
                 // Pursue the target.
                 y = NextItem(y, h, p);
                 if (GuiButton(x, y, w, h, $"Pursue {target.name}"))
                 {
-                    SelectedEasyAgent.Move(target, EasySteering.Behaviour.Pursue);
+                    SelectedAgent.Move(target, EasySteering.Behaviour.Pursue);
                 }
                 
                 // Flee the target.
                 y = NextItem(y, h, p);
                 if (GuiButton(x, y, w, h, $"Flee {target.name}"))
                 {
-                    SelectedEasyAgent.Move(target, EasySteering.Behaviour.Flee);
+                    SelectedAgent.Move(target, EasySteering.Behaviour.Flee);
                 }
                 
                 // Evade the target.
                 y = NextItem(y, h, p);
                 if (GuiButton(x, y, w, h, $"Evade {target.name}"))
                 {
-                    SelectedEasyAgent.Move(target, EasySteering.Behaviour.Evade);
+                    SelectedAgent.Move(target, EasySteering.Behaviour.Evade);
                 }
             }
             
@@ -73,7 +73,7 @@ namespace SteeringTesting
             y = NextItem(y, h, p);
             if (GuiButton(x, y, w, h, "Return to Origin"))
             {
-                SelectedEasyAgent.Move(new Vector2(0, 0));
+                SelectedAgent.Move(new Vector2(0, 0));
             }
 
             return NextItem(y, h, p);

@@ -22,13 +22,13 @@ namespace EasyAI
         {
             base.OnValidate();
 
-            if (easyAgent == null || easyAgent.sensors.Contains(this))
+            if (agent == null || agent.sensors.Contains(this))
             {
                 return;                
             }
 
-            Array.Resize(ref easyAgent.sensors, easyAgent.sensors.Length + 1);
-            easyAgent.sensors[^1] = this;
+            Array.Resize(ref agent.sensors, agent.sensors.Length + 1);
+            agent.sensors[^1] = this;
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Project.Sensors
         /// <returns>A random defensive position.</returns>
         public override object Sense()
         {
-            return easyAgent is not Soldier soldier ? null : SoldierManager.RandomStrategicPosition(soldier, true);
+            return agent is not Soldier soldier ? null : SoldierManager.RandomStrategicPosition(soldier, true);
         }
     }
 }

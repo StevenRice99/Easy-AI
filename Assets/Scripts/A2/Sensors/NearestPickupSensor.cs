@@ -18,7 +18,7 @@ namespace A2.Sensors
         public override object Sense()
         {
             MicrobeBasePickup[] pickups = FindObjectsByType<MicrobeBasePickup>(FindObjectsSortMode.None);
-            return pickups.Length == 0 ? null : pickups.OrderBy(p => Vector3.Distance(easyAgent.transform.position, p.transform.position)).FirstOrDefault();
+            return pickups.Length == 0 ? null : pickups.OrderBy(p => Vector3.Distance(agent.transform.position, p.transform.position)).FirstOrDefault();
         }
     }
 }

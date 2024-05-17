@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace EasyAI.Utility
 {
@@ -11,8 +10,8 @@ namespace EasyAI.Utility
         /// <summary>
         /// The agent this component is connected to.
         /// </summary>
-        [FormerlySerializedAs("agent")] [HideInInspector]
-        public EasyAgent easyAgent;
+        [HideInInspector]
+        public EasyAgent agent;
 
         /// <summary>
         /// Editor-only function that Unity calls when the script is loaded or a value changes in the Inspector.
@@ -23,8 +22,8 @@ namespace EasyAI.Utility
             Transform t = transform;
             do
             {
-                easyAgent = t.GetComponent<EasyAgent>();
-                if (easyAgent != null)
+                agent = t.GetComponent<EasyAgent>();
+                if (agent != null)
                 {
                     return;
                 }

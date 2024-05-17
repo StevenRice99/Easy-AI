@@ -12,31 +12,31 @@ namespace A2.States
         /// <summary>
         /// Called when an agent first enters this state.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
-        public override void Enter(EasyAgent easyAgent)
+        /// <param name="agent">The agent.</param>
+        public override void Enter(EasyAgent agent)
         {
-            easyAgent.Log("Nothing to do, starting to roam.");
+            agent.Log("Nothing to do, starting to roam.");
         }
 
         /// <summary>
         /// Called when an agent is in this state.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
-        public override void Execute(EasyAgent easyAgent)
+        /// <param name="agent">The agent.</param>
+        public override void Execute(EasyAgent agent)
         {
-            if (!easyAgent.Moving)
+            if (!agent.Moving)
             {
-                easyAgent.Move(MicrobeManager.RandomPosition);
+                agent.Move(MicrobeManager.RandomPosition);
             }
         }
         
         /// <summary>
         /// Called when an agent exits this state.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
-        public override void Exit(EasyAgent easyAgent)
+        /// <param name="agent">The agent.</param>
+        public override void Exit(EasyAgent agent)
         {
-            easyAgent.Log("Got something to do, stopping roaming.");
+            agent.Log("Got something to do, stopping roaming.");
         }
     }
 }

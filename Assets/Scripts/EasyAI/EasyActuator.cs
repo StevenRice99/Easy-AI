@@ -23,13 +23,13 @@ namespace EasyAI
         {
             base.OnValidate();
 
-            if (easyAgent == null || easyAgent.actuators.Contains(this))
+            if (agent == null || agent.actuators.Contains(this))
             {
                 return;                
             }
 
-            Array.Resize(ref easyAgent.actuators, easyAgent.actuators.Length + 1);
-            easyAgent.actuators[^1] = this;
+            Array.Resize(ref agent.actuators, agent.actuators.Length + 1);
+            agent.actuators[^1] = this;
         }
     }
 }

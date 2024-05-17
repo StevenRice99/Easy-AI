@@ -16,7 +16,7 @@ namespace Project.Sensors
         /// <returns>The nearest available ammo pickup, prioritizing the soldier's weapon priority, or null if no pickups available.</returns>
         public override object Sense()
         {
-            if (easyAgent is not Soldier soldier)
+            if (agent is not Soldier soldier)
             {
                 return null;
             }

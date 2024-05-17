@@ -126,7 +126,7 @@ namespace EasyAI
         /// <summary>
         /// The currently selected agent.
         /// </summary>
-        public static EasyAgent CurrentlySelectedEasyAgent => Singleton.SelectedEasyAgent;
+        public static EasyAgent CurrentlySelectedAgent => Singleton.SelectedAgent;
 
         /// <summary>
         /// Determine what mode messages are stored in.
@@ -191,7 +191,7 @@ namespace EasyAI
         /// <summary>
         /// The currently selected agent.
         /// </summary>
-        protected EasyAgent SelectedEasyAgent;
+        protected EasyAgent SelectedAgent;
         
         /// <summary>
         /// Which layers can nodes be placed on.
@@ -1119,14 +1119,14 @@ namespace EasyAI
             }
             y = Singleton.DisplayDetails(x, y, w, h, p);
 
-            if (Singleton.SelectedEasyAgent == null && Singleton._state == GuiState.Agent || Singleton._selected == null && Singleton._state == GuiState.Component)
+            if (Singleton.SelectedAgent == null && Singleton._state == GuiState.Agent || Singleton._selected == null && Singleton._state == GuiState.Component)
             {
                 Singleton._state = GuiState.Main;
             }
 
             if (Singleton._state == GuiState.Main && Singleton.Agents.Count == 1)
             {
-                Singleton.SelectedEasyAgent = Singleton.Agents[0];
+                Singleton.SelectedAgent = Singleton.Agents[0];
                 Singleton._state = GuiState.Agent;
             }
 
@@ -1154,11 +1154,11 @@ namespace EasyAI
                 // Handle components view rendering.
                 case GuiState.Components:
                 {
-                    if (Singleton.SelectedEasyAgent != null)
+                    if (Singleton.SelectedAgent != null)
                     {
                         // Button to go back to the agents view.
                         y = NextItem(y, h, p);
-                        if (GuiButton(x, y, w, h, $"Back to {Singleton.SelectedEasyAgent.name}"))
+                        if (GuiButton(x, y, w, h, $"Back to {Singleton.SelectedAgent.name}"))
                         {
                             Singleton._state = GuiState.Agent;
                         }
@@ -1173,11 +1173,11 @@ namespace EasyAI
                 // Handle the component view.
                 case GuiState.Component:
                 {
-                    if (Singleton.SelectedEasyAgent != null)
+                    if (Singleton.SelectedAgent != null)
                     {
                         // Button to go back to the components view.
                         y = NextItem(y, h, p);
-                        if (GuiButton(x, y, w, h, $"Back to {Singleton.SelectedEasyAgent.name} Sensors and Actuators"))
+                        if (GuiButton(x, y, w, h, $"Back to {Singleton.SelectedAgent.name} Sensors and Actuators"))
                         {
                             Singleton._selected = null;
                             Singleton._state = GuiState.Components;
@@ -1207,7 +1207,7 @@ namespace EasyAI
                     continue;
                 }
 
-                Singleton.SelectedEasyAgent = agent;
+                Singleton.SelectedAgent = agent;
                 Singleton._state = GuiState.Agent;
             }
             
@@ -1239,7 +1239,7 @@ namespace EasyAI
         /// <param name="p">Padding of components. In most cases this should remain unchanged.</param>
         private static void RenderAgent(float x, float y, float w, float h, float p)
         {
-            if (Singleton.SelectedEasyAgent == null)
+            if (Singleton.SelectedAgent == null)
             {
                 Singleton._state = GuiState.Main;
                 return;
@@ -1252,12 +1252,12 @@ namespace EasyAI
                 length++;
             }
 
-            if (Singleton.SelectedEasyAgent.EasyState != null)
+            if (Singleton.SelectedAgent.EasyState != null)
             {
                 length++;
             }
 
-            if (Singleton.SelectedEasyAgent.performanceMeasure != null)
+            if (Singleton.SelectedAgent.performanceMeasure != null)
             {
                 length++;
             }
@@ -1267,28 +1267,28 @@ namespace EasyAI
             
             if (Singleton.Agents.Count > 1)
             {
-                GuiLabel(x, y, w, h, p, Singleton.SelectedEasyAgent.name);
+                GuiLabel(x, y, w, h, p, Singleton.SelectedAgent.name);
                 y = NextItem(y, h, p);
             }
         
-            if (Singleton.SelectedEasyAgent.EasyState != null)
+            if (Singleton.SelectedAgent.EasyState != null)
             {
-                GuiLabel(x, y, w, h, p, $"State: {Singleton.SelectedEasyAgent.EasyState}");
+                GuiLabel(x, y, w, h, p, $"State: {Singleton.SelectedAgent.EasyState}");
                 y = NextItem(y, h, p);
             }
         
-            if (Singleton.SelectedEasyAgent.performanceMeasure != null)
+            if (Singleton.SelectedAgent.performanceMeasure != null)
             {
-                GuiLabel(x, y, w, h, p, $"Performance: {Singleton.SelectedEasyAgent.Performance}");
+                GuiLabel(x, y, w, h, p, $"Performance: {Singleton.SelectedAgent.Performance}");
                 y = NextItem(y, h, p);
             }
 
-            if (Singleton.SelectedEasyAgent.Destination != null)
+            if (Singleton.SelectedAgent.Destination != null)
             {
-                Vector3 destination = Singleton.SelectedEasyAgent.Destination.Value;
-                string toFrom = EasySteering.IsApproachingBehaviour(Singleton.SelectedEasyAgent.MoveType) ? "to" : "from";
-                string tr = Singleton.SelectedEasyAgent.MoveTarget != null ? Singleton.SelectedEasyAgent.MoveTarget.name : $"({destination.x}, {destination.z})";
-                GuiLabel(x, y, w, h, p, $"{Singleton.SelectedEasyAgent.MoveType} {toFrom} {tr}");
+                Vector3 destination = Singleton.SelectedAgent.Destination.Value;
+                string toFrom = EasySteering.IsApproachingBehaviour(Singleton.SelectedAgent.MoveType) ? "to" : "from";
+                string tr = Singleton.SelectedAgent.MoveTarget != null ? Singleton.SelectedAgent.MoveTarget.name : $"({destination.x}, {destination.z})";
+                GuiLabel(x, y, w, h, p, $"{Singleton.SelectedAgent.MoveType} {toFrom} {tr}");
             }
             else
             {
@@ -1296,10 +1296,10 @@ namespace EasyAI
             }
 
             // Display any custom details implemented for the agent.
-            y = Singleton.SelectedEasyAgent.DisplayDetails(x, y, w, h, p);
+            y = Singleton.SelectedAgent.DisplayDetails(x, y, w, h, p);
 
             // Display all sensors for the agent.
-            if (Singleton.SelectedEasyAgent.sensors.Length > 0 || Singleton.SelectedEasyAgent.actuators.Length > 0)
+            if (Singleton.SelectedAgent.sensors.Length > 0 || Singleton.SelectedAgent.actuators.Length > 0)
             {
                 y = NextItem(y, h, p);
                 if (GuiButton(x, y, w, h, "Sensors and Actuators"))
@@ -1308,7 +1308,7 @@ namespace EasyAI
                 }
             }
 
-            if (!Singleton.SelectedEasyAgent.HasMessages)
+            if (!Singleton.SelectedAgent.HasMessages)
             {
                 return;
             }
@@ -1317,9 +1317,9 @@ namespace EasyAI
             y = RenderMessageOptions(x, y, w, h, p);
             
             y = NextItem(y, h, p);
-            GuiBox(x, y, w, h, p, Singleton.SelectedEasyAgent.MessageCount);
+            GuiBox(x, y, w, h, p, Singleton.SelectedAgent.MessageCount);
             
-            foreach (string message in Singleton.SelectedEasyAgent.Messages)
+            foreach (string message in Singleton.SelectedAgent.Messages)
             {
                 GuiLabel(x, y, w, h, p, message);
                 y = NextItem(y, h, p);
@@ -1336,7 +1336,7 @@ namespace EasyAI
         /// <param name="p">Padding of components. In most cases this should remain unchanged.</param>
         private static void RenderComponents(float x, float y, float w, float h, float p)
         {
-            if (Singleton.SelectedEasyAgent == null)
+            if (Singleton.SelectedAgent == null)
             {
                 Singleton._state = GuiState.Main;
                 return;
@@ -1345,14 +1345,14 @@ namespace EasyAI
             // List all sensors.
             y = NextItem(y, h, p);
             GuiBox(x, y, w, h, p, 1);
-            GuiLabel(x, y, w, h, p, Singleton.SelectedEasyAgent.sensors.Length switch
+            GuiLabel(x, y, w, h, p, Singleton.SelectedAgent.sensors.Length switch
             {
                 0 => "No Sensors",
                 1 => "1 Sensor",
-                _ => $"{Singleton.SelectedEasyAgent.sensors.Length} Sensors"
+                _ => $"{Singleton.SelectedAgent.sensors.Length} Sensors"
             });
 
-            foreach (EasySensor sensor in Singleton.SelectedEasyAgent.sensors)
+            foreach (EasySensor sensor in Singleton.SelectedAgent.sensors)
             {
                 // Button to select a sensor.
                 y = NextItem(y, h, p);
@@ -1368,14 +1368,14 @@ namespace EasyAI
             // Display all actuators.
             y = NextItem(y, h, p);
             GuiBox(x, y, w, h, p, 1);
-            GuiLabel(x, y, w, h, p, Singleton.SelectedEasyAgent.actuators.Length switch
+            GuiLabel(x, y, w, h, p, Singleton.SelectedAgent.actuators.Length switch
             {
                 0 => "No Actuators",
                 1 => "1 Actuator",
-                _ => $"{Singleton.SelectedEasyAgent.actuators.Length} Actuators"
+                _ => $"{Singleton.SelectedAgent.actuators.Length} Actuators"
             });
             
-            foreach (EasyActuator actuator in Singleton.SelectedEasyAgent.actuators)
+            foreach (EasyActuator actuator in Singleton.SelectedAgent.actuators)
             {
                 // Button to select an actuator.
                 y = NextItem(y, h, p);
@@ -1408,7 +1408,7 @@ namespace EasyAI
             // Display component details.
             y = NextItem(y, h, p);
             GuiBox(x, y, w, h, p, 1);
-            GuiLabel(x, y, w, h, p, $"{Singleton.SelectedEasyAgent.name} | {Singleton._selected}");
+            GuiLabel(x, y, w, h, p, $"{Singleton.SelectedAgent.name} | {Singleton._selected}");
             
             // Display any custom details implemented for the component.
             y = Singleton._selected.DisplayDetails(x, y, w, h, p);
@@ -2049,7 +2049,7 @@ namespace EasyAI
         {
             if (Agents.Count == 1)
             {
-                SelectedEasyAgent = Agents[0];
+                SelectedAgent = Agents[0];
             }
 
             if (Time.timeScale != 0)
@@ -2108,7 +2108,7 @@ namespace EasyAI
                     EasyAgent clicked = tr.GetComponent<EasyAgent>();
                     if (clicked != null)
                     {
-                        SelectedEasyAgent = clicked;
+                        SelectedAgent = clicked;
                         followBest = false;
                         break;
                     }
@@ -2125,7 +2125,7 @@ namespace EasyAI
 
             // If locked to following the best agent, select the best agent.
             float best = float.MinValue;
-            SelectedEasyAgent = null;
+            SelectedAgent = null;
             foreach (EasyAgent agent in Agents.Where(a => a.performanceMeasure != null))
             {
                 float score = agent.performanceMeasure.CalculatePerformance();
@@ -2135,10 +2135,10 @@ namespace EasyAI
                 }
 
                 best = score;
-                SelectedEasyAgent = agent;
+                SelectedAgent = agent;
             }
 
-            if (SelectedEasyAgent == null)
+            if (SelectedAgent == null)
             {
                 followBest = false;
                 return;
@@ -2195,7 +2195,7 @@ namespace EasyAI
                 case PathState.Selected:
                 default:
                 {
-                    if (SelectedEasyAgent != null && SelectedEasyAgent.Path.Count > 0)
+                    if (SelectedAgent != null && SelectedAgent.Path.Count > 0)
                     {
                         break;
                     }
@@ -2229,9 +2229,9 @@ namespace EasyAI
                 return;
             }
 
-            if (SelectedEasyAgent != null)
+            if (SelectedAgent != null)
             {
-                AgentGizmos(SelectedEasyAgent);
+                AgentGizmos(SelectedAgent);
             }
         }
 

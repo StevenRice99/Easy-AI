@@ -26,7 +26,7 @@ namespace A1.Sensors
             }
 
             // Create the percepts with the dirt level of the closest floor.
-            Floor floor = floors.OrderBy(f => Vector3.Distance(easyAgent.transform.position, f.transform.position)).First();
+            Floor floor = floors.OrderBy(f => Vector3.Distance(agent.transform.position, f.transform.position)).First();
             
             Log(floor.IsDirty ? "Current floor tile is dirty." : "Current floor tile is not dirty.");
             return floor;

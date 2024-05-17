@@ -483,7 +483,7 @@ namespace Project
                 {
                     agent.StopMoving();
                     agent.StopLooking();
-                    if (agent == SelectedEasyAgent)
+                    if (agent == SelectedAgent)
                     {
                         Soldier[] aliveSoldiers = Agents.Where(a => a is Soldier {Alive: true, performanceMeasure: not null}).Cast<Soldier>().ToArray();
                         float best = float.MinValue;
@@ -496,7 +496,7 @@ namespace Project
                             }
 
                             best = score;
-                            SelectedEasyAgent = s;
+                            SelectedAgent = s;
                         }
                     }
                     continue;

@@ -15,7 +15,7 @@ namespace Project.Sensors
         /// <returns>The nearest available health pickup or null if no pickups available.</returns>
         public override object Sense()
         {
-            return SoldierManager.NearestHealthPickup(easyAgent);
+            return SoldierManager.NearestHealthPickup(agent);
         }
     }
 }

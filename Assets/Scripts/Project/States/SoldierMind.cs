@@ -38,10 +38,10 @@ namespace Project.States
         /// <summary>
         /// Called when an agent is in this state.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
-        public override void Execute(EasyAgent easyAgent)
+        /// <param name="agent">The agent.</param>
+        public override void Execute(EasyAgent agent)
         {
-            if (easyAgent is not Soldier soldier)
+            if (agent is not Soldier soldier)
             {
                 return;
             }

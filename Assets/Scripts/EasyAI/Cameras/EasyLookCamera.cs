@@ -43,7 +43,7 @@ namespace EasyAI.Cameras
         private void LateUpdate()
         {
             // Get the agent to look towards.
-            EasyAgent easyAgent = EasyManager.CurrentlySelectedEasyAgent;
+            EasyAgent easyAgent = EasyManager.CurrentlySelectedAgent;
             if (easyAgent == null)
             {
                 if (EasyManager.CurrentAgents.Count > 0)

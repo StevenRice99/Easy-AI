@@ -29,7 +29,7 @@ namespace T1.Sensors
 
             // Return the nearest box otherwise.
             Log("Getting nearest box.");
-            return boxes.OrderBy(b => Vector3.Distance(easyAgent.transform.position, b.transform.position)).First();
+            return boxes.OrderBy(b => Vector3.Distance(agent.transform.position, b.transform.position)).First();
         }
     }
 }

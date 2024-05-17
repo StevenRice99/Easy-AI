@@ -10,29 +10,29 @@ namespace EasyAI
         /// <summary>
         /// Called when an agent first enters this state.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
-        public virtual void Enter(EasyAgent easyAgent) { }
+        /// <param name="agent">The agent.</param>
+        public virtual void Enter(EasyAgent agent) { }
 
         /// <summary>
         /// Called when an agent is in this state.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
-        public virtual void Execute(EasyAgent easyAgent) { }
+        /// <param name="agent">The agent.</param>
+        public virtual void Execute(EasyAgent agent) { }
 
         /// <summary>
         /// Called when an agent exits this state.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
-        public virtual void Exit(EasyAgent easyAgent) { }
+        /// <param name="agent">The agent.</param>
+        public virtual void Exit(EasyAgent agent) { }
 
         /// <summary>
         /// Handle a message.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
+        /// <param name="agent">The agent.</param>
         /// <param name="sender">The agent that sent the message.</param>
         /// <param name="id">The message type.</param>
         /// <returns>True if the message was accepted and acted upon, false otherwise.</returns>
-        public virtual bool HandleMessage(EasyAgent easyAgent, EasyAgent sender, int id)
+        public virtual bool HandleMessage(EasyAgent agent, EasyAgent sender, int id)
         {
             return false;
         }

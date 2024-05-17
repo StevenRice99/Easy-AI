@@ -12,7 +12,7 @@ namespace Project
         /// </summary>
         /// <returns>The soldier's score.</returns>
         public override float CalculatePerformance() =>
-            easyAgent is not Soldier {Alive: true} soldier
+            agent is not Soldier {Alive: true} soldier
                 ? int.MinValue
                 : soldier.Captures * SoldierManager.ScoreCapture + soldier.Returns * SoldierManager.ScoreReturn + (soldier.Kills - soldier.Deaths) * SoldierManager.ScoreKillsDeaths;
     }

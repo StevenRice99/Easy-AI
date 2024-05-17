@@ -551,7 +551,7 @@ namespace EasyAI
             {
                 EasyState.Execute(this);
             }
-            else if (Mind == null && EasyManager.CurrentlySelectedEasyAgent == this && Mouse.current.rightButton.wasPressedThisFrame && Physics.Raycast(EasyManager.SelectedCamera.ScreenPointToRay(new(Mouse.current.position.x.ReadValue(), Mouse.current.position.y.ReadValue(), 0)), out RaycastHit hit, Mathf.Infinity, EasyManager.GroundLayers | EasyManager.ObstacleLayers))
+            else if (Mind == null && EasyManager.CurrentlySelectedAgent == this && Mouse.current.rightButton.wasPressedThisFrame && Physics.Raycast(EasyManager.SelectedCamera.ScreenPointToRay(new(Mouse.current.position.x.ReadValue(), Mouse.current.position.y.ReadValue(), 0)), out RaycastHit hit, Mathf.Infinity, EasyManager.GroundLayers | EasyManager.ObstacleLayers))
             {
                 StopMoving();
                 CreatePath(hit.point);
@@ -583,7 +583,7 @@ namespace EasyAI
             }
             if (performanceMeasure != null)
             {
-                performanceMeasure.easyAgent = this;
+                performanceMeasure.agent = this;
             }
 
             // Find all attached actuators.
@@ -592,7 +592,7 @@ namespace EasyAI
             actuators = a.Distinct().ToArray();
             foreach (EasyActuator actuator in actuators)
             {
-                actuator.easyAgent = this;
+                actuator.agent = this;
             }
             
             // Find all attached sensors.
@@ -601,7 +601,7 @@ namespace EasyAI
             sensors = s.Distinct().ToArray();
             foreach (EasySensor sensor in sensors)
             {
-                sensor.easyAgent = this;
+                sensor.agent = this;
             }
 
             // Set up the root visuals transform for agent rotation.

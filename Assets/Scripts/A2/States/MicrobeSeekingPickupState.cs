@@ -14,19 +14,19 @@ namespace A2.States
         /// <summary>
         /// Called when an agent first enters this state.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
-        public override void Enter(EasyAgent easyAgent)
+        /// <param name="agent">The agent.</param>
+        public override void Enter(EasyAgent agent)
         {
-            easyAgent.Log("Starting searching for a pickup.");
+            agent.Log("Starting searching for a pickup.");
         }
         
         /// <summary>
         /// Called when an agent is in this state.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
-        public override void Execute(EasyAgent easyAgent)
+        /// <param name="agent">The agent.</param>
+        public override void Execute(EasyAgent agent)
         {
-            if (easyAgent is not Microbe microbe)
+            if (agent is not Microbe microbe)
             {
                 return;
             }
@@ -34,44 +34,44 @@ namespace A2.States
             // If the microbe is not tracking a pickup, search for one.
             if (!microbe.HasPickup)
             {
-                microbe.SetPickup(easyAgent.Sense<NearestPickupSensor, MicrobeBasePickup>());
+                microbe.SetPickup(agent.Sense<NearestPickupSensor, MicrobeBasePickup>());
                 if (microbe.HasPickup)
                 {
-                    easyAgent.Log($"Moving to {microbe.Pickup.name}.");
+                    agent.Log($"Moving to {microbe.Pickup.name}.");
                 }
             }
 
             // If there are no pickups in detection range, roam.
             if (!microbe.HasPickup)
             {
-                if (easyAgent.Moving)
+                if (agent.Moving)
                 {
                     return;
                 }
 
-                easyAgent.Log("Cannot find any pickups, roaming.");
-                easyAgent.Move(Random.insideUnitCircle * MicrobeManager.FloorRadius);
+                agent.Log("Cannot find any pickups, roaming.");
+                agent.Move(Random.insideUnitCircle * MicrobeManager.FloorRadius);
                 return;
             }
             
             // Otherwise move towards the pickup it is tracking.
-            easyAgent.Move(microbe.Pickup.transform);
+            agent.Move(microbe.Pickup.transform);
         }
         
         /// <summary>
         /// Called when an agent exits this state.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
-        public override void Exit(EasyAgent easyAgent)
+        /// <param name="agent">The agent.</param>
+        public override void Exit(EasyAgent agent)
         {
-            if (easyAgent is not Microbe microbe)
+            if (agent is not Microbe microbe)
             {
                 return;
             }
 
             // Ensure the target pickup is null.
             microbe.RemovePickup();
-            easyAgent.Log("No longer searching for a pickup.");
+            agent.Log("No longer searching for a pickup.");
         }
     }
 }

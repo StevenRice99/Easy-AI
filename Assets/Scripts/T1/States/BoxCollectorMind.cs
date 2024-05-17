@@ -13,31 +13,31 @@ namespace T1.States
         /// <summary>
         /// Called when an agent is in this state.
         /// </summary>
-        /// <param name="easyAgent">The agent.</param>
-        public override void Execute(EasyAgent easyAgent)
+        /// <param name="agent">The agent.</param>
+        public override void Execute(EasyAgent agent)
         {
             // If already moving towards a box, no need to think of anything new so simply return.
             // As mentioned in the actuator comments, you can probably see how passing transforms around will
             // become confusing in more complex agents, and you can instead wrap data into of unique classes to pass.
-            if (easyAgent.HasAction<Transform>())
+            if (agent.HasAction<Transform>())
             {
                 return;
             }
 
             // Sense the nearest box.
-            Transform box = easyAgent.Sense<NearestBoxSensor, Transform>();
+            Transform box = agent.Sense<NearestBoxSensor, Transform>();
             
             // If there are no boxes left, do nothing.
             if (box == null)
             {
-                easyAgent.Log("Collected all boxes.");
+                agent.Log("Collected all boxes.");
                 return;
             }
             
             // Move towards the box and try to pick it up.
-            easyAgent.Log($"Collecting {box.name} next.");
-            easyAgent.Move(box.position);
-            easyAgent.Act(box);
+            agent.Log($"Collecting {box.name} next.");
+            agent.Move(box.position);
+            agent.Act(box);
         }
     }
 }

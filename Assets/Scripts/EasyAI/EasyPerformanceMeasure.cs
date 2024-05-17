@@ -16,9 +16,9 @@ namespace EasyAI
         {
             base.OnValidate();
 
-            if (easyAgent != null && easyAgent.performanceMeasure == null)
+            if (agent != null && agent.performanceMeasure == null)
             {
-                easyAgent.performanceMeasure = this;
+                agent.performanceMeasure = this;
             }
         }
 
