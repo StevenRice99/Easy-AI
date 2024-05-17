@@ -29,10 +29,10 @@ namespace T2.States
             easyAgent.Log("Replenishing...");
             
             // Create deplete energy action.
-            easyAgent.Act(new RestoreEnergyAction(easyAgent.Sense<EnergyEasySensor, EnergyComponent>()));
+            easyAgent.Act(new RestoreEnergyAction(easyAgent.Sense<EnergySensor, EnergyComponent>()));
             
             // Get the energy component.
-            EnergyComponent energyComponent = easyAgent.Sense<EnergyEasySensor, EnergyComponent>();
+            EnergyComponent energyComponent = easyAgent.Sense<EnergySensor, EnergyComponent>();
             
             // If energy has fully recharged, go into the move state.
             if (energyComponent.Energy >= energyComponent.MaxEnergy)

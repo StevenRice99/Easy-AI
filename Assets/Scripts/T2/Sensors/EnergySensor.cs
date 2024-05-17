@@ -7,7 +7,7 @@ namespace T2.Sensors
     /// Sensor to sense how much energy an agent has.
     /// </summary>
     [DisallowMultipleComponent]
-    public class EnergyEasySensor : EasySensor
+    public class EnergySensor : EasySensor
     {
         /// <summary>
         /// Sense how much energy an agent has.

@@ -31,10 +31,10 @@ namespace T2.States
             easyAgent.Move(easyAgent.transform.position + new Vector3(random.x, 0, random.y));
             
             // Create deplete energy action.
-            easyAgent.Act(new DepleteEnergyAction(easyAgent.Sense<EnergyEasySensor, EnergyComponent>()));
+            easyAgent.Act(new DepleteEnergyAction(easyAgent.Sense<EnergySensor, EnergyComponent>()));
             
             // Get the energy component.
-            EnergyComponent energyComponent = easyAgent.Sense<EnergyEasySensor, EnergyComponent>();
+            EnergyComponent energyComponent = easyAgent.Sense<EnergySensor, EnergyComponent>();
             
             // If out of energy, go into the rest state.
             if (energyComponent.Energy <= 0)

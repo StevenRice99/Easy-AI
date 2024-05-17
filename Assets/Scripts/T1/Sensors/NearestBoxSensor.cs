@@ -5,7 +5,7 @@ using UnityEngine;
 namespace T1.Sensors
 {
     /// <summary>
-    /// Senor to sense the nearest box to the agent.
+    /// Sensor to sense the nearest box to the agent.
     /// </summary>
     [DisallowMultipleComponent]
     public class NearestBoxSensor : EasySensor

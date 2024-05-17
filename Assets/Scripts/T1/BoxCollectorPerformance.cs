@@ -8,7 +8,7 @@ namespace T1
     /// Calculate how well the box collector is doing based on how many boxes it has collected.
     /// </summary>
     [DisallowMultipleComponent]
-    public class BoxCollectorEasyPerformance : EasyPerformanceMeasure
+    public class BoxCollectorPerformance : EasyPerformanceMeasure
     {
         /// <summary>
         /// The total boxes at the start of the scene.
