@@ -25,7 +25,6 @@ namespace Project
         /// </summary>
         public enum SoliderRole : byte
         {
-            Dead = 0,
             Collector = 1,
             Attacker = 2,
             Defender = 3
@@ -153,11 +152,6 @@ namespace Project
         /// The weapons of this soldier.
         /// </summary>
         public Weapon[] Weapons { get; private set; }
-
-        /// <summary>
-        /// If the soldier is alive or not.
-        /// </summary>
-        public bool Alive => Role != SoliderRole.Dead;
         
         /// <summary>
         /// The soldier's current role on the team.
@@ -232,7 +226,7 @@ namespace Project
             y = EasyManager.NextItem(y, h, p);
 
             // Display the role of this soldier.
-            EasyManager.GuiLabel(x, y, w, h, p, Role == SoliderRole.Dead ? "Respawning" : $"Role: {Role}");
+            EasyManager.GuiLabel(x, y, w, h, p, !Alive ? "Respawning" : $"Role: {Role}");
             y = EasyManager.NextItem(y, h, p);
 
             // Display the health of this soldier.
@@ -240,7 +234,7 @@ namespace Project
             y = EasyManager.NextItem(y, h, p);
 
             // Display the weapon this soldier is using.
-            EasyManager.GuiLabel(x, y, w, h, p, Role == SoliderRole.Dead ? "Weapon: None" : WeaponIndex switch
+            EasyManager.GuiLabel(x, y, w, h, p, !Alive ? "Weapon: None" : WeaponIndex switch
             {
                 (int) WeaponIndexes.MachineGun => $"Weapon: Machine Gun | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].MaxAmmo}",
                 (int) WeaponIndexes.Shotgun => $"Weapon: Shotgun | Ammo: {Weapons[WeaponIndex].Ammo} / {Weapons[WeaponIndex].MaxAmmo}",
@@ -271,19 +265,21 @@ namespace Project
         public override void Perform()
         {
             // Do nothing when dead.
-            if (Role == SoliderRole.Dead)
+            if (!Alive)
             {
                 return;
             }
+
+            float deltaTime = Time.deltaTime;
 
             // Remove detected enemies that have exceeded their maximum memory time.
             for (int i = 0; i < DetectedEnemies.Count; i++)
             {
                 // Increment how long the enemy has been in memory.
-                DetectedEnemies[i].DeltaTime += DeltaTime;
+                DetectedEnemies[i].DeltaTime += deltaTime;
                 
-                // If the detected enemy is too old or they have died, remove it.
-                if (DetectedEnemies[i].DeltaTime > SoldierManager.MemoryTime || DetectedEnemies[i].Enemy.Role == SoliderRole.Dead)
+                // If the detected enemy is too old, or they have died, remove it.
+                if (DetectedEnemies[i].DeltaTime > SoldierManager.MemoryTime || !DetectedEnemies[i].Enemy.Alive)
                 {
                     DetectedEnemies.RemoveAt(i--);
                 }
@@ -315,18 +311,6 @@ namespace Project
             if (WeaponIndex != selected)
             {
                 SelectWeapon(selected);
-            }
-        }
-        
-        /// <summary>
-        /// Character controller movement.
-        /// </summary>
-        public override void MovementCalculations()
-        {
-            // Only move when the controller is enabled to avoid throwing an error as it needs to be disabled when dead.
-            if (Character != null && Character.enabled)
-            {
-                base.MovementCalculations();
             }
         }
 
@@ -372,7 +356,7 @@ namespace Project
         public void Damage(int amount, Soldier shooter)
         {
             // If already dead, do nothing.
-            if (Role == SoliderRole.Dead)
+            if (!Alive)
             {
                 return;
             }
@@ -428,7 +412,7 @@ namespace Project
         public void Heal()
         {
             // Cannot heal if dead.
-            if (Role == SoliderRole.Dead)
+            if (!Alive)
             {
                 return;
             }
@@ -505,6 +489,8 @@ namespace Project
             // Reenable the character controller.
             // ReSharper disable once Unity.InefficientPropertyAccess
             Character.enabled = true;
+
+            Alive = true;
             
             // Set a dummy role to indicate the soldier is no longer dead.
             Role = SoliderRole.Collector;
@@ -537,7 +523,7 @@ namespace Project
         public IEnumerator Respawn()
         {
             // Set that the soldier has died.
-            Role = SoliderRole.Dead;
+            Alive = false;
             ToggleAlive();
             
             // Reassign team roles.

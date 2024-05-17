@@ -9,11 +9,22 @@ namespace EasyAI
     public class EasyTransformAgent : EasyAgent
     {
         /// <summary>
-        /// Transform movement.
+        /// Update is called every frame, if the MonoBehaviour is enabled.
         /// </summary>
-        public override void MovementCalculations()
+        protected override void Update()
         {
+            if (!Alive)
+            {
+                return;
+            }
+            
+            // Call the base method to update the look rotation.
+            base.Update();
+            
+            // Calculate the movement velocity.
             CalculateMoveVelocity();
+            
+            // Set the position accordingly.
             transform.position += MoveVelocity3 * Time.deltaTime;
         }
     }

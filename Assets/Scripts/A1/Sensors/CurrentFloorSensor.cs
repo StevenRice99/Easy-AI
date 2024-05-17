@@ -9,7 +9,7 @@ namespace A1.Sensors
     /// Sensor to sense the dirt state of the current tile the agent is on.
     /// </summary>
     [DisallowMultipleComponent]
-    public class CurrentFloorEasySensor : EasySensor
+    public class CurrentFloorSensor : EasySensor
     {
         /// <summary>
         /// Sense the dirt state of the current tile the agent is on.

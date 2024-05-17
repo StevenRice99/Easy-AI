@@ -22,10 +22,18 @@ namespace EasyAI
         private float _velocityY;
 
         /// <summary>
-        /// Character controller movement.
+        /// Update is called every frame, if the MonoBehaviour is enabled.
         /// </summary>
-        public override void MovementCalculations()
+        protected override void Update()
         {
+            if (!Alive)
+            {
+                return;
+            }
+            
+            // Call the base method to update the look rotation.
+            base.Update();
+            
             // Reset gravity if grounded.
             if (Character.isGrounded)
             {
@@ -35,7 +43,10 @@ namespace EasyAI
             // Apply gravity.
             _velocityY += Physics.gravity.y * Time.deltaTime;
 
+            // Calculate the movement velocity.
             CalculateMoveVelocity();
+            
+            // Apply the movement to the character controller.
             Vector2 scaled = MoveVelocity * Time.deltaTime;
             Character.Move(new(scaled.x, _velocityY, scaled.y));
         }

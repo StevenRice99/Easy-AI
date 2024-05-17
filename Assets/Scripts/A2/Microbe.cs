@@ -375,7 +375,7 @@ namespace A2
         public override void Perform()
         {
             // Determine if the microbe's hunger should increase.
-            if (Random.value <= MicrobeManager.HungerChance * DeltaTime)
+            if (Random.value <= MicrobeManager.HungerChance * Time.deltaTime)
             {
                 Hunger++;
             }
@@ -393,25 +393,25 @@ namespace A2
                 return;
             }
             
-            if (EasyState as MicrobeRoamingState)
+            if (State as MicrobeRoamingState)
             {
                 stateVisualization.material = MicrobeManager.SleepingIndicatorMaterial;
                 return;
             }
             
-            if (EasyState as MicrobeHungryState)
+            if (State as MicrobeHungryState)
             {
                 stateVisualization.material = MicrobeManager.FoodIndicatorMaterial;
                 return;
             }
             
-            if (EasyState as MicrobeMatingState)
+            if (State as MicrobeMatingState)
             {
                 stateVisualization.material = MicrobeManager.MateIndicatorMaterial;
                 return;
             }
             
-            if (EasyState as MicrobeSeekingPickupState)
+            if (State as MicrobeSeekingPickupState)
             {
                 stateVisualization.material = MicrobeManager.PickupIndicatorMaterial;
             }
@@ -492,8 +492,9 @@ namespace A2
         /// <summary>
         /// Update is called every frame, if the MonoBehaviour is enabled.
         /// </summary>
-        private void Update()
+        protected override void Update()
         {
+            base.Update();
             SetStateVisual();
         }
     }

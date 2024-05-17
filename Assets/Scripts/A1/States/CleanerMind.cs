@@ -25,7 +25,7 @@ namespace A1.States
             }
             
             // Read the dirty sensor to get the current tile.
-            Floor floor = agent.Sense<CurrentFloorEasySensor, Floor>();
+            Floor floor = agent.Sense<CurrentFloorSensor, Floor>();
             
             // If there are no floor tiles to clean, determine where to move which will be the closest floor with the highest dirt level or the weighted midpoint.
             if (floor == null || !floor.IsDirty)

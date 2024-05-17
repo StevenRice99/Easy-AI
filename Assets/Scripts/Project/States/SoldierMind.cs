@@ -233,7 +233,6 @@ namespace Project.States
 
                 case Soldier.SoliderRole.Attacker:
                 case Soldier.SoliderRole.Defender:
-                case Soldier.SoliderRole.Dead:
                 default:
                     // If the soldier has low health, move to a health pack to heal.
                     if (soldier.Health <= lowHealth)

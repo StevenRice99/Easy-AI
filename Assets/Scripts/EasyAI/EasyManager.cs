@@ -816,18 +816,6 @@ namespace EasyAI
         }
 
         /// <summary>
-        /// Handle moving of agents.
-        /// </summary>
-        /// <param name="agents">The agents to move.</param>
-        private static void MoveAgents(List<EasyAgent> agents)
-        {
-            foreach (EasyAgent agent in agents)
-            {
-                agent.MovementCalculations();
-            }
-        }
-
-        /// <summary>
         /// Set up the material for line rendering.
         /// </summary>
         private static void LineMaterial()
@@ -1228,7 +1216,7 @@ namespace EasyAI
                 length++;
             }
 
-            if (Singleton.SelectedAgent.EasyState != null)
+            if (Singleton.SelectedAgent.State != null)
             {
                 length++;
             }
@@ -1247,9 +1235,9 @@ namespace EasyAI
                 y = NextItem(y, h, p);
             }
         
-            if (Singleton.SelectedAgent.EasyState != null)
+            if (Singleton.SelectedAgent.State != null)
             {
-                GuiLabel(x, y, w, h, p, $"State: {Singleton.SelectedAgent.EasyState}");
+                GuiLabel(x, y, w, h, p, $"State: {Singleton.SelectedAgent.State}");
                 y = NextItem(y, h, p);
             }
         
@@ -1977,19 +1965,6 @@ namespace EasyAI
                 SelectedAgent = Agents[0];
             }
 
-            if (Time.timeScale != 0)
-            {
-                // Update the delta time for all agents and look towards their targets.
-                foreach (EasyAgent agent in Agents)
-                {
-                    agent.StepDeltaTime();
-                    agent.LookCalculations();
-                }
-
-                // Move agents that do not require physics.
-                MoveAgents(_updateAgents);
-            }
-
             // Click to select an agent.
             if (Mouse.current.leftButton.wasPressedThisFrame && Physics.Raycast(selectedCamera.ScreenPointToRay(new(Mouse.current.position.x.ReadValue(), Mouse.current.position.y.ReadValue(), 0)), out RaycastHit hit, Mathf.Infinity))
             {
@@ -2002,6 +1977,7 @@ namespace EasyAI
                     {
                         SelectedAgent = clicked;
                         followBest = false;
+                        _state = GuiState.Agent;
                         break;
                     }
                     tr = tr.parent;
@@ -2018,7 +1994,7 @@ namespace EasyAI
             // If locked to following the best agent, select the best agent.
             float best = float.MinValue;
             SelectedAgent = null;
-            foreach (EasyAgent agent in Agents.Where(a => a.performanceMeasure != null))
+            foreach (EasyAgent agent in Agents.Where(a => a.Alive && a.performanceMeasure != null))
             {
                 float score = agent.performanceMeasure.CalculatePerformance();
                 if (score <= best)
@@ -2125,34 +2101,6 @@ namespace EasyAI
             {
                 AgentGizmos(SelectedAgent);
             }
-        }
-
-        /// <summary>
-        /// Frame-rate independent MonoBehaviour. FixedUpdate message for physics calculations.
-        /// </summary>
-        protected void FixedUpdate()
-        {
-            if (Time.timeScale == 0)
-            {
-                return;
-            }
-
-            // Perform for all agents if there is no limit or only the next allowable number of agents if there is.
-            // Keep as for loop and don't turn into a foreach in case agents destroy each other.
-            for (int i = 0; i < Agents.Count; i++)
-            {
-                try
-                {
-                    Agents[i].Perform();
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError(e);
-                }
-            }
-                
-            // Move agents that require physics.
-            MoveAgents(_fixedUpdateAgents);
         }
 
         /// <summary>

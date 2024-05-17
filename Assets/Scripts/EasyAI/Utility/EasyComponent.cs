@@ -38,7 +38,7 @@ namespace EasyAI.Utility
         /// <param name="message">The message to log.</param>
         public void Log(string message)
         {
-            agent.Log($"{ToString()}: {message}");
+            agent.Log($"{ToString()} - {message}");
         }
 
         /// <summary>

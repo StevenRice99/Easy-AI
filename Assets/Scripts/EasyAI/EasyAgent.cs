@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EasyAI.Navigation;
-using EasyAI.Utility;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -45,11 +44,6 @@ namespace EasyAI
         /// The current move velocity if move acceleration is being used.
         /// </summary>
         public Vector2 MoveVelocity { get; protected set; }
-
-        /// <summary>
-        /// The time passed since the last time the agent's mind made decisions. Use this instead of Time.DeltaTime.
-        /// </summary>
-        public float DeltaTime { get; private set; }
 
         /// <summary>
         /// The target the agent is currently trying to look towards.
@@ -102,6 +96,11 @@ namespace EasyAI
         public Transform MoveTarget { get; private set; }
 
         /// <summary>
+        /// If this agent is alive and thus should perform actions or not.
+        /// </summary>
+        public bool Alive { get; set; } = true;
+
+        /// <summary>
         /// The last position of the target to move in relation to.
         /// </summary>
         private Vector2 _moveTargetLastPosition;
@@ -128,12 +127,12 @@ namespace EasyAI
         /// </summary>
         [field: Tooltip("The state the agent is in.")]
         [field: SerializeField]
-        public EasyState EasyState { get; private set; }
+        public EasyState State { get; private set; }
         
         /// <summary>
         /// The state the agent was last in.
         /// </summary>
-        public EasyState PreviousEasyState { get; private set; }
+        public EasyState PreviousState { get; private set; }
 
         /// <summary>
         /// The path destination.
@@ -161,14 +160,6 @@ namespace EasyAI
         public List<string> Messages { get; private set; } = new();
 
         /// <summary>
-        /// Increase the time that has elapsed.
-        /// </summary>
-        public void StepDeltaTime()
-        {
-            DeltaTime += Time.deltaTime;
-        }
-
-        /// <summary>
         /// Set the state the agent is in.
         /// </summary>
         /// <param name="execute">If the new state should be executed after entering it.</param>
@@ -178,34 +169,34 @@ namespace EasyAI
             EasyState value = EasyManager.GetState<T>();
             
             // If already in this state, do nothing.
-            if (EasyState == value)
+            if (State == value)
             {
                 return;
             }
             
             // Exit the current state.
-            if (EasyState != null)
+            if (State != null)
             {
-                EasyState.Exit(this);
+                State.Exit(this);
             }
 
-            PreviousEasyState = EasyState;
+            PreviousState = State;
 
             // Set the new state.
-            EasyState = value;
+            State = value;
 
-            if (EasyState == null)
+            if (State == null)
             {
                 return;
             }
 
             // Enter the new state.
-            EasyState.Enter(this);
+            State.Enter(this);
 
             // Execute the new state if set to do so.
             if (execute)
             {
-                EasyState.Execute(this);
+                State.Execute(this);
             }
         }
 
@@ -216,26 +207,26 @@ namespace EasyAI
         public void ReturnToPreviousState(bool execute = false)
         {
             // Exit the current state.
-            if (EasyState != null)
+            if (State != null)
             {
-                EasyState.Exit(this);
+                State.Exit(this);
             }
 
             // Return to the previous state.
-            EasyState = PreviousEasyState;
+            State = PreviousState;
             
-            if (EasyState == null)
+            if (State == null)
             {
                 return;
             }
             
             // Enter the previous state.
-            EasyState.Enter(this);
+            State.Enter(this);
             
             // Execute the previous state if set to do so.
             if (execute)
             {
-                EasyState.Execute(this);
+                State.Execute(this);
             }
         }
 
@@ -247,7 +238,7 @@ namespace EasyAI
         /// <returns>True if the message was accepted and acted upon, false otherwise.</returns>
         public bool HandleMessage(EasyAgent sender, int id)
         {
-            return EasyState != null && EasyState.HandleMessage(this, sender, id) || Mind != null && Mind.HandleMessage(this, sender, id);
+            return State != null && State.HandleMessage(this, sender, id) || Mind != null && Mind.HandleMessage(this, sender, id);
         }
 
         /// <summary>
@@ -289,7 +280,7 @@ namespace EasyAI
         /// <returns>True if in the state, false otherwise.</returns>
         public bool IsInState<T>()
         {
-            return EasyState != null && EasyState.GetType() == typeof(T);
+            return State != null && State.GetType() == typeof(T);
         }
 
         /// <summary>
@@ -562,27 +553,10 @@ namespace EasyAI
                 Mind.Execute(this);
             }
             
-            if (EasyState != null)
+            if (State != null)
             {
-                EasyState.Execute(this);
+                State.Execute(this);
             }
-            else if (Mind == null && EasyManager.CurrentlySelectedAgent == this && Mouse.current.rightButton.wasPressedThisFrame && Physics.Raycast(EasyManager.SelectedCamera.ScreenPointToRay(new(Mouse.current.position.x.ReadValue(), Mouse.current.position.y.ReadValue(), 0)), out RaycastHit hit, Mathf.Infinity, EasyManager.GroundLayers | EasyManager.ObstacleLayers))
-            {
-                StopMoving();
-                CreatePath(hit.point);
-            }
-
-            // Act on the actions.
-            ActIncomplete();
-
-            // After all actions are performed, calculate the agent's new performance.
-            if (performanceMeasure != null)
-            {
-                Performance = performanceMeasure.CalculatePerformance();
-            }
-            
-            // Reset the elapsed time for the next time this method is called.
-            DeltaTime = 0;
         }
 
         /// <summary>
@@ -639,11 +613,6 @@ namespace EasyAI
         }
 
         /// <summary>
-        /// Implement movement behaviour.
-        /// </summary>
-        public abstract void MovementCalculations();
-
-        /// <summary>
         /// Look towards the agent's look target.
         /// </summary>
         public void LookCalculations()
@@ -681,6 +650,8 @@ namespace EasyAI
 
         protected virtual void OnEnable()
         {
+            Alive = true;
+            
             try
             {
                 EasyManager.AddAgent(this);
@@ -695,14 +666,16 @@ namespace EasyAI
                 Mind.Enter(this);
             }
 
-            if (EasyState != null)
+            if (State != null)
             {
-                EasyState.Enter(this);
+                State.Enter(this);
             }
         }
 
         protected virtual void OnDisable()
         {
+            Alive = false;
+            
             try
             {
                 EasyManager.RemoveAgent(this);
@@ -717,9 +690,9 @@ namespace EasyAI
                 Mind.Exit(this);
             }
 
-            if (EasyState != null)
+            if (State != null)
             {
-                EasyState.Exit(this);
+                State.Exit(this);
             }
         }
 
@@ -847,6 +820,46 @@ namespace EasyAI
                 }
 
                 _inProgressActions.RemoveAt(i--);
+            }
+        }
+
+        /// <summary>
+        /// Update is called every frame, if the MonoBehaviour is enabled.
+        /// </summary>
+        protected virtual void Update()
+        {
+            if (!Alive)
+            {
+                return;
+            }
+            
+            // If there is nothing controlling the agent, move with the mouse manually.
+            if (Mind == null && State == null && EasyManager.CurrentlySelectedAgent == this && Mouse.current.rightButton.wasPressedThisFrame && Physics.Raycast(EasyManager.SelectedCamera.ScreenPointToRay(new(Mouse.current.position.x.ReadValue(), Mouse.current.position.y.ReadValue(), 0)), out RaycastHit hit, Mathf.Infinity, EasyManager.GroundLayers | EasyManager.ObstacleLayers))
+            {
+                StopMoving();
+                CreatePath(hit.point);
+            }
+
+            // Act on the actions.
+            ActIncomplete();
+
+            // After all actions are performed, calculate the agent's new performance.
+            if (performanceMeasure != null)
+            {
+                Performance = performanceMeasure.CalculatePerformance();
+            }
+
+            LookCalculations();
+        }
+
+        /// <summary>
+        /// Frame-rate independent MonoBehaviour. FixedUpdate message for physics calculations.
+        /// </summary>
+        protected virtual void FixedUpdate()
+        {
+            if (Alive)
+            {
+                Perform();
             }
         }
 

@@ -16,9 +16,23 @@ namespace EasyAI
         [field: SerializeField]
         public Rigidbody Body { get; private set; }
         
-        public override void MovementCalculations()
+        /// <summary>
+        /// Frame-rate independent MonoBehaviour. FixedUpdate message for physics calculations.
+        /// </summary>
+        protected override void FixedUpdate()
         {
+            if (!Alive)
+            {
+                return;
+            }
+            
+            // Call the base method to perform the logic of the agent.
+            base.FixedUpdate();
+            
+            // Calculate the movement velocity.
             CalculateMoveVelocity();
+            
+            // Set the velocity of the rigidbody.
             Body.linearVelocity = new(MoveVelocity.x, Body.linearVelocity.y, MoveVelocity.y);
         }
 
