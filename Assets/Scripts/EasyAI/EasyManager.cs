@@ -956,49 +956,64 @@ namespace EasyAI
             lineRenderer.startWidth = lineRenderer.endWidth = 0;
         }
 
-        private LineRenderer GetNextLineRenderer()
+        /// <summary>
+        /// Set the values for the next line renderer.
+        /// </summary>
+        /// <param name="points">The points for this line.</param>
+        /// <param name="color">The color for the line.</param>
+        private void SetNextLineRenderer(Vector3[] points, Color color)
         {
+            // If we have used up all existing line renderers, cache more.
             if (_currentLineRenderer >= _lineRenderers.Length)
             {
+                // Create a new array of line renderers double the size of the previous line renderers.
                 LineRenderer[] expanded = new LineRenderer[_lineRenderers.Length > 0 ? _lineRenderers.Length * 2 : 1];
+                
+                // Copy existing line renderers into it.
                 for (int i = 0; i < _lineRenderers.Length; i++)
                 {
                     expanded[i] = _lineRenderers[i];
                 }
 
+                // Cache values for spawning the child object that holds the line renderer.
                 Transform t = transform;
                 Vector3 p = t.position;
+                Quaternion r = t.rotation;
                 
+                // Add in all new line renderers.
                 for (int i = _lineRenderers.Length; i < expanded.Length; i++)
                 {
+                    // Create a new child object to hold the line renderer.
                     GameObject child = new($"Line Renderer Holder {i + 1}")
                     {
                         transform =
                         {
                             parent = t,
-                            position = p
+                            position = p,
+                            rotation = r
                         }
                     };
                     
+                    // Set up and then hide the line renderer.
                     LineRenderer lineRenderer = child.AddComponent<LineRenderer>();
+                    lineRenderer.numCapVertices = lineRenderer.numCornerVertices = 90;
+                    lineRenderer.material = _lineMaterial;
                     DisableLineRenderer(lineRenderer);
                     expanded[i] = lineRenderer;
                 }
 
+                // Set the new array as the array for the line renderers.
                 _lineRenderers = expanded;
             }
+            
+            // Apply the new line renderer values.
+            _lineRenderers[_currentLineRenderer].positionCount = points.Length;
+            _lineRenderers[_currentLineRenderer].SetPositions(points);
+            _lineRenderers[_currentLineRenderer].startColor = _lineRenderers[_currentLineRenderer].endColor = color;
+            _lineRenderers[_currentLineRenderer].startWidth = _lineRenderers[_currentLineRenderer].endWidth = lineWidth;
 
-            return _lineRenderers[_currentLineRenderer++];
-        }
-
-        private void SetNextLineRenderer(Vector3[] points, Color color)
-        {
-            LineRenderer lineRenderer = GetNextLineRenderer();
-            lineRenderer.positionCount = points.Length;
-            lineRenderer.SetPositions(points);
-            lineRenderer.material = _lineMaterial;
-            lineRenderer.startColor = lineRenderer.endColor = color;
-            lineRenderer.startWidth = lineRenderer.endWidth = lineWidth;
+            // Increment to the next renderer.
+            _currentLineRenderer++;
         }
 
         /// <summary>
@@ -2145,16 +2160,18 @@ namespace EasyAI
             {
                 DisableLineRenderer(lineRenderer);
             }
-
-            LineMaterial();
-
-            _currentLineRenderer = 0;
             
             // We don't want to make rendering calls if there is no need because it can be a problem on certain platforms like web.
             if (Agents.Count == 0 || paths is PathState.Off)
             {
                 return;
             }
+
+            // Ensure there is a material for rendering the lines.
+            LineMaterial();
+
+            // Reset what line renderer we are currently on.
+            _currentLineRenderer = 0;
 
             // Check if there is any paths to render.
             switch (paths)
@@ -2208,8 +2225,11 @@ namespace EasyAI
                 {
                     AgentGizmos(agent);
                 }
+                
+                return;
             }
-            else if (SelectedEasyAgent != null)
+
+            if (SelectedEasyAgent != null)
             {
                 AgentGizmos(SelectedEasyAgent);
             }
