@@ -18,7 +18,7 @@ namespace EasyAI
         
         public override void MovementCalculations()
         {
-            CalculateMoveVelocity(Time.fixedDeltaTime);
+            CalculateMoveVelocity();
             Body.linearVelocity = new(MoveVelocity.x, Body.linearVelocity.y, MoveVelocity.y);
         }
 

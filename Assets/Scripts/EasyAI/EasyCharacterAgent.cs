@@ -35,7 +35,7 @@ namespace EasyAI
             // Apply gravity.
             _velocityY += Physics.gravity.y * Time.deltaTime;
 
-            CalculateMoveVelocity(Time.deltaTime);
+            CalculateMoveVelocity();
             Vector2 scaled = MoveVelocity * Time.deltaTime;
             Character.Move(new(scaled.x, _velocityY, scaled.y));
         }

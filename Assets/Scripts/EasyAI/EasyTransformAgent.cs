@@ -13,7 +13,7 @@ namespace EasyAI
         /// </summary>
         public override void MovementCalculations()
         {
-            CalculateMoveVelocity(Time.deltaTime);
+            CalculateMoveVelocity();
             transform.position += MoveVelocity3 * Time.deltaTime;
         }
     }

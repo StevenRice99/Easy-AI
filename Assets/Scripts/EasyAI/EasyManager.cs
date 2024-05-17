@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Linq;
 using EasyAI.Navigation;
 using EasyAI.Navigation.Utility;
-using EasyAI.Utility;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -58,14 +57,12 @@ namespace EasyAI
         /// Main - Displays a list of all agents and global messages. Never in this state if there is only one agent in the scene.
         /// Agent - Displays the selected agent. Displayed in place of "Main" if there is only one agent in the scene.
         /// Components - Displays lists of the sensors, actuators, percepts, and actions of the selected agent.
-        /// Component - Displays details of a selected sensor or actuator.
         /// </summary>
         private enum GuiState : byte
         {
             Main,
             Agent,
-            Components,
-            Component
+            Components
         }
         
         /// <summary>
@@ -240,7 +237,7 @@ namespace EasyAI
         /// How many nodes to place for every unit of world space. Example values:
         /// 1 - Node per every 1 unit.
         /// 2 - Node per every 0.5 units.
-        /// 4 - Node per every 0.25 units."
+        /// 4 - Node per every 0.25 units.
         /// </summary>
         [Tooltip(
             "How many nodes to place for every unit of world space. Example values:\n" +
@@ -289,15 +286,6 @@ namespace EasyAI
         [Min(0)]
         [SerializeField]
         private float agentRadius = 0.5f;
-
-        /// <summary>
-        /// The maximum number of agents which can be updated in a single frame. Set to zero to be unlimited.
-        /// </summary>
-        [Header("Performance")]
-        [Tooltip("The maximum number of agents which can be updated in a single frame. Set to zero to be unlimited.")]
-        [Min(0)]
-        [SerializeField]
-        private int maxAgentsPerUpdate;
 
         /// <summary>
         /// The maximum number of messages any component can hold.
@@ -443,11 +431,6 @@ namespace EasyAI
         /// If the controls menu is currently open.
         /// </summary>
         private bool _controlsOpen = true;
-
-        /// <summary>
-        /// The currently selected component.
-        /// </summary>
-        private EasyComponent _selected;
 
         /// <summary>
         /// All line renderers for visuals.
@@ -943,11 +926,18 @@ namespace EasyAI
             SceneManager.LoadScene(next);
         }
 
+        /// <summary>
+        /// OnGUI is called for rendering and handling GUI events.
+        /// </summary>
         private void OnGUI()
         {
             Render(10, 10, 20, 5);
         }
 
+        /// <summary>
+        /// Turn a line renderer off.
+        /// </summary>
+        /// <param name="lineRenderer">The line renderer to turn off.</param>
         private void DisableLineRenderer(LineRenderer lineRenderer)
         {
             lineRenderer.positionCount = 1;
@@ -1119,7 +1109,7 @@ namespace EasyAI
             }
             y = Singleton.DisplayDetails(x, y, w, h, p);
 
-            if (Singleton.SelectedAgent == null && Singleton._state == GuiState.Agent || Singleton._selected == null && Singleton._state == GuiState.Component)
+            if (Singleton.SelectedAgent == null && Singleton._state == GuiState.Agent)
             {
                 Singleton._state = GuiState.Main;
             }
@@ -1167,23 +1157,9 @@ namespace EasyAI
                             RenderComponents(x, y, w, h, p);
                         }
                     }
-
-                    return;
-                }
-                // Handle the component view.
-                case GuiState.Component:
-                {
-                    if (Singleton.SelectedAgent != null)
+                    else
                     {
-                        // Button to go back to the components view.
-                        y = NextItem(y, h, p);
-                        if (GuiButton(x, y, w, h, $"Back to {Singleton.SelectedAgent.name} Sensors and Actuators"))
-                        {
-                            Singleton._selected = null;
-                            Singleton._state = GuiState.Components;
-                        }
-                
-                        RenderComponent(x, y, w, h, p);
+                        Singleton._state = GuiState.Main;
                     }
 
                     return;
@@ -1352,17 +1328,18 @@ namespace EasyAI
                 _ => $"{Singleton.SelectedAgent.sensors.Length} Sensors"
             });
 
-            foreach (EasySensor sensor in Singleton.SelectedAgent.sensors)
+            if (Singleton.SelectedAgent.sensors.Length > 0)
             {
-                // Button to select a sensor.
                 y = NextItem(y, h, p);
-                if (!GuiButton(x, y, w, h, sensor.ToString()))
+                GuiBox(x, y, w, h, p, Singleton.SelectedAgent.sensors.Length);
+                for (int i = 0; i < Singleton.SelectedAgent.sensors.Length; i++)
                 {
-                    continue;
+                    GuiLabel(x, y, w, h, p, Singleton.SelectedAgent.sensors[i].ToString());
+                    if (i < Singleton.SelectedAgent.sensors.Length - 1)
+                    {
+                        y = NextItem(y, h, p);
+                    }
                 }
-
-                Singleton._selected = sensor;
-                Singleton._state = GuiState.Component;
             }
             
             // Display all actuators.
@@ -1374,60 +1351,21 @@ namespace EasyAI
                 1 => "1 Actuator",
                 _ => $"{Singleton.SelectedAgent.actuators.Length} Actuators"
             });
-            
-            foreach (EasyActuator actuator in Singleton.SelectedAgent.actuators)
+
+            if (Singleton.SelectedAgent.actuators.Length < 1)
             {
-                // Button to select an actuator.
-                y = NextItem(y, h, p);
-                if (!GuiButton(x, y, w, h, actuator.ToString()))
+                return;
+            }
+            
+            y = NextItem(y, h, p);
+            GuiBox(x, y, w, h, p, Singleton.SelectedAgent.actuators.Length);
+            for (int i = 0; i < Singleton.SelectedAgent.actuators.Length; i++)
+            {
+                GuiLabel(x, y, w, h, p, Singleton.SelectedAgent.actuators[i].ToString());
+                if (i < Singleton.SelectedAgent.actuators.Length - 1)
                 {
-                    continue;
+                    y = NextItem(y, h, p);
                 }
-
-                Singleton._selected = actuator;
-                Singleton._state = GuiState.Component;
-            }
-        }
-        
-        /// <summary>
-        /// Render the automatic component GUI.
-        /// </summary>
-        /// <param name="x">X rendering position. In most cases this should remain unchanged.</param>
-        /// <param name="y">Y rendering position. Update this with every component added and return it.</param>
-        /// <param name="w">Width of components. In most cases this should remain unchanged.</param>
-        /// <param name="h">Height of components. In most cases this should remain unchanged.</param>
-        /// <param name="p">Padding of components. In most cases this should remain unchanged.</param>
-        private static void RenderComponent(float x, float y, float w, float h, float p)
-        {
-            if (Singleton._selected == null)
-            {
-                Singleton._state = GuiState.Components;
-                return;
-            }
-            
-            // Display component details.
-            y = NextItem(y, h, p);
-            GuiBox(x, y, w, h, p, 1);
-            GuiLabel(x, y, w, h, p, $"{Singleton.SelectedAgent.name} | {Singleton._selected}");
-            
-            // Display any custom details implemented for the component.
-            y = Singleton._selected.DisplayDetails(x, y, w, h, p);
-            
-            // Display component messages.
-            if (!Singleton._selected.HasMessages)
-            {
-                return;
-            }
-            
-            y = RenderMessageOptions(x, y, w, h, p);
-            
-            y = NextItem(y, h, p);
-            GuiBox(x, y, w, h, p, Singleton._selected.MessageCount);
-
-            foreach (string message in Singleton._selected.Messages)
-            {
-                GuiLabel(x, y, w, h, p, message);
-                y = NextItem(y, h, p);
             }
         }
 
@@ -1610,19 +1548,6 @@ namespace EasyAI
                     Singleton.paths = PathState.Off;
                 }
             }
-
-        }
-
-        /// <summary>
-        /// Go to the next agent.
-        /// </summary>
-        private void NextAgent()
-        {
-            _currentAgentIndex++;
-            if (_currentAgentIndex >= Agents.Count)
-            {
-                _currentAgentIndex = 0;
-            }
         }
 
         /// <summary>
@@ -1655,9 +1580,9 @@ namespace EasyAI
         protected static void ClearMessages()
         {
             Singleton._globalMessages.Clear();
-            foreach (EasyComponent component in FindObjectsByType<EasyComponent>(FindObjectsSortMode.None))
+            foreach (EasyAgent agent in Singleton.Agents)
             {
-                component.ClearMessages();
+                agent.ClearMessages();
             }
         }
 
@@ -2054,39 +1979,6 @@ namespace EasyAI
 
             if (Time.timeScale != 0)
             {
-                // Perform for all agents if there is no limit or only the next allowable number of agents if there is.
-                if (maxAgentsPerUpdate <= 0)
-                {
-                    // Keep as for loop and don't turn into a foreach in case agents destroy each other.
-                    for (int i = 0; i < Agents.Count; i++)
-                    {
-                        try
-                        {
-                            Agents[i].Perform();
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.LogError(e);
-                        }
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < maxAgentsPerUpdate; i++)
-                    {
-                        try
-                        {
-                            Agents[_currentAgentIndex].Perform();
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.LogError(e);
-                        }
-                
-                        NextAgent();
-                    }
-                }
-
                 // Update the delta time for all agents and look towards their targets.
                 foreach (EasyAgent agent in Agents)
                 {
@@ -2240,11 +2132,27 @@ namespace EasyAI
         /// </summary>
         protected void FixedUpdate()
         {
-            if (Time.timeScale != 0)
+            if (Time.timeScale == 0)
             {
-                // Move agents that require physics.
-                MoveAgents(_fixedUpdateAgents);
+                return;
             }
+
+            // Perform for all agents if there is no limit or only the next allowable number of agents if there is.
+            // Keep as for loop and don't turn into a foreach in case agents destroy each other.
+            for (int i = 0; i < Agents.Count; i++)
+            {
+                try
+                {
+                    Agents[i].Perform();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError(e);
+                }
+            }
+                
+            // Move agents that require physics.
+            MoveAgents(_fixedUpdateAgents);
         }
 
         /// <summary>

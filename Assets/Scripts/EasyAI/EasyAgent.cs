@@ -13,7 +13,7 @@ namespace EasyAI
     /// Base class for all agents.
     /// </summary>
     [DisallowMultipleComponent]
-    public abstract class EasyAgent : EasyMessage
+    public abstract class EasyAgent : MonoBehaviour
     {
         /// <summary>
         /// The actions of this agent that are not yet completed.
@@ -144,6 +144,21 @@ namespace EasyAI
         /// The current move velocity if move acceleration is being used as a Vector3.
         /// </summary>
         public Vector3 MoveVelocity3 => new(MoveVelocity.x, 0, MoveVelocity.y);
+        
+        /// <summary>
+        /// If this component has any messages or not.
+        /// </summary>
+        public bool HasMessages => Messages.Count > 0;
+
+        /// <summary>
+        /// The number of messages this component has.
+        /// </summary>
+        public int MessageCount => Messages.Count;
+        
+        /// <summary>
+        /// The messages of this component.
+        /// </summary>
+        public List<string> Messages { get; private set; } = new();
 
         /// <summary>
         /// Increase the time that has elapsed.
@@ -711,9 +726,10 @@ namespace EasyAI
         /// <summary>
         /// Calculate movement for the agent.
         /// </summary>
-        /// <param name="deltaTime">The elapsed time step.</param>
-        protected void CalculateMoveVelocity(float deltaTime)
+        protected void CalculateMoveVelocity()
         {
+            float deltaTime = Time.deltaTime;
+            
             // Initialize the movement for this time step.
             Vector2 movement = Vector2.zero;
         
@@ -832,6 +848,64 @@ namespace EasyAI
 
                 _inProgressActions.RemoveAt(i--);
             }
+        }
+
+        /// <summary>
+        /// Override for custom detail rendering on the automatic GUI.
+        /// </summary>
+        /// <param name="x">X rendering position. In most cases this should remain unchanged.</param>
+        /// <param name="y">Y rendering position. Update this with every component added and return it.</param>
+        /// <param name="w">Width of components. In most cases this should remain unchanged.</param>
+        /// <param name="h">Height of components. In most cases this should remain unchanged.</param>
+        /// <param name="p">Padding of components. In most cases this should remain unchanged.</param>
+        /// <returns>The updated Y position after all custom rendering has been done.</returns>
+        public virtual float DisplayDetails(float x, float y, float w, float h, float p)
+        {
+            return y;
+        }
+
+        /// <summary>
+        /// Add a message to this component.
+        /// </summary>
+        /// <param name="message">The message to add.</param>
+        public void Log(string message)
+        {
+            EasyManager.GlobalLog($"{name} - {message}");
+            
+            switch (EasyManager.MessageMode)
+            {
+                case EasyManager.MessagingMode.Compact when Messages.Count > 0 && Messages[0] == message:
+                    return;
+                case EasyManager.MessagingMode.Unique:
+                    Messages = Messages.Where(m => m != message).ToList();
+                    break;
+                case EasyManager.MessagingMode.All:
+                default:
+                    break;
+            }
+
+            Messages.Insert(0, message);
+            if (Messages.Count > EasyManager.MaxMessages)
+            {
+                Messages.RemoveAt(Messages.Count - 1);
+            }
+        }
+
+        /// <summary>
+        /// Clear all messages of this component.
+        /// </summary>
+        public void ClearMessages()
+        {
+            Messages.Clear();
+        }
+
+        /// <summary>
+        /// Override to easily display the type of the component for easy usage in messages.
+        /// </summary>
+        /// <returns>Name of this type.</returns>
+        public override string ToString()
+        {
+            return GetType().Name;
         }
     }
 }

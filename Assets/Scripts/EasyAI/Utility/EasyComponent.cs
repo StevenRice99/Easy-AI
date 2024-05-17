@@ -5,7 +5,7 @@ namespace EasyAI.Utility
     /// <summary>
     /// Base component for sensors, actuators, minds, and performance measures.
     /// </summary>
-    public abstract class EasyComponent : EasyMessage
+    public abstract class EasyComponent : MonoBehaviour
     {
         /// <summary>
         /// The agent this component is connected to.
@@ -30,6 +30,24 @@ namespace EasyAI.Utility
 
                 t = t.parent;
             } while (t != null);
+        }
+
+        /// <summary>
+        /// Log a message to the agent.
+        /// </summary>
+        /// <param name="message">The message to log.</param>
+        public void Log(string message)
+        {
+            agent.Log($"{ToString()}: {message}");
+        }
+
+        /// <summary>
+        /// Override to easily display the type of the component for easy usage in messages.
+        /// </summary>
+        /// <returns>Name of this type.</returns>
+        public override string ToString()
+        {
+            return GetType().Name;
         }
     }
 }
