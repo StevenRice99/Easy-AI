@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 8746273391784731232}
   - component: {fileID: 5938657817584930929}
   - component: {fileID: 6597533758415603164}
+  - component: {fileID: 3529226316716113026}
   - component: {fileID: 5088663207801863598}
-  - component: {fileID: 8946480312652557820}
   m_Layer: 0
   m_Name: Microbe
   m_TagString: Untagged
@@ -50,10 +50,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8a214ef07764d35a10e171fa2154a14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  agentParameters:
-    maxStep: 0
-  hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
   moveSpeed: 10
   moveAcceleration: 10
   lookSpeed: 5
@@ -62,9 +58,10 @@ MonoBehaviour:
   - {fileID: 5938657817584930929}
   - {fileID: 6597533758415603164}
   actuators: []
+  performanceMeasure: {fileID: 3529226316716113026}
   <Visuals>k__BackingField: {fileID: 2132608735531069219}
   <Mind>k__BackingField: {fileID: 11400000, guid: 1c5677af39d17c748bb3dbf33fc8c7cb, type: 2}
-  <State>k__BackingField: {fileID: 0}
+  <EasyState>k__BackingField: {fileID: 11400000, guid: bb731d10f7244aa43b9b30bd5f32458b, type: 2}
   stateVisualization: {fileID: 6820371204410465446}
   spawnAudio: {fileID: 8300000, guid: 9812aa10de2ee6542a47b4ae7c446f01, type: 3}
   eatAudio: {fileID: 8300000, guid: 1d3e1885790d34f468dd787e3a5a8123, type: 3}
@@ -82,7 +79,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39f4f3c9a92745e3befb75fd9e0f3301, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  agent: {fileID: 3715790923974705690}
+  easyAgent: {fileID: 3715790923974705690}
 --- !u!114 &5938657817584930929
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -95,7 +92,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79590cb5573f42b5b17ce965e8dea62c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  agent: {fileID: 3715790923974705690}
+  easyAgent: {fileID: 3715790923974705690}
 --- !u!114 &6597533758415603164
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -108,7 +105,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0bb36e03982c429ba559e39039e6c32e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  agent: {fileID: 3715790923974705690}
+  easyAgent: {fileID: 3715790923974705690}
+--- !u!114 &3529226316716113026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1567258149929102323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bd273c18ef54e108b294b0e74fea6c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  easyAgent: {fileID: 3715790923974705690}
 --- !u!82 &5088663207801863598
 AudioSource:
   m_ObjectHideFlags: 0
@@ -206,37 +216,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &8946480312652557820
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1567258149929102323}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d1c4e0b1822b495aa52bc52839ecb30, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_BrainParameters:
-    VectorObservationSize: 1
-    NumStackedVectorObservations: 1
-    m_ActionSpec:
-      m_NumContinuousActions: 0
-      BranchSizes: 01000000
-    VectorActionSize: 01000000
-    VectorActionDescriptions: []
-    VectorActionSpaceType: 0
-    hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
-  m_InferenceDevice: 0
-  m_BehaviorType: 0
-  m_BehaviorName: My Behavior
-  TeamId: 0
-  m_UseChildSensors: 1
-  m_UseChildActuators: 1
-  m_DeterministicInference: 0
-  m_ObservableAttributeHandling: 0
 --- !u!1 &1779663618056566957
 GameObject:
   m_ObjectHideFlags: 0

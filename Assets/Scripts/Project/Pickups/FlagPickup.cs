@@ -65,7 +65,6 @@ namespace Project.Pickups
             if (soldier != null)
             {
                 soldier.Returns++;
-                soldier.AddReward(1);
                 soldier.Log("Returned the flag.");
             }
 

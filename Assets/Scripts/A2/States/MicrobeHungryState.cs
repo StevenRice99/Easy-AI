@@ -53,13 +53,9 @@ namespace A2.States
             }
 
             // If close enough to eat the microbe it is tracking, eat it.
-            if (microbe.Eat())
+            if (!microbe.Eat())
             {
-                agent.AddReward(1);
-            }
-            // Otherwise move towards the microbe it is tracking.
-            else
-            {
+                // Otherwise move towards the microbe it is tracking.
                 agent.Move(microbe.TargetMicrobeTransform, EasySteering.Behaviour.Pursue);
             }
         }

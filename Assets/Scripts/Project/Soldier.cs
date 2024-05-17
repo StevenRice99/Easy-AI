@@ -6,7 +6,6 @@ using Project.Pickups;
 using Project.Positions;
 using Project.Weapons;
 using Unity.Mathematics;
-using Unity.MLAgents.Actuators;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -263,7 +262,7 @@ namespace Project
         /// <summary>
         /// Override to have the soldier perform its actions.
         /// </summary>
-        public override void Heuristic(in ActionBuffers actionsOut)
+        public override void Perform()
         {
             // Do nothing when dead.
             if (!Alive)
@@ -287,7 +286,7 @@ namespace Project
             }
 
             // Standard mind and states.
-            base.Heuristic(actionsOut);
+            base.Perform();
 
             int priority = int.MaxValue;
             int selected = (int) WeaponIndexes.Pistol;

@@ -1210,13 +1210,18 @@ namespace EasyAI
             }
             
             y = NextItem(y, h, p);
-            int length = 2;
+            int length = 1;
             if (Singleton.Agents.Count > 1)
             {
                 length++;
             }
 
             if (Singleton.SelectedAgent.State != null)
+            {
+                length++;
+            }
+
+            if (Singleton.SelectedAgent.performanceMeasure != null)
             {
                 length++;
             }
@@ -1236,8 +1241,11 @@ namespace EasyAI
                 y = NextItem(y, h, p);
             }
         
-            GuiLabel(x, y, w, h, p, $"Performance: {Singleton.SelectedAgent.GetCumulativeReward()}");
-            y = NextItem(y, h, p);
+            if (Singleton.SelectedAgent.performanceMeasure != null)
+            {
+                GuiLabel(x, y, w, h, p, $"Performance: {Singleton.SelectedAgent.Performance}");
+                y = NextItem(y, h, p);
+            }
 
             if (Singleton.SelectedAgent.Destination != null)
             {
@@ -1986,9 +1994,9 @@ namespace EasyAI
             // If locked to following the best agent, select the best agent.
             float best = float.MinValue;
             SelectedAgent = null;
-            foreach (EasyAgent agent in Agents.Where(a => a.Alive))
+            foreach (EasyAgent agent in Agents.Where(a => a.Alive && a.performanceMeasure != null))
             {
-                float score = agent.GetCumulativeReward();
+                float score = agent.performanceMeasure.CalculatePerformance();
                 if (score <= best)
                 {
                     continue;

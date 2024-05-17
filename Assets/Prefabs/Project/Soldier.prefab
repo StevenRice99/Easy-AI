@@ -366,7 +366,7 @@ GameObject:
   - component: {fileID: 5577938744223524275}
   - component: {fileID: 4027915266740351254}
   - component: {fileID: 5596074528344541089}
-  - component: {fileID: 6089236281426277457}
+  - component: {fileID: 8853428054890282905}
   m_Layer: 0
   m_Name: Soldier
   m_TagString: Untagged
@@ -435,10 +435,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09db045164814ff69ff77d2096462d6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  agentParameters:
-    maxStep: 0
-  hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
   moveSpeed: 10
   moveAcceleration: 0
   lookSpeed: 0
@@ -448,6 +444,7 @@ MonoBehaviour:
   - {fileID: 4027915266740351254}
   - {fileID: 5596074528344541089}
   actuators: []
+  performanceMeasure: {fileID: 8853428054890282905}
   <Visuals>k__BackingField: {fileID: 7700828181764947109}
   <Mind>k__BackingField: {fileID: 11400000, guid: 249f12d7bbd1c774ebf6b5f07af99145, type: 2}
   <State>k__BackingField: {fileID: 0}
@@ -514,7 +511,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   agent: {fileID: 8439266616326444673}
---- !u!114 &6089236281426277457
+--- !u!114 &8853428054890282905
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -523,28 +520,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 4324690102972426135}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d1c4e0b1822b495aa52bc52839ecb30, type: 3}
+  m_Script: {fileID: 11500000, guid: 87189abe381745dfb3fba3dd2387c137, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_BrainParameters:
-    VectorObservationSize: 1
-    NumStackedVectorObservations: 1
-    m_ActionSpec:
-      m_NumContinuousActions: 0
-      BranchSizes: 01000000
-    VectorActionSize: 01000000
-    VectorActionDescriptions: []
-    VectorActionSpaceType: 0
-    hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
-  m_InferenceDevice: 0
-  m_BehaviorType: 0
-  m_BehaviorName: My Behavior
-  TeamId: 0
-  m_UseChildSensors: 1
-  m_UseChildActuators: 1
-  m_DeterministicInference: 0
-  m_ObservableAttributeHandling: 0
+  agent: {fileID: 8439266616326444673}
 --- !u!1 &4324690103502335292
 GameObject:
   m_ObjectHideFlags: 0
