@@ -157,7 +157,7 @@ namespace EasyAI
         /// <summary>
         /// The messages of this component.
         /// </summary>
-        public List<string> Messages { get; private set; } = new();
+        public readonly List<string> Messages = new();
 
         /// <summary>
         /// Set the state the agent is in.
@@ -878,23 +878,14 @@ namespace EasyAI
         }
 
         /// <summary>
-        /// Add a message to this component.
+        /// Add a message to this agent.
         /// </summary>
         /// <param name="message">The message to add.</param>
         public void Log(string message)
         {
-            EasyManager.GlobalLog($"{name} - {message}");
-            
-            switch (EasyManager.MessageMode)
+            if (Messages.Count > 0 && Messages[0] == message)
             {
-                case EasyManager.MessagingMode.Compact when Messages.Count > 0 && Messages[0] == message:
-                    return;
-                case EasyManager.MessagingMode.Unique:
-                    Messages = Messages.Where(m => m != message).ToList();
-                    break;
-                case EasyManager.MessagingMode.All:
-                default:
-                    break;
+                return;
             }
 
             Messages.Insert(0, message);
@@ -902,14 +893,8 @@ namespace EasyAI
             {
                 Messages.RemoveAt(Messages.Count - 1);
             }
-        }
-
-        /// <summary>
-        /// Clear all messages of this component.
-        /// </summary>
-        public void ClearMessages()
-        {
-            Messages.Clear();
+            
+            EasyManager.GlobalLog($"{name} - {message}");
         }
 
         /// <summary>

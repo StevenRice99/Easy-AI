@@ -106,9 +106,9 @@ namespace A1
         private Material materialVeryDirty;
 
         /// <summary>
-        /// The material applied to a floor section when it is extremely dirty.
+        /// The material applied to a floor section when it has an extreme level of dirt.
         /// </summary>
-        [Tooltip("The material applied to a floor section when it is extremely dirty.")]
+        [Tooltip("The material applied to a floor section when it has an extreme level of dirt.")]
         [SerializeField]
         private Material materialExtremelyDirty;
 
@@ -237,7 +237,7 @@ namespace A1
                     }
                 }
 
-                // Double the chances of tiles getting dirty for the next loop so we are not infinitely looping.
+                // Double the chances of tiles getting dirty for the next loop, so we are not infinitely looping.
                 currentDirtyChance *= 2;
             }
             while (!addedDirty);

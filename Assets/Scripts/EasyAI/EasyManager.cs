@@ -8,10 +8,10 @@ using EasyAI.Navigation.Utility;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using Debug = UnityEngine.Debug;
 using System.IO;
+using UnityEngine.Rendering;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -24,19 +24,6 @@ namespace EasyAI
     [DisallowMultipleComponent]
     public class EasyManager : MonoBehaviour
     {
-        /// <summary>
-        /// Determine what mode messages are stored in.
-        /// All - All messages are captured.
-        /// Compact - All messages are captured, but, duplicate messages that appear immediately after each other will be merged into only a single instance of the message.
-        /// Unique - No messages will be duplicated with the prior instance of the message being removed from its list when an identical message gets added again.
-        /// </summary>
-        public enum MessagingMode : byte
-        {
-            All,
-            Compact,
-            Unique
-        }
-
         /// <summary>
         /// Determine what path lines are drawn.
         /// Off - No lines are drawn.
@@ -126,11 +113,6 @@ namespace EasyAI
         public static EasyAgent CurrentlySelectedAgent => Singleton.SelectedAgent;
 
         /// <summary>
-        /// Determine what mode messages are stored in.
-        /// </summary>
-        public static MessagingMode MessageMode => Singleton.messageMode;
-
-        /// <summary>
         /// The currently selected camera.
         /// </summary>
         public static Camera SelectedCamera => Singleton.selectedCamera;
@@ -154,7 +136,7 @@ namespace EasyAI
         /// All registered states.
         /// </summary>
         private static readonly Dictionary<Type, EasyState> RegisteredStates = new();
-
+        
         /// <summary>
         /// Cached shader value for use with line rendering.
         /// </summary>
@@ -318,21 +300,6 @@ namespace EasyAI
         [Tooltip("Lock tracking cameras to the best agent.")]
         [SerializeField]
         private bool followBest = true;
-
-        /// <summary>
-        /// Determine what mode messages are stored in.
-        /// All - All messages are captured.
-        /// Compact - All messages are captured, but, duplicate messages that appear immediately after each other will be merged into only a single instance of the message.
-        /// Unique - No messages will be duplicated with the prior instance of the message being removed from its list when an identical message gets added again.
-        /// </summary>
-        [Tooltip(
-            "Determine what mode messages are stored in.\n" +
-            "All - All messages are captured.\n" +
-            "Compact - All messages are captured, but, duplicate messages that appear immediately after each other will be merged into only a single instance of the message.\n" +
-            "Unique - No messages will be duplicated with the prior instance of the message being removed from its list when an identical message is added again."
-        )]
-        [SerializeField]
-        private MessagingMode messageMode = MessagingMode.Compact;
     
         /// <summary>
         /// The currently selected camera. Set this to start with that camera active. Leaving empty will default to the first camera by alphabetic order.
@@ -358,14 +325,6 @@ namespace EasyAI
         )]
         [SerializeField]
         private PathState paths = PathState.Selected;
-
-        /// <summary>
-        /// The size of the lines to render.
-        /// </summary>
-        [Tooltip("The size of the lines to render.")]
-        [Min(float.Epsilon)]
-        [SerializeField]
-        private float lineWidth = 0.05f;
 
         /// <summary>
         /// All cameras in the scene.
@@ -433,19 +392,9 @@ namespace EasyAI
         private bool _controlsOpen = true;
 
         /// <summary>
-        /// All line renderers for visuals.
-        /// </summary>
-        private LineRenderer[] _lineRenderers = {};
-
-        /// <summary>
         /// The line renderer that has last been used.
         /// </summary>
         private int _currentLineRenderer;
-        
-        /// <summary>
-        /// Transparent color to hide lines.
-        /// </summary>
-        private readonly Color _transparent = new(0, 0, 0, 0);
 
         /// <summary>
         /// Lookup a path to take from a starting position to an end goal.
@@ -657,16 +606,9 @@ namespace EasyAI
         /// <param name="message">The message to add.</param>
         public static void GlobalLog(string message)
         {
-            switch (Singleton.messageMode)
+            if (Singleton._globalMessages.Count > 0 && Singleton._globalMessages[0] == message)
             {
-                case MessagingMode.Compact when Singleton._globalMessages.Count > 0 && Singleton._globalMessages[0] == message:
-                    return;
-                case MessagingMode.Unique:
-                    Singleton._globalMessages = Singleton._globalMessages.Where(m => m != message).ToList();
-                    break;
-                case MessagingMode.All:
-                default:
-                    break;
+                return;
             }
 
             Singleton._globalMessages.Insert(0, message);
@@ -774,26 +716,7 @@ namespace EasyAI
         {
             Singleton._cameras = FindObjectsByType<Camera>(FindObjectsSortMode.None).OrderBy(c => c.name).ToArray();
         }
-
-        /// <summary>
-        /// Change to the next messaging mode.
-        /// </summary>
-        private static void ChangeMessageMode()
-        {
-            if (Singleton.messageMode == MessagingMode.Unique)
-            {
-                Singleton.messageMode = MessagingMode.All;
-            }
-            else
-            {
-                Singleton.messageMode++;
-            }
-
-            if (Singleton.messageMode == MessagingMode.Unique)
-            {
-                ClearMessages();
-            }
-        }
+        
         /// <summary>
         /// Register a state type into the dictionary for future reference.
         /// </summary>
@@ -815,64 +738,6 @@ namespace EasyAI
             return RegisteredStates[typeof(T)];
         }
 
-        /// <summary>
-        /// Set up the material for line rendering.
-        /// </summary>
-        private static void LineMaterial()
-        {
-            if (_lineMaterial)
-            {
-                return;
-            }
-
-            // Unity has a built-in shader that is useful for drawing simple colored things.
-            _lineMaterial = new(Shader.Find("Hidden/Internal-Colored"))
-            {
-                hideFlags = HideFlags.HideAndDontSave
-            };
-            
-            // Turn on alpha blending.
-            _lineMaterial.SetInt(SrcBlend, (int)BlendMode.SrcAlpha);
-            _lineMaterial.SetInt(DstBlend, (int)BlendMode.OneMinusSrcAlpha);
-            
-            // Turn backface culling off.
-            _lineMaterial.SetInt(Cull, (int)CullMode.Off);
-            
-            // Turn off depth writes.
-            _lineMaterial.SetInt(ZWrite, 0);
-        }
-
-        /// <summary>
-        /// Display gizmos for an agent.
-        /// </summary>
-        /// <param name="easyAgent">The agent to display gizmos for.</param>
-        private static void AgentGizmos(EasyAgent easyAgent)
-        {
-            Transform agentTransform = easyAgent.transform;
-            Vector3 position = agentTransform.position;
-            Quaternion rotation = agentTransform.rotation;
-            
-            // If the agent is moving, draw a yellow line indicating the direction it is currently moving in.
-            if (easyAgent.moveAcceleration > 0 && easyAgent.MoveVelocity != Vector2.zero)
-            {
-                Singleton.SetNextLineRenderer(new []{position, position + rotation * (easyAgent.MoveVelocity3.normalized * 2)}, Color.yellow);
-            }
-
-            // Display the path the agent is following.
-            if (easyAgent.Path.Count <= 0)
-            {
-                return;
-            }
-
-            Vector3[] points = new Vector3[easyAgent.Path.Count + 1];
-            points[0] = position;
-            for (int i = 0; i < easyAgent.Path.Count; i++)
-            {
-                points[i + 1] = easyAgent.Path[i];
-            }
-                
-            Singleton.SetNextLineRenderer(points, EasySteering.GizmosColor(easyAgent.MoveType));
-        }
 
         /// <summary>
         /// Go to the next scene.
@@ -921,77 +786,116 @@ namespace EasyAI
         {
             Render(10, 10, 20, 5);
         }
-
-        /// <summary>
-        /// Turn a line renderer off.
-        /// </summary>
-        /// <param name="lineRenderer">The line renderer to turn off.</param>
-        private void DisableLineRenderer(LineRenderer lineRenderer)
+        
+        private void OnRenderObject()
         {
-            lineRenderer.positionCount = 1;
-            lineRenderer.SetPosition(0, Vector3.zero);
-            lineRenderer.startColor = lineRenderer.endColor = _transparent;
-            lineRenderer.startWidth = lineRenderer.endWidth = 0;
-        }
-
-        /// <summary>
-        /// Set the values for the next line renderer.
-        /// </summary>
-        /// <param name="points">The points for this line.</param>
-        /// <param name="color">The color for the line.</param>
-        private void SetNextLineRenderer(Vector3[] points, Color color)
-        {
-            // If we have used up all existing line renderers, cache more.
-            if (_currentLineRenderer >= _lineRenderers.Length)
+            // We don't want to make rendering calls if there is no need because it can be a problem on certain platforms like web.
+            if (Agents.Count == 0 || paths is PathState.Off)
             {
-                // Create a new array of line renderers double the size of the previous line renderers.
-                LineRenderer[] expanded = new LineRenderer[_lineRenderers.Length > 0 ? _lineRenderers.Length * 2 : 1];
-                
-                // Copy existing line renderers into it.
-                for (int i = 0; i < _lineRenderers.Length; i++)
-                {
-                    expanded[i] = _lineRenderers[i];
-                }
+                return;
+            }
 
-                // Cache values for spawning the child object that holds the line renderer.
-                Transform t = transform;
-                Vector3 p = t.position;
-                Quaternion r = t.rotation;
-                
-                // Add in all new line renderers.
-                for (int i = _lineRenderers.Length; i < expanded.Length; i++)
-                {
-                    // Create a new child object to hold the line renderer.
-                    GameObject child = new($"Line Renderer Holder {i + 1}")
+            // Check if there is any paths to render.
+            switch (paths)
+            {
+                case PathState.All:
+                    if ((lookupTable != null && lookupTable.Connections.Length > 0) || Agents.Any(a => a.Path.Count > 0))
                     {
-                        transform =
-                        {
-                            parent = t,
-                            position = p,
-                            rotation = r
-                        }
-                    };
-                    
-                    // Set up and then hide the line renderer.
-                    LineRenderer lineRenderer = child.AddComponent<LineRenderer>();
-                    lineRenderer.numCapVertices = lineRenderer.numCornerVertices = 90;
-                    lineRenderer.material = _lineMaterial;
-                    DisableLineRenderer(lineRenderer);
-                    expanded[i] = lineRenderer;
-                }
+                        break;
+                    }
+                    return;
+                case PathState.Active:
+                {
+                    if (Agents.Any(a => a.Path.Count > 0))
+                    {
+                        break;
+                    }
 
-                // Set the new array as the array for the line renderers.
-                _lineRenderers = expanded;
+                    return;
+                }
+                case PathState.Off:
+                case PathState.Selected:
+                default:
+                {
+                    if (SelectedAgent != null && SelectedAgent.Path.Count > 0)
+                    {
+                        break;
+                    }
+
+                    return;
+                }
             }
             
-            // Apply the new line renderer values.
-            _lineRenderers[_currentLineRenderer].positionCount = points.Length;
-            _lineRenderers[_currentLineRenderer].SetPositions(points);
-            _lineRenderers[_currentLineRenderer].startColor = _lineRenderers[_currentLineRenderer].endColor = color;
-            _lineRenderers[_currentLineRenderer].startWidth = _lineRenderers[_currentLineRenderer].endWidth = lineWidth;
+            _lineMaterial.SetPass(0);
 
-            // Increment to the next renderer.
-            _currentLineRenderer++;
+            GL.PushMatrix();
+            GL.MultMatrix(Matrix4x4.identity);
+            GL.Begin(GL.LINES);
+
+            // Render all nodes as white if they should be.
+            if (paths == PathState.All && lookupTable != null)
+            {
+                GL.Color(Color.white);
+                foreach (EasyConnection connection in lookupTable.Connections)
+                {
+                    Vector3 a = Singleton.lookupTable.Nodes[connection.A];
+                    a.y += NavigationVisualOffset;
+                    Vector3 b = Singleton.lookupTable.Nodes[connection.B];
+                    b.y += NavigationVisualOffset;
+                    GL.Vertex(a);
+                    GL.Vertex(b);
+                }
+            }
+
+            // Render active nodes in green for either all agents or only the selected agent.
+            if (paths is not PathState.Selected)
+            {
+                foreach (EasyAgent agent in Agents)
+                {
+                    AgentGizmos(agent);
+                }
+            }
+            else if (SelectedAgent != null)
+            {
+                AgentGizmos(SelectedAgent);
+            }
+
+            GL.End();
+            GL.PopMatrix();
+        }
+        
+        /// <summary>
+        /// Display gizmos for an agent.
+        /// </summary>
+        /// <param name="agent">The agent to display gizmos for.</param>
+        private static void AgentGizmos(EasyAgent agent)
+        {
+            Transform agentTransform = agent.transform;
+            Vector3 position = agentTransform.position;
+            Quaternion rotation = agentTransform.rotation;
+            
+            // If the agent is moving, draw a yellow line indicating the direction it is currently moving in.
+            if (agent.moveAcceleration > 0 && agent.MoveVelocity != Vector2.zero)
+            {
+                GL.Color(Color.yellow);
+                GL.Vertex(position);
+                GL.Vertex(position + rotation * (agent.MoveVelocity3.normalized * 2));
+            }
+
+            // Display the path the agent is following.
+            if (agent.Path.Count < 1)
+            {
+                return;
+            }
+
+            GL.Color(EasySteering.GizmosColor(agent.MoveType));
+            GL.Vertex(position);
+            GL.Vertex(agent.Path[0]);
+            for (int i = 0; i < agent.Path.Count - 1; i++)
+            {
+                GL.Vertex(agent.Path[i]);
+                GL.Vertex(agent.Path[i + 1]);
+            }
         }
 
         /// <summary>
@@ -1012,38 +916,6 @@ namespace EasyAI
             {
                 RenderControls(x, y, Singleton.controlsWidth, h, p);
             }
-        }
-
-        /// <summary>
-        /// Render the GUI section for displaying message options.
-        /// </summary>
-        /// <param name="x">X rendering position. In most cases this should remain unchanged.</param>
-        /// <param name="y">Y rendering position. Update this with every component added and return it.</param>
-        /// <param name="w">Width of components. In most cases this should remain unchanged.</param>
-        /// <param name="h">Height of components. In most cases this should remain unchanged.</param>
-        /// <param name="p">Padding of components. In most cases this should remain unchanged.</param>
-        /// <returns>The updated Y position after all custom rendering has been done.</returns>
-        private static float RenderMessageOptions(float x, float y, float w, float h, float p)
-        {
-            // Button to change messaging mode.
-            y = NextItem(y, h, p);
-            if (GuiButton(x, y, w / 2 - p, h, Singleton.messageMode switch
-                {
-                    MessagingMode.Compact => "Message Mode: Compact",
-                    MessagingMode.All => "Message Mode: All",
-                    _ => "Message Mode: Unique"
-                }))
-            {
-                ChangeMessageMode();
-            }
-
-            // Button to clear messages.
-            if (GuiButton(x + w / 2 + p, y, w / 2 - p, h, "Clear Messages"))
-            {
-                ClearMessages();
-            }
-
-            return y;
         }
 
         /// <summary>
@@ -1181,8 +1053,6 @@ namespace EasyAI
                 return;
             }
             
-            y = RenderMessageOptions(x, y, w, h, p);
-            
             y = NextItem(y, h, p);
             GuiBox(x, y, w, h, p, Singleton._globalMessages.Count);
             
@@ -1276,10 +1146,8 @@ namespace EasyAI
             {
                 return;
             }
-
-            // Display all messages for the agent.
-            y = RenderMessageOptions(x, y, w, h, p);
             
+            // Render all messages for the agent.
             y = NextItem(y, h, p);
             GuiBox(x, y, w, h, p, Singleton.SelectedAgent.MessageCount);
             
@@ -1570,7 +1438,7 @@ namespace EasyAI
             Singleton._globalMessages.Clear();
             foreach (EasyAgent agent in Singleton.Agents)
             {
-                agent.ClearMessages();
+                agent.Messages.Clear();
             }
         }
 
@@ -1618,6 +1486,22 @@ namespace EasyAI
             }
 
             Singleton = this;
+            
+            // Unity has a built-in shader that is useful for drawing simple colored things.
+            _lineMaterial = new(Shader.Find("Hidden/Internal-Colored"))
+            {
+                hideFlags = HideFlags.HideAndDontSave
+            };
+            
+            // Turn on alpha blending.
+            _lineMaterial.SetInt(SrcBlend, (int)BlendMode.SrcAlpha);
+            _lineMaterial.SetInt(DstBlend, (int)BlendMode.OneMinusSrcAlpha);
+            
+            // Turn backface culling off.
+            _lineMaterial.SetInt(Cull, (int)CullMode.Off);
+            
+            // Turn off depth writes.
+            _lineMaterial.SetInt(ZWrite, 0);
         }
         
         /// <summary>
@@ -1984,8 +1868,6 @@ namespace EasyAI
                 } while (tr != null);
             }
 
-            Lines();
-
             if (!followBest)
             {
                 return;
@@ -2015,91 +1897,6 @@ namespace EasyAI
             if (Singleton._state == GuiState.Main)
             {
                 Singleton._state = GuiState.Agent;
-            }
-        }
-
-        /// <summary>
-        /// Render all lines.
-        /// </summary>
-        private void Lines()
-        {
-            // Reset previous line renderers.
-            foreach (LineRenderer lineRenderer in _lineRenderers)
-            {
-                DisableLineRenderer(lineRenderer);
-            }
-            
-            // We don't want to make rendering calls if there is no need because it can be a problem on certain platforms like web.
-            if (Agents.Count == 0 || paths is PathState.Off)
-            {
-                return;
-            }
-
-            // Ensure there is a material for rendering the lines.
-            LineMaterial();
-
-            // Reset what line renderer we are currently on.
-            _currentLineRenderer = 0;
-
-            // Check if there is any paths to render.
-            switch (paths)
-            {
-                case PathState.All:
-                    if ((lookupTable != null && lookupTable.Connections.Length > 0) || Agents.Any(a => a.Path.Count > 0))
-                    {
-                        break;
-                    }
-                    return;
-                case PathState.Active:
-                {
-                    if (Agents.Any(a => a.Path.Count > 0))
-                    {
-                        break;
-                    }
-
-                    return;
-                }
-                case PathState.Off:
-                case PathState.Selected:
-                default:
-                {
-                    if (SelectedAgent != null && SelectedAgent.Path.Count > 0)
-                    {
-                        break;
-                    }
-
-                    return;
-                }
-            }
-
-            // Render all nodes as white if they should be.
-            if (paths == PathState.All && lookupTable != null)
-            {
-                foreach (EasyConnection connection in lookupTable.Connections)
-                {
-                    Vector3 a = Singleton.lookupTable.Nodes[connection.A];
-                    a.y += NavigationVisualOffset;
-                    Vector3 b = Singleton.lookupTable.Nodes[connection.B];
-                    b.y += NavigationVisualOffset;
-
-                    SetNextLineRenderer(new []{a, b}, Color.white);
-                }
-            }
-
-            // Render active nodes in green for either all agents or only the selected agent.
-            if (paths is not PathState.Selected)
-            {
-                foreach (EasyAgent agent in Agents)
-                {
-                    AgentGizmos(agent);
-                }
-                
-                return;
-            }
-
-            if (SelectedAgent != null)
-            {
-                AgentGizmos(SelectedAgent);
             }
         }
 

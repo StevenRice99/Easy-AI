@@ -33,7 +33,7 @@ namespace EasyAI
             CalculateMoveVelocity();
             
             // Set the velocity of the rigidbody.
-            Body.linearVelocity = new(MoveVelocity.x, Body.linearVelocity.y, MoveVelocity.y);
+            Body.velocity = new(MoveVelocity.x, Body.velocity.y, MoveVelocity.y);
         }
 
         /// <summary>
@@ -52,8 +52,8 @@ namespace EasyAI
 
             // Since rotation is all done with the root visuals transform, freeze rigidbody rotation.
             Body.freezeRotation = true;
-            Body.linearDamping = 0;
-            Body.angularDamping = 0;
+            Body.drag = 0;
+            Body.angularDrag = 0;
             Body.interpolation = RigidbodyInterpolation.Interpolate;
             Body.isKinematic = false;
         }
