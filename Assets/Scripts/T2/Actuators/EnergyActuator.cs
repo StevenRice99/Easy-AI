@@ -1,4 +1,5 @@
-﻿using T2.Actions;
+﻿using EasyAI;
+using T2.Actions;
 using UnityEngine;
 
 namespace T2.Actuators
@@ -7,7 +8,7 @@ namespace T2.Actuators
     /// Actuator to replenish or deplete energy.
     /// </summary>
     [DisallowMultipleComponent]
-    public class EasyActuator : EasyAI.EasyActuator
+    public class EnergyActuator : EasyActuator
     {
         /// <summary>
         /// Replenish or deplete energy.

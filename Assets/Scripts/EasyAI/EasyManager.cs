@@ -334,7 +334,7 @@ namespace EasyAI
         /// <summary>
         /// The global messages.
         /// </summary>
-        private List<string> _globalMessages = new();
+        private readonly List<string> _globalMessages = new();
 
         /// <summary>
         /// All agents which move during an update tick.
@@ -395,6 +395,22 @@ namespace EasyAI
         /// The line renderer that has last been used.
         /// </summary>
         private int _currentLineRenderer;
+
+        /// <summary>
+        /// Get the distance of a path.
+        /// </summary>
+        /// <param name="path">The path to get the distance of.</param>
+        /// <returns>The distance of the path.</returns>
+        public static float PathLength(List<Vector3> path)
+        {
+            float distance = 0;
+            for (int i = 1; i < path.Count; i++)
+            {
+                distance += Vector3.Distance(path[i - 1], path[i]);
+            }
+
+            return distance;
+        }
 
         /// <summary>
         /// Lookup a path to take from a starting position to an end goal.
@@ -1502,6 +1518,11 @@ namespace EasyAI
             
             // Turn off depth writes.
             _lineMaterial.SetInt(ZWrite, 0);
+
+            foreach (EasyAgent agent in FindObjectsByType<EasyAgent>(FindObjectsSortMode.None))
+            {
+                AddAgent(agent);
+            }
         }
         
         /// <summary>
@@ -1580,14 +1601,15 @@ namespace EasyAI
             const string folder = "Maps";
             if (!Directory.Exists(folder))
             {
-                DirectoryInfo info = Directory.CreateDirectory(folder);
-                if (info.Exists)
-                {
-                    // Write to the file.
-                    StreamWriter writer = new( $"{folder}/{SceneManager.GetActiveScene().name}.txt", false);
-                    writer.Write(Singleton.ToString());
-                    writer.Close();
-                }
+                Directory.CreateDirectory(folder);
+            }
+            
+            if (Directory.Exists(folder))
+            {
+                // Write to the file.
+                StreamWriter writer = new($"{folder}/{SceneManager.GetActiveScene().name}.txt", false);
+                writer.Write(Singleton.ToString());
+                writer.Close();
             }
 
             Singleton._nodes.AddRange(FindObjectsByType<EasyNode>(FindObjectsSortMode.None).Select(node => node.transform.position));

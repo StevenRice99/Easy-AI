@@ -544,7 +544,7 @@ namespace EasyAI
         }
 
         /// <summary>
-        /// Called by the AgentManager to have the agent sense, think, and act.
+        /// Called to have the agent sense, think, and act.
         /// </summary>
         public virtual void Perform()
         {
