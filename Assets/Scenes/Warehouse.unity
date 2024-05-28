@@ -669,10 +669,10 @@ MonoBehaviour:
   lookupTable: {fileID: 11400000, guid: 996e1fc13de4fea45b3336fd59346b0f, type: 2}
   corner1:
     x: 12
-    y: 12
+    y: 15
   corner2:
     x: -12
-    y: -12
+    y: -15
   floorCeiling:
     x: -1
     y: 6
