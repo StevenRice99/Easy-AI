@@ -13,34 +13,20 @@ MonoBehaviour:
   m_Name: Warehouse Lookup Table
   m_EditorClassIdentifier: 
   <Nodes>k__BackingField:
-  - {x: -8.5, y: 2.1094239e-16, z: -9.5}
-  - {x: -8.5, y: 1.2212455e-16, z: -5.5}
-  - {x: -8.5, y: 4.4408925e-17, z: -2}
-  - {x: -8.5, y: -4.4408925e-17, z: 2}
-  - {x: -8.5, y: -1.2212454e-16, z: 5.5}
-  - {x: -8.5, y: -2.1094237e-16, z: 9.5}
-  - {x: -5.5, y: 1.776357e-16, z: -8}
-  - {x: -5.5, y: 1.5543122e-16, z: -7}
-  - {x: -5.5, y: 6.661338e-17, z: -3}
-  - {x: -5.5, y: 4.4408918e-17, z: -2}
-  - {x: -5.5, y: -4.4408918e-17, z: 2}
-  - {x: -5.5, y: -6.661338e-17, z: 3}
-  - {x: -5.5, y: -1.5543123e-16, z: 7}
-  - {x: -5.5, y: -1.776357e-16, z: 8}
-  - {x: 5.5, y: 1.776357e-16, z: -8}
-  - {x: 5.5, y: 1.5543123e-16, z: -7}
-  - {x: 5.5, y: 6.6613384e-17, z: -3}
-  - {x: 5.5, y: 4.4408925e-17, z: -2}
-  - {x: 5.5, y: -4.4408925e-17, z: 2}
-  - {x: 5.5, y: -6.6613384e-17, z: 3}
-  - {x: 5.5, y: -1.5543125e-16, z: 7}
-  - {x: 5.5, y: -1.776357e-16, z: 8}
-  - {x: 9.5, y: 2.1094239e-16, z: -9.5}
-  - {x: 9.5, y: 1.2212454e-16, z: -5.5}
-  - {x: 9.5, y: 4.4408918e-17, z: -2}
-  - {x: 9.5, y: -4.4408925e-17, z: 2}
-  - {x: 9.5, y: -1.2212454e-16, z: 5.5}
-  - {x: 9.5, y: -2.1094239e-16, z: 9.5}
+  - {x: -8, y: 2.2204463e-16, z: -10}
+  - {x: -8, y: 1.1102232e-16, z: -5}
+  - {x: -8, y: 5.5511148e-17, z: -2.5}
+  - {x: -8, y: -5.551116e-17, z: 2.5}
+  - {x: -8, y: -1.1102232e-16, z: 5}
+  - {x: -8, y: -2.220446e-16, z: 10}
+  - {x: -6, y: 1.6653345e-16, z: -7.5}
+  - {x: -6, y: 5.551116e-17, z: -2.5}
+  - {x: -6, y: -5.551116e-17, z: 2.5}
+  - {x: -6, y: -1.6653345e-16, z: 7.5}
+  - {x: 6, y: 1.6653345e-16, z: -7.5}
+  - {x: 6, y: 5.551115e-17, z: -2.5}
+  - {x: 6, y: -5.551116e-17, z: 2.5}
+  - {x: 6, y: -1.6653345e-16, z: 7.5}
   <Connections>k__BackingField:
   - <A>k__BackingField: 0
     <B>k__BackingField: 1
@@ -60,14 +46,6 @@ MonoBehaviour:
     <B>k__BackingField: 8
   - <A>k__BackingField: 0
     <B>k__BackingField: 9
-  - <A>k__BackingField: 0
-    <B>k__BackingField: 10
-  - <A>k__BackingField: 0
-    <B>k__BackingField: 11
-  - <A>k__BackingField: 0
-    <B>k__BackingField: 12
-  - <A>k__BackingField: 0
-    <B>k__BackingField: 13
   - <A>k__BackingField: 1
     <B>k__BackingField: 2
   - <A>k__BackingField: 1
@@ -84,14 +62,6 @@ MonoBehaviour:
     <B>k__BackingField: 8
   - <A>k__BackingField: 1
     <B>k__BackingField: 9
-  - <A>k__BackingField: 1
-    <B>k__BackingField: 10
-  - <A>k__BackingField: 1
-    <B>k__BackingField: 11
-  - <A>k__BackingField: 1
-    <B>k__BackingField: 12
-  - <A>k__BackingField: 1
-    <B>k__BackingField: 13
   - <A>k__BackingField: 2
     <B>k__BackingField: 3
   - <A>k__BackingField: 2
@@ -107,19 +77,7 @@ MonoBehaviour:
   - <A>k__BackingField: 2
     <B>k__BackingField: 9
   - <A>k__BackingField: 2
-    <B>k__BackingField: 10
-  - <A>k__BackingField: 2
     <B>k__BackingField: 11
-  - <A>k__BackingField: 2
-    <B>k__BackingField: 12
-  - <A>k__BackingField: 2
-    <B>k__BackingField: 13
-  - <A>k__BackingField: 2
-    <B>k__BackingField: 16
-  - <A>k__BackingField: 2
-    <B>k__BackingField: 17
-  - <A>k__BackingField: 2
-    <B>k__BackingField: 24
   - <A>k__BackingField: 3
     <B>k__BackingField: 4
   - <A>k__BackingField: 3
@@ -133,19 +91,7 @@ MonoBehaviour:
   - <A>k__BackingField: 3
     <B>k__BackingField: 9
   - <A>k__BackingField: 3
-    <B>k__BackingField: 10
-  - <A>k__BackingField: 3
-    <B>k__BackingField: 11
-  - <A>k__BackingField: 3
     <B>k__BackingField: 12
-  - <A>k__BackingField: 3
-    <B>k__BackingField: 13
-  - <A>k__BackingField: 3
-    <B>k__BackingField: 18
-  - <A>k__BackingField: 3
-    <B>k__BackingField: 19
-  - <A>k__BackingField: 3
-    <B>k__BackingField: 25
   - <A>k__BackingField: 4
     <B>k__BackingField: 5
   - <A>k__BackingField: 4
@@ -156,14 +102,6 @@ MonoBehaviour:
     <B>k__BackingField: 8
   - <A>k__BackingField: 4
     <B>k__BackingField: 9
-  - <A>k__BackingField: 4
-    <B>k__BackingField: 10
-  - <A>k__BackingField: 4
-    <B>k__BackingField: 11
-  - <A>k__BackingField: 4
-    <B>k__BackingField: 12
-  - <A>k__BackingField: 4
-    <B>k__BackingField: 13
   - <A>k__BackingField: 5
     <B>k__BackingField: 6
   - <A>k__BackingField: 5
@@ -172,14 +110,6 @@ MonoBehaviour:
     <B>k__BackingField: 8
   - <A>k__BackingField: 5
     <B>k__BackingField: 9
-  - <A>k__BackingField: 5
-    <B>k__BackingField: 10
-  - <A>k__BackingField: 5
-    <B>k__BackingField: 11
-  - <A>k__BackingField: 5
-    <B>k__BackingField: 12
-  - <A>k__BackingField: 5
-    <B>k__BackingField: 13
   - <A>k__BackingField: 6
     <B>k__BackingField: 7
   - <A>k__BackingField: 6
@@ -188,302 +118,42 @@ MonoBehaviour:
     <B>k__BackingField: 9
   - <A>k__BackingField: 6
     <B>k__BackingField: 10
-  - <A>k__BackingField: 6
-    <B>k__BackingField: 11
-  - <A>k__BackingField: 6
-    <B>k__BackingField: 12
-  - <A>k__BackingField: 6
-    <B>k__BackingField: 13
-  - <A>k__BackingField: 6
-    <B>k__BackingField: 14
-  - <A>k__BackingField: 6
-    <B>k__BackingField: 15
   - <A>k__BackingField: 7
     <B>k__BackingField: 8
   - <A>k__BackingField: 7
     <B>k__BackingField: 9
   - <A>k__BackingField: 7
-    <B>k__BackingField: 10
-  - <A>k__BackingField: 7
     <B>k__BackingField: 11
-  - <A>k__BackingField: 7
-    <B>k__BackingField: 12
-  - <A>k__BackingField: 7
-    <B>k__BackingField: 13
-  - <A>k__BackingField: 7
-    <B>k__BackingField: 14
-  - <A>k__BackingField: 7
-    <B>k__BackingField: 15
   - <A>k__BackingField: 8
     <B>k__BackingField: 9
   - <A>k__BackingField: 8
-    <B>k__BackingField: 10
-  - <A>k__BackingField: 8
-    <B>k__BackingField: 11
-  - <A>k__BackingField: 8
-    <B>k__BackingField: 12
-  - <A>k__BackingField: 8
-    <B>k__BackingField: 13
-  - <A>k__BackingField: 8
-    <B>k__BackingField: 16
-  - <A>k__BackingField: 8
-    <B>k__BackingField: 17
-  - <A>k__BackingField: 8
-    <B>k__BackingField: 24
-  - <A>k__BackingField: 9
-    <B>k__BackingField: 10
-  - <A>k__BackingField: 9
-    <B>k__BackingField: 11
-  - <A>k__BackingField: 9
     <B>k__BackingField: 12
   - <A>k__BackingField: 9
     <B>k__BackingField: 13
-  - <A>k__BackingField: 9
-    <B>k__BackingField: 16
-  - <A>k__BackingField: 9
-    <B>k__BackingField: 17
-  - <A>k__BackingField: 9
-    <B>k__BackingField: 24
   - <A>k__BackingField: 10
     <B>k__BackingField: 11
   - <A>k__BackingField: 10
     <B>k__BackingField: 12
   - <A>k__BackingField: 10
     <B>k__BackingField: 13
-  - <A>k__BackingField: 10
-    <B>k__BackingField: 18
-  - <A>k__BackingField: 10
-    <B>k__BackingField: 19
-  - <A>k__BackingField: 10
-    <B>k__BackingField: 25
   - <A>k__BackingField: 11
     <B>k__BackingField: 12
   - <A>k__BackingField: 11
     <B>k__BackingField: 13
-  - <A>k__BackingField: 11
-    <B>k__BackingField: 18
-  - <A>k__BackingField: 11
-    <B>k__BackingField: 19
-  - <A>k__BackingField: 11
-    <B>k__BackingField: 25
   - <A>k__BackingField: 12
     <B>k__BackingField: 13
-  - <A>k__BackingField: 12
-    <B>k__BackingField: 20
-  - <A>k__BackingField: 12
-    <B>k__BackingField: 21
-  - <A>k__BackingField: 13
-    <B>k__BackingField: 20
-  - <A>k__BackingField: 13
-    <B>k__BackingField: 21
-  - <A>k__BackingField: 14
-    <B>k__BackingField: 15
-  - <A>k__BackingField: 14
-    <B>k__BackingField: 16
-  - <A>k__BackingField: 14
-    <B>k__BackingField: 17
-  - <A>k__BackingField: 14
-    <B>k__BackingField: 18
-  - <A>k__BackingField: 14
-    <B>k__BackingField: 19
-  - <A>k__BackingField: 14
-    <B>k__BackingField: 20
-  - <A>k__BackingField: 14
-    <B>k__BackingField: 21
-  - <A>k__BackingField: 14
-    <B>k__BackingField: 22
-  - <A>k__BackingField: 14
-    <B>k__BackingField: 23
-  - <A>k__BackingField: 14
-    <B>k__BackingField: 24
-  - <A>k__BackingField: 14
-    <B>k__BackingField: 25
-  - <A>k__BackingField: 14
-    <B>k__BackingField: 26
-  - <A>k__BackingField: 14
-    <B>k__BackingField: 27
-  - <A>k__BackingField: 15
-    <B>k__BackingField: 16
-  - <A>k__BackingField: 15
-    <B>k__BackingField: 17
-  - <A>k__BackingField: 15
-    <B>k__BackingField: 18
-  - <A>k__BackingField: 15
-    <B>k__BackingField: 19
-  - <A>k__BackingField: 15
-    <B>k__BackingField: 20
-  - <A>k__BackingField: 15
-    <B>k__BackingField: 21
-  - <A>k__BackingField: 15
-    <B>k__BackingField: 22
-  - <A>k__BackingField: 15
-    <B>k__BackingField: 23
-  - <A>k__BackingField: 15
-    <B>k__BackingField: 24
-  - <A>k__BackingField: 15
-    <B>k__BackingField: 25
-  - <A>k__BackingField: 15
-    <B>k__BackingField: 26
-  - <A>k__BackingField: 15
-    <B>k__BackingField: 27
-  - <A>k__BackingField: 16
-    <B>k__BackingField: 17
-  - <A>k__BackingField: 16
-    <B>k__BackingField: 18
-  - <A>k__BackingField: 16
-    <B>k__BackingField: 19
-  - <A>k__BackingField: 16
-    <B>k__BackingField: 20
-  - <A>k__BackingField: 16
-    <B>k__BackingField: 21
-  - <A>k__BackingField: 16
-    <B>k__BackingField: 22
-  - <A>k__BackingField: 16
-    <B>k__BackingField: 23
-  - <A>k__BackingField: 16
-    <B>k__BackingField: 24
-  - <A>k__BackingField: 16
-    <B>k__BackingField: 25
-  - <A>k__BackingField: 16
-    <B>k__BackingField: 26
-  - <A>k__BackingField: 16
-    <B>k__BackingField: 27
-  - <A>k__BackingField: 17
-    <B>k__BackingField: 18
-  - <A>k__BackingField: 17
-    <B>k__BackingField: 19
-  - <A>k__BackingField: 17
-    <B>k__BackingField: 20
-  - <A>k__BackingField: 17
-    <B>k__BackingField: 21
-  - <A>k__BackingField: 17
-    <B>k__BackingField: 22
-  - <A>k__BackingField: 17
-    <B>k__BackingField: 23
-  - <A>k__BackingField: 17
-    <B>k__BackingField: 24
-  - <A>k__BackingField: 17
-    <B>k__BackingField: 25
-  - <A>k__BackingField: 17
-    <B>k__BackingField: 26
-  - <A>k__BackingField: 17
-    <B>k__BackingField: 27
-  - <A>k__BackingField: 18
-    <B>k__BackingField: 19
-  - <A>k__BackingField: 18
-    <B>k__BackingField: 20
-  - <A>k__BackingField: 18
-    <B>k__BackingField: 21
-  - <A>k__BackingField: 18
-    <B>k__BackingField: 22
-  - <A>k__BackingField: 18
-    <B>k__BackingField: 23
-  - <A>k__BackingField: 18
-    <B>k__BackingField: 24
-  - <A>k__BackingField: 18
-    <B>k__BackingField: 25
-  - <A>k__BackingField: 18
-    <B>k__BackingField: 26
-  - <A>k__BackingField: 18
-    <B>k__BackingField: 27
-  - <A>k__BackingField: 19
-    <B>k__BackingField: 20
-  - <A>k__BackingField: 19
-    <B>k__BackingField: 21
-  - <A>k__BackingField: 19
-    <B>k__BackingField: 22
-  - <A>k__BackingField: 19
-    <B>k__BackingField: 23
-  - <A>k__BackingField: 19
-    <B>k__BackingField: 24
-  - <A>k__BackingField: 19
-    <B>k__BackingField: 25
-  - <A>k__BackingField: 19
-    <B>k__BackingField: 26
-  - <A>k__BackingField: 19
-    <B>k__BackingField: 27
-  - <A>k__BackingField: 20
-    <B>k__BackingField: 21
-  - <A>k__BackingField: 20
-    <B>k__BackingField: 22
-  - <A>k__BackingField: 20
-    <B>k__BackingField: 23
-  - <A>k__BackingField: 20
-    <B>k__BackingField: 24
-  - <A>k__BackingField: 20
-    <B>k__BackingField: 25
-  - <A>k__BackingField: 20
-    <B>k__BackingField: 26
-  - <A>k__BackingField: 20
-    <B>k__BackingField: 27
-  - <A>k__BackingField: 21
-    <B>k__BackingField: 22
-  - <A>k__BackingField: 21
-    <B>k__BackingField: 23
-  - <A>k__BackingField: 21
-    <B>k__BackingField: 24
-  - <A>k__BackingField: 21
-    <B>k__BackingField: 25
-  - <A>k__BackingField: 21
-    <B>k__BackingField: 26
-  - <A>k__BackingField: 21
-    <B>k__BackingField: 27
-  - <A>k__BackingField: 22
-    <B>k__BackingField: 23
-  - <A>k__BackingField: 22
-    <B>k__BackingField: 24
-  - <A>k__BackingField: 22
-    <B>k__BackingField: 25
-  - <A>k__BackingField: 22
-    <B>k__BackingField: 26
-  - <A>k__BackingField: 22
-    <B>k__BackingField: 27
-  - <A>k__BackingField: 23
-    <B>k__BackingField: 24
-  - <A>k__BackingField: 23
-    <B>k__BackingField: 25
-  - <A>k__BackingField: 23
-    <B>k__BackingField: 26
-  - <A>k__BackingField: 23
-    <B>k__BackingField: 27
-  - <A>k__BackingField: 24
-    <B>k__BackingField: 25
-  - <A>k__BackingField: 24
-    <B>k__BackingField: 26
-  - <A>k__BackingField: 24
-    <B>k__BackingField: 27
-  - <A>k__BackingField: 25
-    <B>k__BackingField: 26
-  - <A>k__BackingField: 25
-    <B>k__BackingField: 27
-  - <A>k__BackingField: 26
-    <B>k__BackingField: 27
   <Paths>k__BackingField:
-  - goal: 0100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d00000006000000060000000800000008000000080000000a0000000a0000000c000000060000000600000006000000080000000800000008000000
-  - goal: 0000000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d00000007000000070000000800000008000000080000000a0000000a0000000c00000007000000070000000800000008000000080000000a000000
-  - goal: 0000000001000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d000000070000000700000010000000110000000a0000000a0000000a0000000c000000070000001000000018000000110000000a0000000a000000
-  - goal: 0000000001000000020000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000700000009000000090000000900000012000000130000000c0000000c00000009000000090000001200000019000000130000000c000000
-  - goal: 0000000001000000020000000300000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000700000009000000090000000b0000000b0000000b0000000c0000000c000000090000000b0000000b0000000b0000000c0000000c000000
-  - goal: 0000000001000000020000000300000004000000060000000700000008000000090000000a0000000b0000000c0000000d0000000700000009000000090000000b0000000b0000000b0000000d0000000d0000000b0000000b0000000b0000000d0000000d0000000d000000
-  - goal: 0000000001000000020000000300000004000000050000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f0000000f0000000f00000008000000080000000a0000000a0000000e0000000f0000000f0000000f0000000f0000000f000000
-  - goal: 0000000001000000020000000300000004000000050000000600000008000000090000000a0000000b0000000c0000000d0000000e0000000f0000000f0000000800000008000000080000000a0000000a0000000e0000000f0000000f000000080000000800000008000000
-  - goal: 0000000001000000020000000300000004000000050000000600000007000000090000000a0000000b0000000c0000000d0000000700000010000000100000001100000011000000110000000a0000000a000000100000001000000018000000110000001100000011000000
-  - goal: 0000000001000000020000000300000004000000050000000600000007000000080000000a0000000b0000000c0000000d00000010000000100000001000000011000000110000000a0000000a0000000a00000010000000100000001800000011000000110000000a000000
-  - goal: 000000000100000002000000030000000400000005000000060000000700000008000000090000000b0000000c0000000d0000000900000009000000090000001200000012000000130000001300000013000000090000001200000012000000190000001300000013000000
-  - goal: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000c0000000d000000090000000900000012000000120000001200000013000000130000000c000000120000001200000012000000190000001300000013000000
-  - goal: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000d00000009000000090000000b0000000b0000000b0000001400000014000000150000000b0000000b0000000b000000140000001400000015000000
-  - goal: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c00000009000000090000000b0000000b00000014000000140000001400000015000000140000001400000014000000140000001400000015000000
-  - goal: 06000000070000000700000007000000070000000700000006000000070000000700000010000000100000001000000010000000100000000f000000100000001100000012000000130000001400000015000000160000001700000018000000190000001a0000001b000000
-  - goal: 06000000070000000700000010000000100000001000000006000000070000001000000010000000100000001000000010000000100000000e000000100000001100000012000000130000001400000015000000160000001700000018000000190000001a0000001b000000
-  - goal: 0800000008000000020000000900000009000000090000000f0000000f0000000800000009000000090000001200000012000000120000000e0000000f0000001100000012000000130000001400000015000000160000001700000018000000190000001a0000001b000000
-  - goal: 08000000080000000200000009000000120000001200000008000000080000000800000009000000120000001200000012000000120000000e0000000f0000001000000012000000130000001400000015000000160000001700000018000000190000001a0000001b000000
-  - goal: 11000000110000000a000000030000000b0000000b000000110000001100000011000000110000000a0000000b0000000b000000140000000e0000000f0000001000000011000000130000001400000015000000160000001700000018000000190000001a0000001b000000
-  - goal: 0a0000000a0000000a000000030000000b0000000b0000000a0000000a0000000a0000000a0000000a0000000b00000014000000140000000e0000000f0000001000000011000000120000001400000015000000160000001700000018000000190000001a0000001b000000
-  - goal: 1300000013000000130000000c0000000c0000000d0000001300000013000000130000001300000013000000130000000c0000000d0000000e0000000f0000001000000011000000120000001300000015000000160000001700000018000000190000001a0000001b000000
-  - goal: 0c0000000c0000000c0000000c0000000c0000000d00000013000000130000001300000013000000130000000c0000000c0000000d0000000e0000000f0000001000000011000000120000001300000014000000160000001700000018000000190000001a0000001b000000
-  - goal: 0e0000000e0000000e0000001000000010000000120000000e0000000e0000001000000010000000100000001200000012000000140000000e0000000f0000001000000011000000120000001300000014000000150000001700000018000000190000001a0000001b000000
-  - goal: 0f0000000f000000100000001000000012000000120000000f0000000f0000001000000010000000120000001200000012000000140000000e0000000f0000001000000011000000120000001300000014000000150000001600000018000000190000001a0000001b000000
-  - goal: 0f00000008000000020000001200000012000000120000000f0000000f0000000800000009000000120000001200000012000000140000000e0000000f0000001000000011000000120000001300000014000000150000001600000017000000190000001a0000001b000000
-  - goal: 110000001100000011000000030000000b000000140000000f0000001100000011000000110000000a0000000b00000014000000140000000e0000000f0000001000000011000000120000001300000014000000150000001600000017000000180000001a0000001b000000
-  - goal: 1100000011000000130000001300000014000000140000000f000000110000001100000011000000130000001300000014000000140000000e0000000f000000100000001100000012000000130000001400000015000000160000001700000018000000190000001b000000
-  - goal: 1100000013000000130000001500000015000000150000000f000000110000001100000013000000130000001300000015000000150000000e0000000f000000100000001100000012000000130000001400000015000000160000001700000018000000190000001a000000
+  - goal: 01000000020000000300000004000000050000000600000007000000080000000900000006000000070000000800000009000000
+  - goal: 00000000020000000300000004000000050000000600000007000000080000000900000006000000070000000800000009000000
+  - goal: 000000000100000003000000040000000500000006000000070000000800000009000000060000000b0000000800000009000000
+  - goal: 00000000010000000200000004000000050000000600000007000000080000000900000006000000070000000c00000009000000
+  - goal: 00000000010000000200000003000000050000000600000007000000080000000900000006000000070000000800000009000000
+  - goal: 00000000010000000200000003000000040000000600000007000000080000000900000006000000070000000800000009000000
+  - goal: 0000000001000000020000000300000004000000050000000700000008000000090000000a0000000a0000000700000008000000
+  - goal: 0000000001000000020000000300000004000000050000000600000008000000090000000b0000000b0000000b00000008000000
+  - goal: 000000000100000002000000030000000400000005000000060000000700000009000000070000000c0000000c0000000c000000
+  - goal: 00000000010000000200000003000000040000000500000006000000070000000800000007000000080000000d0000000d000000
+  - goal: 060000000600000006000000060000000600000006000000060000000b0000000b0000000b0000000b0000000c0000000d000000
+  - goal: 07000000070000000200000007000000070000000700000007000000070000000c0000000c0000000a0000000c0000000d000000
+  - goal: 0800000008000000080000000300000008000000080000000800000008000000080000000d0000000a0000000b0000000d000000
+  - goal: 0900000009000000090000000900000009000000090000000c0000000c0000000c000000090000000a0000000b0000000c000000

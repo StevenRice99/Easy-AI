@@ -530,6 +530,13 @@ namespace EasyAI
                 sensor.agent = this;
             }
 
+            if (Visuals != null && Visuals.transform.parent == transform)
+            {
+                Visuals.name = "Visuals";
+                Visuals.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+                return;
+            }
+
             // Set up the root visuals transform for agent rotation.
             Transform[] children = GetComponentsInChildren<Transform>();
             if (children.Length == 0)
@@ -537,8 +544,7 @@ namespace EasyAI
                 GameObject go = new("Visuals");
                 Visuals = go.transform;
                 go.transform.parent = transform;
-                go.transform.localPosition = Vector3.zero;
-                go.transform.localRotation = Quaternion.identity;
+                go.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
                 return;
             }
 
@@ -546,7 +552,10 @@ namespace EasyAI
             if (Visuals == null)
             {
                 Visuals = children[0];
+                Visuals.name = "Visuals";
             }
+            
+            Visuals.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
         }
 
         /// <summary>

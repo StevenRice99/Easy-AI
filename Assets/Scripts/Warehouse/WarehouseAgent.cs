@@ -10,6 +10,16 @@ namespace Warehouse
     public class WarehouseAgent : EasyTransformAgent
     {
         /// <summary>
+        /// The score to add an item to an order.
+        /// </summary>
+        private const int ScoreOrder = 2;
+
+        /// <summary>
+        /// The score to add an item to storage.
+        /// </summary>
+        private const int ScoreStore = 1;
+        
+        /// <summary>
         /// How far the agent can pick or place a part.
         /// </summary>
         [field: Tooltip("How far the agent can pick or place a part.")]
@@ -23,6 +33,11 @@ namespace Warehouse
         [field: Tooltip("Where to hold an item.")]
         [field: SerializeField]
         public Transform HoldLocation { get; private set; }
+        
+        /// <summary>
+        /// The score of this agent.
+        /// </summary>
+        public int Score { get; private set; }
 
         /// <summary>
         /// If the agent currently has a part.
@@ -86,8 +101,8 @@ namespace Warehouse
                     continue;
                 }
 
-                // If this agent was in relation to this target, it may need to update.
-                if (w.Target == target)
+                // If this agent was in relation to this target or has no specific goal, remove target to force it to find a new one.
+                if (w.Id < 0 || w.Target == target)
                 {
                     w.SetTarget();
                 }
@@ -214,6 +229,22 @@ namespace Warehouse
             _part = null;
             Id = -1;
             return id;
+        }
+
+        /// <summary>
+        /// Add the score for adding a part to an order.
+        /// </summary>
+        public void AddOrderScore()
+        {
+            Score += ScoreOrder;
+        }
+
+        /// <summary>
+        /// Add the score for placing a part in storage.
+        /// </summary>
+        public void AddStoreScore()
+        {
+            Score += ScoreStore;
         }
     }
 }

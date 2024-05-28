@@ -83,6 +83,7 @@ namespace Warehouse
                 return false;
             }
 
+            agent.AddStoreScore();
             _part = part;
             _part.transform.parent = transform;
             _part.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);

@@ -89,6 +89,7 @@ namespace Warehouse
                 }
             }
             
+            agent.AddOrderScore();
             WarehouseAgent.WarehouseUpdated(this);
             return true;
         }
@@ -149,7 +150,7 @@ namespace Warehouse
                 }
             }
 
-            delay = 0;
+            _elapsedTime = 0;
             WarehouseAgent.WarehouseUpdated(this);
         }
     }

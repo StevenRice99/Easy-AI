@@ -49,6 +49,11 @@ namespace Warehouse
         private float _elapsedTime;
 
         /// <summary>
+        /// If this is empty or not.
+        /// </summary>
+        public bool Empty => _parts.Count < 1;
+
+        /// <summary>
         /// Check if this has a part with an ID.
         /// </summary>
         /// <param name="id">The ID to check for.</param>
