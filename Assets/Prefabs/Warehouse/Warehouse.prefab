@@ -153,6 +153,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Outbounds
       objectReference: {fileID: 0}
+    - target: {fileID: 1319803255276678034, guid: 5459596c3664f8449916cb96a99ed103, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5270470567756178956, guid: 5459596c3664f8449916cb96a99ed103, type: 3}
       propertyPath: m_LocalPosition.x
       value: 11.5
@@ -276,6 +280,10 @@ PrefabInstance:
     - target: {fileID: 492909267736974412, guid: 6635bc31b8784924087a44288b377ae4, type: 3}
       propertyPath: m_Name
       value: Inbounds
+      objectReference: {fileID: 0}
+    - target: {fileID: 492909267736974412, guid: 6635bc31b8784924087a44288b377ae4, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8782953975634084129, guid: 6635bc31b8784924087a44288b377ae4, type: 3}
       propertyPath: m_LocalPosition.x

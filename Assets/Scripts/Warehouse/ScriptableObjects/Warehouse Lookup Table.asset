@@ -13,12 +13,6 @@ MonoBehaviour:
   m_Name: Warehouse Lookup Table
   m_EditorClassIdentifier: 
   <Nodes>k__BackingField:
-  - {x: -8, y: 2.2204463e-16, z: -10}
-  - {x: -8, y: 1.1102232e-16, z: -5}
-  - {x: -8, y: 5.5511148e-17, z: -2.5}
-  - {x: -8, y: -5.551116e-17, z: 2.5}
-  - {x: -8, y: -1.1102232e-16, z: 5}
-  - {x: -8, y: -2.220446e-16, z: 10}
   - {x: -6, y: 1.6653345e-16, z: -7.5}
   - {x: -6, y: 5.551116e-17, z: -2.5}
   - {x: -6, y: -5.551116e-17, z: 2.5}
@@ -36,124 +30,36 @@ MonoBehaviour:
     <B>k__BackingField: 3
   - <A>k__BackingField: 0
     <B>k__BackingField: 4
-  - <A>k__BackingField: 0
-    <B>k__BackingField: 5
-  - <A>k__BackingField: 0
-    <B>k__BackingField: 6
-  - <A>k__BackingField: 0
-    <B>k__BackingField: 7
-  - <A>k__BackingField: 0
-    <B>k__BackingField: 8
-  - <A>k__BackingField: 0
-    <B>k__BackingField: 9
   - <A>k__BackingField: 1
     <B>k__BackingField: 2
   - <A>k__BackingField: 1
     <B>k__BackingField: 3
   - <A>k__BackingField: 1
-    <B>k__BackingField: 4
-  - <A>k__BackingField: 1
     <B>k__BackingField: 5
-  - <A>k__BackingField: 1
-    <B>k__BackingField: 6
-  - <A>k__BackingField: 1
-    <B>k__BackingField: 7
-  - <A>k__BackingField: 1
-    <B>k__BackingField: 8
-  - <A>k__BackingField: 1
-    <B>k__BackingField: 9
   - <A>k__BackingField: 2
     <B>k__BackingField: 3
   - <A>k__BackingField: 2
-    <B>k__BackingField: 4
-  - <A>k__BackingField: 2
-    <B>k__BackingField: 5
-  - <A>k__BackingField: 2
-    <B>k__BackingField: 6
-  - <A>k__BackingField: 2
-    <B>k__BackingField: 7
-  - <A>k__BackingField: 2
-    <B>k__BackingField: 8
-  - <A>k__BackingField: 2
-    <B>k__BackingField: 9
-  - <A>k__BackingField: 2
-    <B>k__BackingField: 11
-  - <A>k__BackingField: 3
-    <B>k__BackingField: 4
-  - <A>k__BackingField: 3
-    <B>k__BackingField: 5
-  - <A>k__BackingField: 3
     <B>k__BackingField: 6
   - <A>k__BackingField: 3
     <B>k__BackingField: 7
-  - <A>k__BackingField: 3
-    <B>k__BackingField: 8
-  - <A>k__BackingField: 3
-    <B>k__BackingField: 9
-  - <A>k__BackingField: 3
-    <B>k__BackingField: 12
   - <A>k__BackingField: 4
     <B>k__BackingField: 5
   - <A>k__BackingField: 4
     <B>k__BackingField: 6
   - <A>k__BackingField: 4
     <B>k__BackingField: 7
-  - <A>k__BackingField: 4
-    <B>k__BackingField: 8
-  - <A>k__BackingField: 4
-    <B>k__BackingField: 9
   - <A>k__BackingField: 5
     <B>k__BackingField: 6
   - <A>k__BackingField: 5
     <B>k__BackingField: 7
-  - <A>k__BackingField: 5
-    <B>k__BackingField: 8
-  - <A>k__BackingField: 5
-    <B>k__BackingField: 9
   - <A>k__BackingField: 6
     <B>k__BackingField: 7
-  - <A>k__BackingField: 6
-    <B>k__BackingField: 8
-  - <A>k__BackingField: 6
-    <B>k__BackingField: 9
-  - <A>k__BackingField: 6
-    <B>k__BackingField: 10
-  - <A>k__BackingField: 7
-    <B>k__BackingField: 8
-  - <A>k__BackingField: 7
-    <B>k__BackingField: 9
-  - <A>k__BackingField: 7
-    <B>k__BackingField: 11
-  - <A>k__BackingField: 8
-    <B>k__BackingField: 9
-  - <A>k__BackingField: 8
-    <B>k__BackingField: 12
-  - <A>k__BackingField: 9
-    <B>k__BackingField: 13
-  - <A>k__BackingField: 10
-    <B>k__BackingField: 11
-  - <A>k__BackingField: 10
-    <B>k__BackingField: 12
-  - <A>k__BackingField: 10
-    <B>k__BackingField: 13
-  - <A>k__BackingField: 11
-    <B>k__BackingField: 12
-  - <A>k__BackingField: 11
-    <B>k__BackingField: 13
-  - <A>k__BackingField: 12
-    <B>k__BackingField: 13
   <Paths>k__BackingField:
-  - goal: 01000000020000000300000004000000050000000600000007000000080000000900000006000000070000000800000009000000
-  - goal: 00000000020000000300000004000000050000000600000007000000080000000900000006000000070000000800000009000000
-  - goal: 000000000100000003000000040000000500000006000000070000000800000009000000060000000b0000000800000009000000
-  - goal: 00000000010000000200000004000000050000000600000007000000080000000900000006000000070000000c00000009000000
-  - goal: 00000000010000000200000003000000050000000600000007000000080000000900000006000000070000000800000009000000
-  - goal: 00000000010000000200000003000000040000000600000007000000080000000900000006000000070000000800000009000000
-  - goal: 0000000001000000020000000300000004000000050000000700000008000000090000000a0000000a0000000700000008000000
-  - goal: 0000000001000000020000000300000004000000050000000600000008000000090000000b0000000b0000000b00000008000000
-  - goal: 000000000100000002000000030000000400000005000000060000000700000009000000070000000c0000000c0000000c000000
-  - goal: 00000000010000000200000003000000040000000500000006000000070000000800000007000000080000000d0000000d000000
-  - goal: 060000000600000006000000060000000600000006000000060000000b0000000b0000000b0000000b0000000c0000000d000000
-  - goal: 07000000070000000200000007000000070000000700000007000000070000000c0000000c0000000a0000000c0000000d000000
-  - goal: 0800000008000000080000000300000008000000080000000800000008000000080000000d0000000a0000000b0000000d000000
-  - goal: 0900000009000000090000000900000009000000090000000c0000000c0000000c000000090000000a0000000b0000000c000000
+  - goal: 01000000020000000300000004000000040000000100000002000000
+  - goal: 00000000020000000300000005000000050000000500000002000000
+  - goal: 00000000010000000300000001000000060000000600000006000000
+  - goal: 00000000010000000200000001000000020000000700000007000000
+  - goal: 00000000050000000500000005000000050000000600000007000000
+  - goal: 01000000010000000600000006000000040000000600000007000000
+  - goal: 02000000020000000200000007000000040000000500000007000000
+  - goal: 06000000060000000600000003000000040000000500000006000000

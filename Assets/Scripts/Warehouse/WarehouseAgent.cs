@@ -25,7 +25,7 @@ namespace Warehouse
         [field: Tooltip("How far the agent can pick or place a part.")]
         [field: Min(float.Epsilon)]
         [field: SerializeField]
-        public float InteractDistance { get; private set; } = 2;
+        public float InteractDistance { get; private set; } = 1.5f;
         
         /// <summary>
         /// Where to hold an item.

@@ -238,7 +238,7 @@ MonoBehaviour:
   <Visuals>k__BackingField: {fileID: 3344978604168192482}
   <Mind>k__BackingField: {fileID: 11400000, guid: d0167d93c51505b4c8ef7bfa9ecfd5b9, type: 2}
   <State>k__BackingField: {fileID: 0}
-  <InteractDistance>k__BackingField: 2
+  <InteractDistance>k__BackingField: 1.5
   <HoldLocation>k__BackingField: {fileID: 8103378831615112795}
 --- !u!114 &4095393562636735110
 MonoBehaviour:
