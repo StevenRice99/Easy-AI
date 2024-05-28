@@ -29,7 +29,7 @@ namespace Warehouse.Sensors
 
             // Look for outbound locations that need this first.
             Vector3 p = w.transform.position;
-            Outbound outbound = Outbound.Instances.Where(x => x.Requires(w.Id)).OrderBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, new(x.transform.position.x, p.magnitude, x.transform.position.z))) * w.moveSpeed).FirstOrDefault();
+            Outbound outbound = Outbound.Instances.Where(x => x.Requires(w.Id)).OrderBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, new(x.transform.position.x, p.magnitude, x.transform.position.z)))).FirstOrDefault();
             if (outbound != null)
             {
                 Log($"{outbound.name} needs {w.Id}.");
@@ -37,7 +37,7 @@ namespace Warehouse.Sensors
             }
 
             // If no outbound locations need it, store it.
-            Storage storage = Storage.Instances.Where(x => x.CanTake(w.Id)).OrderBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, new(x.transform.position.x, p.magnitude, x.transform.position.z))) * w.moveSpeed + x.transform.position.y).FirstOrDefault();
+            Storage storage = Storage.Instances.Where(x => x.CanTake(w.Id)).OrderBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, new(x.transform.position.x, p.magnitude, x.transform.position.z))) + x.transform.position.y).FirstOrDefault();
             Log(storage == null ? $"No storage can hold {w.Id}" : $"{storage.name} can hold {w.Id}.");
             return storage;
         }
