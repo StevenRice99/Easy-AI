@@ -18,12 +18,6 @@ namespace A1.States
         /// <param name="agent">The agent.</param>
         public override void Execute(EasyAgent agent)
         {
-            // If currently cleaning, no need to make a new decision.
-            if (agent.HasAction<CleanAction>())
-            {
-                return;
-            }
-            
             // Read the dirty sensor to get the current tile.
             Floor floor = agent.Sense<CurrentFloorSensor, Floor>();
             

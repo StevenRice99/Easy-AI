@@ -15,11 +15,6 @@ namespace EasyAI
     public abstract class EasyAgent : MonoBehaviour
     {
         /// <summary>
-        /// The actions of this agent that are not yet completed.
-        /// </summary>
-        private readonly List<object> _inProgressActions = new();
-
-        /// <summary>
         /// How fast this agent can move in units per second.
         /// </summary>
         [Tooltip("How fast this agent can move in units per second.")]
@@ -365,71 +360,12 @@ namespace EasyAI
         /// <param name="action"></param>
         public void Act(object action)
         {
-            // Try the action on all actuators.
-            if (actuators.Any(actuator => actuator.Act(action)))
+            foreach (EasyActuator actuator in actuators)
             {
-                for (int i = 0; i < _inProgressActions.Count; i++)
+                if (actuator.Act(action))
                 {
-                    if (_inProgressActions[i].GetType() != action.GetType())
-                    {
-                        continue;
-                    }
-
-                    _inProgressActions.RemoveAt(i);
-                    break;
+                    return;
                 }
-                
-                return;
-            }
-
-            // If there were previous actions, keep actions of types which were not in the current decisions.
-            for (int i = 0; i < _inProgressActions.Count; i++)
-            {
-                if (_inProgressActions[i].GetType() != action.GetType())
-                {
-                    continue;
-                }
-
-                _inProgressActions[i] = action;
-                return;
-            }
-            
-            _inProgressActions.Add(action);
-        }
-
-        /// <summary>
-        /// Clear any remaining in progress actions.
-        /// </summary>
-        public void ClearActions()
-        {
-            _inProgressActions.Clear();
-        }
-
-        /// <summary>
-        /// Check if there is already an action type that is not yet complete.
-        /// </summary>
-        /// <typeparam name="T">The type of action to look for.</typeparam>
-        /// <returns>True if the action of the type exists, false otherwise.</returns>
-        public bool HasAction<T>()
-        {
-            return _inProgressActions.OfType<T>().Any();
-        }
-
-        /// <summary>
-        /// Remove a given action type, if it exists.
-        /// </summary>
-        /// <typeparam name="T">The action type to remove.</typeparam>
-        public void RemoveAction<T>()
-        {
-            for (int i = 0; i < _inProgressActions.Count; i++)
-            {
-                if (_inProgressActions[i] is not T)
-                {
-                    continue;
-                }
-
-                _inProgressActions.RemoveAt(i);
-                return;
             }
         }
 
@@ -797,33 +733,6 @@ namespace EasyAI
         }
 
         /// <summary>
-        /// Perform actions that are still incomplete.
-        /// </summary>
-        private void ActIncomplete()
-        {
-            for (int i = 0; i < _inProgressActions.Count; i++)
-            {
-                bool completed = false;
-                
-                foreach (EasyActuator actuator in actuators)
-                {
-                    completed = actuator.Act(_inProgressActions[i]);
-                    if (completed)
-                    {
-                        break;
-                    }
-                }
-
-                if (!completed)
-                {
-                    continue;
-                }
-
-                _inProgressActions.RemoveAt(i--);
-            }
-        }
-
-        /// <summary>
         /// Update is called every frame, if the MonoBehaviour is enabled.
         /// </summary>
         protected virtual void Update()
@@ -839,9 +748,6 @@ namespace EasyAI
                 StopMoving();
                 CreatePath(hit.point);
             }
-
-            // Act on the actions.
-            ActIncomplete();
 
             // After all actions are performed, calculate the agent's new performance.
             if (performanceMeasure != null)

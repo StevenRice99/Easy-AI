@@ -16,14 +16,6 @@ namespace T1.States
         /// <param name="agent">The agent.</param>
         public override void Execute(EasyAgent agent)
         {
-            // If already moving towards a box, no need to think of anything new so simply return.
-            // As mentioned in the actuator comments, you can probably see how passing transforms around will
-            // become confusing in more complex agents, and you can instead wrap data into of unique classes to pass.
-            if (agent.HasAction<Transform>())
-            {
-                return;
-            }
-
             // Sense the nearest box.
             Transform box = agent.Sense<NearestBoxSensor, Transform>();
             

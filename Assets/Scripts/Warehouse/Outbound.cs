@@ -40,21 +40,18 @@ namespace Warehouse
             {
                 return false;
             }
-
-            Part part = agent.Remove();
-            if (part == null)
+            
+            int id = agent.Destroy();
+            if (id >= 0)
             {
-                return false;
-            }
-
-            _requirements[part.ID]--;
-            if (_requirements[part.ID] < 1)
-            {
-                _requirements.Remove(part.ID);
+                _requirements[id]--;
+                if (_requirements[id] < 1)
+                {
+                    _requirements.Remove(id);
+                }
             }
             
-            Destroy(part.gameObject);
-            WarehouseAgent.TargetModified(this);
+            WarehouseAgent.WarehouseUpdated();
             return true;
         }
 
@@ -98,8 +95,9 @@ namespace Warehouse
                     _requirements[option]++;
                 }
             }
-            
-            WarehouseAgent.TargetModified(this);
+
+            delay = 0;
+            WarehouseAgent.WarehouseUpdated();
         }
     }
 }

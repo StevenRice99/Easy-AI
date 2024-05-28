@@ -14,19 +14,36 @@ namespace Warehouse
         [field: SerializeField]
         public Transform HoldLocation { get; private set; }
 
-        public bool HasPart => _part != null;
+        public bool HasPart
+        {
+            get
+            {
+                if (_part != null)
+                {
+                    return true;
+                }
+
+                if (HoldLocation.childCount < 1)
+                {
+                    return false;
+                }
+
+                _part = HoldLocation.GetChild(0).GetComponent<Part>();
+                return _part != null;
+            }
+        }
 
         public MonoBehaviour Target { get; private set; }
 
         public bool HasTarget => Target != null;
         
-        public bool CanInteract => HasTarget && Vector2.Distance(new(transform.position.x, transform.position.z), new(Target.transform.position.x, Target.transform.position.z)) < InteractDistance;
+        public bool CanInteract => HasTarget && Vector2.Distance(new(transform.position.x, transform.position.z), new(Target.transform.position.x, Target.transform.position.z)) <= InteractDistance;
 
         public int Id { get; private set; } = -1;
 
         private Part _part;
 
-        public static void TargetModified(MonoBehaviour monoBehaviour)
+        public static void WarehouseUpdated()
         {
             foreach (EasyAgent agent in EasyManager.CurrentAgents)
             {
@@ -35,10 +52,7 @@ namespace Warehouse
                     continue;
                 }
 
-                if (w.Target == monoBehaviour)
-                {
-                    w.SetTarget();
-                }
+                w.SetTarget();
             }
         }
 
@@ -51,6 +65,8 @@ namespace Warehouse
                 StopMoving();
                 return;
             }
+
+            Vector3 pos;
             
             if (HasPart)
             {
@@ -63,7 +79,8 @@ namespace Warehouse
                 }
 
                 Target = target;
-                Move(Target.transform);
+                pos = Target.transform.position;
+                Move(new Vector2(pos.x, pos.z));
                 Log($"Moving to {Target.name}");
                 return;
             }
@@ -77,7 +94,8 @@ namespace Warehouse
             }
 
             Target = target;
-            Move(Target.transform);
+            pos = Target.transform.position;
+            Move(new Vector2(pos.x, pos.z));
             Log($"Moving to {Target.name}");
         }
 
@@ -120,6 +138,22 @@ namespace Warehouse
             _part = null;
             Id = -1;
             return part;
+        }
+
+        public int Destroy()
+        {
+            SetTarget();
+            
+            if (!HasPart)
+            {
+                return -1;
+            }
+            
+            int id = Id;
+            Destroy(_part.gameObject);
+            _part = null;
+            Id = -1;
+            return id;
         }
     }
 }

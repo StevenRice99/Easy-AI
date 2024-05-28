@@ -8,8 +8,14 @@ namespace Warehouse.Sensors
     {
         public override object Sense()
         {
-            if (agent is not WarehouseAgent { HasPart: false } w)
+            if (agent is not WarehouseAgent w)
             {
+                return null;
+            }
+
+            if (w.HasPart)
+            {
+                Log("Has a part so not searching.");
                 return null;
             }
 
@@ -60,13 +66,13 @@ namespace Warehouse.Sensors
                 int[] ids = outbound.Requirements();
                 foreach (int id in ids)
                 {
-                    Storage storage = Storage.Instances.Where(x => x.Has(id)).OrderBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, new(x.transform.position.x, p.magnitude, x.transform.position.z))) * w.moveSpeed + x.Delay).FirstOrDefault();
+                    Storage storage = Storage.Instances.Where(x => x.Has(id)).OrderBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, new(x.transform.position.x, p.magnitude, x.transform.position.z))) * w.moveSpeed + x.transform.position.y).FirstOrDefault();
                     if (storage == null)
                     {
                         continue;
                     }
                     
-                    float cost = EasyManager.PathLength(EasyManager.LookupPath(p, new(storage.transform.position.x, p.magnitude, storage.transform.position.z))) * w.moveSpeed + storage.Delay;
+                    float cost = EasyManager.PathLength(EasyManager.LookupPath(p, new(storage.transform.position.x, p.magnitude, storage.transform.position.z))) * w.moveSpeed + storage.transform.position.y;
                     if (cost >= bestCost)
                     {
                         continue;

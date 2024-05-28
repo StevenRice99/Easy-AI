@@ -9,12 +9,23 @@ namespace Warehouse.States
     {
         public override void Enter(EasyAgent agent)
         {
-            agent.Log("Starting to place down.");
+            if (agent is not WarehouseAgent w)
+            {
+                return;
+            }
+            
+            w.Log("Starting to place down.");
+            w.SetTarget();
         }
         
         public override void Execute(EasyAgent agent)
         {
             if (agent is not WarehouseAgent w)
+            {
+                return;
+            }
+
+            if (!w.HasPart)
             {
                 return;
             }
@@ -31,14 +42,8 @@ namespace Warehouse.States
                 return;
             }
 
-            Part part = w.Remove();
-            if (part == null)
-            {
-                return;
-            }
-
             w.Log("Nowhere to place this item. Destroying it to ensure the simulation does not get locked.");
-            Destroy(part.gameObject);
+            w.Destroy();
         }
     }
 }

@@ -6,8 +6,14 @@ namespace Warehouse.Actuators
     {
         public override bool Act(object agentAction)
         {
-            if (agent is not WarehouseAgent {HasPart: true} w || agentAction is not IPlace place)
+            if (agent is not WarehouseAgent w || agentAction is not IPlace place)
             {
+                return false;
+            }
+
+            if (!w.HasPart)
+            {
+                Log("Does not have a part to place.");
                 return false;
             }
 
@@ -18,7 +24,7 @@ namespace Warehouse.Actuators
             }
 
             Log("Placing down.");
-            return w.CanInteract && place.Place(w);
+            return place.Place(w);
         }
     }
 }

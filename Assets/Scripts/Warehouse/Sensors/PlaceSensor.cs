@@ -8,8 +8,14 @@ namespace Warehouse.Sensors
     {
         public override object Sense()
         {
-            if (agent is not WarehouseAgent { HasPart: true } w)
+            if (agent is not WarehouseAgent w)
             {
+                return null;
+            }
+
+            if (!w.HasPart)
+            {
+                Log("Has no part so not searching.");
                 return null;
             }
 
@@ -21,7 +27,7 @@ namespace Warehouse.Sensors
                 return outbound;
             }
 
-            Storage storage = Storage.Instances.Where(x => x.CanTake(w.Id)).OrderBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, new(x.transform.position.x, p.magnitude, x.transform.position.z))) * w.moveSpeed + x.Delay).FirstOrDefault();
+            Storage storage = Storage.Instances.Where(x => x.CanTake(w.Id)).OrderBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, new(x.transform.position.x, p.magnitude, x.transform.position.z))) * w.moveSpeed + x.transform.position.y).FirstOrDefault();
             Log(storage == null ? $"No storage can hold {w.Id}" : $"{storage.name} can hold {w.Id}.");
             return storage;
         }

@@ -31,7 +31,7 @@ namespace Warehouse
 
         public bool Pick(WarehouseAgent agent)
         {
-            if (_parts.Count < 1)
+            if (_parts.Count < 1 || agent.HasPart)
             {
                 return false;
             }
@@ -43,7 +43,7 @@ namespace Warehouse
             }
             
             _parts.Remove(part);
-            WarehouseAgent.TargetModified(this);
+            WarehouseAgent.WarehouseUpdated();
             return true;
         }
 
@@ -88,7 +88,7 @@ namespace Warehouse
             }
 
             _elapsedTime = 0;
-            WarehouseAgent.TargetModified(this);
+            WarehouseAgent.WarehouseUpdated();
         }
     }
 }

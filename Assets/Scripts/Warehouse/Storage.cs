@@ -12,10 +12,6 @@ namespace Warehouse
         [Tooltip("The types of parts that can be stored here.")]
         public int[] ids = { };
         
-        [field: Tooltip("The time it takes to add or remove an item from this storage space.")]
-        [field: SerializeField]
-        public float Delay { get; private set; }
-        
         private Part _part;
 
         public bool Empty => _part == null;
@@ -40,13 +36,13 @@ namespace Warehouse
             _part = part;
             _part.transform.parent = transform;
             _part.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-            WarehouseAgent.TargetModified(this);
+            WarehouseAgent.WarehouseUpdated();
             return true;
         }
 
         public bool Pick(WarehouseAgent agent)
         {
-            if (Empty || (agent.Id >= 0 && _part.ID != agent.Id))
+            if (Empty || agent.HasPart || (agent.Id >= 0 && _part.ID != agent.Id))
             {
                 return false;
             }
@@ -54,7 +50,7 @@ namespace Warehouse
             _part.transform.parent = agent.HoldLocation;
             _part.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             _part = null;
-            WarehouseAgent.TargetModified(this);
+            WarehouseAgent.WarehouseUpdated();
             return true;
         }
 

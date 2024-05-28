@@ -1,5 +1,4 @@
 ﻿using EasyAI;
-using UnityEngine;
 
 namespace Warehouse.Actuators
 {
@@ -7,8 +6,14 @@ namespace Warehouse.Actuators
     {
         public override bool Act(object agentAction)
         {
-            if (agent is not WarehouseAgent {HasPart: false} w || agentAction is not IPick pick)
+            if (agent is not WarehouseAgent w || agentAction is not IPick pick)
             {
+                return false;
+            }
+
+            if (w.HasPart)
+            {
+                Log("Already have a part.");
                 return false;
             }
 
@@ -18,8 +23,8 @@ namespace Warehouse.Actuators
                 return false;
             }
             
-            Log($"Picking up.");
-            return w.CanInteract && pick.Pick(w);
+            Log("Picking up.");
+            return pick.Pick(w);
         }
     }
 }

@@ -9,12 +9,23 @@ namespace Warehouse.States
     {
         public override void Enter(EasyAgent agent)
         {
-            agent.Log("Starting to pick up.");
+            if (agent is not WarehouseAgent w)
+            {
+                return;
+            }
+            
+            w.Log("Starting to pick up.");
+            w.SetTarget();
         }
 
         public override void Execute(EasyAgent agent)
         {
             if (agent is not WarehouseAgent w)
+            {
+                return;
+            }
+
+            if (w.HasPart)
             {
                 return;
             }
