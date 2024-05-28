@@ -11,6 +11,7 @@ namespace EasyAI
     /// <summary>
     /// Base class for all agents.
     /// </summary>
+    [SelectionBase]
     [DisallowMultipleComponent]
     public abstract class EasyAgent : MonoBehaviour
     {

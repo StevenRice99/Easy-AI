@@ -1,10 +1,13 @@
 ﻿using EasyAI;
+using UnityEngine;
 
 namespace A3
 {
     /// <summary>
-    /// Simply display a message indicating you can right click to move.
+    /// Simply display a message indicating you can right-click to move.
     /// </summary>
+    [SelectionBase]
+    [DisallowMultipleComponent]
     public class NavigationDemoEasyManager : EasyManager
     {
         /// <summary>

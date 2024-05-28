@@ -5,6 +5,7 @@ namespace EasyAI
     /// <summary>
     /// Agent which moves directly through its transform.
     /// </summary>
+    [SelectionBase]
     [DisallowMultipleComponent]
     public class EasyTransformAgent : EasyAgent
     {

@@ -9,6 +9,7 @@ namespace A2
     /// <summary>
     /// Agent manager with additional fields for handling microbes for assignment two.
     /// </summary>
+    [SelectionBase]
     [DisallowMultipleComponent]
     public class MicrobeManager : EasyManager
     {

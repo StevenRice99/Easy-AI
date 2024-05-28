@@ -5,6 +5,7 @@ namespace EasyAI
     /// <summary>
     /// Agent which moves through a rigidbody.
     /// </summary>
+    [SelectionBase]
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Rigidbody))]
     public class EasyRigidbodyAgent : EasyAgent

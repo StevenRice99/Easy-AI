@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Project.unity
     guid: 6a45cd2771d3c6c43909c43c18d789b8
   - enabled: 1
+    path: Assets/Scenes/Warehouse.unity
+    guid: 218e6ddb8a03dff408c9b1ab6c377108
+  - enabled: 1
     path: Assets/Scenes/Assignment 1.unity
     guid: fd75d5d93b502f245a4485ebeb701f77
   - enabled: 1

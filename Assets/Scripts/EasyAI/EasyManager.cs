@@ -21,6 +21,7 @@ namespace EasyAI
     /// <summary>
     /// Singleton to handle agents and GUI rendering. Must be exactly one of this or an extension of this present in every scene.
     /// </summary>
+    [SelectionBase]
     [DisallowMultipleComponent]
     public class EasyManager : MonoBehaviour
     {

@@ -4,8 +4,16 @@ using UnityEngine;
 
 namespace Warehouse.Sensors
 {
+    /// <summary>
+    /// Sensor to find where to pick up a part from.
+    /// </summary>
+    [DisallowMultipleComponent]
     public class PickSensor : EasySensor
     {
+        /// <summary>
+        /// Find where to pick up a part from.
+        /// </summary>
+        /// <returns>Where to pick up a part from or null if there is no place to do so.</returns>
         public override object Sense()
         {
             if (agent is not WarehouseAgent w)
@@ -19,8 +27,11 @@ namespace Warehouse.Sensors
                 return null;
             }
 
+            // Get all active outbound locations by distance.
             Vector3 p = w.transform.position;
             Outbound[] outbounds = Outbound.Instances.Where(x => x.Active).OrderBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, new(x.transform.position.x, p.magnitude, x.transform.position.z))) * w.moveSpeed).ToArray();
+            
+            // Check to see if any inbounds have a needed part.
             foreach (Outbound outbound in outbounds)
             {
                 float bestCost = float.MaxValue;
@@ -57,6 +68,7 @@ namespace Warehouse.Sensors
                 return bestInbound;
             }
 
+            // Check to see if any storages have a needed part.
             foreach (Outbound outbound in outbounds)
             {
                 float bestCost = float.MaxValue;
@@ -93,6 +105,7 @@ namespace Warehouse.Sensors
                 return bestStorage;
             }
 
+            // Move towards the nearest inbound if there are no needed parts.
             Log("No particular IDs needed.");
             w.SetId(-1);
             Inbound anyInbound = Inbound.Instances.OrderBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, new(x.transform.position.x, p.magnitude, x.transform.position.z))) * w.moveSpeed).FirstOrDefault();

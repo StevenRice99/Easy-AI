@@ -3,17 +3,30 @@ using UnityEngine;
 
 namespace Warehouse
 {
+    /// <summary>
+    /// Agents to work in a warehouse.
+    /// </summary>
+    [DisallowMultipleComponent]
     public class WarehouseAgent : EasyTransformAgent
     {
+        /// <summary>
+        /// How far the agent can pick or place a part.
+        /// </summary>
         [field: Tooltip("How far the agent can pick or place a part.")]
         [field: Min(float.Epsilon)]
         [field: SerializeField]
         public float InteractDistance { get; private set; } = 2;
         
+        /// <summary>
+        /// Where to hold an item.
+        /// </summary>
         [field: Tooltip("Where to hold an item.")]
         [field: SerializeField]
         public Transform HoldLocation { get; private set; }
 
+        /// <summary>
+        /// If the agent currently has a part.
+        /// </summary>
         public bool HasPart
         {
             get
@@ -23,27 +36,48 @@ namespace Warehouse
                     return true;
                 }
 
+                // If part is null and there are no children, it should be false.
                 if (HoldLocation.childCount < 1)
                 {
                     return false;
                 }
 
+                // Otherwise, a child should have a part.
                 _part = HoldLocation.GetChild(0).GetComponent<Part>();
                 return _part != null;
             }
         }
 
+        /// <summary>
+        /// The target to pick or place to or from.
+        /// </summary>
         public MonoBehaviour Target { get; private set; }
 
+        /// <summary>
+        /// If the agent has a target.
+        /// </summary>
         public bool HasTarget => Target != null;
         
+        /// <summary>
+        /// If the agent can interact with its target.
+        /// </summary>
         public bool CanInteract => HasTarget && Vector2.Distance(new(transform.position.x, transform.position.z), new(Target.transform.position.x, Target.transform.position.z)) <= InteractDistance;
 
+        /// <summary>
+        /// The ID the agent wants or is carrying.
+        /// </summary>
         public int Id { get; private set; } = -1;
 
+        /// <summary>
+        /// The agent's part.
+        /// </summary>
         private Part _part;
 
-        public static void WarehouseUpdated()
+        /// <summary>
+        /// The warehouse has been updated.
+        /// </summary>
+        /// <param name="target">The target that has changed.</param>
+        public static void WarehouseUpdated(MonoBehaviour target)
         {
             foreach (EasyAgent agent in EasyManager.CurrentAgents)
             {
@@ -52,10 +86,18 @@ namespace Warehouse
                     continue;
                 }
 
-                w.SetTarget();
+                // If this agent was in relation to this target, it may need to update.
+                if (w.Target == target)
+                {
+                    w.SetTarget();
+                }
             }
         }
 
+        /// <summary>
+        /// Set the target for the agent.
+        /// </summary>
+        /// <param name="target">The target to pick up from or place down at.</param>
         public void SetTarget(MonoBehaviour target = null)
         {
             if (target == null)
@@ -99,14 +141,24 @@ namespace Warehouse
             Log($"Moving to {Target.name}");
         }
 
+        /// <summary>
+        /// Set the ID the agent wants to pick up.
+        /// </summary>
+        /// <param name="id">The ID to pick up.</param>
         public void SetId(int id)
         {
+            // If we have a part, the ID is locked to that.
             if (!HasPart)
             {
                 Id = id;
             }
         }
 
+        /// <summary>
+        /// Attach a part to this agent.
+        /// </summary>
+        /// <param name="part">The part to attach.</param>
+        /// <returns>True if it was attached successfully, false otherwise.</returns>
         public bool Attach(Part part)
         {
             SetTarget();
@@ -124,6 +176,10 @@ namespace Warehouse
             return true;
         }
 
+        /// <summary>
+        /// Remove the part from the agent.
+        /// </summary>
+        /// <returns>The part that was removed or null if there was none.</returns>
         public Part Remove()
         {
             SetTarget();
@@ -140,6 +196,10 @@ namespace Warehouse
             return part;
         }
 
+        /// <summary>
+        /// Destroy the part the agent was carrying.
+        /// </summary>
+        /// <returns>The ID of the part the agent was carrying or -1 if it had no part.</returns>
         public int Destroy()
         {
             SetTarget();

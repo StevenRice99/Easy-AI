@@ -10,6 +10,7 @@ namespace A1
     /// <summary>
     /// Extension of AgentManager to handle floor tile generation.
     /// </summary>
+    [SelectionBase]
     [DisallowMultipleComponent]
     public class CleanerManager : EasyManager
     {

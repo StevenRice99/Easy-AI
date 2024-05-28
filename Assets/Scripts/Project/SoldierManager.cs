@@ -10,6 +10,8 @@ namespace Project
     /// <summary>
     /// Manager for soldiers.
     /// </summary>
+    [SelectionBase]
+    [DisallowMultipleComponent]
     public class SoldierManager : EasyManager
     {
         /// <summary>

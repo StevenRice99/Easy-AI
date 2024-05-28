@@ -7,6 +7,7 @@ namespace SteeringTesting
     /// <summary>
     /// Manager that displays some buttons in its controls move the selected agent to various objects.
     /// </summary>
+    [SelectionBase]
     [DisallowMultipleComponent]
     public class SteeringTestingEasyManager : EasyManager
     {

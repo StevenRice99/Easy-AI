@@ -9,6 +9,7 @@ namespace A2
     /// <summary>
     /// Microbe extends agent rather than being a separate component.
     /// </summary>
+    [SelectionBase]
     [DisallowMultipleComponent]
     [RequireComponent(typeof(AudioSource))]
     public class Microbe : EasyTransformAgent

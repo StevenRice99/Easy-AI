@@ -14,6 +14,8 @@ namespace Project
     /// <summary>
     /// Agent used to control the soldiers in the project.
     /// </summary>
+    [SelectionBase]
+    [DisallowMultipleComponent]
     public class Soldier : EasyCharacterAgent
     {
         /// <summary>
@@ -423,7 +425,7 @@ namespace Project
         /// <summary>
         /// Get all enemies.
         /// </summary>
-        /// <returns>An enumerable of all enemies.</returns>
+        /// <returns>All enemies.</returns>
         public IEnumerable<Soldier> GetEnemies()
         {
             return (RedTeam ? SoldierManager.TeamBlue : SoldierManager.TeamRed).Where(s => s.Alive);
