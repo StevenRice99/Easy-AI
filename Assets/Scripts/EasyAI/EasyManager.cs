@@ -1051,7 +1051,7 @@ namespace EasyAI
             GuiBox(x, y, w, h, p, 1);
             GuiLabel(x, y, w, h, p, $"{Singleton.Agents.Count} Agents");
 
-            foreach (EasyAgent agent in Singleton.Agents)
+            foreach (EasyAgent agent in Singleton.Agents.OrderBy(z => z.name))
             {
                 // Button to select an agent.
                 y = NextItem(y, h, p);

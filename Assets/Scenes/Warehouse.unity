@@ -309,7 +309,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4717038646220140741, guid: f42d0debe21da7242b70b8d49a951997, type: 3}
       propertyPath: m_Name
-      value: Warehouse Agent 4
+      value: Warehouse Agent 04
       objectReference: {fileID: 0}
     - target: {fileID: 4717038646220140741, guid: f42d0debe21da7242b70b8d49a951997, type: 3}
       propertyPath: m_IsActive
@@ -370,7 +370,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4717038646220140741, guid: f42d0debe21da7242b70b8d49a951997, type: 3}
       propertyPath: m_Name
-      value: Warehouse Agent 2
+      value: Warehouse Agent 02
       objectReference: {fileID: 0}
     - target: {fileID: 4717038646220140741, guid: f42d0debe21da7242b70b8d49a951997, type: 3}
       propertyPath: m_IsActive
@@ -559,7 +559,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4717038646220140741, guid: f42d0debe21da7242b70b8d49a951997, type: 3}
       propertyPath: m_Name
-      value: Warehouse Agent 5
+      value: Warehouse Agent 05
       objectReference: {fileID: 0}
     - target: {fileID: 4717038646220140741, guid: f42d0debe21da7242b70b8d49a951997, type: 3}
       propertyPath: m_IsActive
@@ -620,7 +620,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4717038646220140741, guid: f42d0debe21da7242b70b8d49a951997, type: 3}
       propertyPath: m_Name
-      value: Warehouse Agent 6
+      value: Warehouse Agent 06
       objectReference: {fileID: 0}
     - target: {fileID: 4717038646220140741, guid: f42d0debe21da7242b70b8d49a951997, type: 3}
       propertyPath: m_IsActive
@@ -1090,7 +1090,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4717038646220140741, guid: f42d0debe21da7242b70b8d49a951997, type: 3}
       propertyPath: m_Name
-      value: Warehouse Agent 8
+      value: Warehouse Agent 08
       objectReference: {fileID: 0}
     - target: {fileID: 4717038646220140741, guid: f42d0debe21da7242b70b8d49a951997, type: 3}
       propertyPath: m_IsActive
@@ -1212,7 +1212,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4717038646220140741, guid: f42d0debe21da7242b70b8d49a951997, type: 3}
       propertyPath: m_Name
-      value: Warehouse Agent 1
+      value: Warehouse Agent 01
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1269,7 +1269,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4717038646220140741, guid: f42d0debe21da7242b70b8d49a951997, type: 3}
       propertyPath: m_Name
-      value: Warehouse Agent 7
+      value: Warehouse Agent 07
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1566,7 +1566,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4717038646220140741, guid: f42d0debe21da7242b70b8d49a951997, type: 3}
       propertyPath: m_Name
-      value: Warehouse Agent 3
+      value: Warehouse Agent 03
       objectReference: {fileID: 0}
     - target: {fileID: 4717038646220140741, guid: f42d0debe21da7242b70b8d49a951997, type: 3}
       propertyPath: m_IsActive
@@ -1627,7 +1627,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4717038646220140741, guid: f42d0debe21da7242b70b8d49a951997, type: 3}
       propertyPath: m_Name
-      value: Warehouse Agent 9
+      value: Warehouse Agent 09
       objectReference: {fileID: 0}
     - target: {fileID: 4717038646220140741, guid: f42d0debe21da7242b70b8d49a951997, type: 3}
       propertyPath: m_IsActive
