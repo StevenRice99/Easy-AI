@@ -28,11 +28,11 @@ namespace T2.States
         {
             agent.Log("Replenishing...");
             
-            // Create deplete energy action.
-            agent.Act(new RestoreEnergyAction(agent.Sense<EnergySensor, EnergyComponent>()));
-            
             // Get the energy component.
             EnergyComponent energyComponent = agent.Sense<EnergySensor, EnergyComponent>();
+            
+            // Create deplete energy action.
+            agent.Act(new RestoreEnergyAction(energyComponent));
             
             // If energy has fully recharged, go into the move state.
             if (energyComponent.Energy >= energyComponent.MaxEnergy)

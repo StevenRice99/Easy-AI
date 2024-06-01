@@ -30,11 +30,11 @@ namespace T2.States
             Vector2 random = Random.insideUnitCircle;
             agent.Move(agent.transform.position + new Vector3(random.x, 0, random.y));
             
-            // Create deplete energy action.
-            agent.Act(new DepleteEnergyAction(agent.Sense<EnergySensor, EnergyComponent>()));
-            
             // Get the energy component.
             EnergyComponent energyComponent = agent.Sense<EnergySensor, EnergyComponent>();
+            
+            // Create deplete energy action.
+            agent.Act(new DepleteEnergyAction(energyComponent));
             
             // If out of energy, go into the rest state.
             if (energyComponent.Energy <= 0)

@@ -340,34 +340,29 @@ namespace EasyAI
         /// Read all of a give sensor type and receive all potential types of data from those sensors.
         /// </summary>
         /// <typeparam name="TSensor">The sensor type to read.</typeparam>
-        /// <returns>A list of the objects returned by the given sensors.</returns>
-        public List<object> SenseAll<TSensor>() where TSensor : EasySensor
+        /// <returns>An array of the objects returned by the given sensors.</returns>
+        public object[] SenseAll<TSensor>() where TSensor : EasySensor
         {
-            return (from sensor in sensors where sensor is TSensor select sensor.Sense()).ToList();
+            return (from sensor in sensors where sensor is TSensor select sensor.Sense()).Where(x => x != null).ToArray();
         }
 
         /// <summary>
         /// Read all sensors and receive all data.
         /// </summary>
-        /// <returns>A list of the objects returned by all the sensors.</returns>
-        public List<object> SenseAll()
+        /// <returns>An array of the objects returned by all the sensors.</returns>
+        public object[] SenseAll()
         {
-            return (from sensor in sensors select sensor.Sense()).ToList();
+            return (from sensor in sensors select sensor.Sense()).Where(x => x != null).ToArray();
         }
 
         /// <summary>
         /// Add an action to perform.
         /// </summary>
         /// <param name="action"></param>
-        public void Act(object action)
+        /// <returns>True if the action was completed, false otherwise.</returns>
+        public bool Act(object action)
         {
-            foreach (EasyActuator actuator in actuators)
-            {
-                if (actuator.Act(action))
-                {
-                    return;
-                }
-            }
+            return actuators.Any(actuator => actuator.Act(action));
         }
 
         /// <summary>
