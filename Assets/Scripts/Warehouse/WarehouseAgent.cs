@@ -76,7 +76,24 @@ namespace Warehouse
         /// <summary>
         /// If the agent can interact with its target.
         /// </summary>
-        public bool CanInteract => HasTarget && Vector2.Distance(new(transform.position.x, transform.position.z), new(Target.transform.position.x, Target.transform.position.z)) <= InteractDistance;
+        public bool CanInteract
+        {
+            get
+            {
+                Vector2 p;
+                if (Target is Storage s)
+                {
+                    Vector3 moveTarget = s.MoveTarget;
+                    p = new(moveTarget.x, moveTarget.z);
+                }
+                else
+                {
+                    p = new(Target.transform.position.x, Target.transform.position.z);
+                }
+                
+                return HasTarget && Vector2.Distance(new(transform.position.x, transform.position.z), p) <= InteractDistance;
+            }
+        }
 
         /// <summary>
         /// The ID the agent wants or is carrying.
@@ -136,7 +153,14 @@ namespace Warehouse
                 }
 
                 Target = target;
-                pos = Target.transform.position;
+                if (target is Storage s1)
+                {
+                    pos = s1.MoveTarget;
+                }
+                else
+                {
+                    pos = Target.transform.position;
+                }
                 Move(new Vector2(pos.x, pos.z));
                 Log($"Moving to {Target.name}");
                 return;
@@ -151,7 +175,14 @@ namespace Warehouse
             }
 
             Target = target;
-            pos = Target.transform.position;
+            if (target is Storage s2)
+            {
+                pos = s2.MoveTarget;
+            }
+            else
+            {
+                pos = Target.transform.position;
+            }
             Move(new Vector2(pos.x, pos.z));
             Log($"Moving to {Target.name}");
         }

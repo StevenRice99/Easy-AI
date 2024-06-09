@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Warehouse
 {
@@ -20,6 +21,23 @@ namespace Warehouse
         /// </summary>
         [Tooltip("The types of parts that can be stored here.")]
         public int[] ids = { };
+
+        /// <summary>
+        /// Offset to perform moves relative to.
+        /// </summary>
+        [Tooltip("Offset to perform moves relative to.")]
+        [SerializeField]
+        private Vector3 moveTarget;
+
+        /// <summary>
+        /// Where to move to for using this storage.
+        /// </summary>
+        public Vector3 MoveTarget => transform.position + moveTarget;
+
+        /// <summary>
+        /// How much it costs to access this.
+        /// </summary>
+        public float Cost => transform.position.y;
         
         /// <summary>
         /// The part currently being stored.
@@ -124,6 +142,14 @@ namespace Warehouse
         private void OnDisable()
         {
             Instances.Remove(this);
+        }
+
+        /// <summary>
+        /// Implement OnDrawGizmosSelected to draw a gizmo if the object is selected.
+        /// </summary>
+        private void OnDrawGizmosSelected()
+        {
+            Gizmos.DrawWireSphere(MoveTarget, 0.1f);
         }
     }
 }

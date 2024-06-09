@@ -129,8 +129,16 @@ PrefabInstance:
     m_TransformParent: {fileID: 2754647241491654208}
     m_Modifications:
     - target: {fileID: 3366162522791485885, guid: b2ce40a0a1bb1b44990b5c675817914a, type: 3}
+      propertyPath: moveTarget.y
+      value: -4.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3366162522791485885, guid: b2ce40a0a1bb1b44990b5c675817914a, type: 3}
       propertyPath: <Delay>k__BackingField
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3366162522791485885, guid: b2ce40a0a1bb1b44990b5c675817914a, type: 3}
+      propertyPath: <MoveTarget>k__BackingField.y
+      value: -4.7
       objectReference: {fileID: 0}
     - target: {fileID: 6844919814737973859, guid: b2ce40a0a1bb1b44990b5c675817914a, type: 3}
       propertyPath: m_LocalPosition.x
@@ -195,8 +203,16 @@ PrefabInstance:
     m_TransformParent: {fileID: 2754647241491654208}
     m_Modifications:
     - target: {fileID: 3366162522791485885, guid: b2ce40a0a1bb1b44990b5c675817914a, type: 3}
+      propertyPath: moveTarget.y
+      value: -2.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3366162522791485885, guid: b2ce40a0a1bb1b44990b5c675817914a, type: 3}
       propertyPath: <Delay>k__BackingField
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3366162522791485885, guid: b2ce40a0a1bb1b44990b5c675817914a, type: 3}
+      propertyPath: <MoveTarget>k__BackingField.y
+      value: -2.7
       objectReference: {fileID: 0}
     - target: {fileID: 6844919814737973859, guid: b2ce40a0a1bb1b44990b5c675817914a, type: 3}
       propertyPath: m_LocalPosition.x
@@ -261,8 +277,16 @@ PrefabInstance:
     m_TransformParent: {fileID: 2754647241491654208}
     m_Modifications:
     - target: {fileID: 3366162522791485885, guid: b2ce40a0a1bb1b44990b5c675817914a, type: 3}
+      propertyPath: moveTarget.y
+      value: -3.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3366162522791485885, guid: b2ce40a0a1bb1b44990b5c675817914a, type: 3}
       propertyPath: <Delay>k__BackingField
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3366162522791485885, guid: b2ce40a0a1bb1b44990b5c675817914a, type: 3}
+      propertyPath: <MoveTarget>k__BackingField.y
+      value: -3.7
       objectReference: {fileID: 0}
     - target: {fileID: 6844919814737973859, guid: b2ce40a0a1bb1b44990b5c675817914a, type: 3}
       propertyPath: m_LocalPosition.x
@@ -327,8 +351,16 @@ PrefabInstance:
     m_TransformParent: {fileID: 2754647241491654208}
     m_Modifications:
     - target: {fileID: 3366162522791485885, guid: b2ce40a0a1bb1b44990b5c675817914a, type: 3}
+      propertyPath: moveTarget.y
+      value: -1.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3366162522791485885, guid: b2ce40a0a1bb1b44990b5c675817914a, type: 3}
       propertyPath: <Delay>k__BackingField
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3366162522791485885, guid: b2ce40a0a1bb1b44990b5c675817914a, type: 3}
+      propertyPath: <MoveTarget>k__BackingField.y
+      value: -1.7
       objectReference: {fileID: 0}
     - target: {fileID: 6844919814737973859, guid: b2ce40a0a1bb1b44990b5c675817914a, type: 3}
       propertyPath: m_LocalPosition.x

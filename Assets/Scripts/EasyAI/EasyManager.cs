@@ -401,10 +401,16 @@ namespace EasyAI
         /// Get the distance of a path.
         /// </summary>
         /// <param name="path">The path to get the distance of.</param>
+        /// <param name="start">The position to start from.</param>
         /// <returns>The distance of the path.</returns>
-        public static float PathLength(List<Vector3> path)
+        public static float PathLength(List<Vector3> path, Vector3 start)
         {
-            float distance = 0;
+            if (path.Count < 1)
+            {
+                return 0;
+            }
+            
+            float distance = Vector3.Distance(start, path[0]);
             for (int i = 1; i < path.Count; i++)
             {
                 distance += Vector3.Distance(path[i - 1], path[i]);

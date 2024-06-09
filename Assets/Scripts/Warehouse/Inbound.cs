@@ -46,7 +46,7 @@ namespace Warehouse
         /// <summary>
         /// The amount of time since the last inbound shipment was fully collected.
         /// </summary>
-        private float _elapsedTime;
+        public float ElapsedTime { get; private set; }
 
         /// <summary>
         /// If this is empty or not.
@@ -117,8 +117,8 @@ namespace Warehouse
                 return;
             }
 
-            _elapsedTime += Time.deltaTime;
-            if (_elapsedTime >= delay)
+            ElapsedTime += Time.deltaTime;
+            if (ElapsedTime >= delay)
             {
                 SpawnParts();
             }
@@ -138,7 +138,7 @@ namespace Warehouse
                 part.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             }
 
-            _elapsedTime = 0;
+            ElapsedTime = 0;
             WarehouseAgent.WarehouseUpdated(this);
         }
     }
