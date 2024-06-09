@@ -78,7 +78,7 @@ namespace Warehouse.Sensors
                 int[] ids = outbound.Requirements();
                 foreach (int id in ids)
                 {
-                    Storage storage = Storage.Instances.Where(x => x.Available(w) && x.Has(id)).OrderBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, x.MoveTarget), p) + x.Cost).FirstOrDefault();
+                    Storage storage = Storage.Instances.Where(x => x.Available(w) && x.Has(id)).OrderBy(x => x.Cost).ThenBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, x.MoveTarget), p)).FirstOrDefault();
                     if (storage == null)
                     {
                         continue;

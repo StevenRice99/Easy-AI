@@ -37,7 +37,7 @@ namespace Warehouse.Sensors
             }
 
             // If no outbound locations need it, store it.
-            Storage storage = Storage.Instances.Where(x => x.Available(w) && x.CanTake(w.Id)).OrderBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, x.MoveTarget), p) + x.Cost).FirstOrDefault();
+            Storage storage = Storage.Instances.Where(x => x.Available(w) && x.CanTake(w.Id)).OrderBy(x => x.Cost).ThenBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, x.MoveTarget), p)).FirstOrDefault();
             Log(storage == null ? $"No storage can hold {w.Id}" : $"{storage.name} can hold {w.Id}.");
             return storage;
         }
