@@ -132,6 +132,12 @@ namespace Warehouse
         /// <param name="target">The target to pick up from or place down at.</param>
         public void SetTarget(MonoBehaviour target = null)
         {
+            if (Target != null && target is Storage s0 && s0.IsInteracting(this))
+            {
+                Log($"Cannot stop interaction with {s0.name}.");
+                return;
+            }
+            
             if (target == null)
             {
                 Log("No target, stopping moving.");
