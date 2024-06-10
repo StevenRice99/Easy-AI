@@ -108,8 +108,8 @@ namespace Warehouse.Sensors
             // Move towards the nearest inbound if there are no needed parts.
             Log("No particular IDs needed.");
             w.SetId(-1);
-            Inbound anyInbound = Inbound.Instances.OrderBy(x => x.Empty).ThenBy(x => x.ElapsedTime).ThenBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, x.transform.position), p)).FirstOrDefault();
-            Log(anyInbound == null ? "No inbounds to collect from." : $"No order needs anything, closest inbound is {anyInbound.name}.");
+            Inbound anyInbound = Inbound.Instances.OrderBy(x => x.Empty).ThenByDescending(x => x.ElapsedTime).ThenBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, x.transform.position), p)).FirstOrDefault();
+            Log(anyInbound == null ? "No inbounds to collect from." : $"No order, going to {anyInbound.name}.");
             return anyInbound;
         }
     }

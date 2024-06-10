@@ -7,7 +7,7 @@ namespace Project.Sensors
     /// Sensor to sense a random defensive position.
     /// </summary>
     [DisallowMultipleComponent]
-    public class RandomDefensivePositionSensor : EasySensor
+    public class DefensiveSensor : EasySensor
     {
         /// <summary>
         /// Sense a random defensive position.

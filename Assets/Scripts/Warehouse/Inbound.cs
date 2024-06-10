@@ -9,7 +9,7 @@ namespace Warehouse
     /// Inbound source to the warehouse.
     /// </summary>
     [DisallowMultipleComponent]
-    public class Inbound : MonoBehaviour, IPick
+    public class Inbound : MonoBehaviour, IPick, IReset
     {
         /// <summary>
         /// All inbound instances.
@@ -140,6 +140,20 @@ namespace Warehouse
 
             ElapsedTime = 0;
             WarehouseAgent.WarehouseUpdated(this);
+        }
+
+        /// <summary>
+        /// Reset this object.
+        /// </summary>
+        public void ResetObject()
+        {
+            while (!Empty)
+            {
+                Destroy(_parts[0].gameObject);
+                _parts.RemoveAt(0);
+            }
+
+            ElapsedTime = delay;
         }
     }
 }

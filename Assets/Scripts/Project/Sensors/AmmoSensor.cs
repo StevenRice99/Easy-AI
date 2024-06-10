@@ -8,7 +8,7 @@ namespace Project.Sensors
     /// Sensor to sense the nearest ammo pickup to a soldier.
     /// </summary>
     [DisallowMultipleComponent]
-    public class NearestAmmoPickupSensor : EasySensor
+    public class AmmoSensor : EasySensor
     {
         /// <summary>
         /// Sense the nearest ammo pickup to a soldier.

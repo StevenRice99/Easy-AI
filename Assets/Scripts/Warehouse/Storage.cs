@@ -8,7 +8,7 @@ namespace Warehouse
     /// Store a part.
     /// </summary>
     [DisallowMultipleComponent]
-    public class Storage : MonoBehaviour, IPick, IPlace
+    public class Storage : MonoBehaviour, IPick, IPlace, IReset
     {
         /// <summary>
         /// All storage instances.
@@ -224,6 +224,20 @@ namespace Warehouse
         private void OnDrawGizmosSelected()
         {
             Gizmos.DrawWireSphere(MoveTarget, 0.1f);
+        }
+
+        /// <summary>
+        /// Reset this object.
+        /// </summary>
+        public void ResetObject()
+        {
+            if (_part != null)
+            {
+                Destroy(_part.gameObject);
+            }
+
+            _interacting = null;
+            _interactingTime = 0;
         }
     }
 }

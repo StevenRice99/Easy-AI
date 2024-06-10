@@ -9,7 +9,7 @@ namespace Warehouse
     /// Outbound order from the warehouse.
     /// </summary>
     [DisallowMultipleComponent]
-    public class Outbound : MonoBehaviour, IPlace
+    public class Outbound : MonoBehaviour, IPlace, IReset
     {
         /// <summary>
         /// All outbound instances.
@@ -88,6 +88,11 @@ namespace Warehouse
                     _requirements.Remove(id);
                 }
             }
+
+            if (_requirements.Count == 0)
+            {
+                WarehouseManager.OrderCompleted();
+            }
             
             agent.AddOrderScore();
             WarehouseAgent.WarehouseUpdated(this);
@@ -152,6 +157,15 @@ namespace Warehouse
 
             _elapsedTime = 0;
             WarehouseAgent.WarehouseUpdated(this);
+        }
+
+        /// <summary>
+        /// Reset this object.
+        /// </summary>
+        public void ResetObject()
+        {
+            _requirements.Clear();
+            _elapsedTime = delay;
         }
     }
 }

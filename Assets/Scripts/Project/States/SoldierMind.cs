@@ -237,7 +237,7 @@ namespace Project.States
                     // If the soldier has low health, move to a health pack to heal.
                     if (soldier.Health <= lowHealth)
                     {
-                        HealthAmmoPickup health = soldier.Sense<NearestHealthPickupSensor, HealthAmmoPickup>();
+                        HealthAmmoPickup health = soldier.Sense<HealthSensor, HealthAmmoPickup>();
                         if (health != null)
                         {
                             soldier.Move(health.transform.position);
@@ -252,7 +252,7 @@ namespace Project.States
                         // Try to heal.
                         if (soldier.Health <= lowHealth)
                         {
-                            HealthAmmoPickup health = soldier.Sense<NearestHealthPickupSensor, HealthAmmoPickup>();
+                            HealthAmmoPickup health = soldier.Sense<HealthSensor, HealthAmmoPickup>();
                             if (health != null)
                             {
                                 soldier.Move(health.transform.position);
@@ -261,7 +261,7 @@ namespace Project.States
                             }
                         }
 
-                        HealthAmmoPickup ammo = soldier.Sense<NearestAmmoPickupSensor, HealthAmmoPickup>();
+                        HealthAmmoPickup ammo = soldier.Sense<AmmoSensor, HealthAmmoPickup>();
                         if (ammo != null)
                         {
                             soldier.Move(ammo.transform.position);
@@ -286,13 +286,13 @@ namespace Project.States
                     // If an attacker, move to a random offensive position.
                     if (soldier.Role == Soldier.SoliderRole.Attacker)
                     {
-                        soldier.Move(soldier.Sense<RandomOffensivePositionSensor, Vector3>());
+                        soldier.Move(soldier.Sense<OffensiveSensor, Vector3>());
                         soldier.Log("Moving to offensive position.");
                         return;
                     }
                     
                     // If a defender, move to a random defensive position.
-                    soldier.Move(soldier.Sense<RandomDefensivePositionSensor, Vector3>());
+                    soldier.Move(soldier.Sense<DefensiveSensor, Vector3>());
                     soldier.Log("Moving to defensive position.");
                     return;
             }

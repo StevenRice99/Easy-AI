@@ -39,19 +39,6 @@ namespace EasyAI
             Active,
             Selected
         }
-    
-        /// <summary>
-        /// What GUI State to display.
-        /// Main - Displays a list of all agents and global messages. Never in this state if there is only one agent in the scene.
-        /// Agent - Displays the selected agent. Displayed in place of "Main" if there is only one agent in the scene.
-        /// Components - Displays lists of the sensors, actuators, percepts, and actions of the selected agent.
-        /// </summary>
-        private enum GuiState : byte
-        {
-            Main,
-            Agent,
-            Components
-        }
         
         /// <summary>
         /// The width of the GUI buttons to open their respective menus when they are closed.
@@ -350,7 +337,7 @@ namespace EasyAI
         /// <summary>
         /// State of the GUI system.
         /// </summary>
-        private GuiState _state;
+        private bool _agentDisplay;
 
         /// <summary>
         /// The agent which is currently thinking.
@@ -990,84 +977,57 @@ namespace EasyAI
             {
                 return;
             }
+            
             y = Singleton.DisplayDetails(x, y, w, h, p);
 
-            if (Singleton.SelectedAgent == null && Singleton._state == GuiState.Agent)
+            if (Singleton.SelectedAgent == null && Singleton._agentDisplay)
             {
-                Singleton._state = GuiState.Main;
+                Singleton._agentDisplay = false;
             }
 
-            if (Singleton._state == GuiState.Main && Singleton.Agents.Count == 1)
+            if (!Singleton._agentDisplay && Singleton.Agents.Count == 1)
             {
                 Singleton.SelectedAgent = Singleton.Agents[0];
-                Singleton._state = GuiState.Agent;
+                Singleton._agentDisplay = true;
             }
 
-            switch (Singleton._state)
+            if (Singleton._agentDisplay)
             {
-                // Handle agent view rendering.
-                case GuiState.Agent:
+                // Can only go to the main view if there is more than one agent.
+                if (Singleton.Agents.Count > 1)
                 {
-                    // Can only go to the main view if there is more than one agent.
-                    if (Singleton.Agents.Count > 1)
+                    // Button to go back to the main view.
+                    y = NextItem(y, h, p);
+                    if (GuiButton(x, y, w, h, "Back to Agent List" + (Singleton.followBest ? " - Stop Following Best" : string.Empty)))
                     {
-                        // Button to go back to the main view.
-                        y = NextItem(y, h, p);
-                        if (GuiButton(x, y, w, h, "Back to Agent List" + (Singleton.followBest ? " - Stop Following Best" : string.Empty)))
-                        {
-                            Singleton.followBest = false;
-                            Singleton._state = GuiState.Main;
-                        }
+                        Singleton.followBest = false;
+                        Singleton._agentDisplay = false;
                     }
+                }
                 
-                    RenderAgent(x, y, w, h, p);
+                RenderAgent(x, y, w, h, p);
 
-                    return;
-                }
-                // Handle components view rendering.
-                case GuiState.Components:
-                {
-                    if (Singleton.SelectedAgent != null)
-                    {
-                        // Button to go back to the agents view.
-                        y = NextItem(y, h, p);
-                        if (GuiButton(x, y, w, h, $"Back to {Singleton.SelectedAgent.name}"))
-                        {
-                            Singleton._state = GuiState.Agent;
-                        }
-                        else
-                        {
-                            RenderComponents(x, y, w, h, p);
-                        }
-                    }
-                    else
-                    {
-                        Singleton._state = GuiState.Main;
-                    }
+                return;
+            }
 
-                    return;
-                }
-                case GuiState.Main:
-                default:
-                    break;
+            y = NextItem(y, h, p);
+            if (GuiButton(x, y, w, h, "Follow Best"))
+            {
+                Singleton.followBest = true;
             }
 
             // Display all agents.
-            y = NextItem(y, h, p);
-            GuiBox(x, y, w, h, p, 1);
-            GuiLabel(x, y, w, h, p, $"{Singleton.Agents.Count} Agents");
-
             foreach (EasyAgent agent in Singleton.Agents.OrderBy(z => z.name))
             {
                 // Button to select an agent.
                 y = NextItem(y, h, p);
-                if (!GuiButton(x, y, w, h, $"{agent.name} - {agent}"))
+                if (!GuiButton(x, y, w, h, agent.name))
                 {
                     continue;
                 }
 
                 Singleton.SelectedAgent = agent;
-                Singleton._state = GuiState.Agent;
+                Singleton._agentDisplay = true;
             }
             
             // Display global messages.
@@ -1098,7 +1058,7 @@ namespace EasyAI
         {
             if (Singleton.SelectedAgent == null)
             {
-                Singleton._state = GuiState.Main;
+                Singleton._agentDisplay = false;
                 return;
             }
             
@@ -1155,16 +1115,6 @@ namespace EasyAI
             // Display any custom details implemented for the agent.
             y = Singleton.SelectedAgent.DisplayDetails(x, y, w, h, p);
 
-            // Display all sensors for the agent.
-            if (Singleton.SelectedAgent.sensors.Length > 0 || Singleton.SelectedAgent.actuators.Length > 0)
-            {
-                y = NextItem(y, h, p);
-                if (GuiButton(x, y, w, h, "Sensors and Actuators"))
-                {
-                    Singleton._state = GuiState.Components;
-                }
-            }
-
             if (!Singleton.SelectedAgent.HasMessages)
             {
                 return;
@@ -1178,73 +1128,6 @@ namespace EasyAI
             {
                 GuiLabel(x, y, w, h, p, message);
                 y = NextItem(y, h, p);
-            }
-        }
-
-        /// <summary>
-        /// Render the automatic components GUI.
-        /// </summary>
-        /// <param name="x">X rendering position. In most cases this should remain unchanged.</param>
-        /// <param name="y">Y rendering position. Update this with every component added and return it.</param>
-        /// <param name="w">Width of components. In most cases this should remain unchanged.</param>
-        /// <param name="h">Height of components. In most cases this should remain unchanged.</param>
-        /// <param name="p">Padding of components. In most cases this should remain unchanged.</param>
-        private static void RenderComponents(float x, float y, float w, float h, float p)
-        {
-            if (Singleton.SelectedAgent == null)
-            {
-                Singleton._state = GuiState.Main;
-                return;
-            }
-            
-            // List all sensors.
-            y = NextItem(y, h, p);
-            GuiBox(x, y, w, h, p, 1);
-            GuiLabel(x, y, w, h, p, Singleton.SelectedAgent.sensors.Length switch
-            {
-                0 => "No Sensors",
-                1 => "1 Sensor",
-                _ => $"{Singleton.SelectedAgent.sensors.Length} Sensors"
-            });
-
-            if (Singleton.SelectedAgent.sensors.Length > 0)
-            {
-                y = NextItem(y, h, p);
-                GuiBox(x, y, w, h, p, Singleton.SelectedAgent.sensors.Length);
-                for (int i = 0; i < Singleton.SelectedAgent.sensors.Length; i++)
-                {
-                    GuiLabel(x, y, w, h, p, Singleton.SelectedAgent.sensors[i].ToString());
-                    if (i < Singleton.SelectedAgent.sensors.Length - 1)
-                    {
-                        y = NextItem(y, h, p);
-                    }
-                }
-            }
-            
-            // Display all actuators.
-            y = NextItem(y, h, p);
-            GuiBox(x, y, w, h, p, 1);
-            GuiLabel(x, y, w, h, p, Singleton.SelectedAgent.actuators.Length switch
-            {
-                0 => "No Actuators",
-                1 => "1 Actuator",
-                _ => $"{Singleton.SelectedAgent.actuators.Length} Actuators"
-            });
-
-            if (Singleton.SelectedAgent.actuators.Length < 1)
-            {
-                return;
-            }
-            
-            y = NextItem(y, h, p);
-            GuiBox(x, y, w, h, p, Singleton.SelectedAgent.actuators.Length);
-            for (int i = 0; i < Singleton.SelectedAgent.actuators.Length; i++)
-            {
-                GuiLabel(x, y, w, h, p, Singleton.SelectedAgent.actuators[i].ToString());
-                if (i < Singleton.SelectedAgent.actuators.Length - 1)
-                {
-                    y = NextItem(y, h, p);
-                }
             }
         }
 
@@ -1263,16 +1146,15 @@ namespace EasyAI
                 w = ClosedSize;
             }
         
-            if (Singleton.Agents.Count == 0 && w + 4 * p > Screen.width)
+            switch (Singleton.Agents.Count)
             {
-                w = Screen.width - 4 * p;
+                case 0 when w + 4 * p > Screen.width:
+                    w = Screen.width - 4 * p;
+                    break;
+                case > 0 when Screen.width < (Singleton._detailsOpen ? Singleton.detailsWidth : ClosedSize) + Singleton.controlsWidth + 5 * p:
+                    return;
             }
 
-            if (Singleton.Agents.Count > 0 && Screen.width < (Singleton._detailsOpen ? Singleton.detailsWidth : ClosedSize) + Singleton.controlsWidth + 5 * p)
-            {
-                return;
-            }
-            
             x = Screen.width - x - w;
 
             // Button open/close controls.
@@ -1288,25 +1170,6 @@ namespace EasyAI
 
             y = NextItem(y, h, p);
             y = Singleton.CustomRendering(x, y, w, h, p);
-
-            if (Singleton.Agents.Count > 1)
-            {
-                // Button to lock any tracking cameras to the best performing agent or not.
-                if (GuiButton(x, y, w, h, Singleton.followBest ? "Stop Following" : "Follow Best"))
-                {
-                    Singleton.followBest = !Singleton.followBest;
-                    if (Singleton.followBest && Singleton._state == GuiState.Main)
-                    {
-                        Singleton._state = GuiState.Agent;
-                    }
-                }
-            
-                y = NextItem(y, h, p);
-            }
-            else
-            {
-                Singleton.followBest = false;
-            }
 
             // Button to pause or resume the scene.
             if (GuiButton(x, y, w, h, Playing ? "Pause" : "Resume"))
@@ -1890,7 +1753,7 @@ namespace EasyAI
                     {
                         SelectedAgent = clicked;
                         followBest = false;
-                        _state = GuiState.Agent;
+                        _agentDisplay = true;
                         break;
                     }
                     tr = tr.parent;
@@ -1923,10 +1786,7 @@ namespace EasyAI
                 return;
             }
 
-            if (Singleton._state == GuiState.Main)
-            {
-                Singleton._state = GuiState.Agent;
-            }
+            Singleton._agentDisplay = true;
         }
 
         /// <summary>

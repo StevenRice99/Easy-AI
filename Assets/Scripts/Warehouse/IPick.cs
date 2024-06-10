@@ -10,6 +10,6 @@
         /// </summary>
         /// <param name="agent">The agent picking the part.</param>
         /// <returns>True if it was picked up, false otherwise.</returns>
-        bool Pick(WarehouseAgent agent);
+        public bool Pick(WarehouseAgent agent);
     }
 }

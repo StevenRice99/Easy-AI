@@ -10,6 +10,6 @@
         /// </summary>
         /// <param name="agent">The agent placing the part.</param>
         /// <returns>True if the part was added, false otherwise.</returns>
-        bool Place(WarehouseAgent agent);
+        public bool Place(WarehouseAgent agent);
     }
 }
