@@ -62,6 +62,11 @@ namespace Warehouse
         public bool Has(int id) => _parts.Any(x => x.ID == id);
 
         /// <summary>
+        /// The IDs of parts this has.
+        /// </summary>
+        public int[] Ids => _parts.Select(x => x.ID).Distinct().ToArray();
+
+        /// <summary>
         /// Pick a part to an agent.
         /// </summary>
         /// <param name="agent">The agent picking the part.</param>
@@ -152,15 +157,15 @@ namespace Warehouse
         /// <summary>
         /// How long it would for this agent to pick up from this and then deliver to a spot to place it.
         /// </summary>
-        /// <param name="agent">The agent.</param>
+        /// <param name="position">The position the picker is currently at.</param>
         /// <param name="place">The place to deliver to.</param>
+        /// <param name="speed">How fast the picker can move.</param>
         /// <returns>The time it would take an agent to collect from this and deliver it to the outbound.</returns>
-        public float PickTime(EasyAgent agent, Vector3 place)
+        public float PickTime(Vector3 position, Vector3 place, float speed)
         {
-            Vector3 position = agent.transform.position;
             Vector3 storage = transform.position;
-            float pickup = EasyManager.PathLength(EasyManager.LookupPath(position, storage), position) / agent.moveSpeed;
-            return pickup + EasyManager.PathLength(EasyManager.LookupPath(storage, place), storage) / agent.moveSpeed;
+            float pickup = EasyManager.PathLength(EasyManager.LookupPath(position, storage), position) / speed;
+            return pickup + EasyManager.PathLength(EasyManager.LookupPath(storage, place), storage) / speed;
         }
 
         /// <summary>

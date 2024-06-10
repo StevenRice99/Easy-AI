@@ -102,26 +102,26 @@ namespace Warehouse
         /// <summary>
         /// Get the time it would take to place a part at this location.
         /// </summary>
-        /// <param name="agent">The agent placing the part.</param>
+        /// <param name="position">The position the placer is currently at.</param>
+        /// <param name="speed">How fast the placer can move.</param>
         /// <returns>The time it would take to place a part at this location.</returns>
-        public float PlaceTime(EasyAgent agent)
+        public float PlaceTime(Vector3 position, float speed)
         {
-            Vector3 position = agent.transform.position;
-            return EasyManager.PathLength(EasyManager.LookupPath(position, MoveTarget), position) / agent.moveSpeed + Cost;
+            return EasyManager.PathLength(EasyManager.LookupPath(position, MoveTarget), position) / speed + Cost;
         }
 
         /// <summary>
         /// How long it would for this agent to pick up from this and then deliver to a spot to place it.
         /// </summary>
-        /// <param name="agent">The agent.</param>
+        /// <param name="position">The position the picker is currently at.</param>
         /// <param name="place">The place to deliver to.</param>
+        /// <param name="speed">How fast the picker can move.</param>
         /// <returns>The time it would take an agent to collect from this and deliver it to the outbound.</returns>
-        public float PickTime(EasyAgent agent, Vector3 place)
+        public float PickTime(Vector3 position, Vector3 place, float speed)
         {
-            Vector3 position = agent.transform.position;
             Vector3 storage = MoveTarget;
-            float pickup = EasyManager.PathLength(EasyManager.LookupPath(position, storage), position) / agent.moveSpeed + Cost;
-            return pickup + EasyManager.PathLength(EasyManager.LookupPath(storage, place), storage) / agent.moveSpeed;
+            float pickup = EasyManager.PathLength(EasyManager.LookupPath(position, storage), position) / speed + Cost;
+            return pickup + EasyManager.PathLength(EasyManager.LookupPath(storage, place), storage) / speed;
         }
 
         /// <summary>

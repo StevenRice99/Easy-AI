@@ -18,9 +18,10 @@ namespace Warehouse
         /// <summary>
         /// How long it would for this agent to pick up from this and then deliver to a spot to place it.
         /// </summary>
-        /// <param name="agent">The agent.</param>
+        /// <param name="position">The position the picker is currently at.</param>
         /// <param name="place">The place to deliver to.</param>
+        /// <param name="speed">How fast the picker can move.</param>
         /// <returns>The time it would take an agent to collect from this and deliver it to the outbound.</returns>
-        public float PickTime(EasyAgent agent, Vector3 place);
+        public float PickTime(Vector3 position, Vector3 place, float speed);
     }
 }

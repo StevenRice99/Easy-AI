@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using EasyAI;
 using UnityEngine;
 
@@ -44,6 +45,11 @@ namespace Warehouse
         /// The score of this agent.
         /// </summary>
         public int Score { get; private set; }
+
+        /// <summary>
+        /// The position to return to when idle.
+        /// </summary>
+        private Vector2 _idlePosition;
 
         /// <summary>
         /// If the agent currently has a part.
@@ -125,10 +131,13 @@ namespace Warehouse
                 }
 
                 // If this agent was in relation to this target or has no specific goal, remove target to force it to find a new one.
-                if (w.Id < 0 || w.Target == target)
+                if (w.Id >= 0 && w.Target != target)
                 {
-                    w.SetTarget();
+                    continue;
                 }
+
+                w.SetTarget();
+                w.Id = -1;
             }
         }
 
@@ -148,7 +157,7 @@ namespace Warehouse
             {
                 Log("No target, stopping moving.");
                 Target = null;
-                StopMoving();
+                Move(_idlePosition);
                 return;
             }
 
@@ -160,7 +169,7 @@ namespace Warehouse
                 {
                     Log("Cannot go to a picking only position with a part.");
                     Target = null;
-                    StopMoving();
+                    Move(_idlePosition);
                     return;
                 }
 
@@ -182,7 +191,7 @@ namespace Warehouse
             {
                 Log("Cannot go to a placing only position without a part.");
                 Target = null;
-                StopMoving();
+                Move(_idlePosition);
                 return;
             }
 
@@ -308,6 +317,14 @@ namespace Warehouse
             base.OnDisable();
 
             Instances.Remove(this);
+        }
+
+        /// <summary>
+        /// Start is called on the frame when a script is enabled just before any of the Update methods are called the first time.
+        /// </summary>
+        private void Start()
+        {
+            _idlePosition = transform.position;
         }
     }
 }

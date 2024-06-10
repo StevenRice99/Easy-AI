@@ -135,7 +135,7 @@ namespace Warehouse
             int storagesUsed = Storage.Instances.Count(i => !i.Empty);
             
             y = NextItem(y, h, p);
-            GuiLabel(x, y, w, h, p, $"Storage Utilization: {storagesUsed} / {Storage.Instances.Count} | {(float) storagesUsed / Storage.Instances.Count:0.00}%");
+            GuiLabel(x, y, w, h, p, $"Storage Utilization: {storagesUsed} / {Storage.Instances.Count} | {(float) storagesUsed / Storage.Instances.Count * 100:0.00}%");
             
             return y;
         }

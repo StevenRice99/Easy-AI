@@ -1,4 +1,5 @@
 ﻿using EasyAI;
+using UnityEngine;
 
 namespace Warehouse
 {
@@ -17,8 +18,9 @@ namespace Warehouse
         /// <summary>
         /// Get the time it would take to place a part at this location.
         /// </summary>
-        /// <param name="agent">The agent placing the part.</param>
+        /// <param name="position">The position the placer is currently at.</param>
+        /// <param name="speed">How fast the placer can move.</param>
         /// <returns>The time it would take to place a part at this location.</returns>
-        public float PlaceTime(EasyAgent agent);
+        public float PlaceTime(Vector3 position, float speed);
     }
 }

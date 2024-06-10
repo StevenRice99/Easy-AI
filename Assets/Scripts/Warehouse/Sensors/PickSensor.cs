@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using EasyAI;
 using UnityEngine;
 
@@ -27,6 +28,8 @@ namespace Warehouse.Sensors
                 return null;
             }
 
+            Vector3 p = w.transform.position;
+
             // Get all active outbound locations by distance.
             Outbound[] outbounds = Outbound.Instances.Where(x => x.Active).ToArray();
             
@@ -37,16 +40,16 @@ namespace Warehouse.Sensors
             foreach (Outbound outbound in outbounds)
             {
                 int[] ids = outbound.Requirements();
-                Vector3 p = outbound.transform.position;
+                Vector3 d = outbound.transform.position;
                 foreach (int id in ids)
                 {
-                    Inbound inbound = Inbound.Instances.Where(x => x.Has(id)).OrderBy(x => x.PickTime(w, p)).FirstOrDefault();
+                    Inbound inbound = Inbound.Instances.Where(x => x.Has(id)).OrderBy(x => x.PickTime(p, d, w.moveSpeed)).FirstOrDefault();
                     if (inbound == null)
                     {
                         continue;
                     }
 
-                    float cost = inbound.PickTime(w, p);
+                    float cost = inbound.PickTime(p, d, w.moveSpeed);
                     if (cost >= bestInboundCost)
                     {
                         continue;
@@ -65,16 +68,16 @@ namespace Warehouse.Sensors
             foreach (Outbound outbound in outbounds)
             {
                 int[] ids = outbound.Requirements();
-                Vector3 p = outbound.transform.position;
+                Vector3 d = outbound.transform.position;
                 foreach (int id in ids)
                 {
-                    Storage storage = Storage.Instances.Where(x => x.Available(w) && x.Has(id)).OrderBy(x => x.PickTime(w, p)).FirstOrDefault();
+                    Storage storage = Storage.Instances.Where(x => x.Available(w) && x.Has(id)).OrderBy(x => x.PickTime(p, d, w.moveSpeed)).FirstOrDefault();
                     if (storage == null)
                     {
                         continue;
                     }
 
-                    float cost = storage.PickTime(w, p);
+                    float cost = storage.PickTime(p, d, w.moveSpeed);
                     if (cost >= bestStorageCost)
                     {
                         continue;
@@ -110,20 +113,60 @@ namespace Warehouse.Sensors
                     w.SetId(bestInboundId);
                     return bestInbound;
                 }
-                else
+
+                Log($"Found item type {bestStorageId} at {bestStorage.name}.");
+                w.SetId(bestStorageId);
+                return bestStorage;
+            }
+
+            Inbound[] inbounds = Inbound.Instances.Where(x => !x.Empty).ToArray();
+            if (inbounds.Length > 0)
+            {
+                HashSet<int> options = new();
+                int[][] ids = new int[inbounds.Length][];
+                for (int i = 0; i < inbounds.Length; i++)
                 {
-                    Log($"Found item type {bestStorageId} at {bestStorage.name}.");
-                    w.SetId(bestStorageId);
-                    return bestStorage;
+                    ids[i] = inbounds[i].Ids;
+                    for (int j = 0; j < ids[i].Length; j++)
+                    {
+                        options.Add(ids[i][j]);
+                    }
+                }
+
+                Dictionary<int, Storage[]> storages = options.ToDictionary(id => id, id => Storage.Instances.Where(x => x.CanTake(id)).ToArray());
+
+                bestInbound = null;
+                bestInboundCost = float.MaxValue;
+
+                for (int i = 0; i < inbounds.Length; i++)
+                {
+                    for (int j = 0; j < ids[i].Length; j++)
+                    {
+                        Storage[] idStorages = storages[ids[i][j]];
+                        for (int k = 0; k < idStorages.Length; k++)
+                        {
+                            float cost = inbounds[i].PickTime(p, idStorages[k].transform.position, w.moveSpeed);
+                            if (cost >= bestInboundCost)
+                            {
+                                continue;
+                            }
+
+                            bestInbound = inbounds[i];
+                            bestInboundCost = cost;
+                        }
+                    }
+                }
+
+                if (bestInbound != null)
+                {
+                    Log($"No order, going to {bestInbound.name}.");
+                    return bestInbound;
                 }
             }
 
             // Move towards the nearest inbound if there are no needed parts.
             Log("No particular IDs needed.");
-            w.SetId(-1);
-            Inbound anyInbound = Inbound.Instances.OrderBy(x => x.Empty).ThenByDescending(x => x.ElapsedTime).ThenBy(x => x.PickTime(agent, x.transform.position)).FirstOrDefault();
-            Log(anyInbound == null ? "No inbounds to collect from." : $"No order, going to {anyInbound.name}.");
-            return anyInbound;
+            return null;
         }
     }
 }
