@@ -1,4 +1,5 @@
-﻿using EasyAI;
+﻿using System.Linq;
+using EasyAI;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -90,7 +91,13 @@ namespace Warehouse
         protected override float DisplayDetails(float x, float y, float w, float h, float p)
         {
             y = NextItem(y, h, p);
-            GuiBox(x, y, w, h, p, workers > 1 ? 5 : 4);
+            int size = 5;
+            if (workers > 1)
+            {
+                size++;
+            }
+            
+            GuiBox(x, y, w, h, p, size);
 
             double seconds = Time.timeAsDouble - _startTime;
             int intSeconds = (int) seconds;
@@ -124,6 +131,11 @@ namespace Warehouse
             
             y = NextItem(y, h, p);
             GuiLabel(x, y, w, h, p, $"Shipments Unloaded: {_shipmentsUnloaded} | {shipmentRate:0.00} / minute");
+
+            int storagesUsed = Storage.Instances.Count(i => !i.Empty);
+            
+            y = NextItem(y, h, p);
+            GuiLabel(x, y, w, h, p, $"Storage Utilization: {storagesUsed} / {Storage.Instances.Count} | {(float) storagesUsed / Storage.Instances.Count:0.00}%");
             
             return y;
         }
