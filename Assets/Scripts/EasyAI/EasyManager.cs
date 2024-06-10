@@ -968,7 +968,7 @@ namespace EasyAI
             }
             
             // Button open/close details.
-            if (GuiButton(x, y, w, h, Singleton._detailsOpen ? "Close" : "Details"))
+            if (GuiButton(x, y, w, h, Singleton._detailsOpen ? $"{SceneManager.GetActiveScene().name} - Close" : "Details"))
             {
                 Singleton._detailsOpen = !Singleton._detailsOpen;
             }
