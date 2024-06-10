@@ -47,6 +47,11 @@ namespace Warehouse
         [field: Tooltip("Whether roles should be used for worker tasks or not.")]
         [field: SerializeField]
         public bool Roles { get; private set; }
+
+        /// <summary>
+        /// Whether roles should be used for worker tasks or not.
+        /// </summary>
+        public static bool UseRoles => ((WarehouseManager)Singleton).Roles;
         
         /// <summary>
         /// Keep track of the number of orders completed.
@@ -234,9 +239,11 @@ namespace Warehouse
 
             for (int i = 0; i < workers; i++)
             {
-                Vector3 spawnPosition = !Roles || i % 2 == 0 ? inboundSpawn.position : outboundSpawn.position;
+                bool inbound = !Roles || i % 2 == 0;
+                Vector3 spawnPosition = inbound ? inboundSpawn.position : outboundSpawn.position;
                 WarehouseAgent agent = Instantiate(warehouseAgentPrefab, spawnPosition, quaternion.identity);
                 agent.name = $"Worker {i + 1:D2}";
+                agent.Inbound = inbound;
             }
         }
     }

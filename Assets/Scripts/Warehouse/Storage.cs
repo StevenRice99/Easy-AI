@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using EasyAI;
 using UnityEngine;
@@ -37,7 +38,8 @@ namespace Warehouse
         /// The types of parts that can be stored here.
         /// </summary>
         [Tooltip("The types of parts that can be stored here.")]
-        public int[] ids = { };
+        [SerializeField]
+        private int[] ids = { };
 
         /// <summary>
         /// Offset to perform moves relative to.
@@ -98,6 +100,37 @@ namespace Warehouse
                 // Otherwise, it should not be empty so find the part.
                 _part = transform.GetChild(0).GetComponent<Part>();
                 return _part == null;
+            }
+        }
+
+        public void UpdateIds(int[] set)
+        {
+            foreach (int id in ids)
+            {
+                if (!Options.ContainsKey(id) || !Options[id].Contains(this))
+                {
+                    continue;
+                }
+
+                Options[id].Remove(this);
+                if (Options[id].Count < 1)
+                {
+                    Options.Remove(id);
+                }
+            }
+
+            ids = set;
+            
+            foreach (int id in ids)
+            {
+                if (Options.ContainsKey(id))
+                {
+                    Options[id].Add(this);
+                }
+                else
+                {
+                    Options[id] = new() {this};
+                }
             }
         }
 
@@ -244,17 +277,7 @@ namespace Warehouse
         {
             Instances.Add(this);
 
-            foreach (int id in ids)
-            {
-                if (Options.ContainsKey(id))
-                {
-                    Options[id].Add(this);
-                }
-                else
-                {
-                    Options[id] = new() {this};
-                }
-            }
+            UpdateIds(ids);
         }
 
         /// <summary>
@@ -264,19 +287,7 @@ namespace Warehouse
         {
             Instances.Remove(this);
 
-            foreach (int id in ids)
-            {
-                if (!Options.ContainsKey(id) || !Options[id].Contains(this))
-                {
-                    continue;
-                }
-
-                Options[id].Remove(this);
-                if (Options[id].Count < 1)
-                {
-                    Options.Remove(id);
-                }
-            }
+            UpdateIds(Array.Empty<int>());
         }
 
         /// <summary>

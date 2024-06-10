@@ -30,11 +30,14 @@ namespace Warehouse.Sensors
             Vector3 p = w.transform.position;
 
             // Look for outbound locations that need this first.
-            Outbound outbound = Outbound.Instances.Where(x => x.Requires(w.Id)).OrderBy(x => x.PlaceTime(p, w.moveSpeed)).FirstOrDefault();
-            if (outbound != null)
+            if (!WarehouseManager.UseRoles || !w.Inbound)
             {
-                Log($"{outbound.name} needs {w.Id}.");
-                return outbound;
+                Outbound outbound = Outbound.Instances.Where(x => x.Requires(w.Id)).OrderBy(x => x.PlaceTime(p, w.moveSpeed)).FirstOrDefault();
+                if (outbound != null)
+                {
+                    Log($"{outbound.name} needs {w.Id}.");
+                    return outbound;
+                }
             }
 
             // If no outbound locations need it, store it.

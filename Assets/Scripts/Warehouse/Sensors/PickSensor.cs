@@ -31,53 +31,75 @@ namespace Warehouse.Sensors
 
             // Get all active outbound locations by distance.
             Outbound[] outbounds = Outbound.Instances.Where(x => x.Active).ToArray();
-            
-            // Check to see if any inbounds or storages have a needed part.
-            Inbound bestInbound = null;
-            Storage bestStorage = null;
-            int bestInboundId = -1;
-            int bestStorageId = -1;
-            float bestInboundCost = float.MaxValue;
-            float bestStorageCost = float.MaxValue;
-            foreach (Outbound outbound in outbounds)
-            {
-                int[] ids = outbound.Requirements();
-                Vector3 d = outbound.transform.position;
-                foreach (int id in ids)
-                {
-                    float cost;
-                    Inbound inbound = Inbound.Instances.Where(x => x.Has(id)).OrderBy(x => x.PickTime(p, d, w.moveSpeed)).FirstOrDefault();
-                    if (inbound != null)
-                    {
-                        cost = inbound.PickTime(p, d, w.moveSpeed);
-                        if (cost < bestInboundCost)
-                        {
-                            bestInboundCost = cost;
-                            bestInbound = inbound;
-                            bestInboundId = id;
-                        }
-                    }
-                    
-                    if (!Storage.Options.ContainsKey(id))
-                    {
-                        continue;
-                    }
-                    
-                    Storage storage = Storage.Options[id].Where(x => x.Available(w)).OrderBy(x => x.PickTime(p, d, w.moveSpeed)).FirstOrDefault();
-                    if (storage == null)
-                    {
-                        continue;
-                    }
 
-                    cost = storage.PickTime(p, d, w.moveSpeed);
-                    if (cost >= bestStorageCost)
+            int[][] ids = new int[outbounds.Length][];
+            Vector3[] d = new Vector3[outbounds.Length];
+            for (int i = 0; i < outbounds.Length; i++)
+            {
+                ids[i] = outbounds[i].Requirements();
+                d[i] = outbounds[i].transform.position;
+            }
+            
+            // Check to see if any inbounds have a needed part.
+            Inbound bestInbound = null;
+            int bestInboundId = -1;
+            float bestInboundCost = float.MaxValue;
+            if (!WarehouseManager.UseRoles)
+            {
+                for (int i = 0; i < outbounds.Length; i++)
+                {
+                    foreach (int id in ids[i])
                     {
-                        continue;
+                        Inbound inbound = Inbound.Instances.Where(x => x.Has(id)).OrderBy(x => x.PickTime(p, d[i], w.moveSpeed)).FirstOrDefault();
+                        if (inbound == null)
+                        {
+                            continue;
+                        }
+
+                        float cost = inbound.PickTime(p, d[i], w.moveSpeed);
+                        if (cost >= bestInboundCost)
+                        {
+                            continue;
+                        }
+
+                        bestInboundCost = cost;
+                        bestInbound = inbound;
+                        bestInboundId = id;
                     }
+                }
+            }
+            
+            // Check to see if any storages have a needed part.
+            Storage bestStorage = null;
+            int bestStorageId = -1;
+            float bestStorageCost = float.MaxValue;
+            if (!WarehouseManager.UseRoles || !w.Inbound)
+            {
+                for (int i = 0; i < outbounds.Length; i++)
+                {
+                    foreach (int id in ids[i])
+                    {
+                        if (!Storage.Options.ContainsKey(id))
+                        {
+                            continue;
+                        }
                     
-                    bestStorageCost = cost;
-                    bestStorage = storage;
-                    bestStorageId = id;
+                        Storage storage = Storage.Options[id].Where(x => x.Available(w) && x.Has(id)).OrderBy(x => x.PickTime(p, d[i], w.moveSpeed)).FirstOrDefault();
+                        if (storage == null)
+                        {
+                            continue;
+                        }
+
+                        float cost = storage.PickTime(p, d[i], w.moveSpeed);
+                        if (cost >= bestStorageCost)
+                        {
+                            continue;
+                        }
+                    
+                        bestStorageCost = cost;
+                        bestStorage = storage;
+                        bestStorageId = id;
+                    }
                 }
             }
 
@@ -112,8 +134,12 @@ namespace Warehouse.Sensors
             }
 
             // Move towards the nearest inbound if there are no needed parts.
-            Log("No particular IDs needed.");
             w.SetId(-1);
+            if (WarehouseManager.UseRoles && !w.Inbound)
+            {
+                return null;
+            }
+
             Inbound anyInbound = Inbound.Instances.Where(x => !x.Empty).OrderBy(x => x.PickTime(p, x.transform.position, w.moveSpeed)).FirstOrDefault();
             Log(anyInbound == null ? "No inbounds to collect from." : $"No order, will unload {anyInbound.name}.");
             return anyInbound;

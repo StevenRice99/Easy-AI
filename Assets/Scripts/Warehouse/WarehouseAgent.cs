@@ -25,6 +25,12 @@ namespace Warehouse
         /// The score to add an item to storage.
         /// </summary>
         private const int ScoreStore = 1;
+
+        /// <summary>
+        /// When using roles, whether this agent performs inbounding.
+        /// </summary>
+        [NonSerialized]
+        public bool Inbound;
         
         /// <summary>
         /// How far the agent can pick or place a part.

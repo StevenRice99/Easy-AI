@@ -27,7 +27,7 @@ namespace Warehouse
 
             foreach (Storage storage in storages)
             {
-                storage.ids = ids;
+                storage.UpdateIds(ids);
             }
             
             Destroy(this);

@@ -1,5 +1,4 @@
-﻿using EasyAI;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Warehouse
 {
