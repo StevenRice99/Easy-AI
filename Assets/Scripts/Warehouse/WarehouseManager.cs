@@ -207,9 +207,10 @@ namespace Warehouse
         /// </summary>
         private void ResetLevel()
         {
-            foreach (WarehouseAgent agent in WarehouseAgent.Instances)
+            WarehouseAgent[] agents = WarehouseAgent.Instances.ToArray();
+            for (int i = 0; i < agents.Length; i++)
             {
-                Destroy(agent.gameObject);
+                Destroy(agents[i].gameObject);
             }
             
             foreach (Storage storage in Storage.Instances)

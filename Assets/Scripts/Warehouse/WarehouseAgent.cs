@@ -131,13 +131,10 @@ namespace Warehouse
                 }
 
                 // If this agent was in relation to this target or has no specific goal, remove target to force it to find a new one.
-                if (w.Id >= 0 && w.Target != target)
+                if (w.Id < 0 || w.Target == target)
                 {
-                    continue;
+                    w.SetTarget();
                 }
-
-                w.SetTarget();
-                w.Id = -1;
             }
         }
 

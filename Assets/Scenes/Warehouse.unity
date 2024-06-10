@@ -486,7 +486,7 @@ MonoBehaviour:
   warehouseAgentPrefab: {fileID: 743630815198840962, guid: f42d0debe21da7242b70b8d49a951997, type: 3}
   inboundSpawn: {fileID: 1105105586}
   outboundSpawn: {fileID: 348628784}
-  workers: 6
+  workers: 12
   <Roles>k__BackingField: 0
 --- !u!1 &880303307
 GameObject:

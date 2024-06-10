@@ -16,6 +16,8 @@ namespace Warehouse
         /// </summary>
         public static readonly HashSet<Storage> Instances = new();
 
+        public static Dictionary<int, HashSet<Storage>> Options = new();
+
         /// <summary>
         /// How much does interacting take scaled with the Y position of this storage.
         /// </summary>
@@ -241,6 +243,18 @@ namespace Warehouse
         private void OnEnable()
         {
             Instances.Add(this);
+
+            foreach (int id in ids)
+            {
+                if (Options.ContainsKey(id))
+                {
+                    Options[id].Add(this);
+                }
+                else
+                {
+                    Options[id] = new() {this};
+                }
+            }
         }
 
         /// <summary>
@@ -249,6 +263,20 @@ namespace Warehouse
         private void OnDisable()
         {
             Instances.Remove(this);
+
+            foreach (int id in ids)
+            {
+                if (!Options.ContainsKey(id) || !Options[id].Contains(this))
+                {
+                    continue;
+                }
+
+                Options[id].Remove(this);
+                if (Options[id].Count < 1)
+                {
+                    Options.Remove(id);
+                }
+            }
         }
 
         /// <summary>
