@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using EasyAI;
 using UnityEngine;
 
 namespace Warehouse
@@ -51,7 +52,7 @@ namespace Warehouse
         /// <summary>
         /// How much it costs to access this.
         /// </summary>
-        public float Cost => transform.position.y - offset;
+        public float Cost => (transform.position.y - offset) * interactTimeScale;
         
         /// <summary>
         /// The part currently being stored.
@@ -71,7 +72,7 @@ namespace Warehouse
         /// <summary>
         /// If enough time has elapsed to interact with this.
         /// </summary>
-        private bool InteractionComplete => _interactingTime >= Cost * interactTimeScale;
+        private bool InteractionComplete => _interactingTime >= Cost;
 
         /// <summary>
         /// If the storage space is currently empty.
@@ -96,6 +97,31 @@ namespace Warehouse
                 _part = transform.GetChild(0).GetComponent<Part>();
                 return _part == null;
             }
+        }
+
+        /// <summary>
+        /// Get the time it would take to place a part at this location.
+        /// </summary>
+        /// <param name="agent">The agent placing the part.</param>
+        /// <returns>The time it would take to place a part at this location.</returns>
+        public float PlaceTime(EasyAgent agent)
+        {
+            Vector3 position = agent.transform.position;
+            return EasyManager.PathLength(EasyManager.LookupPath(position, MoveTarget), position) / agent.moveSpeed + Cost;
+        }
+
+        /// <summary>
+        /// How long it would for this agent to pick up from this and then deliver to a spot to place it.
+        /// </summary>
+        /// <param name="agent">The agent.</param>
+        /// <param name="place">The place to deliver to.</param>
+        /// <returns>The time it would take an agent to collect from this and deliver it to the outbound.</returns>
+        public float PickTime(EasyAgent agent, Vector3 place)
+        {
+            Vector3 position = agent.transform.position;
+            Vector3 storage = MoveTarget;
+            float pickup = EasyManager.PathLength(EasyManager.LookupPath(position, storage), position) / agent.moveSpeed + Cost;
+            return pickup + EasyManager.PathLength(EasyManager.LookupPath(storage, place), storage) / agent.moveSpeed;
         }
 
         /// <summary>

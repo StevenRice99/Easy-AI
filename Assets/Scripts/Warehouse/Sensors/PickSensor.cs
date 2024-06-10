@@ -28,87 +28,100 @@ namespace Warehouse.Sensors
             }
 
             // Get all active outbound locations by distance.
-            Vector3 p = w.transform.position;
-            Outbound[] outbounds = Outbound.Instances.Where(x => x.Active).OrderBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, x.transform.position), p)).ToArray();
+            Outbound[] outbounds = Outbound.Instances.Where(x => x.Active).ToArray();
             
             // Check to see if any inbounds have a needed part.
+            Inbound bestInbound = null;
+            int bestInboundId = -1;
+            float bestInboundCost = float.MaxValue;
             foreach (Outbound outbound in outbounds)
             {
-                float bestCost = float.MaxValue;
-                Inbound bestInbound = null;
-                int bestId = -1;
-
                 int[] ids = outbound.Requirements();
+                Vector3 p = outbound.transform.position;
                 foreach (int id in ids)
                 {
-                    Inbound inbound = Inbound.Instances.Where(x => x.Has(id)).OrderBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, x.transform.position), p)).FirstOrDefault();
+                    Inbound inbound = Inbound.Instances.Where(x => x.Has(id)).OrderBy(x => x.PickTime(w, p)).FirstOrDefault();
                     if (inbound == null)
                     {
                         continue;
                     }
 
-                    float cost = EasyManager.PathLength(EasyManager.LookupPath(p, inbound.transform.position), p);
-                    if (cost >= bestCost)
+                    float cost = inbound.PickTime(w, p);
+                    if (cost >= bestInboundCost)
                     {
                         continue;
                     }
 
-                    bestCost = cost;
+                    bestInboundCost = cost;
                     bestInbound = inbound;
-                    bestId = id;
+                    bestInboundId = id;
                 }
-
-                if (bestInbound == null)
-                {
-                    continue;
-                }
-
-                Log($"Found item type {bestId} at {bestInbound.name}.");
-                w.SetId(bestId);
-                return bestInbound;
             }
 
             // Check to see if any storages have a needed part.
+            Storage bestStorage = null;
+            int bestStorageId = -1;
+            float bestStorageCost = float.MaxValue;
             foreach (Outbound outbound in outbounds)
             {
-                float bestCost = float.MaxValue;
-                Storage bestStorage = null;
-                int bestId = -1;
-
                 int[] ids = outbound.Requirements();
+                Vector3 p = outbound.transform.position;
                 foreach (int id in ids)
                 {
-                    Storage storage = Storage.Instances.Where(x => x.Available(w) && x.Has(id)).OrderBy(x => x.Cost).ThenBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, x.MoveTarget), p)).FirstOrDefault();
+                    Storage storage = Storage.Instances.Where(x => x.Available(w) && x.Has(id)).OrderBy(x => x.PickTime(w, p)).FirstOrDefault();
                     if (storage == null)
                     {
                         continue;
                     }
-                    
-                    float cost = EasyManager.PathLength(EasyManager.LookupPath(p, storage.MoveTarget), p) + storage.Cost;
-                    if (cost >= bestCost)
+
+                    float cost = storage.PickTime(w, p);
+                    if (cost >= bestStorageCost)
                     {
                         continue;
                     }
                     
-                    bestCost = cost;
+                    bestStorageCost = cost;
                     bestStorage = storage;
-                    bestId = id;
+                    bestStorageId = id;
                 }
+            }
 
-                if (bestStorage == null)
+            if (bestStorage == null)
+            {
+                if (bestInbound != null)
                 {
-                    continue;
+                    Log($"Found item type {bestInboundId} at {bestInbound.name}.");
+                    w.SetId(bestInboundId);
+                    return bestInbound;
+                }
+            }
+            else
+            {
+                if (bestInbound == null)
+                {
+                    Log($"Found item type {bestStorageId} at {bestStorage.name}.");
+                    w.SetId(bestStorageId);
+                    return bestStorage;
                 }
 
-                Log($"Found item type {bestId} at {bestStorage.name}.");
-                w.SetId(bestId);
-                return bestStorage;
+                if (bestInboundCost < bestStorageCost)
+                {
+                    Log($"Found item type {bestInboundId} at {bestInbound.name}.");
+                    w.SetId(bestInboundId);
+                    return bestInbound;
+                }
+                else
+                {
+                    Log($"Found item type {bestStorageId} at {bestStorage.name}.");
+                    w.SetId(bestStorageId);
+                    return bestStorage;
+                }
             }
 
             // Move towards the nearest inbound if there are no needed parts.
             Log("No particular IDs needed.");
             w.SetId(-1);
-            Inbound anyInbound = Inbound.Instances.OrderBy(x => x.Empty).ThenByDescending(x => x.ElapsedTime).ThenBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, x.transform.position), p)).FirstOrDefault();
+            Inbound anyInbound = Inbound.Instances.OrderBy(x => x.Empty).ThenByDescending(x => x.ElapsedTime).ThenBy(x => x.PickTime(agent, x.transform.position)).FirstOrDefault();
             Log(anyInbound == null ? "No inbounds to collect from." : $"No order, going to {anyInbound.name}.");
             return anyInbound;
         }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using EasyAI;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -146,6 +147,20 @@ namespace Warehouse
 
             ElapsedTime = 0;
             WarehouseAgent.WarehouseUpdated(this);
+        }
+
+        /// <summary>
+        /// How long it would for this agent to pick up from this and then deliver to a spot to place it.
+        /// </summary>
+        /// <param name="agent">The agent.</param>
+        /// <param name="place">The place to deliver to.</param>
+        /// <returns>The time it would take an agent to collect from this and deliver it to the outbound.</returns>
+        public float PickTime(EasyAgent agent, Vector3 place)
+        {
+            Vector3 position = agent.transform.position;
+            Vector3 storage = transform.position;
+            float pickup = EasyManager.PathLength(EasyManager.LookupPath(position, storage), position) / agent.moveSpeed;
+            return pickup + EasyManager.PathLength(EasyManager.LookupPath(storage, place), storage) / agent.moveSpeed;
         }
 
         /// <summary>

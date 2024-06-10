@@ -37,7 +37,7 @@ namespace Warehouse
         /// </summary>
         [Header("Parameters")]
         [Tooltip("The number of workers for the warehouse.")]
-        [Range(1, 12)]
+        [Min(1)]
         [SerializeField]
         private int workers = 12;
 
@@ -157,6 +157,14 @@ namespace Warehouse
             }
             
             y = NextItem(y, h, p);
+            
+            if (GuiButton(x, y, w, h, "Add Worker"))
+            {
+                workers++;
+                ResetLevel();
+            }
+                
+            y = NextItem(y, h, p);
 
             if (workers > 1)
             {
@@ -172,21 +180,7 @@ namespace Warehouse
                 }
                 
                 y = NextItem(y, h, p);
-            }
-            
-            if (workers < 12)
-            {
-                if (GuiButton(x, y, w, h, "Add Worker"))
-                {
-                    workers++;
-                    ResetLevel();
-                }
                 
-                y = NextItem(y, h, p);
-            }
-
-            if (workers > 1)
-            {
                 if (GuiButton(x, y, w, h, Roles ? "Disable Roles" : "Enable Roles"))
                 {
                     Roles = !Roles;
@@ -213,10 +207,9 @@ namespace Warehouse
         /// </summary>
         private void ResetLevel()
         {
-            WarehouseAgent[] current = FindObjectsByType<WarehouseAgent>(FindObjectsSortMode.None);
-            for (int i = 0; i < current.Length; i++)
+            foreach (WarehouseAgent agent in WarehouseAgent.Instances)
             {
-                Destroy(current[i].gameObject);
+                Destroy(agent.gameObject);
             }
             
             foreach (Storage storage in Storage.Instances)

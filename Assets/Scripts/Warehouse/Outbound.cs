@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using EasyAI;
 using Unity.Mathematics;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -97,6 +98,17 @@ namespace Warehouse
             agent.AddOrderScore();
             WarehouseAgent.WarehouseUpdated(this);
             return true;
+        }
+
+        /// <summary>
+        /// Get the time it would take to place a part at this location.
+        /// </summary>
+        /// <param name="agent">The agent placing the part.</param>
+        /// <returns>The time it would take to place a part at this location.</returns>
+        public float PlaceTime(EasyAgent agent)
+        {
+            Vector3 position = agent.transform.position;
+            return EasyManager.PathLength(EasyManager.LookupPath(position, transform.position), position) / agent.moveSpeed;
         }
 
         /// <summary>

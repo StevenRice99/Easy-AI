@@ -1,4 +1,5 @@
-﻿using EasyAI;
+﻿using System.Collections.Generic;
+using EasyAI;
 using UnityEngine;
 
 namespace Warehouse
@@ -9,6 +10,11 @@ namespace Warehouse
     [DisallowMultipleComponent]
     public class WarehouseAgent : EasyTransformAgent
     {
+        /// <summary>
+        /// All warehouse agent instances.
+        /// </summary>
+        public static readonly HashSet<WarehouseAgent> Instances = new();
+        
         /// <summary>
         /// The score to add an item to an order.
         /// </summary>
@@ -282,6 +288,26 @@ namespace Warehouse
         public void AddStoreScore()
         {
             Score += ScoreStore;
+        }
+
+        /// <summary>
+        /// This function is called when the object becomes enabled and active.
+        /// </summary>
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+
+            Instances.Add(this);
+        }
+
+        /// <summary>
+        /// This function is called when the behaviour becomes disabled.
+        /// </summary>
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+
+            Instances.Remove(this);
         }
     }
 }
