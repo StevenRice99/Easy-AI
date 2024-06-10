@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using EasyAI;
 using UnityEngine;
 
@@ -79,12 +80,12 @@ namespace Warehouse.Sensors
                 {
                     foreach (int id in ids[i])
                     {
-                        if (!Storage.Options.ContainsKey(id))
+                        if (!Storage.PickOptions.TryGetValue(id, out HashSet<Storage> option))
                         {
                             continue;
                         }
                     
-                        Storage storage = Storage.Options[id].Where(x => x.Available(w) && x.Has(id)).OrderBy(x => x.PickTime(p, d[i], w.moveSpeed)).FirstOrDefault();
+                        Storage storage = option.Where(x => x.Available(w) && x.Has(id)).OrderBy(x => x.PickTime(p, d[i], w.moveSpeed)).FirstOrDefault();
                         if (storage == null)
                         {
                             continue;

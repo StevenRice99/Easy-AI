@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using EasyAI;
 using UnityEngine;
 
@@ -41,9 +42,15 @@ namespace Warehouse.Sensors
             }
 
             // If no outbound locations need it, store it.
-            Storage storage = Storage.Instances.Where(x => x.Available(w) && x.CanTake(w.Id)).OrderBy(x => x.PlaceTime(p, w.moveSpeed)).FirstOrDefault();
-            Log(storage == null ? $"No storage can hold {w.Id}." : $"{storage.name} can hold {w.Id}.");
-            return storage;
+            if (Storage.PlaceOptions.TryGetValue(w.Id, out HashSet<Storage> option))
+            {
+                Storage storage = option.Where(x => x.Available(w)).OrderBy(x => x.PlaceTime(p, w.moveSpeed)).FirstOrDefault();
+                Log(storage == null ? $"No storage can hold {w.Id}." : $"{storage.name} can hold {w.Id}.");
+                return storage;
+            }
+            
+            Log($"No storage can hold {w.Id}.");
+            return null;
         }
     }
 }

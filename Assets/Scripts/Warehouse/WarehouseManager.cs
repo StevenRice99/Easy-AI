@@ -218,6 +218,7 @@ namespace Warehouse
                 Destroy(agents[i].gameObject);
             }
             
+            Storage.PickOptions.Clear();
             foreach (Storage storage in Storage.Instances)
             {
                 storage.ResetObject();

@@ -17,7 +17,15 @@ namespace Warehouse
         /// </summary>
         public static readonly HashSet<Storage> Instances = new();
 
-        public static Dictionary<int, HashSet<Storage>> Options = new();
+        /// <summary>
+        /// Locations you can place certain IDs.
+        /// </summary>
+        public static readonly Dictionary<int, HashSet<Storage>> PlaceOptions = new();
+
+        /// <summary>
+        /// Locations you can pick certain IDs.
+        /// </summary>
+        public static readonly Dictionary<int, HashSet<Storage>> PickOptions = new();
 
         /// <summary>
         /// How much does interacting take scaled with the Y position of this storage.
@@ -103,33 +111,62 @@ namespace Warehouse
             }
         }
 
+        /// <summary>
+        /// Set new IDs for this to use.
+        /// </summary>
+        /// <param name="set">The new IDs to set.</param>
         public void UpdateIds(int[] set)
         {
             foreach (int id in ids)
             {
-                if (!Options.ContainsKey(id) || !Options[id].Contains(this))
+                if (!PlaceOptions.ContainsKey(id) || !PlaceOptions[id].Contains(this))
                 {
                     continue;
                 }
 
-                Options[id].Remove(this);
-                if (Options[id].Count < 1)
+                PlaceOptions[id].Remove(this);
+                if (PlaceOptions[id].Count < 1)
                 {
-                    Options.Remove(id);
+                    PlaceOptions.Remove(id);
                 }
             }
 
             ids = set;
-            
+
+            if (!Empty && !ids.Contains(_part.ID))
+            {
+                if (PickOptions.TryGetValue(_part.ID, out HashSet<Storage> option))
+                {
+                    option.Remove(this);
+                    if (option.Count < 1)
+                    {
+                        PickOptions.Remove(_part.ID);
+                    }
+                }
+                
+                Destroy(_part.gameObject);
+            }
+
+            if (Empty)
+            {
+                UpdatePlaceable();
+            }
+        }
+
+        /// <summary>
+        /// Indicate that this is now placeable.
+        /// </summary>
+        private void UpdatePlaceable()
+        {
             foreach (int id in ids)
             {
-                if (Options.ContainsKey(id))
+                if (PlaceOptions.TryGetValue(id, out HashSet<Storage> placeable))
                 {
-                    Options[id].Add(this);
+                    placeable.Add(this);
                 }
                 else
                 {
-                    Options[id] = new() {this};
+                    PlaceOptions[id] = new() {this};
                 }
             }
         }
@@ -228,6 +265,24 @@ namespace Warehouse
             _part.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             _interacting = null;
             _interactingTime = 0;
+
+            for (int i = 0; i < ids.Length; i++)
+            {
+                if (PlaceOptions.ContainsKey(ids[i]))
+                {
+                    PlaceOptions[ids[i]].Remove(this);
+                }
+            }
+            
+            if (PickOptions.TryGetValue(_part.ID, out HashSet<Storage> option))
+            {
+                option.Add(this);
+            }
+            else
+            {
+                PickOptions[_part.ID] = new() { this };
+            }
+            
             WarehouseAgent.WarehouseUpdated(this);
             return true;
         }
@@ -261,11 +316,23 @@ namespace Warehouse
                 return false;
             }
 
+            if (PickOptions.TryGetValue(_part.ID, out HashSet<Storage> option))
+            {
+                option.Remove(this);
+                if (option.Count < 1)
+                {
+                    PickOptions.Remove(_part.ID);
+                }
+            }
+            
             _part.transform.parent = agent.HoldLocation;
             _part.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             _part = null;
             _interacting = null;
             _interactingTime = 0;
+
+            UpdatePlaceable();
+            
             WarehouseAgent.WarehouseUpdated(this);
             return true;
         }
@@ -307,6 +374,8 @@ namespace Warehouse
             {
                 Destroy(_part.gameObject);
             }
+            
+            UpdatePlaceable();
 
             _interacting = null;
             _interactingTime = 0;
