@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Unity.Mathematics;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -24,12 +25,11 @@ namespace Warehouse
         private int[] options = { };
 
         /// <summary>
-        /// The maximum options that can be required for this order.
+        /// The minimum and maximum order options that can be required for the order.
         /// </summary>
-        [Tooltip("The maximum options that can be required for this order.")]
-        [Min(1)]
+        [Tooltip("The minimum and maximum order options that can be required for the order.")]
         [SerializeField]
-        private int max = 1;
+        private int2 range = new(3, 3);
 
         /// <summary>
         /// The amount of time before a new order comes in.
@@ -89,7 +89,7 @@ namespace Warehouse
                 }
             }
 
-            if (_requirements.Count == 0)
+            if (_requirements.Count < 1)
             {
                 WarehouseManager.OrderCompleted();
             }
@@ -145,7 +145,7 @@ namespace Warehouse
         /// </summary>
         private void CreateOrder()
         {
-            int number = Random.Range(1, max + 1);
+            int number = Random.Range(range.x, range.y + 1);
             for (int i = 0; i < number; i++)
             {
                 int option = options[Random.Range(0, options.Length)];
@@ -166,6 +166,24 @@ namespace Warehouse
         {
             _requirements.Clear();
             _elapsedTime = delay;
+        }
+
+        private void OnValidate()
+        {
+            if (range.x < 1)
+            {
+                range.x = 1;
+            }
+
+            if (range.y < 1)
+            {
+                range.y = 1;
+            }
+
+            if (range.x > range.y)
+            {
+                (range.x, range.y) = (range.y, range.x);
+            }
         }
     }
 }

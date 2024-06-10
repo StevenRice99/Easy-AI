@@ -79,6 +79,12 @@ namespace Warehouse
             }
             
             _parts.Remove(part);
+
+            if (_parts.Count < 1)
+            {
+                WarehouseManager.ShipmentsUnloaded();
+            }
+            
             WarehouseAgent.WarehouseUpdated(this);
             return true;
         }
