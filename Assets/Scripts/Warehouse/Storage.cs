@@ -22,6 +22,13 @@ namespace Warehouse
         [Min(0)]
         [SerializeField]
         private float interactTimeScale = 1;
+
+        /// <summary>
+        /// The height offset to account for
+        /// </summary>
+        [Tooltip("The height offset to account for.")]
+        [SerializeField]
+        private float offset = 0.7f;
         
         /// <summary>
         /// The types of parts that can be stored here.
@@ -44,7 +51,7 @@ namespace Warehouse
         /// <summary>
         /// How much it costs to access this.
         /// </summary>
-        public float Cost => transform.position.y;
+        public float Cost => transform.position.y - offset;
         
         /// <summary>
         /// The part currently being stored.
