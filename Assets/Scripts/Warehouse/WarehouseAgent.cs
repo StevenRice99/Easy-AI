@@ -1,5 +1,4 @@
 ﻿using EasyAI;
-using Unity.Mathematics;
 using UnityEngine;
 
 namespace Warehouse
@@ -8,7 +7,7 @@ namespace Warehouse
     /// Agents to work in a warehouse.
     /// </summary>
     [DisallowMultipleComponent]
-    public class WarehouseAgent : EasyTransformAgent, IReset
+    public class WarehouseAgent : EasyTransformAgent
     {
         /// <summary>
         /// The score to add an item to an order.
@@ -39,11 +38,6 @@ namespace Warehouse
         /// The score of this agent.
         /// </summary>
         public int Score { get; private set; }
-
-        /// <summary>
-        /// The location the agent starts in.
-        /// </summary>
-        private Vector3 _startPosition;
 
         /// <summary>
         /// If the agent currently has a part.
@@ -288,31 +282,6 @@ namespace Warehouse
         public void AddStoreScore()
         {
             Score += ScoreStore;
-        }
-
-        /// <summary>
-        /// Reset this object.
-        /// </summary>
-        public void ResetObject()
-        {
-            if (_part != null)
-            {
-                Destroy(_part.gameObject);
-            }
-
-            Score = 0;
-            
-            StopMoving();
-            Target = null;
-            transform.SetPositionAndRotation(_startPosition, quaternion.identity);
-        }
-
-        /// <summary>
-        /// Start is called on the frame when a script is enabled just before any of the Update methods are called the first time.
-        /// </summary>
-        private void Start()
-        {
-            _startPosition = transform.position;
         }
     }
 }

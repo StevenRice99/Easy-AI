@@ -1,9 +1,36 @@
 ﻿using EasyAI;
+using Unity.Mathematics;
+using UnityEngine;
 
 namespace Warehouse
 {
+    /// <summary>
+    /// Control the warehouse simulation.
+    /// </summary>
     public class WarehouseManager : EasyManager
     {
+        /// <summary>
+        /// The prefab for the warehouse agent.
+        /// </summary>
+        [Tooltip("The prefab for the warehouse agent.")]
+        [SerializeField]
+        private WarehouseAgent warehouseAgentPrefab;
+
+        /// <summary>
+        /// Locations to spawn agents at.
+        /// </summary>
+        [Tooltip("Locations to spawn agents at.")]
+        [SerializeField]
+        private Transform[] spawnPoints;
+
+        /// <summary>
+        /// The number of workers for the warehouse.
+        /// </summary>
+        [Tooltip("The number of workers for the warehouse.")]
+        [Range(1, 12)]
+        [SerializeField]
+        private int workers = 12;
+        
         /// <summary>
         /// Keep track of the number of orders completed.
         /// </summary>
@@ -49,8 +76,39 @@ namespace Warehouse
             {
                 ResetLevel();
             }
+            
+            y = NextItem(y, h, p);
 
-            return NextItem(y, h, p);
+            if (workers > 1)
+            {
+                if (GuiButton(x, y, w, h, "Remove Worker"))
+                {
+                    workers--;
+                    ResetLevel();
+                }
+                
+                y = NextItem(y, h, p);
+            }
+            
+            if (workers < 12)
+            {
+                if (GuiButton(x, y, w, h, "Add Worker"))
+                {
+                    workers++;
+                    ResetLevel();
+                }
+                
+                y = NextItem(y, h, p);
+            }
+
+            return y;
+        }
+
+        protected override void Start()
+        {
+            base.Start();
+
+            ResetLevel();
         }
 
         /// <summary>
@@ -58,6 +116,12 @@ namespace Warehouse
         /// </summary>
         private void ResetLevel()
         {
+            WarehouseAgent[] current = FindObjectsByType<WarehouseAgent>(FindObjectsSortMode.None);
+            for (int i = 0; i < current.Length; i++)
+            {
+                Destroy(current[i].gameObject);
+            }
+            
             foreach (Storage storage in Storage.Instances)
             {
                 storage.ResetObject();
@@ -72,16 +136,14 @@ namespace Warehouse
             {
                 outbound.ResetObject();
             }
-            
-            foreach (EasyAgent agent in Agents)
-            {
-                if (agent is WarehouseAgent w)
-                {
-                    w.ResetObject();
-                }
-            }
 
             _orderedCompleted = 0;
+
+            for (int i = 0; i < workers; i++)
+            {
+                WarehouseAgent agent = Instantiate(warehouseAgentPrefab, spawnPoints[i].position, quaternion.identity);
+                agent.name = $"Worker {i + 1:D2}";
+            }
         }
     }
 }
