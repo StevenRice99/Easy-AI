@@ -183,6 +183,31 @@ namespace Warehouse
         }
 
         /// <summary>
+        /// Check if this can take a part with an ID.
+        /// </summary>
+        /// <param name="agent">The agent.</param>
+        /// <param name="id">The ID to check for.</param>
+        /// <returns>True if it can take a part with the ID, false otherwise.</returns>
+        public bool PlaceAvailable(WarehouseAgent agent, int id) => (_interacting == null || IsInteracting(agent)) && Empty && ids.Contains(id);
+
+        /// <summary>
+        /// Claim an ID for an agent.
+        /// </summary>
+        /// <param name="agent">The agent.</param>
+        /// <param name="id"></param>
+        /// <returns>True if it can be claimed, false otherwise.</returns>
+        public bool PlaceClaim(WarehouseAgent agent, int id)
+        {
+            if (!PlaceAvailable(agent, id))
+            {
+                return false;
+            }
+
+            _interacting = agent;
+            return true;
+        }
+
+        /// <summary>
         /// How long it would for this agent to pick up from this and then deliver to a spot to place it.
         /// </summary>
         /// <param name="position">The position the picker is currently at.</param>
@@ -197,25 +222,37 @@ namespace Warehouse
         }
 
         /// <summary>
-        /// Check if this has a part with an ID.
+        /// Check if this has a part with an ID that is available.
         /// </summary>
+        /// <param name="agent">The agent.</param>
         /// <param name="id">The ID to check for.</param>
         /// <returns>True if it has a part with the ID, false otherwise.</returns>
-        public bool Has(int id) => !Empty && _part.ID == id;
+        public bool PickAvailable(WarehouseAgent agent, int id)
+        {
+            if (Empty || _part.ID != id)
+            {
+                return false;
+            }
 
+            return _interacting == null || IsInteracting(agent);
+        }
+        
         /// <summary>
-        /// Check if this can store a part with an ID.
+        /// Claim an ID for an agent.
         /// </summary>
-        /// <param name="id">The ID to check for.</param>
-        /// <returns>True if it can store a part with the ID, false otherwise.</returns>
-        public bool CanTake(int id) => Empty && ids.Contains(id);
+        /// <param name="agent">The agent.</param>
+        /// <param name="id"></param>
+        /// <returns>True if it can be claimed, false otherwise.</returns>
+        public bool PickClaim(WarehouseAgent agent, int id)
+        {
+            if (!PickAvailable(agent, id))
+            {
+                return false;
+            }
 
-        /// <summary>
-        /// Check if this storage is available or not.
-        /// </summary>
-        /// <param name="agent">The agent checking.</param>
-        /// <returns>True if it is available, false otherwise.</returns>
-        public bool Available(WarehouseAgent agent) => _interacting == null || IsInteracting(agent);
+            _interacting = agent;
+            return true;
+        }
         
         /// <summary>
         /// Check if this storage is currently being interacted with.
@@ -231,18 +268,7 @@ namespace Warehouse
         /// <returns>True if the part was added, false otherwise.</returns>
         public bool Place(WarehouseAgent agent)
         {
-            if (!agent.HasPart || !CanTake(agent.Id))
-            {
-                return false;
-            }
-
-            if (_interacting == null)
-            {
-                _interacting = agent;
-                _interactingTime = 0;
-                WarehouseAgent.WarehouseUpdated(this);
-            }
-            else if (_interacting != agent)
+            if (!agent.HasPart || !PlaceAvailable(agent, agent.Id))
             {
                 return false;
             }
@@ -283,7 +309,6 @@ namespace Warehouse
                 PickOptions[_part.ID] = new() { this };
             }
             
-            WarehouseAgent.WarehouseUpdated(this);
             return true;
         }
 
@@ -303,7 +328,6 @@ namespace Warehouse
             {
                 _interacting = agent;
                 _interactingTime = 0;
-                WarehouseAgent.WarehouseUpdated(this);
             }
             else if (_interacting != agent)
             {
@@ -333,7 +357,6 @@ namespace Warehouse
 
             UpdatePlaceable();
             
-            WarehouseAgent.WarehouseUpdated(this);
             return true;
         }
 

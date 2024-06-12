@@ -6,7 +6,7 @@ namespace Warehouse
     /// Warehouse parts for agents to work with.
     /// </summary>
     [DisallowMultipleComponent]
-    public class Part : MonoBehaviour, IReset
+    public class Part : MonoBehaviour
     {
         /// <summary>
         /// The ID for this part.
@@ -15,13 +15,5 @@ namespace Warehouse
         [field: Min(0)]
         [field: SerializeField]
         public int ID { get; private set; }
-
-        /// <summary>
-        /// Reset this object.
-        /// </summary>
-        public void ResetObject()
-        {
-            
-        }
     }
 }

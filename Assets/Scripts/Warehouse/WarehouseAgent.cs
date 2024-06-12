@@ -124,27 +124,6 @@ namespace Warehouse
         private Part _part;
 
         /// <summary>
-        /// The warehouse has been updated.
-        /// </summary>
-        /// <param name="target">The target that has changed.</param>
-        public static void WarehouseUpdated(MonoBehaviour target)
-        {
-            foreach (EasyAgent agent in EasyManager.CurrentAgents)
-            {
-                if (agent is not WarehouseAgent w)
-                {
-                    continue;
-                }
-
-                // If this agent was in relation to this target or has no specific goal, remove target to force it to find a new one.
-                if (w.Id < 0 || w.Target == target)
-                {
-                    w.SetTarget();
-                }
-            }
-        }
-
-        /// <summary>
         /// Set the target for the agent.
         /// </summary>
         /// <param name="target">The target to pick up from or place down at.</param>
@@ -168,7 +147,7 @@ namespace Warehouse
             
             if (HasPart)
             {
-                if (target is not IPlace)
+                if (target is not IPlace place || !place.PlaceClaim(this, Id))
                 {
                     Log("Cannot go to a picking only position with a part.");
                     Target = null;
@@ -190,7 +169,7 @@ namespace Warehouse
                 return;
             }
 
-            if (target is not IPick)
+            if (target is not IPick pick || !pick.PickClaim(this, Id))
             {
                 Log("Cannot go to a placing only position without a part.");
                 Target = null;

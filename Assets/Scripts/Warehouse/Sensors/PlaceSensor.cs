@@ -31,9 +31,9 @@ namespace Warehouse.Sensors
             Vector3 p = w.transform.position;
 
             // Look for outbound locations that need this first.
-            if (!WarehouseManager.UseRoles || !w.Inbound)
+            if (!WarehouseManager.Roles || !w.Inbound)
             {
-                Outbound outbound = Outbound.Instances.Where(x => x.Requires(w.Id)).OrderBy(x => x.PlaceTime(p, w.moveSpeed)).FirstOrDefault();
+                Outbound outbound = Outbound.Instances.Where(x => x.PlaceAvailable(w, w.Id)).OrderBy(x => x.PlaceTime(p, w.moveSpeed)).FirstOrDefault();
                 if (outbound != null)
                 {
                     Log($"{outbound.name} needs {w.Id}.");
@@ -44,7 +44,7 @@ namespace Warehouse.Sensors
             // If no outbound locations need it, store it.
             if (Storage.PlaceOptions.TryGetValue(w.Id, out HashSet<Storage> option))
             {
-                Storage storage = option.Where(x => x.Available(w)).OrderBy(x => x.PlaceTime(p, w.moveSpeed)).FirstOrDefault();
+                Storage storage = option.Where(x => x.PlaceAvailable(w, w.Id)).OrderBy(x => x.PlaceTime(p, w.moveSpeed)).FirstOrDefault();
                 Log(storage == null ? $"No storage can hold {w.Id}." : $"{storage.name} can hold {w.Id}.");
                 return storage;
             }

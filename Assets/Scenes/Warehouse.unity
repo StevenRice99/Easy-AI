@@ -479,15 +479,16 @@ MonoBehaviour:
   agentRadius: 0.5
   maxMessages: 100
   detailsWidth: 500
-  controlsWidth: 120
-  followBest: 1
+  controlsWidth: 160
+  followBest: 0
   selectedCamera: {fileID: 412457271}
   paths: 2
   warehouseAgentPrefab: {fileID: 743630815198840962, guid: f42d0debe21da7242b70b8d49a951997, type: 3}
   inboundSpawn: {fileID: 1105105586}
   outboundSpawn: {fileID: 348628784}
   workers: 12
-  <Roles>k__BackingField: 1
+  roles: 0
+  communication: 0
 --- !u!1 &880303307
 GameObject:
   m_ObjectHideFlags: 0

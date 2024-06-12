@@ -46,6 +46,11 @@ namespace Warehouse
         private readonly Dictionary<int, int> _requirements = new();
 
         /// <summary>
+        /// The requirements which have yet to be claimed by a worker to complete.
+        /// </summary>
+        private readonly Dictionary<int, int> _available = new();
+
+        /// <summary>
         /// How much time has passed since the previous order was completed.
         /// </summary>
         private float _elapsedTime;
@@ -53,20 +58,44 @@ namespace Warehouse
         /// <summary>
         /// If this order is currently active.
         /// </summary>
-        public bool Active => _requirements.Count > 0;
+        public bool Active => _available.Count > 0;
 
         /// <summary>
         /// Get all requirement types.
         /// </summary>
         /// <returns>The required types.</returns>
-        public int[] Requirements() => _requirements.Select(x => x.Key).ToArray();
+        public int[] AllAvailable() => _available.Select(x => x.Key).ToArray();
 
         /// <summary>
-        /// Check if this requires an ID.
+        /// Check if this can take a part with an ID.
         /// </summary>
-        /// <param name="id">The ID to check.</param>
-        /// <returns>True if this required the ID, false otherwise.</returns>
-        public bool Requires(int id) => _requirements.ContainsKey(id);
+        /// <param name="agent">The agent.</param>
+        /// <param name="id">The ID to check for.</param>
+        /// <returns>True if it can take a part with the ID, false otherwise.</returns>
+        public bool PlaceAvailable(WarehouseAgent agent, int id) => _available.ContainsKey(id);
+
+        /// <summary>
+        /// Claim an ID for an agent.
+        /// </summary>
+        /// <param name="agent">The agent.</param>
+        /// <param name="id"></param>
+        /// <returns>True if it can be claimed, false otherwise.</returns>
+        public bool PlaceClaim(WarehouseAgent agent, int id)
+        {
+            if (!PlaceAvailable(agent, id))
+            {
+                return false;
+            }
+            
+            _available[id]--;
+
+            if (_available[id] < 1)
+            {
+                _available.Remove(id);
+            }
+
+            return true;
+        }
 
         /// <summary>
         /// Place a part at this location.
@@ -96,7 +125,6 @@ namespace Warehouse
             }
             
             agent.AddOrderScore();
-            WarehouseAgent.WarehouseUpdated(this);
             return true;
         }
 
@@ -157,6 +185,9 @@ namespace Warehouse
         /// </summary>
         private void CreateOrder()
         {
+            _requirements.Clear();
+            _available.Clear();
+            
             int number = Random.Range(range.x, range.y + 1);
             for (int i = 0; i < number; i++)
             {
@@ -164,11 +195,15 @@ namespace Warehouse
                 if (!_requirements.TryAdd(option, 1))
                 {
                     _requirements[option]++;
+                    _available[option]++;
+                }
+                else
+                {
+                    _available.Add(option, 1);
                 }
             }
 
             _elapsedTime = 0;
-            WarehouseAgent.WarehouseUpdated(this);
         }
 
         /// <summary>
@@ -177,6 +212,7 @@ namespace Warehouse
         public void ResetObject()
         {
             _requirements.Clear();
+            _available.Clear();
             _elapsedTime = delay;
         }
 

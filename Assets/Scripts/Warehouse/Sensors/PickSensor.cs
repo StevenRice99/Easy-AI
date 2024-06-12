@@ -37,7 +37,7 @@ namespace Warehouse.Sensors
             Vector3[] d = new Vector3[outbounds.Length];
             for (int i = 0; i < outbounds.Length; i++)
             {
-                ids[i] = outbounds[i].Requirements();
+                ids[i] = outbounds[i].AllAvailable();
                 d[i] = outbounds[i].transform.position;
             }
             
@@ -45,13 +45,13 @@ namespace Warehouse.Sensors
             Inbound bestInbound = null;
             int bestInboundId = -1;
             float bestInboundCost = float.MaxValue;
-            if (!WarehouseManager.UseRoles)
+            if (!WarehouseManager.Roles)
             {
                 for (int i = 0; i < outbounds.Length; i++)
                 {
                     foreach (int id in ids[i])
                     {
-                        Inbound inbound = Inbound.Instances.Where(x => x.Has(id)).OrderBy(x => x.PickTime(p, d[i], w.moveSpeed)).FirstOrDefault();
+                        Inbound inbound = Inbound.Instances.Where(x => x.PickAvailable(w, id)).OrderBy(x => x.PickTime(p, d[i], w.moveSpeed)).FirstOrDefault();
                         if (inbound == null)
                         {
                             continue;
@@ -74,7 +74,7 @@ namespace Warehouse.Sensors
             Storage bestStorage = null;
             int bestStorageId = -1;
             float bestStorageCost = float.MaxValue;
-            if (!WarehouseManager.UseRoles || !w.Inbound)
+            if (!WarehouseManager.Roles || !w.Inbound)
             {
                 for (int i = 0; i < outbounds.Length; i++)
                 {
@@ -85,7 +85,7 @@ namespace Warehouse.Sensors
                             continue;
                         }
                     
-                        Storage storage = option.Where(x => x.Available(w) && x.Has(id)).OrderBy(x => x.PickTime(p, d[i], w.moveSpeed)).FirstOrDefault();
+                        Storage storage = option.Where(x => x.PickAvailable(w, id)).OrderBy(x => x.PickTime(p, d[i], w.moveSpeed)).FirstOrDefault();
                         if (storage == null)
                         {
                             continue;
@@ -136,14 +136,26 @@ namespace Warehouse.Sensors
 
             // Move towards the nearest inbound if there are no needed parts.
             w.SetId(-1);
-            if (WarehouseManager.UseRoles && !w.Inbound)
+            if (WarehouseManager.Roles && !w.Inbound)
             {
                 return null;
             }
 
-            Inbound anyInbound = Inbound.Instances.Where(x => !x.Empty).OrderBy(x => x.PickTime(p, x.transform.position, w.moveSpeed)).FirstOrDefault();
-            Log(anyInbound == null ? "No inbounds to collect from." : $"No order, will unload {anyInbound.name}.");
-            return anyInbound;
+            foreach (Inbound inbound in Inbound.Instances.Where(x => !x.Empty).OrderBy(x => x.PickTime(p, x.transform.position, w.moveSpeed)))
+            {
+                int id = inbound.GetRandom();
+                if (id < 0)
+                {
+                    continue;
+                }
+
+                Log($"No order, will unload {inbound.name}.");
+                w.SetId(id);
+                return inbound;
+            }
+
+            Log("No inbounds to collect from.");
+            return null;
         }
     }
 }

@@ -44,14 +44,26 @@ namespace Warehouse
         /// <summary>
         /// Whether roles should be used for worker tasks or not.
         /// </summary>
-        [field: Tooltip("Whether roles should be used for worker tasks or not.")]
-        [field: SerializeField]
-        public bool Roles { get; private set; }
+        [Tooltip("Whether roles should be used for worker tasks or not.")]
+        [SerializeField]
+        private bool roles;
+
+        /// <summary>
+        /// Whether agents can always communicate with each other, or terminals need to be used.
+        /// </summary>
+        [Tooltip("Whether agents can always communicate with each other, or terminals need to be used.")]
+        [SerializeField]
+        private bool communication;
 
         /// <summary>
         /// Whether roles should be used for worker tasks or not.
         /// </summary>
-        public static bool UseRoles => ((WarehouseManager)Singleton).Roles;
+        public static bool Roles => ((WarehouseManager)Singleton).roles;
+
+        /// <summary>
+        /// Whether agents can always communicate with each other, or terminals need to be used.
+        /// </summary>
+        public static bool Communication => ((WarehouseManager)Singleton).communication;
         
         /// <summary>
         /// Keep track of the number of orders completed.
@@ -99,7 +111,7 @@ namespace Warehouse
             int size = 5;
             if (workers > 1)
             {
-                size++;
+                size += 2;
             }
             
             GuiBox(x, y, w, h, p, size);
@@ -114,7 +126,10 @@ namespace Warehouse
             if (workers > 1)
             {
                 y = NextItem(y, h, p);
-                GuiLabel(x, y, w, h, p, Roles ? "Roles" : "No Roles");
+                GuiLabel(x, y, w, h, p, roles ? "Roles" : "No Roles");
+                
+                y = NextItem(y, h, p);
+                GuiLabel(x, y, w, h, p, communication ? "Communication" : "No Communication");
             }
 
             double minutes = seconds / 60;
@@ -178,7 +193,7 @@ namespace Warehouse
                     workers--;
                     if (workers == 1)
                     {
-                        Roles = false;
+                        roles = false;
                     }
                     
                     ResetLevel();
@@ -186,13 +201,26 @@ namespace Warehouse
                 
                 y = NextItem(y, h, p);
                 
-                if (GuiButton(x, y, w, h, Roles ? "Disable Roles" : "Enable Roles"))
+                if (GuiButton(x, y, w, h, roles ? "Disable Roles" : "Enable Roles"))
                 {
-                    Roles = !Roles;
+                    roles = !roles;
                     ResetLevel();
                 }
                 
                 y = NextItem(y, h, p);
+                
+                if (GuiButton(x, y, w, h, communication ? "Disable Communication" : "Enable Communication"))
+                {
+                    communication = !communication;
+                    ResetLevel();
+                }
+                
+                y = NextItem(y, h, p);
+            }
+            else
+            {
+                roles = false;
+                communication = false;
             }
 
             return y;
@@ -212,6 +240,12 @@ namespace Warehouse
         /// </summary>
         private void ResetLevel()
         {
+            if (workers < 2)
+            {
+                roles = false;
+                communication = false;
+            }
+            
             WarehouseAgent[] agents = WarehouseAgent.Instances.ToArray();
             for (int i = 0; i < agents.Length; i++)
             {
@@ -234,16 +268,22 @@ namespace Warehouse
                 outbound.ResetObject();
             }
 
+            foreach (InfoStation infoStation in InfoStation.Instances)
+            {
+                infoStation.ResetObject();
+            }
+
             _orderedCompleted = 0;
             _shipmentsUnloaded = 0;
             _startTime = Time.timeAsDouble;
 
             for (int i = 0; i < workers; i++)
             {
-                bool inbound = !Roles || i % 2 == 0;
+                bool inbound = !roles || i % 2 == 0;
                 Vector3 spawnPosition = inbound ? inboundSpawn.position : outboundSpawn.position;
                 WarehouseAgent agent = Instantiate(warehouseAgentPrefab, spawnPosition, quaternion.identity);
-                agent.name = $"Worker {i + 1:D2}";
+                string role = roles ? inbound ? " - Inbound" : " - Outbound" : string.Empty;
+                agent.name = $"Worker {i + 1:D2}{role}";
                 agent.Inbound = inbound;
             }
         }

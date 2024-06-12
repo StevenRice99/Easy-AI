@@ -22,5 +22,21 @@ namespace Warehouse
         /// <param name="speed">How fast the picker can move.</param>
         /// <returns>The time it would take an agent to collect from this and deliver it to the outbound.</returns>
         public float PickTime(Vector3 position, Vector3 place, float speed);
+
+        /// <summary>
+        /// Check if this has a part with an ID that is available.
+        /// </summary>
+        /// <param name="agent">The agent.</param>
+        /// <param name="id">The ID to check for.</param>
+        /// <returns>True if it has a part with the ID, false otherwise.</returns>
+        public bool PickAvailable(WarehouseAgent agent, int id);
+
+        /// <summary>
+        /// Claim an ID for an agent.
+        /// </summary>
+        /// <param name="agent">The agent.</param>
+        /// <param name="id"></param>
+        /// <returns>True if it can be claimed, false otherwise.</returns>
+        public bool PickClaim(WarehouseAgent agent, int id);
     }
 }

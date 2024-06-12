@@ -43,6 +43,11 @@ namespace Warehouse
         /// All parts this current has.
         /// </summary>
         private readonly List<Part> _parts = new();
+        
+        /// <summary>
+        /// All available parts that have not been claimed by any workers.
+        /// </summary>
+        private readonly Dictionary<int, int> _available = new();
 
         /// <summary>
         /// The amount of time since the last inbound shipment was fully collected.
@@ -55,16 +60,49 @@ namespace Warehouse
         public bool Empty => _parts.Count < 1;
 
         /// <summary>
-        /// Check if this has a part with an ID.
+        /// Get a random item which can be claimed.
         /// </summary>
-        /// <param name="id">The ID to check for.</param>
-        /// <returns>True if it has a part with the ID, false otherwise.</returns>
-        public bool Has(int id) => _parts.Any(x => x.ID == id);
+        /// <returns></returns>
+        public int GetRandom()
+        {
+            if (_available.Count < 1)
+            {
+                return -1;
+            }
+
+            return _available.Keys.ToArray()[Random.Range(0, _available.Keys.Count)];
+        }
 
         /// <summary>
-        /// The IDs of parts this has.
+        /// Check if this has a part with an ID that is available.
         /// </summary>
-        public int[] Ids => _parts.Select(x => x.ID).Distinct().ToArray();
+        /// <param name="agent">The agent.</param>
+        /// <param name="id">The ID to check for.</param>
+        /// <returns>True if it has a part with the ID, false otherwise.</returns>
+        public bool PickAvailable(WarehouseAgent agent, int id) => _available.Keys.Contains(id);
+
+        /// <summary>
+        /// Claim an ID for an agent.
+        /// </summary>
+        /// <param name="agent">The agent.</param>
+        /// <param name="id"></param>
+        /// <returns>True if it can be claimed, false otherwise.</returns>
+        public bool PickClaim(WarehouseAgent agent, int id)
+        {
+            if (!PickAvailable(agent, id))
+            {
+                return false;
+            }
+
+            _available[id]--;
+
+            if (_available[id] < 1)
+            {
+                _available.Remove(id);
+            }
+
+            return true;
+        }
 
         /// <summary>
         /// Pick a part to an agent.
@@ -91,7 +129,6 @@ namespace Warehouse
                 WarehouseManager.ShipmentsUnloaded();
             }
             
-            WarehouseAgent.WarehouseUpdated(this);
             return true;
         }
 
@@ -141,17 +178,27 @@ namespace Warehouse
         /// </summary>
         private void SpawnParts()
         {
+            for (int i = 0; i < _parts.Count; i++)
+            {
+                Destroy(_parts[i].gameObject);
+            }
+            
             _parts.Clear();
+            _available.Clear();
+            
             for (int i = 0; i < locations.Length; i++)
             {
                 Part part = Instantiate(prefabs[Random.Range(0, prefabs.Length)], locations[i], true);
                 _parts.Add(part);
                 part.name = $"Part {_parts[i].ID}";
                 part.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+                if (!_available.TryAdd(part.ID, 1))
+                {
+                    _available[part.ID]++;
+                }
             }
 
             ElapsedTime = 0;
-            WarehouseAgent.WarehouseUpdated(this);
         }
 
         /// <summary>
@@ -173,6 +220,8 @@ namespace Warehouse
         /// </summary>
         public void ResetObject()
         {
+            _available.Clear();
+            
             while (!Empty)
             {
                 Destroy(_parts[0].gameObject);
