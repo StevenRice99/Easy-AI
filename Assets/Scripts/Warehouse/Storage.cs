@@ -208,6 +208,21 @@ namespace Warehouse
         }
 
         /// <summary>
+        /// Release the claim on this.
+        /// </summary>
+        /// <param name="agent">The agent making the request.</param>
+        public void ReleaseClaim(WarehouseAgent agent)
+        {
+            if (!IsInteracting(agent))
+            {
+                return;
+            }
+
+            _interacting = null;
+            _interactingTime = 0;
+        }
+
+        /// <summary>
         /// How long it would for this agent to pick up from this and then deliver to a spot to place it.
         /// </summary>
         /// <param name="position">The position the picker is currently at.</param>
@@ -289,8 +304,7 @@ namespace Warehouse
             _part = part;
             _part.transform.parent = transform;
             _part.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-            _interacting = null;
-            _interactingTime = 0;
+            ReleaseClaim(agent);
 
             for (int i = 0; i < ids.Length; i++)
             {
@@ -352,8 +366,7 @@ namespace Warehouse
             _part.transform.parent = agent.HoldLocation;
             _part.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             _part = null;
-            _interacting = null;
-            _interactingTime = 0;
+            ReleaseClaim(agent);
 
             UpdatePlaceable();
             

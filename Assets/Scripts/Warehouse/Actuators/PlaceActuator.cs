@@ -34,7 +34,18 @@ namespace Warehouse.Actuators
             }
 
             Log("Placing down.");
-            return place.Place(w);
+            if (!place.Place(w))
+            {
+                return false;
+            }
+
+            if (WarehouseManager.Communication)
+            {
+                return true;
+            }
+
+            w.NeedsInfo = true;
+            return true;
         }
     }
 }

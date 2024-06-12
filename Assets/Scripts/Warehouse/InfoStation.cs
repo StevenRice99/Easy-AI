@@ -14,18 +14,13 @@ namespace Warehouse
         /// All info station instances.
         /// </summary>
         public static readonly HashSet<InfoStation> Instances = new();
-
+        
         /// <summary>
-        /// Where to move to for using this info station.
+        /// Whether this is for inbound or outbound agents.
         /// </summary>
-        [Tooltip("Where to move to for using this info station.")]
-        [SerializeField]
-        private Vector3 moveTarget;
-
-        /// <summary>
-        /// Where to move to for using this info station.
-        /// </summary>
-        public Vector3 MoveTarget => transform.position + moveTarget;
+        [field: Tooltip("Whether this is for inbound or outbound agents.")]
+        [field: SerializeField]
+        public bool Inbound { get; private set; }
         
         /// <summary>
         /// The visual meshes of this.
@@ -62,14 +57,6 @@ namespace Warehouse
             {
                 mesh.enabled = active;
             }
-        }
-
-        /// <summary>
-        /// Implement OnDrawGizmosSelected to draw a gizmo if the object is selected.
-        /// </summary>
-        private void OnDrawGizmosSelected()
-        {
-            Gizmos.DrawWireSphere(MoveTarget, 0.1f);
         }
     }
 }

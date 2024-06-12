@@ -55,7 +55,7 @@ namespace Warehouse
         /// <summary>
         /// The position to return to when idle.
         /// </summary>
-        private Vector2 _idlePosition;
+        private Vector3 _idlePosition;
 
         /// <summary>
         /// If the agent currently has a part.
@@ -85,6 +85,12 @@ namespace Warehouse
         /// The target to pick or place to or from.
         /// </summary>
         public MonoBehaviour Target { get; private set; }
+
+        /// <summary>
+        /// Whether this agent needs info or not.
+        /// </summary>
+        [NonSerialized]
+        public bool NeedsInfo;
 
         /// <summary>
         /// If the agent has a target.
@@ -289,6 +295,8 @@ namespace Warehouse
             base.OnEnable();
 
             Instances.Add(this);
+
+            NeedsInfo = !WarehouseManager.Communication;
         }
 
         /// <summary>

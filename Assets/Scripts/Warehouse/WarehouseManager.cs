@@ -21,16 +21,16 @@ namespace Warehouse
         /// <summary>
         /// The location to spawn inbound workers at.
         /// </summary>
-        [Tooltip("The location to spawn inbound workers at.")]
+        [Tooltip("The locations to spawn inbound workers at.")]
         [SerializeField]
-        private Transform inboundSpawn;
+        private Transform[] inboundSpawns;
 
         /// <summary>
         /// The location to spawn outbound workers at.
         /// </summary>
-        [Tooltip("The location to spawn outbound workers at.")]
+        [Tooltip("The locations to spawn outbound workers at.")]
         [SerializeField]
-        private Transform outboundSpawn;
+        private Transform[] outboundSpawns;
 
         /// <summary>
         /// The number of workers for the warehouse.
@@ -226,6 +226,9 @@ namespace Warehouse
             return y;
         }
 
+        /// <summary>
+        /// Start is called on the frame when a script is enabled just before any of the Update methods are called the first time.
+        /// </summary>
         protected override void Start()
         {
             base.Start();
@@ -277,10 +280,32 @@ namespace Warehouse
             _shipmentsUnloaded = 0;
             _startTime = Time.timeAsDouble;
 
+            int inboundLocation = 0;
+            int outboundLocation = 0;
+
             for (int i = 0; i < workers; i++)
             {
                 bool inbound = !roles || i % 2 == 0;
-                Vector3 spawnPosition = inbound ? inboundSpawn.position : outboundSpawn.position;
+                
+                Vector3 spawnPosition;
+                
+                if (inbound)
+                {
+                    spawnPosition = inboundSpawns[inboundLocation++].position;
+                    if (inboundLocation >= inboundSpawns.Length)
+                    {
+                        inboundLocation = 0;
+                    }
+                }
+                else
+                {
+                    spawnPosition = outboundSpawns[outboundLocation++].position;
+                    if (outboundLocation >= outboundSpawns.Length)
+                    {
+                        outboundLocation = 0;
+                    }
+                }
+                
                 WarehouseAgent agent = Instantiate(warehouseAgentPrefab, spawnPosition, quaternion.identity);
                 string role = roles ? inbound ? " - Inbound" : " - Outbound" : string.Empty;
                 agent.name = $"Worker {i + 1:D2}{role}";
