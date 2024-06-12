@@ -3,6 +3,9 @@ using System.Linq;
 using EasyAI;
 using Unity.Mathematics;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Warehouse
 {
@@ -199,7 +202,7 @@ namespace Warehouse
         /// <summary>
         /// Keep track of the number of orders completed.
         /// </summary>
-        private int _orderedCompleted;
+        private int _ordersCompleted;
 
         /// <summary>
         /// Keep track of the number of shipments unloaded.
@@ -214,19 +217,39 @@ namespace Warehouse
         /// <summary>
         /// The number of test runs which have been complete.
         /// </summary>
-        private int _runsComlplete;
+        private int _runsComplete;
+
+        /// <summary>
+        /// The case index for the current workers.
+        /// </summary>
+        private int _currentWorkersCase;
 
         /// <summary>
         /// The total time in seconds which all tests will take.
         /// </summary>
         private int _totalTime;
+
+        /// <summary>
+        /// The number of orders that have been complete at every second of this test.
+        /// </summary>
+        private int[] _testOrdersComplete;
+
+        /// <summary>
+        /// The number of shipments that have been unloaded at every second of this test.
+        /// </summary>
+        private int[] _testShipmentsUnloaded;
+
+        /// <summary>
+        /// The number of storages that are being used at this second of this test.
+        /// </summary>
+        private int[] _testStoragesUsage;
 #endif
         /// <summary>
         /// Indicate that an order has been completed.
         /// </summary>
         public static void OrderCompleted()
         {
-            ((WarehouseManager)Singleton)._orderedCompleted++;
+            ((WarehouseManager)Singleton)._ordersCompleted++;
         }
 
         /// <summary>
@@ -275,17 +298,17 @@ namespace Warehouse
             size++;
 #endif
             GuiBox(x, y, w, h, p, size);
+
+            double seconds = Time.timeAsDouble - _startTime;
+            int intSeconds = (int) seconds;
 #if UNITY_EDITOR
             GuiLabel(x, y, w, h, p, "Running Tests");
             y = NextItem(y, h, p);
 
-            double seconds = Time.timeAsDouble - _startTime;
-            int intSeconds = (int) seconds;
-
             string remaining;
             if (run)
             {
-                int difference = _totalTime - _runsComlplete * testTime - intSeconds;
+                int difference = _totalTime - _runsComplete * testTime - intSeconds;
                 int minutesDifference = difference / 60;
                 if (minutesDifference >= 60)
                 {
@@ -303,8 +326,6 @@ namespace Warehouse
             
             GuiLabel(x, y, w, h, p, $"Time: {intSeconds / 60}:{intSeconds % 60:D2}{remaining}");
 #else
-            double seconds = Time.timeAsDouble - _startTime;
-            int intSeconds = (int) seconds;
             GuiLabel(x, y, w, h, p, $"Time: {intSeconds / 60}:{intSeconds % 60:D2}");
 #endif      
             y = NextItem(y, h, p);
@@ -333,12 +354,12 @@ namespace Warehouse
             }
             else
             {
-                orderRate = _orderedCompleted / minutes;
+                orderRate = _ordersCompleted / minutes;
                 shipmentRate = _shipmentsUnloaded / minutes;
             }
             
             y = NextItem(y, h, p);
-            GuiLabel(x, y, w, h, p, $"Orders Completed: {_orderedCompleted} | {orderRate:0.00} / minute");
+            GuiLabel(x, y, w, h, p, $"Orders Completed: {_ordersCompleted} | {orderRate:0.00} / minute");
             
             y = NextItem(y, h, p);
             GuiLabel(x, y, w, h, p, $"Shipments Unloaded: {_shipmentsUnloaded} | {shipmentRate:0.00} / minute");
@@ -417,7 +438,7 @@ namespace Warehouse
             StorageLayout option = layout + 1;
             if (option > StorageLayout.NearOutbound)
             {
-                option = 0;
+                option = StorageLayout.Rows;
             }
                 
             if (GuiButton(x, y, w, h, $"Use {LayoutString(option)} Layout"))
@@ -425,7 +446,7 @@ namespace Warehouse
                 layout++;
                 if (layout > StorageLayout.NearOutbound)
                 {
-                    layout = 0;
+                    layout = StorageLayout.Rows;
                 }
                 
                 ResetLevel();
@@ -442,10 +463,7 @@ namespace Warehouse
         protected override void Start()
         {
             base.Start();
-
-            ResetLevel();
-
-            _startTime = Time.timeAsDouble;
+            
 #if UNITY_EDITOR
             workerCases = workerCases.Distinct().Where(x => x > 0).OrderBy(x => x).ToArray();
             if (workerCases.Length == 0)
@@ -457,7 +475,16 @@ namespace Warehouse
             {
                 _totalTime -= 6 * testTime;
             }
+
+            workers = workerCases[0];
+            _currentWorkersCase = 0;
+            roles = false;
+            wireless = false;
+            layout = StorageLayout.Rows;
 #endif
+            ResetLevel();
+
+            _startTime = Time.timeAsDouble;
         }
 
         /// <summary>
@@ -476,7 +503,7 @@ namespace Warehouse
                 Destroy(agents[i].gameObject);
             }
 
-            _orderedCompleted = 0;
+            _ordersCompleted = 0;
             _shipmentsUnloaded = 0;
             _startTime = Time.timeAsDouble;
 
@@ -555,6 +582,25 @@ namespace Warehouse
                 agent.name = $"Worker {i + 1:D2}{role}";
                 agent.Inbound = inbound;
             }
+#if UNITY_EDITOR
+            if (!run)
+            {
+                return;
+            }
+
+            int size = testTime + 1;
+            _testOrdersComplete = new int[size];
+            _testShipmentsUnloaded = new int[size];
+            _testStoragesUsage = new int[size];
+            for (int i = 0; i < size; i++)
+            {
+                _testOrdersComplete[i] = 0;
+                _testShipmentsUnloaded[i] = 0;
+                _testStoragesUsage[i] = 0;
+            }
+            
+            Debug.Log($"{_runsComplete} | {workers} | {roles} | {wireless} | {layout}");
+#endif
         }
 
         /// <summary>
@@ -610,5 +656,74 @@ namespace Warehouse
                 (orderSize.x, orderSize.y) = (orderSize.y, orderSize.x);
             }
         }
+#if UNITY_EDITOR
+        private void FixedUpdate()
+        {
+            if (!run)
+            {
+                return;
+            }
+            
+            double seconds = Time.timeAsDouble - _startTime;
+            int intSeconds = (int) seconds;
+
+            _testOrdersComplete[intSeconds] = _ordersCompleted;
+            _testShipmentsUnloaded[intSeconds] = _shipmentsUnloaded;
+            
+            int storagesUsed = Storage.Instances.Count(i => !i.Empty);
+            if (storagesUsed > _testStoragesUsage[intSeconds])
+            {
+                _testStoragesUsage[intSeconds] = storagesUsed;
+            }
+
+            if (intSeconds < testTime)
+            {
+                return;
+            }
+            
+            // TODO - Save data.
+                
+            _runsComplete++;
+                
+            if (layout < StorageLayout.NearOutbound)
+            {
+                layout++;
+                ResetLevel();
+                return;
+            }
+
+            layout = StorageLayout.Rows;
+                
+            if (workers > 1)
+            {
+                if (!wireless)
+                {
+                    wireless = true;
+                    ResetLevel();
+                    return;
+                }
+
+                wireless = false;
+
+                if (!roles)
+                {
+                    roles = true;
+                    ResetLevel();
+                    return;
+                }
+            }
+
+            _currentWorkersCase++;
+
+            if (_currentWorkersCase >= workerCases.Length)
+            {
+                EditorApplication.isPlaying = false;
+                return;
+            }
+
+            workers = workerCases[_currentWorkersCase];
+            ResetLevel();
+        }
+#endif
     }
 }

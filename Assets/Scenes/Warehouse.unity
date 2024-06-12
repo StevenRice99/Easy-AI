@@ -1034,6 +1034,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7481766863448086576, guid: 650f9faa16a585042a1f6d3151b86747, type: 3}
+      propertyPath: testTime
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7481766863448086576, guid: 650f9faa16a585042a1f6d3151b86747, type: 3}
       propertyPath: selectedCamera
       value: 
       objectReference: {fileID: 412457271}
