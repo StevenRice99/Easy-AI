@@ -4,6 +4,7 @@ using EasyAI;
 using Unity.Mathematics;
 using UnityEngine;
 #if UNITY_EDITOR
+using System.IO;
 using UnityEditor;
 #endif
 
@@ -37,6 +38,11 @@ namespace Warehouse
             NearInbound,
             NearOutbound
         }
+        
+        /// <summary>
+        /// Where to save data.
+        /// </summary>
+        private const string Folder = "Warehouse";
         
         /// <summary>
         /// The prefab for the warehouse agent.
@@ -242,7 +248,7 @@ namespace Warehouse
         /// <summary>
         /// The number of storages that are being used at this second of this test.
         /// </summary>
-        private int[] _testStoragesUsage;
+        private int[] _testStoragesUsed;
 #endif
         /// <summary>
         /// Indicate that an order has been completed.
@@ -476,8 +482,8 @@ namespace Warehouse
                 _totalTime -= 6 * testTime;
             }
 
-            workers = workerCases[0];
             _currentWorkersCase = 0;
+            workers = workerCases[_currentWorkersCase];
             roles = false;
             wireless = false;
             layout = StorageLayout.Rows;
@@ -591,15 +597,18 @@ namespace Warehouse
             int size = testTime + 1;
             _testOrdersComplete = new int[size];
             _testShipmentsUnloaded = new int[size];
-            _testStoragesUsage = new int[size];
+            _testStoragesUsed = new int[size];
             for (int i = 0; i < size; i++)
             {
                 _testOrdersComplete[i] = 0;
                 _testShipmentsUnloaded[i] = 0;
-                _testStoragesUsage[i] = 0;
+                _testStoragesUsed[i] = 0;
             }
-            
-            Debug.Log($"{_runsComplete} | {workers} | {roles} | {wireless} | {layout}");
+
+            if (AlreadyExists(workers, layout, wireless, roles))
+            {
+                EditorApplication.isPlaying = false;
+            }
 #endif
         }
 
@@ -671,32 +680,53 @@ namespace Warehouse
             _testShipmentsUnloaded[intSeconds] = _shipmentsUnloaded;
             
             int storagesUsed = Storage.Instances.Count(i => !i.Empty);
-            if (storagesUsed > _testStoragesUsage[intSeconds])
+            if (storagesUsed > _testStoragesUsed[intSeconds])
             {
-                _testStoragesUsage[intSeconds] = storagesUsed;
+                _testStoragesUsed[intSeconds] = storagesUsed;
             }
 
             if (intSeconds < testTime)
             {
                 return;
             }
-            
-            // TODO - Save data.
+
+            if (!Directory.Exists(Folder))
+            {
+                Directory.CreateDirectory(Folder);
+            }
+
+            if (Directory.Exists(Folder))
+            {
+                string title = DetermineFile(workers, layout, wireless, roles);
+                string data = "Seconds,Orders Completed,Shipments Unloaded,Storages Used";
+                for (int i = 0; i < _testOrdersComplete.Length; i++)
+                {
+                    data += $"\n{i},{_testOrdersComplete[i]},{_testShipmentsUnloaded[i]},{_testStoragesUsed[i]}";
+                }
+                StreamWriter writer = new($"{Folder}/{title}.csv", false);
+                writer.Write(data);
+                writer.Close();
+            }
                 
             _runsComplete++;
-                
-            if (layout < StorageLayout.NearOutbound)
+
+            for (StorageLayout next = layout + 1; next <= StorageLayout.NearOutbound; next++)
             {
-                layout++;
+                if (AlreadyExists(workers, next, wireless, roles))
+                {
+                    continue;
+                }
+
+                layout = next;
                 ResetLevel();
                 return;
             }
 
             layout = StorageLayout.Rows;
-                
+            
             if (workers > 1)
             {
-                if (!wireless)
+                if (!wireless && !AlreadyExists(workers, layout, true, roles))
                 {
                     wireless = true;
                     ResetLevel();
@@ -705,24 +735,46 @@ namespace Warehouse
 
                 wireless = false;
 
-                if (!roles)
+                if (!roles && !AlreadyExists(workers, layout, wireless, true))
                 {
                     roles = true;
                     ResetLevel();
                     return;
                 }
             }
-
-            _currentWorkersCase++;
-
-            if (_currentWorkersCase >= workerCases.Length)
+            
+            for (int i = _currentWorkersCase + 1; i < workerCases.Length; i++)
             {
-                EditorApplication.isPlaying = false;
+                if (AlreadyExists(workerCases[i], layout, wireless, true))
+                {
+                    continue;
+                }
+
+                _currentWorkersCase = i;
+                workers = workerCases[_currentWorkersCase];
+                ResetLevel();
                 return;
             }
 
-            workers = workerCases[_currentWorkersCase];
-            ResetLevel();
+            EditorApplication.isPlaying = false;
+        }
+
+        private static bool AlreadyExists(int workerCount, StorageLayout currentLayout, bool usingWireless, bool usingRoles)
+        {
+            if (!Directory.Exists(Folder))
+            {
+                return false;
+            }
+            
+            string title = DetermineFile(workerCount, currentLayout, usingWireless, usingRoles);
+            return File.Exists($"{Folder}/{title}.csv");
+        }
+
+        private static string DetermineFile(int workerCount, StorageLayout currentLayout, bool usingWireless, bool usingRoles)
+        {
+            string w = usingWireless ? "Wireless" : "Terminals";
+            string r = usingRoles ? "Roles" : "No Roles";
+            return $"Workers = {workerCount} - Layout = {LayoutString(currentLayout)} - {w} - {r}";
         }
 #endif
     }
