@@ -355,27 +355,6 @@ namespace Warehouse
             {
                 Destroy(agents[i].gameObject);
             }
-            
-            Storage.PickOptions.Clear();
-            foreach (Storage storage in Storage.Instances)
-            {
-                storage.ResetObject();
-            }
-            
-            foreach (Inbound inbound in Inbound.Instances)
-            {
-                inbound.ResetObject();
-            }
-
-            foreach (Outbound outbound in Outbound.Instances)
-            {
-                outbound.ResetObject();
-            }
-
-            foreach (InfoStation infoStation in InfoStation.Instances)
-            {
-                infoStation.ResetObject();
-            }
 
             _orderedCompleted = 0;
             _shipmentsUnloaded = 0;
@@ -402,6 +381,27 @@ namespace Warehouse
                         }
                     }
                     break;
+            }
+            
+            Storage.PickOptions.Clear();
+            foreach (Storage storage in Storage.Instances)
+            {
+                storage.ResetObject();
+            }
+            
+            foreach (Inbound inbound in Inbound.Instances)
+            {
+                inbound.ResetObject();
+            }
+
+            foreach (Outbound outbound in Outbound.Instances)
+            {
+                outbound.ResetObject();
+            }
+
+            foreach (InfoStation infoStation in InfoStation.Instances)
+            {
+                infoStation.ResetObject();
             }
 
             int inboundLocation = 0;

@@ -128,6 +128,10 @@ PrefabInstance:
       propertyPath: <MoveTarget>k__BackingField.z
       value: -1.5
       objectReference: {fileID: 0}
+    - target: {fileID: 1383579630021677098, guid: eed0441ae44ce89409703c1602e1916e, type: 3}
+      propertyPath: moveTarget.z
+      value: -1.5
+      objectReference: {fileID: 0}
     - target: {fileID: 1569296579708638211, guid: eed0441ae44ce89409703c1602e1916e, type: 3}
       propertyPath: moveTarget.z
       value: -1.5
@@ -184,6 +188,10 @@ PrefabInstance:
       propertyPath: <MoveTarget>k__BackingField.z
       value: -1.5
       objectReference: {fileID: 0}
+    - target: {fileID: 2637927105011511867, guid: eed0441ae44ce89409703c1602e1916e, type: 3}
+      propertyPath: moveTarget.z
+      value: -1.5
+      objectReference: {fileID: 0}
     - target: {fileID: 3323529188290798173, guid: eed0441ae44ce89409703c1602e1916e, type: 3}
       propertyPath: moveTarget.z
       value: -1.5
@@ -238,6 +246,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4351614738351569010, guid: eed0441ae44ce89409703c1602e1916e, type: 3}
       propertyPath: <MoveTarget>k__BackingField.z
+      value: -1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4498190425204118999, guid: eed0441ae44ce89409703c1602e1916e, type: 3}
+      propertyPath: moveTarget.z
+      value: -1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4713261610369594714, guid: eed0441ae44ce89409703c1602e1916e, type: 3}
+      propertyPath: moveTarget.z
       value: -1.5
       objectReference: {fileID: 0}
     - target: {fileID: 4854911880399345919, guid: eed0441ae44ce89409703c1602e1916e, type: 3}
@@ -422,6 +438,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7513749624005938700, guid: eed0441ae44ce89409703c1602e1916e, type: 3}
       propertyPath: <MoveTarget>k__BackingField.z
+      value: -1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7551294224564017451, guid: eed0441ae44ce89409703c1602e1916e, type: 3}
+      propertyPath: moveTarget.z
       value: -1.5
       objectReference: {fileID: 0}
     - target: {fileID: 7554376673111501439, guid: eed0441ae44ce89409703c1602e1916e, type: 3}
