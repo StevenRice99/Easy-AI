@@ -131,7 +131,30 @@ namespace Warehouse
         [Min(0)]
         [SerializeField]
         private float interactTimeScale = 1;
-        
+#if UNITY_EDITOR
+        /// <summary>
+        /// Whether to run tests.
+        /// </summary>
+        [Header("Tests")]
+        [Tooltip("Whether to run tests.")]
+        [SerializeField]
+        private bool run;
+
+        /// <summary>
+        /// The time to run tests in seconds.
+        /// </summary>
+        [Tooltip("The time to run tests in seconds.")]
+        [Min(1)]
+        [SerializeField]
+        private int testTime = 300;
+
+        /// <summary>
+        /// The numbers of workers to test with.
+        /// </summary>
+        [Tooltip("The numbers of workers to test with.")]
+        [SerializeField]
+        private int[] workerCases = { 2, 4, 6, 8, 10 };
+#endif
         /// <summary>
         /// The prefab to use for parts.
         /// </summary>
@@ -187,7 +210,17 @@ namespace Warehouse
         /// The time which has passed since the simulation began.
         /// </summary>
         private double _startTime;
-        
+#if UNITY_EDITOR
+        /// <summary>
+        /// The number of test runs which have been complete.
+        /// </summary>
+        private int _runsComlplete;
+
+        /// <summary>
+        /// The total time in seconds which all tests will take.
+        /// </summary>
+        private int _totalTime;
+#endif
         /// <summary>
         /// Indicate that an order has been completed.
         /// </summary>
@@ -238,13 +271,42 @@ namespace Warehouse
             {
                 size++;
             }
-            
+#if UNITY_EDITOR
+            size++;
+#endif
             GuiBox(x, y, w, h, p, size);
+#if UNITY_EDITOR
+            GuiLabel(x, y, w, h, p, "Running Tests");
+            y = NextItem(y, h, p);
 
             double seconds = Time.timeAsDouble - _startTime;
             int intSeconds = (int) seconds;
-            GuiLabel(x, y, w, h, p, $"Time: {intSeconds / 60}:{intSeconds % 60:D2}");
+
+            string remaining;
+            if (run)
+            {
+                int difference = _totalTime - _runsComlplete * testTime - intSeconds;
+                int minutesDifference = difference / 60;
+                if (minutesDifference >= 60)
+                {
+                    remaining = $" | Remaining: {minutesDifference / 60}:{minutesDifference % 60:D2}:{difference % 60:D2}";
+                }
+                else
+                {
+                    remaining = $" | Remaining: {difference / 60}:{difference % 60:D2}";
+                }
+            }
+            else
+            {
+                remaining = string.Empty;
+            }
             
+            GuiLabel(x, y, w, h, p, $"Time: {intSeconds / 60}:{intSeconds % 60:D2}{remaining}");
+#else
+            double seconds = Time.timeAsDouble - _startTime;
+            int intSeconds = (int) seconds;
+            GuiLabel(x, y, w, h, p, $"Time: {intSeconds / 60}:{intSeconds % 60:D2}");
+#endif      
             y = NextItem(y, h, p);
             GuiLabel(x, y, w, h, p, $"Workers: {workers}");
 
@@ -300,6 +362,12 @@ namespace Warehouse
         /// <returns>The updated Y position after all custom rendering has been done.</returns>
         protected override float CustomRendering(float x, float y, float w, float h, float p)
         {
+#if UNITY_EDITOR
+            if (run)
+            {
+                return y;
+            }
+#endif
             if (GuiButton(x, y, w, h, "Reset"))
             {
                 ResetLevel();
@@ -378,6 +446,18 @@ namespace Warehouse
             ResetLevel();
 
             _startTime = Time.timeAsDouble;
+#if UNITY_EDITOR
+            workerCases = workerCases.Distinct().Where(x => x > 0).OrderBy(x => x).ToArray();
+            if (workerCases.Length == 0)
+            {
+                workerCases = new[] {1};
+            }
+            _totalTime = 12 * workerCases.Length * testTime;
+            if (workerCases.Length > 0 && workerCases[0] < 2)
+            {
+                _totalTime -= 6 * testTime;
+            }
+#endif
         }
 
         /// <summary>
