@@ -107,6 +107,22 @@ namespace Warehouse
         [Tooltip("The minimum and maximum order size that can be required for an order.")]
         [SerializeField]
         private int2 orderSize = new(3, 3);
+
+        /// <summary>
+        /// The amount of time before a new inbound shipment comes in.
+        /// </summary>
+        [Tooltip("The amount of time before a new inbound shipment comes in.")]
+        [Min(0)]
+        [SerializeField]
+        private float inboundDelay = 3;
+
+        /// <summary>
+        /// The amount of time before a new order comes in.
+        /// </summary>
+        [Tooltip("The amount of time before a new order comes in.")]
+        [Min(0)]
+        [SerializeField]
+        private float outboundDelay = 10;
         
         /// <summary>
         /// The prefab to use for parts.
@@ -132,6 +148,16 @@ namespace Warehouse
         /// Whether agents can always get information about the warehouse wireless, or terminals have to be used.
         /// </summary>
         public static bool Wireless => ((WarehouseManager)Singleton).wireless;
+        
+        /// <summary>
+        /// The amount of time before a new inbound shipment comes in.
+        /// </summary>
+        public static float InboundDelay => ((WarehouseManager)Singleton).inboundDelay;
+        
+        /// <summary>
+        /// The amount of time before a new order comes in.
+        /// </summary>
+        public static float OutboundDelay => ((WarehouseManager)Singleton).outboundDelay;
         
         /// <summary>
         /// Keep track of the number of orders completed.

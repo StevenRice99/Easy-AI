@@ -143,7 +143,7 @@ namespace Warehouse.Sensors
 
             foreach (Inbound inbound in Inbound.Instances.Where(x => !x.Empty).OrderBy(x => x.PickTime(p, x.transform.position, w.moveSpeed)))
             {
-                int id = inbound.GetRandom();
+                int id = inbound.GetNext();
                 if (id < 0)
                 {
                     continue;

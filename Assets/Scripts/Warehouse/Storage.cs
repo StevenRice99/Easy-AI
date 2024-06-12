@@ -176,7 +176,7 @@ namespace Warehouse
         /// <param name="agent">The agent.</param>
         /// <param name="id">The ID to check for.</param>
         /// <returns>True if it can take a part with the ID, false otherwise.</returns>
-        public bool PlaceAvailable(WarehouseAgent agent, int id) => (_interacting == null || IsInteracting(agent)) && Empty && this._id == id;
+        public bool PlaceAvailable(WarehouseAgent agent, int id) => (_interacting == null || IsInteracting(agent)) && Empty && _id == id;
 
         /// <summary>
         /// Claim an ID for an agent.

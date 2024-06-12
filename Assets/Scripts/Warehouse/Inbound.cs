@@ -25,14 +25,6 @@ namespace Warehouse
         private Transform[] locations;
 
         /// <summary>
-        /// The amount of time before a new inbound shipment comes in.
-        /// </summary>
-        [Tooltip("The amount of time before a new inbound shipment comes in.")]
-        [Min(0)]
-        [SerializeField]
-        private float delay;
-
-        /// <summary>
         /// All parts this current has.
         /// </summary>
         private readonly List<Part> _parts = new();
@@ -53,17 +45,21 @@ namespace Warehouse
         public bool Empty => _parts.Count < 1;
 
         /// <summary>
-        /// Get a random item which can be claimed.
+        /// Get the ID of the next available item by demand.
         /// </summary>
-        /// <returns></returns>
-        public int GetRandom()
+        /// <returns>The highest demand item that is available.</returns>
+        public int GetNext()
         {
-            if (_available.Count < 1)
+            int count = WarehouseManager.Parts.Length;
+            for (int i = 0; i < count; i++)
             {
-                return -1;
+                if (_available.ContainsKey(i))
+                {
+                    return i;
+                }
             }
 
-            return _available.Keys.ToArray()[Random.Range(0, _available.Keys.Count)];
+            return -1;
         }
 
         /// <summary>
@@ -152,7 +148,7 @@ namespace Warehouse
             }
 
             ElapsedTime += Time.deltaTime;
-            if (ElapsedTime >= delay)
+            if (ElapsedTime >= WarehouseManager.InboundDelay)
             {
                 SpawnParts();
             }
@@ -170,21 +166,42 @@ namespace Warehouse
             
             _parts.Clear();
             _available.Clear();
+
+            bool placed = false;
             
             for (int i = 0; i < locations.Length; i++)
             {
                 Part part = Instantiate(WarehouseManager.PartPrefab, locations[i], true);
-                part.SetId(Random.Range(0, WarehouseManager.Parts.Length));
-                _parts.Add(part);
-                part.name = $"Part {_parts[i].ID}";
-                part.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-                if (!_available.TryAdd(part.ID, 1))
+                int count = WarehouseManager.Parts.Length;
+                int id = Random.Range(0, count);
+                int attempts = 0;
+                while (!Outbound.Instances.Any(x => x.PlaceAvailable(null, id)) && !Storage.Instances.Any(x => x.PlaceAvailable(null, id)))
                 {
-                    _available[part.ID]++;
+                    attempts++;
+                    if (attempts >= count)
+                    {
+                        return;
+                    }
+                    
+                    id++;
                 }
+                
+                part.SetId(id);
+                _parts.Add(part);
+                part.name = $"Part {id}";
+                part.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+                if (!_available.TryAdd(id, 1))
+                {
+                    _available[id]++;
+                }
+
+                placed = true;
             }
 
-            ElapsedTime = 0;
+            if (placed)
+            {
+                ElapsedTime = 0;
+            }
         }
 
         /// <summary>
@@ -214,7 +231,7 @@ namespace Warehouse
                 _parts.RemoveAt(0);
             }
 
-            ElapsedTime = delay;
+            ElapsedTime = WarehouseManager.InboundDelay;
         }
     }
 }

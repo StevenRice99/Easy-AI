@@ -41,7 +41,7 @@ namespace Warehouse.States
                 }
 
                 w.Move(infoStation.transform.position);
-                if (Vector3.Distance(p, infoStation.MainVisual.position) <= w.InteractDistance && Inbound.Instances.Any(x => x.GetRandom() >= 0))
+                if (Vector3.Distance(p, infoStation.MainVisual.position) <= w.InteractDistance && Inbound.Instances.Any(x => x.GetNext() >= 0))
                 {
                     w.NeedsInfo = false;
                 }

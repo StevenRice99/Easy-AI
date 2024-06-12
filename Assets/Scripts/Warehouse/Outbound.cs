@@ -17,14 +17,6 @@ namespace Warehouse
         /// All outbound instances.
         /// </summary>
         public static readonly HashSet<Outbound> Instances = new();
-
-        /// <summary>
-        /// The amount of time before a new order comes in.
-        /// </summary>
-        [Tooltip("The amount of time before a new order comes in.")]
-        [Min(0)]
-        [SerializeField]
-        private float delay;
         
         /// <summary>
         /// All requirements for the current order.
@@ -152,7 +144,7 @@ namespace Warehouse
             }
 
             _elapsedTime += Time.deltaTime;
-            if (_elapsedTime >= delay)
+            if (_elapsedTime >= WarehouseManager.OutboundDelay)
             {
                 CreateOrder();
             }
@@ -201,7 +193,7 @@ namespace Warehouse
         {
             _requirements.Clear();
             _available.Clear();
-            _elapsedTime = delay;
+            _elapsedTime = WarehouseManager.OutboundDelay;
         }
     }
 }
