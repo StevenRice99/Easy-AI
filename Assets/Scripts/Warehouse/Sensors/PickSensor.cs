@@ -85,7 +85,7 @@ namespace Warehouse.Sensors
                             continue;
                         }
                     
-                        Storage storage = option.Where(x => x.PickAvailable(w, id)).OrderBy(x => x.PickTime(p, d[i], w.moveSpeed)).FirstOrDefault();
+                        Storage storage = option.Where(x => x.PickAvailable(w, id)).OrderBy(x => x.PickTime(p, d[i], w.moveSpeed)).ThenBy(x => x.transform.position.y).FirstOrDefault();
                         if (storage == null)
                         {
                             continue;

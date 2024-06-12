@@ -28,6 +28,11 @@ namespace Warehouse
         /// All parts this current has.
         /// </summary>
         private readonly List<Part> _parts = new();
+
+        /// <summary>
+        /// All part IDs, even those which have been claimed.
+        /// </summary>
+        private readonly Dictionary<int, int> _all = new();
         
         /// <summary>
         /// All available parts that have not been claimed by any workers.
@@ -42,7 +47,7 @@ namespace Warehouse
         /// <summary>
         /// If this is empty or not.
         /// </summary>
-        public bool Empty => _parts.Count < 1;
+        public bool Empty => _all.Count < 1;
 
         /// <summary>
         /// Get the ID of the next available item by demand.
@@ -100,7 +105,7 @@ namespace Warehouse
         /// <returns>True if it was picked up, false otherwise.</returns>
         public bool Pick(WarehouseAgent agent)
         {
-            if (_parts.Count < 1 || agent.HasPart)
+            if (_all.Count < 1 || agent.HasPart)
             {
                 return false;
             }
@@ -112,8 +117,16 @@ namespace Warehouse
             }
             
             _parts.Remove(part);
+            if (_all.ContainsKey(part.ID))
+            {
+                _all[part.ID]--;
+                if (_all[part.ID] < 1)
+                {
+                    _all.Remove(part.ID);
+                }
+            }
 
-            if (_parts.Count < 1)
+            if (_all.Count < 1)
             {
                 WarehouseManager.ShipmentsUnloaded();
             }
@@ -142,7 +155,7 @@ namespace Warehouse
         /// </summary>
         private void FixedUpdate()
         {
-            if (_parts.Count > 0)
+            if (_all.Count > 0)
             {
                 return;
             }
@@ -165,17 +178,34 @@ namespace Warehouse
             }
             
             _parts.Clear();
+            _all.Clear();
             _available.Clear();
 
             bool placed = false;
             
+            int count = WarehouseManager.Parts.Length;
+            int[] options = new int[count];
+            for (int i = 0; i < count; i++)
+            {
+                options[i] = 0;
+            }
+
+            foreach (Storage storage in Storage.Instances.Where(x => !x.Claimed && x.Empty))
+            {
+                options[storage.ID]++;
+            }
+
+            foreach (KeyValuePair<int, int> ids in Instances.SelectMany(inbound => inbound._all))
+            {
+                options[ids.Key] -= ids.Value;
+            }
+            
             for (int i = 0; i < locations.Length; i++)
             {
                 Part part = Instantiate(WarehouseManager.PartPrefab, locations[i], true);
-                int count = WarehouseManager.Parts.Length;
                 int id = Random.Range(0, count);
                 int attempts = 0;
-                while (!Outbound.Instances.Any(x => x.PlaceAvailable(null, id)) && !Storage.Instances.Any(x => x.PlaceAvailable(null, id)))
+                while (options[id] <= 0)
                 {
                     attempts++;
                     if (attempts >= count)
@@ -184,6 +214,10 @@ namespace Warehouse
                     }
                     
                     id++;
+                    if (id >= count)
+                    {
+                        id = 0;
+                    }
                 }
                 
                 part.SetId(id);
@@ -193,8 +227,14 @@ namespace Warehouse
                 if (!_available.TryAdd(id, 1))
                 {
                     _available[id]++;
+                    _all[id]++;
+                }
+                else
+                {
+                    _all.Add(id, 1);
                 }
 
+                options[id]--;
                 placed = true;
             }
 
@@ -223,6 +263,7 @@ namespace Warehouse
         /// </summary>
         public void ResetObject()
         {
+            _all.Clear();
             _available.Clear();
             
             while (!Empty)

@@ -26,14 +26,6 @@ namespace Warehouse
         public static readonly Dictionary<int, HashSet<Storage>> PickOptions = new();
 
         /// <summary>
-        /// How much does interacting take scaled with the Y position of this storage.
-        /// </summary>
-        [Tooltip("How much does interacting take scaled with the Y position of this storage.")]
-        [Min(0)]
-        [SerializeField]
-        private float interactTimeScale = 1;
-
-        /// <summary>
         /// The height offset to account for
         /// </summary>
         [Tooltip("The height offset to account for.")]
@@ -43,7 +35,12 @@ namespace Warehouse
         /// <summary>
         /// The part this can store.
         /// </summary>
-        private int _id;
+        public int ID { get; private set; }
+
+        /// <summary>
+        /// Whether this has been claimed or not.
+        /// </summary>
+        public bool Claimed => _interacting != null;
 
         /// <summary>
         /// Offset to perform moves relative to.
@@ -60,7 +57,7 @@ namespace Warehouse
         /// <summary>
         /// How much it costs to access this.
         /// </summary>
-        public float Cost => (transform.position.y - offset) * interactTimeScale;
+        public float Cost => (transform.position.y - offset) * WarehouseManager.InteractTimeScale;
         
         /// <summary>
         /// The part currently being stored.
@@ -113,18 +110,18 @@ namespace Warehouse
         /// <param name="set">The new ID to set.</param>
         public void SetId(int set)
         {
-            if (PlaceOptions.ContainsKey(_id) && PlaceOptions[_id].Contains(this))
+            if (PlaceOptions.ContainsKey(ID) && PlaceOptions[ID].Contains(this))
             {
-                PlaceOptions[_id].Remove(this);
-                if (PlaceOptions[_id].Count < 1)
+                PlaceOptions[ID].Remove(this);
+                if (PlaceOptions[ID].Count < 1)
                 {
-                    PlaceOptions.Remove(_id);
+                    PlaceOptions.Remove(ID);
                 }
             }
 
-            _id = set;
+            ID = set;
 
-            if (!Empty && _id != _part.ID)
+            if (!Empty && ID != _part.ID)
             {
                 if (PickOptions.TryGetValue(_part.ID, out HashSet<Storage> option))
                 {
@@ -149,13 +146,13 @@ namespace Warehouse
         /// </summary>
         private void UpdatePlaceable()
         {
-            if (PlaceOptions.TryGetValue(_id, out HashSet<Storage> placeable))
+            if (PlaceOptions.TryGetValue(ID, out HashSet<Storage> placeable))
             {
                 placeable.Add(this);
             }
             else
             {
-                PlaceOptions[_id] = new() {this};
+                PlaceOptions[ID] = new() {this};
             }
         }
 
@@ -176,7 +173,7 @@ namespace Warehouse
         /// <param name="agent">The agent.</param>
         /// <param name="id">The ID to check for.</param>
         /// <returns>True if it can take a part with the ID, false otherwise.</returns>
-        public bool PlaceAvailable(WarehouseAgent agent, int id) => (_interacting == null || IsInteracting(agent)) && Empty && _id == id;
+        public bool PlaceAvailable(WarehouseAgent agent, int id) => (_interacting == null || IsInteracting(agent)) && Empty && ID == id;
 
         /// <summary>
         /// Claim an ID for an agent.
@@ -294,7 +291,7 @@ namespace Warehouse
             _part.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             ReleaseClaim(agent);
 
-            if (PlaceOptions.TryGetValue(_id, out HashSet<Storage> placeOption))
+            if (PlaceOptions.TryGetValue(ID, out HashSet<Storage> placeOption))
             {
                 placeOption.Remove(this);
             }
@@ -365,7 +362,7 @@ namespace Warehouse
         {
             Instances.Add(this);
 
-            SetId(_id);
+            SetId(ID);
         }
 
         /// <summary>
@@ -375,7 +372,7 @@ namespace Warehouse
         {
             Instances.Remove(this);
 
-            SetId(_id);
+            SetId(ID);
         }
 
         /// <summary>

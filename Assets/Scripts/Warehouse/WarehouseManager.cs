@@ -123,6 +123,14 @@ namespace Warehouse
         [Min(0)]
         [SerializeField]
         private float outboundDelay = 10;
+
+        /// <summary>
+        /// How much does interacting take scaled with the Y position of this storage.
+        /// </summary>
+        [Tooltip("How much does interacting take scaled with the Y position of this storage.")]
+        [Min(0)]
+        [SerializeField]
+        private float interactTimeScale = 1;
         
         /// <summary>
         /// The prefab to use for parts.
@@ -158,6 +166,12 @@ namespace Warehouse
         /// The amount of time before a new order comes in.
         /// </summary>
         public static float OutboundDelay => ((WarehouseManager)Singleton).outboundDelay;
+        
+        /// <summary>
+        /// How much does interacting take scaled with the Y position of this storage.
+        /// </summary>
+        /// <returns></returns>
+        public static float InteractTimeScale => ((WarehouseManager)Singleton).interactTimeScale;
         
         /// <summary>
         /// Keep track of the number of orders completed.
