@@ -163,6 +163,23 @@ namespace Warehouse
         {
             ((WarehouseManager)Singleton)._shipmentsUnloaded++;
         }
+
+        /// <summary>
+        /// Get the layout as a string.
+        /// </summary>
+        private static string LayoutString(StorageLayout l)
+        {
+            switch (l)
+            {
+                case StorageLayout.NearInbound:
+                    return "Near Inbound";
+                case StorageLayout.NearOutbound:
+                    return "Near Outbound";
+                case StorageLayout.Rows:
+                default:
+                    return "Rows";
+            }
+        }
         
         /// <summary>
         /// Display details about the warehouse.
@@ -176,7 +193,7 @@ namespace Warehouse
         protected override float DisplayDetails(float x, float y, float w, float h, float p)
         {
             y = NextItem(y, h, p);
-            int size = 6;
+            int size = 7;
             if (workers > 1)
             {
                 size++;
@@ -199,6 +216,10 @@ namespace Warehouse
                 
             y = NextItem(y, h, p);
             GuiLabel(x, y, w, h, p, wireless ? "Wireless Information" : "Terminals Information");
+
+            
+            y = NextItem(y, h, p);
+            GuiLabel(x, y, w, h, p, $"Storage Layout: {LayoutString(layout)}");
 
             double minutes = seconds / 60;
             double orderRate;
@@ -285,6 +306,25 @@ namespace Warehouse
                 
             y = NextItem(y, h, p);
 
+            StorageLayout option = layout + 1;
+            if (option > StorageLayout.NearOutbound)
+            {
+                option = 0;
+            }
+                
+            if (GuiButton(x, y, w, h, $"Use {LayoutString(option)} Layout"))
+            {
+                layout++;
+                if (layout > StorageLayout.NearOutbound)
+                {
+                    layout = 0;
+                }
+                
+                ResetLevel();
+            }
+                
+            y = NextItem(y, h, p);
+
             return y;
         }
 
@@ -344,12 +384,14 @@ namespace Warehouse
             switch (layout)
             {
                 case StorageLayout.NearInbound:
+                    ConfigureStorageNearest(Inbound.Instances.Select(x => x.transform).ToArray());
                     break;
                 case StorageLayout.NearOutbound:
+                    ConfigureStorageNearest(Outbound.Instances.Select(x => x.transform).ToArray());
                     break;
                 case StorageLayout.Rows:
                 default:
-                    Rack[] ordered = Rack.Instances.OrderBy(x => x.transform.position.magnitude).ThenBy(x => x.transform.position.x).ThenBy(x => x.transform.position.z).ThenByDescending(x => x.transform.position.y).ToArray();
+                    Rack[] ordered = Rack.Instances.OrderBy(x => x.transform.position.magnitude).ThenBy(x => x.transform.position.z).ToArray();
                     int id = 0;
                     foreach (Rack rack in ordered)
                     {
@@ -392,6 +434,34 @@ namespace Warehouse
                 string role = roles ? inbound ? " - Inbound" : " - Outbound" : string.Empty;
                 agent.name = $"Worker {i + 1:D2}{role}";
                 agent.Inbound = inbound;
+            }
+        }
+
+        /// <summary>
+        /// Configure the storage layout to be relative to either the inbounds or outbounds.
+        /// </summary>
+        /// <param name="close">The transforms to be close to.</param>
+        private void ConfigureStorageNearest(Transform[] close)
+        {
+            Vector3 p = close.Aggregate(Vector3.zero, (current, t) => current + t.position) / close.Length;
+
+            Storage[] storages = Storage.Instances.OrderBy(x => math.abs(x.transform.position.x - p.x)).ThenBy(x => math.abs(x.transform.position.y - p.y)).ThenBy(x => math.abs(x.transform.position.z - p.z)).ToArray();
+
+            int step = storages.Length / parts.Length;
+            int count = 0;
+            int id = 0;
+
+            foreach (Storage storage in storages)
+            {
+                storage.SetId(id);
+                count++;
+                if (count < step)
+                {
+                    continue;
+                }
+
+                count = 0;
+                id++;
             }
         }
 

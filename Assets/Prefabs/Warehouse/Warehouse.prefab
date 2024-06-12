@@ -184,7 +184,7 @@ MonoBehaviour:
   agentRadius: 0.5
   maxMessages: 100
   detailsWidth: 500
-  controlsWidth: 140
+  controlsWidth: 170
   followBest: 0
   selectedCamera: {fileID: 0}
   paths: 2
