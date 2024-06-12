@@ -28,6 +28,11 @@ namespace Warehouse
         private MeshRenderer[] _meshes;
 
         /// <summary>
+        /// The transform of the main visual element.
+        /// </summary>
+        public Transform MainVisual { get; private set; }
+
+        /// <summary>
         /// This function is called when the object becomes enabled and active.
         /// </summary>
         private void OnEnable()
@@ -37,6 +42,26 @@ namespace Warehouse
             List<MeshRenderer> meshes = GetComponents<MeshRenderer>().ToList();
             meshes.AddRange(GetComponentsInChildren<MeshRenderer>());
             _meshes = meshes.ToArray();
+
+            Transform t = transform;
+            
+            if (t.childCount > 0)
+            {
+                MainVisual = t.GetChild(0);
+                return;
+            }
+
+            GameObject child = new("Child")
+            {
+                transform =
+                {
+                    parent = t,
+                    localPosition = Vector3.zero,
+                    localRotation = Quaternion.identity
+                }
+            };
+
+            MainVisual = child.transform;
         }
 
         /// <summary>
@@ -52,7 +77,7 @@ namespace Warehouse
         /// </summary>
         public void ResetObject()
         {
-            bool active = !WarehouseManager.Communication;
+            bool active = !WarehouseManager.Wireless;
             foreach (MeshRenderer mesh in _meshes)
             {
                 mesh.enabled = active;

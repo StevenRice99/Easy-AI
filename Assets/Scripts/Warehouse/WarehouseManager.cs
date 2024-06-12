@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using EasyAI;
 using Unity.Mathematics;
 using UnityEngine;
@@ -11,12 +12,43 @@ namespace Warehouse
     public class WarehouseManager : EasyManager
     {
         /// <summary>
+        /// The part options for the warehouse.
+        /// </summary>
+        [Serializable]
+        public struct PartInfo
+        {
+            [Tooltip("The color to display for this part.")]
+            public Color color;
+            
+            [Tooltip("The demand for ordering this part.")]
+            [Min(float.Epsilon)]
+            public float demand;
+        }
+        
+        /// <summary>
+        /// How to manage the layout of the warehouse.
+        /// </summary>
+        public enum StorageLayout
+        {
+            Rows,
+            NearInbound,
+            NearOutbound
+        }
+        
+        /// <summary>
         /// The prefab for the warehouse agent.
         /// </summary>
         [Header("Warehouse Layout")]
         [Tooltip("The prefab for the warehouse agent.")]
         [SerializeField]
         private WarehouseAgent warehouseAgentPrefab;
+
+        /// <summary>
+        /// The prefab to use for parts.
+        /// </summary>
+        [Tooltip("The prefab to use for parts.")]
+        [SerializeField]
+        private Part partPrefab;
 
         /// <summary>
         /// The location to spawn inbound workers at.
@@ -49,11 +81,47 @@ namespace Warehouse
         private bool roles;
 
         /// <summary>
-        /// Whether agents can always communicate with each other, or terminals need to be used.
+        /// Whether agents can always get information about the warehouse wireless, or terminals have to be used.
         /// </summary>
-        [Tooltip("Whether agents can always communicate with each other, or terminals need to be used.")]
+        [Tooltip("Whether agents can always get information about the warehouse wireless, or terminals have to be used.")]
         [SerializeField]
-        private bool communication;
+        private bool wireless;
+
+        /// <summary>
+        /// How to manage the layout of the warehouse.
+        /// </summary>
+        [Tooltip("How to manage the layout of the warehouse.")]
+        [SerializeField]
+        private StorageLayout layout;
+
+        /// <summary>
+        /// The part options for the warehouse.
+        /// </summary>
+        [Tooltip("The part options for the warehouse.")]
+        [SerializeField]
+        private PartInfo[] parts;
+        
+        /// <summary>
+        /// The minimum and maximum order size that can be required for an order.
+        /// </summary>
+        [Tooltip("The minimum and maximum order size that can be required for an order.")]
+        [SerializeField]
+        private int2 orderSize = new(3, 3);
+        
+        /// <summary>
+        /// The prefab to use for parts.
+        /// </summary>
+        public static Part PartPrefab => ((WarehouseManager)Singleton).partPrefab;
+
+        /// <summary>
+        /// The part options for the warehouse.
+        /// </summary>
+        public static PartInfo[] Parts => ((WarehouseManager)Singleton).parts;
+        
+        /// <summary>
+        /// The minimum and maximum order size that can be required for an order.
+        /// </summary>
+        public static int2 OrderSize => ((WarehouseManager)Singleton).orderSize;
 
         /// <summary>
         /// Whether roles should be used for worker tasks or not.
@@ -61,9 +129,9 @@ namespace Warehouse
         public static bool Roles => ((WarehouseManager)Singleton).roles;
 
         /// <summary>
-        /// Whether agents can always communicate with each other, or terminals need to be used.
+        /// Whether agents can always get information about the warehouse wireless, or terminals have to be used.
         /// </summary>
-        public static bool Communication => ((WarehouseManager)Singleton).communication;
+        public static bool Wireless => ((WarehouseManager)Singleton).wireless;
         
         /// <summary>
         /// Keep track of the number of orders completed.
@@ -108,10 +176,10 @@ namespace Warehouse
         protected override float DisplayDetails(float x, float y, float w, float h, float p)
         {
             y = NextItem(y, h, p);
-            int size = 5;
+            int size = 6;
             if (workers > 1)
             {
-                size += 2;
+                size++;
             }
             
             GuiBox(x, y, w, h, p, size);
@@ -127,10 +195,10 @@ namespace Warehouse
             {
                 y = NextItem(y, h, p);
                 GuiLabel(x, y, w, h, p, roles ? "Roles" : "No Roles");
-                
-                y = NextItem(y, h, p);
-                GuiLabel(x, y, w, h, p, communication ? "Communication" : "No Communication");
             }
+                
+            y = NextItem(y, h, p);
+            GuiLabel(x, y, w, h, p, wireless ? "Wireless Information" : "Terminals Information");
 
             double minutes = seconds / 60;
             double orderRate;
@@ -191,11 +259,6 @@ namespace Warehouse
                 if (GuiButton(x, y, w, h, "Remove Worker"))
                 {
                     workers--;
-                    if (workers == 1)
-                    {
-                        roles = false;
-                    }
-                    
                     ResetLevel();
                 }
                 
@@ -208,20 +271,19 @@ namespace Warehouse
                 }
                 
                 y = NextItem(y, h, p);
-                
-                if (GuiButton(x, y, w, h, communication ? "Disable Communication" : "Enable Communication"))
-                {
-                    communication = !communication;
-                    ResetLevel();
-                }
-                
-                y = NextItem(y, h, p);
             }
             else
             {
                 roles = false;
-                communication = false;
             }
+                
+            if (GuiButton(x, y, w, h, wireless ? "Disable Wireless" : "Enable Wireless"))
+            {
+                wireless = !wireless;
+                ResetLevel();
+            }
+                
+            y = NextItem(y, h, p);
 
             return y;
         }
@@ -246,7 +308,6 @@ namespace Warehouse
             if (workers < 2)
             {
                 roles = false;
-                communication = false;
             }
             
             WarehouseAgent[] agents = WarehouseAgent.Instances.ToArray();
@@ -280,6 +341,27 @@ namespace Warehouse
             _shipmentsUnloaded = 0;
             _startTime = Time.timeAsDouble;
 
+            switch (layout)
+            {
+                case StorageLayout.NearInbound:
+                    break;
+                case StorageLayout.NearOutbound:
+                    break;
+                case StorageLayout.Rows:
+                default:
+                    Rack[] ordered = Rack.Instances.OrderBy(x => x.transform.position.magnitude).ThenBy(x => x.transform.position.x).ThenBy(x => x.transform.position.z).ThenByDescending(x => x.transform.position.y).ToArray();
+                    int id = 0;
+                    foreach (Rack rack in ordered)
+                    {
+                        rack.SetId(id++);
+                        if (id >= parts.Length)
+                        {
+                            id = 0;
+                        }
+                    }
+                    break;
+            }
+
             int inboundLocation = 0;
             int outboundLocation = 0;
 
@@ -310,6 +392,32 @@ namespace Warehouse
                 string role = roles ? inbound ? " - Inbound" : " - Outbound" : string.Empty;
                 agent.name = $"Worker {i + 1:D2}{role}";
                 agent.Inbound = inbound;
+            }
+        }
+
+        /// <summary>
+        /// Editor-only function that Unity calls when the script is loaded or a value changes in the Inspector.
+        /// </summary>
+        private void OnValidate()
+        {
+            if (parts is { Length: > 0 })
+            {
+                parts = parts.OrderByDescending(x => x.demand).ToArray();
+            }
+            
+            if (orderSize.x < 1)
+            {
+                orderSize.x = 1;
+            }
+
+            if (orderSize.y < 1)
+            {
+                orderSize.y = 1;
+            }
+
+            if (orderSize.x > orderSize.y)
+            {
+                (orderSize.x, orderSize.y) = (orderSize.y, orderSize.x);
             }
         }
     }

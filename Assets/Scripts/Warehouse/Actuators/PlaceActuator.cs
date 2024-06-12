@@ -39,7 +39,7 @@ namespace Warehouse.Actuators
                 return false;
             }
 
-            if (WarehouseManager.Communication)
+            if (WarehouseManager.Wireless)
             {
                 return true;
             }

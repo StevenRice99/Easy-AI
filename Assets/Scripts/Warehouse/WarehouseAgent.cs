@@ -296,7 +296,7 @@ namespace Warehouse
 
             Instances.Add(this);
 
-            NeedsInfo = !WarehouseManager.Communication;
+            NeedsInfo = !WarehouseManager.Wireless;
         }
 
         /// <summary>

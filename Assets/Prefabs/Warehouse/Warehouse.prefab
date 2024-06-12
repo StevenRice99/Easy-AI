@@ -184,11 +184,12 @@ MonoBehaviour:
   agentRadius: 0.5
   maxMessages: 100
   detailsWidth: 500
-  controlsWidth: 160
+  controlsWidth: 140
   followBest: 0
   selectedCamera: {fileID: 0}
   paths: 2
   warehouseAgentPrefab: {fileID: 743630815198840962, guid: f42d0debe21da7242b70b8d49a951997, type: 3}
+  partPrefab: {fileID: 4548620234909160911, guid: dbc684888385e9643bb91dcae980020c, type: 3}
   inboundSpawns:
   - {fileID: 1172625888604841861}
   - {fileID: 4886292767055716219}
@@ -196,7 +197,22 @@ MonoBehaviour:
   - {fileID: 5919173686089261710}
   workers: 12
   roles: 0
-  communication: 0
+  wireless: 0
+  layout: 0
+  parts:
+  - color: {r: 0, g: 1, b: 0, a: 1}
+    demand: 30
+  - color: {r: 0, g: 0, b: 1, a: 1}
+    demand: 20
+  - color: {r: 1, g: 1, b: 0, a: 1}
+    demand: 20
+  - color: {r: 1, g: 0.49803922, b: 0, a: 1}
+    demand: 15
+  - color: {r: 1, g: 0, b: 1, a: 1}
+    demand: 15
+  orderSize:
+    x: 3
+    y: 3
 --- !u!1 &5582997014087754285
 GameObject:
   m_ObjectHideFlags: 0

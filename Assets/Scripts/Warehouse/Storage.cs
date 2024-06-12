@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using EasyAI;
 using UnityEngine;
 
@@ -41,13 +39,11 @@ namespace Warehouse
         [Tooltip("The height offset to account for.")]
         [SerializeField]
         private float offset = 0.7f;
-        
+
         /// <summary>
-        /// The types of parts that can be stored here.
+        /// The part this can store.
         /// </summary>
-        [Tooltip("The types of parts that can be stored here.")]
-        [SerializeField]
-        private int[] ids = { };
+        private int _id;
 
         /// <summary>
         /// Offset to perform moves relative to.
@@ -112,28 +108,23 @@ namespace Warehouse
         }
 
         /// <summary>
-        /// Set new IDs for this to use.
+        /// Set new the ID for this to use.
         /// </summary>
-        /// <param name="set">The new IDs to set.</param>
-        public void UpdateIds(int[] set)
+        /// <param name="set">The new ID to set.</param>
+        public void SetId(int set)
         {
-            foreach (int id in ids)
+            if (PlaceOptions.ContainsKey(_id) && PlaceOptions[_id].Contains(this))
             {
-                if (!PlaceOptions.ContainsKey(id) || !PlaceOptions[id].Contains(this))
+                PlaceOptions[_id].Remove(this);
+                if (PlaceOptions[_id].Count < 1)
                 {
-                    continue;
-                }
-
-                PlaceOptions[id].Remove(this);
-                if (PlaceOptions[id].Count < 1)
-                {
-                    PlaceOptions.Remove(id);
+                    PlaceOptions.Remove(_id);
                 }
             }
 
-            ids = set;
+            _id = set;
 
-            if (!Empty && !ids.Contains(_part.ID))
+            if (!Empty && _id != _part.ID)
             {
                 if (PickOptions.TryGetValue(_part.ID, out HashSet<Storage> option))
                 {
@@ -158,16 +149,13 @@ namespace Warehouse
         /// </summary>
         private void UpdatePlaceable()
         {
-            foreach (int id in ids)
+            if (PlaceOptions.TryGetValue(_id, out HashSet<Storage> placeable))
             {
-                if (PlaceOptions.TryGetValue(id, out HashSet<Storage> placeable))
-                {
-                    placeable.Add(this);
-                }
-                else
-                {
-                    PlaceOptions[id] = new() {this};
-                }
+                placeable.Add(this);
+            }
+            else
+            {
+                PlaceOptions[_id] = new() {this};
             }
         }
 
@@ -188,7 +176,7 @@ namespace Warehouse
         /// <param name="agent">The agent.</param>
         /// <param name="id">The ID to check for.</param>
         /// <returns>True if it can take a part with the ID, false otherwise.</returns>
-        public bool PlaceAvailable(WarehouseAgent agent, int id) => (_interacting == null || IsInteracting(agent)) && Empty && ids.Contains(id);
+        public bool PlaceAvailable(WarehouseAgent agent, int id) => (_interacting == null || IsInteracting(agent)) && Empty && this._id == id;
 
         /// <summary>
         /// Claim an ID for an agent.
@@ -306,12 +294,9 @@ namespace Warehouse
             _part.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             ReleaseClaim(agent);
 
-            for (int i = 0; i < ids.Length; i++)
+            if (PlaceOptions.TryGetValue(_id, out HashSet<Storage> placeOption))
             {
-                if (PlaceOptions.ContainsKey(ids[i]))
-                {
-                    PlaceOptions[ids[i]].Remove(this);
-                }
+                placeOption.Remove(this);
             }
             
             if (PickOptions.TryGetValue(_part.ID, out HashSet<Storage> option))
@@ -380,7 +365,7 @@ namespace Warehouse
         {
             Instances.Add(this);
 
-            UpdateIds(ids);
+            SetId(_id);
         }
 
         /// <summary>
@@ -390,7 +375,7 @@ namespace Warehouse
         {
             Instances.Remove(this);
 
-            UpdateIds(Array.Empty<int>());
+            SetId(_id);
         }
 
         /// <summary>

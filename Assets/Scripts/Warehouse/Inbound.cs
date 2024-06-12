@@ -16,13 +16,6 @@ namespace Warehouse
         /// All inbound instances.
         /// </summary>
         public static readonly HashSet<Inbound> Instances = new();
-        
-        /// <summary>
-        /// The potential parts to spawn.
-        /// </summary>
-        [Tooltip("The potential parts to spawn.")]
-        [SerializeField]
-        private Part[] prefabs;
 
         /// <summary>
         /// The spaces to spawn parts at.
@@ -149,14 +142,6 @@ namespace Warehouse
         }
 
         /// <summary>
-        /// Start is called on the frame when a script is enabled just before any of the Update methods are called the first time.
-        /// </summary>
-        private void Start()
-        {
-            SpawnParts();
-        }
-
-        /// <summary>
         /// Frame-rate independent MonoBehaviour. FixedUpdate message for physics calculations.
         /// </summary>
         private void FixedUpdate()
@@ -188,7 +173,8 @@ namespace Warehouse
             
             for (int i = 0; i < locations.Length; i++)
             {
-                Part part = Instantiate(prefabs[Random.Range(0, prefabs.Length)], locations[i], true);
+                Part part = Instantiate(WarehouseManager.PartPrefab, locations[i], true);
+                part.SetId(Random.Range(0, WarehouseManager.Parts.Length));
                 _parts.Add(part);
                 part.name = $"Part {_parts[i].ID}";
                 part.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);

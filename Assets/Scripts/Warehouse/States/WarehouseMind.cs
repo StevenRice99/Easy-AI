@@ -27,21 +27,21 @@ namespace Warehouse.States
                 HashSet<InfoStation> infoStations = WarehouseManager.Roles ? InfoStation.Instances.Where(x => x.Inbound == w.Inbound).ToHashSet() : InfoStation.Instances;
 
                 Vector3 p = w.transform.position;
-                Vector3 target;
+                InfoStation infoStation;
                 switch (infoStations.Count)
                 {
                     case < 1:
                         return;
                     case 1:
-                        target = infoStations.First().transform.position;
+                        infoStation = infoStations.First();
                         break;
                     default:
-                        target = infoStations.OrderBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, x.transform.position), p)).First().transform.position;
+                        infoStation = infoStations.OrderBy(x => EasyManager.PathLength(EasyManager.LookupPath(p, x.transform.position), p)).First();
                         break;
                 }
 
-                w.Move(target);
-                if (Vector3.Distance(p, target) <= w.InteractDistance && Inbound.Instances.Any(x => x.GetRandom() >= 0))
+                w.Move(infoStation.transform.position);
+                if (Vector3.Distance(p, infoStation.MainVisual.position) <= w.InteractDistance && Inbound.Instances.Any(x => x.GetRandom() >= 0))
                 {
                     w.NeedsInfo = false;
                 }

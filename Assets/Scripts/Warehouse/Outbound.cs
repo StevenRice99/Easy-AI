@@ -17,20 +17,6 @@ namespace Warehouse
         /// All outbound instances.
         /// </summary>
         public static readonly HashSet<Outbound> Instances = new();
-        
-        /// <summary>
-        /// The options this can request for an outbound order.
-        /// </summary>
-        [Tooltip("The options this can request for an outbound order.")]
-        [SerializeField]
-        private int[] options = { };
-
-        /// <summary>
-        /// The minimum and maximum order options that can be required for the order.
-        /// </summary>
-        [Tooltip("The minimum and maximum order options that can be required for the order.")]
-        [SerializeField]
-        private int2 range = new(3, 3);
 
         /// <summary>
         /// The amount of time before a new order comes in.
@@ -156,14 +142,6 @@ namespace Warehouse
         }
 
         /// <summary>
-        /// Start is called on the frame when a script is enabled just before any of the Update methods are called the first time.
-        /// </summary>
-        private void Start()
-        {
-            CreateOrder();
-        }
-
-        /// <summary>
         /// Frame-rate independent MonoBehaviour. FixedUpdate message for physics calculations.
         /// </summary>
         private void FixedUpdate()
@@ -187,11 +165,21 @@ namespace Warehouse
         {
             _requirements.Clear();
             _available.Clear();
-            
-            int number = Random.Range(range.x, range.y + 1);
+
+            WarehouseManager.PartInfo[] options = WarehouseManager.Parts;
+            float sum = options.Sum(option => option.demand);
+            int2 orderSize = WarehouseManager.OrderSize;
+            int number = Random.Range(orderSize.x, orderSize.y + 1);
             for (int i = 0; i < number; i++)
             {
-                int option = options[Random.Range(0, options.Length)];
+                float rand = Random.Range(0, sum);
+                int option = 0;
+                float current = options[0].demand;
+                while (current < rand)
+                {
+                    current += options[++option].demand;
+                }
+                
                 if (!_requirements.TryAdd(option, 1))
                 {
                     _requirements[option]++;
@@ -214,24 +202,6 @@ namespace Warehouse
             _requirements.Clear();
             _available.Clear();
             _elapsedTime = delay;
-        }
-
-        private void OnValidate()
-        {
-            if (range.x < 1)
-            {
-                range.x = 1;
-            }
-
-            if (range.y < 1)
-            {
-                range.y = 1;
-            }
-
-            if (range.x > range.y)
-            {
-                (range.x, range.y) = (range.y, range.x);
-            }
         }
     }
 }
