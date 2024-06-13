@@ -1034,21 +1034,9 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7481766863448086576, guid: 650f9faa16a585042a1f6d3151b86747, type: 3}
-      propertyPath: testTime
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7481766863448086576, guid: 650f9faa16a585042a1f6d3151b86747, type: 3}
       propertyPath: selectedCamera
       value: 
       objectReference: {fileID: 412457271}
-    - target: {fileID: 7481766863448086576, guid: 650f9faa16a585042a1f6d3151b86747, type: 3}
-      propertyPath: workerCases.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 7481766863448086576, guid: 650f9faa16a585042a1f6d3151b86747, type: 3}
-      propertyPath: workerCases.Array.data[1]
-      value: 4
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using EasyAI;
 using Unity.Mathematics;
@@ -40,9 +41,24 @@ namespace Warehouse
         }
         
         /// <summary>
-        /// Where to save data.
+        /// Root of where to save data.
         /// </summary>
-        private const string Folder = "Warehouse";
+        private const string Root = "Warehouse";
+
+        /// <summary>
+        /// The folder to save trials to.
+        /// </summary>
+        private const string Trials = "Trials";
+
+        /// <summary>
+        /// The folder to save final results composed of the trials.
+        /// </summary>
+        private const string Results = "Results";
+
+        /// <summary>
+        /// The folder to save the averages of the results.
+        /// </summary>
+        private const string Averages = "Averages";
         
         /// <summary>
         /// The prefab for the warehouse agent.
@@ -156,6 +172,14 @@ namespace Warehouse
         [Min(1)]
         [SerializeField]
         private int testTime = 300;
+
+        /// <summary>
+        /// How quickly to run the simulation for tests.
+        /// </summary>
+        [Tooltip("How quickly to run the simulation for tests.")]
+        [Min(1)]
+        [SerializeField]
+        private float testSpeed = 2;
 
         /// <summary>
         /// The numbers of workers to test with.
@@ -314,16 +338,9 @@ namespace Warehouse
             string remaining;
             if (run)
             {
-                int difference = _totalTime - _runsComplete * testTime - intSeconds;
-                int minutesDifference = difference / 60;
-                if (minutesDifference >= 60)
-                {
-                    remaining = $" | Remaining: {minutesDifference / 60}:{minutesDifference % 60:D2}:{difference % 60:D2}";
-                }
-                else
-                {
-                    remaining = $" | Remaining: {difference / 60}:{difference % 60:D2}";
-                }
+                double difference = (_totalTime - _runsComplete * testTime - seconds) / testSpeed;
+                int minutesDifference = (int) difference / 60;
+                remaining = minutesDifference >= 60 ? $" | Remaining: {minutesDifference / 60}:{minutesDifference % 60:D2}:{(int) difference % 60:D2}" : $" | Remaining: {(int) difference / 60}:{(int) difference % 60:D2}";
             }
             else
             {
@@ -471,26 +488,35 @@ namespace Warehouse
             base.Start();
             
 #if UNITY_EDITOR
-            workerCases = workerCases.Distinct().Where(x => x > 0).OrderBy(x => x).ToArray();
-            if (workerCases.Length == 0)
+            if (run)
             {
-                workerCases = new[] {1};
-            }
-            _totalTime = 12 * workerCases.Length * testTime;
-            if (workerCases.Length > 0 && workerCases[0] < 2)
-            {
-                _totalTime -= 6 * testTime;
-            }
+                Time.timeScale = testSpeed;
+                Time.fixedDeltaTime /= testSpeed;
+                
+                workerCases = workerCases.Distinct().Where(x => x > 0).OrderBy(x => x).ToArray();
+                if (workerCases.Length == 0)
+                {
+                    workerCases = new[] {1};
+                }
+                _totalTime = 12 * workerCases.Length * testTime;
+                if (workerCases.Length > 0 && workerCases[0] < 2)
+                {
+                    _totalTime -= 6 * testTime;
+                }
 
-            _currentWorkersCase = 0;
-            workers = workerCases[_currentWorkersCase];
-            roles = false;
-            wireless = false;
-            layout = StorageLayout.Rows;
+                _currentWorkersCase = 0;
+                workers = workerCases[_currentWorkersCase];
+                roles = false;
+                wireless = false;
+                layout = StorageLayout.Rows;
+
+                if (TrialExists(workers, layout, wireless, roles) && !NextTrial())
+                {
+                    return;
+                }
+            }
 #endif
             ResetLevel();
-
-            _startTime = Time.timeAsDouble;
         }
 
         /// <summary>
@@ -498,6 +524,8 @@ namespace Warehouse
         /// </summary>
         private void ResetLevel()
         {
+            _startTime = Time.timeAsDouble;
+            
             if (workers < 2)
             {
                 roles = false;
@@ -604,11 +632,6 @@ namespace Warehouse
                 _testShipmentsUnloaded[i] = 0;
                 _testStoragesUsed[i] = 0;
             }
-
-            if (AlreadyExists(workers, layout, wireless, roles))
-            {
-                EditorApplication.isPlaying = false;
-            }
 #endif
         }
 
@@ -672,6 +695,12 @@ namespace Warehouse
             {
                 return;
             }
+
+            if (WarehouseAgent.Instances.Count < 1)
+            {
+                EditorApplication.ExitPlaymode();
+                return;
+            }
             
             double seconds = Time.timeAsDouble - _startTime;
             int intSeconds = (int) seconds;
@@ -690,62 +719,76 @@ namespace Warehouse
                 return;
             }
 
-            if (!Directory.Exists(Folder))
+            if (!Directory.Exists(Root))
             {
-                Directory.CreateDirectory(Folder);
+                Directory.CreateDirectory(Root);
             }
 
-            if (Directory.Exists(Folder))
+            if (Directory.Exists(Root))
             {
-                string title = DetermineFile(workers, layout, wireless, roles);
-                string data = "Seconds,Orders Completed,Shipments Unloaded,Storages Used";
-                for (int i = 0; i < _testOrdersComplete.Length; i++)
+                string trials = $"{Root}/{Trials}";
+                if (!Directory.Exists(trials))
                 {
-                    data += $"\n{i},{_testOrdersComplete[i]},{_testShipmentsUnloaded[i]},{_testStoragesUsed[i]}";
+                    Directory.CreateDirectory(trials);
                 }
-                StreamWriter writer = new($"{Folder}/{title}.csv", false);
-                writer.Write(data);
-                writer.Close();
+
+                if (Directory.Exists(trials))
+                {
+                    string title = DetermineFileTrial(workers, layout, wireless, roles);
+                    string data = "Seconds,Orders Completed,Shipments Unloaded,Storages Used";
+                    for (int i = 0; i < _testOrdersComplete.Length; i++)
+                    {
+                        data += $"\n{i},{_testOrdersComplete[i]},{_testShipmentsUnloaded[i]},{_testStoragesUsed[i]}";
+                    }
+                    StreamWriter writer = new($"{trials}/{title}.csv", false);
+                    writer.Write(data);
+                    writer.Close();
+                }
             }
-                
+
+            NextTrial();
+        }
+
+        private bool NextTrial()
+        {
             _runsComplete++;
 
             for (StorageLayout next = layout + 1; next <= StorageLayout.NearOutbound; next++)
             {
-                if (AlreadyExists(workers, next, wireless, roles))
+                if (TrialExists(workers, next, wireless, roles))
                 {
                     continue;
                 }
 
                 layout = next;
                 ResetLevel();
-                return;
+                return true;
             }
 
             layout = StorageLayout.Rows;
             
             if (workers > 1)
             {
-                if (!wireless && !AlreadyExists(workers, layout, true, roles))
+                if (!wireless && !TrialExists(workers, layout, true, roles))
                 {
                     wireless = true;
                     ResetLevel();
-                    return;
+                    return true;
                 }
 
                 wireless = false;
 
-                if (!roles && !AlreadyExists(workers, layout, wireless, true))
+                if (!roles && !TrialExists(workers, layout, wireless, true))
                 {
                     roles = true;
                     ResetLevel();
-                    return;
+                    return true;
                 }
             }
             
             for (int i = _currentWorkersCase + 1; i < workerCases.Length; i++)
             {
-                if (AlreadyExists(workerCases[i], layout, wireless, true))
+                if (TrialExists(workerCases[i], layout, wireless, true))
                 {
                     continue;
                 }
@@ -753,28 +796,404 @@ namespace Warehouse
                 _currentWorkersCase = i;
                 workers = workerCases[_currentWorkersCase];
                 ResetLevel();
-                return;
+                return true;
+            }
+            
+            SaveData(StorageLayout.Rows, false, false, out double[] outRowsTerminalsNo, out double[] inRowsTerminalsNo, out double[] storeRowsTerminalsNo);
+            SaveData(StorageLayout.Rows, false, true, out double[] outRowsTerminalsYes, out double[] inRowsTerminalsYes, out double[] storeRowsTerminalsYes);
+            SaveData(StorageLayout.Rows, true, false, out double[] outRowsWirelessNo, out double[] inRowsWirelessNo, out double[] storeRowsWirelessNo);
+            SaveData(StorageLayout.Rows, true, true, out double[] outRowsWirelessYes, out double[] inRowsWirelessYes, out double[] storeRowsWirelessYes);
+            SaveData(StorageLayout.NearInbound, false, false, out double[] outInboundTerminalsNo, out double[] inInboundTerminalsNo, out double[] storeInboundTerminalsNo);
+            SaveData(StorageLayout.NearInbound, false, true, out double[] outInboundTerminalsYes, out double[] inInboundTerminalsYes, out double[] storeInboundTerminalsYes);
+            SaveData(StorageLayout.NearInbound, true, false, out double[] outInboundWirelessNo, out double[] inInboundWirelessNo, out double[] storeInboundWirelessNo);
+            SaveData(StorageLayout.NearInbound, true, true, out double[] outInboundWirelessYes, out double[] inInboundWirelessYes, out double[] storeInboundWirelessYes);
+            SaveData(StorageLayout.NearOutbound, false, false, out double[] outOutboundTerminalsNo, out double[] inOutboundTerminalsNo, out double[] storeOutboundTerminalsNo);
+            SaveData(StorageLayout.NearOutbound, false, true, out double[] outOutboundTerminalsYes, out double[] inOutboundTerminalsYes, out double[] storeOutboundTerminalsYes);
+            SaveData(StorageLayout.NearOutbound, true, false, out double[] outOutboundWirelessNo, out double[] inOutboundWirelessNo, out double[] storeOutboundWirelessNo);
+            SaveData(StorageLayout.NearOutbound, true, true, out double[] outOutboundWirelessYes, out double[] inOutboundWirelessYes, out double[] storeOutboundWirelessYes);
+
+            string path = $"{Root}/{Averages}";
+
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
             }
 
-            EditorApplication.isPlaying = false;
+            if (!Directory.Exists(path))
+            {
+                EditorApplication.ExitPlaymode();
+                return false;
+            }
+            
+            string header = workerCases.Aggregate("Layout,Wireless/Terminals,Roles/No Roles", (current, workerCase) => current + $",{workerCase}");
+
+            string outbounds = header;
+            string inbounds = header;
+            string storages = header;
+
+            const string rowsTerminalsNo = "\nRows,Terminals,No Roles";
+            outbounds += rowsTerminalsNo;
+            inbounds += rowsTerminalsNo;
+            storages += rowsTerminalsNo;
+            for (int i = 0; i < workerCases.Length; i++)
+            {
+                outbounds += $",{outRowsTerminalsNo[i]}";
+                inbounds += $",{inRowsTerminalsNo[i]}";
+                storages += $",{storeRowsTerminalsNo[i]}";
+            }
+            
+            const string rowsTerminalsYes = "\nRows,Terminals,Roles";
+            outbounds += rowsTerminalsYes;
+            inbounds += rowsTerminalsYes;
+            storages += rowsTerminalsYes;
+            for (int i = 0; i < workerCases.Length; i++)
+            {
+                outbounds += $",{outRowsTerminalsYes[i]}";
+                inbounds += $",{inRowsTerminalsYes[i]}";
+                storages += $",{storeRowsTerminalsYes[i]}";
+            }
+
+            const string rowsWirelessNo = "\nRows,Wireless,No Roles";
+            outbounds += rowsWirelessNo;
+            inbounds += rowsWirelessNo;
+            storages += rowsWirelessNo;
+            for (int i = 0; i < workerCases.Length; i++)
+            {
+                outbounds += $",{outRowsWirelessNo[i]}";
+                inbounds += $",{inRowsWirelessNo[i]}";
+                storages += $",{storeRowsWirelessNo[i]}";
+            }
+
+            const string rowsWirelessYes = "\nRows,Wireless,Roles";
+            outbounds += rowsWirelessYes;
+            inbounds += rowsWirelessYes;
+            storages += rowsWirelessYes;
+            for (int i = 0; i < workerCases.Length; i++)
+            {
+                outbounds += $",{outRowsWirelessYes[i]}";
+                inbounds += $",{inRowsWirelessYes[i]}";
+                storages += $",{storeRowsWirelessYes[i]}";
+            }
+
+            const string inboundTerminalsNo = "\nNear Inbound,Terminals,No Roles";
+            outbounds += inboundTerminalsNo;
+            inbounds += inboundTerminalsNo;
+            storages += inboundTerminalsNo;
+            for (int i = 0; i < workerCases.Length; i++)
+            {
+                outbounds += $",{outInboundTerminalsNo[i]}";
+                inbounds += $",{inInboundTerminalsNo[i]}";
+                storages += $",{storeInboundTerminalsNo[i]}";
+            }
+            
+            const string inboundTerminalsYes = "\nNear Inbound,Terminals,Roles";
+            outbounds += inboundTerminalsYes;
+            inbounds += inboundTerminalsYes;
+            storages += inboundTerminalsYes;
+            for (int i = 0; i < workerCases.Length; i++)
+            {
+                outbounds += $",{outInboundTerminalsYes[i]}";
+                inbounds += $",{inInboundTerminalsYes[i]}";
+                storages += $",{storeInboundTerminalsYes[i]}";
+            }
+
+            const string inboundWirelessNo = "\nNear Inbound,Wireless,No Roles";
+            outbounds += inboundWirelessNo;
+            inbounds += inboundWirelessNo;
+            storages += inboundWirelessNo;
+            for (int i = 0; i < workerCases.Length; i++)
+            {
+                outbounds += $",{outInboundWirelessNo[i]}";
+                inbounds += $",{inInboundWirelessNo[i]}";
+                storages += $",{storeInboundWirelessNo[i]}";
+            }
+
+            const string inboundWirelessYes = "\nNear Inbound,Wireless,Roles";
+            outbounds += inboundWirelessYes;
+            inbounds += inboundWirelessYes;
+            storages += inboundWirelessYes;
+            for (int i = 0; i < workerCases.Length; i++)
+            {
+                outbounds += $",{outInboundWirelessYes[i]}";
+                inbounds += $",{inInboundWirelessYes[i]}";
+                storages += $",{storeInboundWirelessYes[i]}";
+            }
+
+            const string outboundTerminalsNo = "\nNear Outbound,Terminals,No Roles";
+            outbounds += outboundTerminalsNo;
+            inbounds += outboundTerminalsNo;
+            storages += outboundTerminalsNo;
+            for (int i = 0; i < workerCases.Length; i++)
+            {
+                outbounds += $",{outOutboundTerminalsNo[i]}";
+                inbounds += $",{inOutboundTerminalsNo[i]}";
+                storages += $",{storeOutboundTerminalsNo[i]}";
+            }
+            
+            const string outboundTerminalsYes = "\nNear Outbound,Terminals,Roles";
+            outbounds += outboundTerminalsYes;
+            inbounds += outboundTerminalsYes;
+            storages += outboundTerminalsYes;
+            for (int i = 0; i < workerCases.Length; i++)
+            {
+                outbounds += $",{outOutboundTerminalsYes[i]}";
+                inbounds += $",{inOutboundTerminalsYes[i]}";
+                storages += $",{storeOutboundTerminalsYes[i]}";
+            }
+
+            const string outboundWirelessNo = "\nNear Outbound,Wireless,No Roles";
+            outbounds += outboundWirelessNo;
+            inbounds += outboundWirelessNo;
+            storages += outboundWirelessNo;
+            for (int i = 0; i < workerCases.Length; i++)
+            {
+                outbounds += $",{outOutboundWirelessNo[i]}";
+                inbounds += $",{inOutboundWirelessNo[i]}";
+                storages += $",{storeOutboundWirelessNo[i]}";
+            }
+
+            const string outboundWirelessYes = "\nNear Outbound,Wireless,Roles";
+            outbounds += outboundWirelessYes;
+            inbounds += outboundWirelessYes;
+            storages += outboundWirelessYes;
+            for (int i = 0; i < workerCases.Length; i++)
+            {
+                outbounds += $",{outOutboundWirelessYes[i]}";
+                inbounds += $",{inOutboundWirelessYes[i]}";
+                storages += $",{storeOutboundWirelessYes[i]}";
+            }
+            
+            StreamWriter writer = new($"{path}/Orders Completed.csv", false);
+            writer.Write(outbounds);
+            writer.Close();
+            
+            writer = new($"{path}/Shipments Unloaded.csv", false);
+            writer.Write(inbounds);
+            writer.Close();
+            
+            writer = new($"{path}/Storages Used.csv", false);
+            writer.Write(storages);
+            writer.Close();
+
+            EditorApplication.ExitPlaymode();
+            return false;
         }
 
-        private static bool AlreadyExists(int workerCount, StorageLayout currentLayout, bool usingWireless, bool usingRoles)
+        private static bool TrialExists(int workerCount, StorageLayout currentLayout, bool usingWireless, bool usingRoles)
         {
-            if (!Directory.Exists(Folder))
+            if (!Directory.Exists(Root))
+            {
+                return false;
+            }
+
+            string trials = $"{Root}/{Trials}";
+            if (!Directory.Exists(trials))
             {
                 return false;
             }
             
-            string title = DetermineFile(workerCount, currentLayout, usingWireless, usingRoles);
-            return File.Exists($"{Folder}/{title}.csv");
+            string title = DetermineFileTrial(workerCount, currentLayout, usingWireless, usingRoles);
+            return File.Exists($"{trials}/{title}.csv");
         }
 
-        private static string DetermineFile(int workerCount, StorageLayout currentLayout, bool usingWireless, bool usingRoles)
+        private void SaveData(StorageLayout currentLayout, bool usingWireless, bool usingRoles, out double[] rateOrders, out double[] rateShipments, out double[] averageStorage)
+        {
+            rateOrders = new double[workerCases.Length];
+            rateShipments = new double[workerCases.Length];
+            averageStorage = new double[workerCases.Length];
+            for (int i = 0; i < workerCases.Length; i++)
+            {
+                rateOrders[i] = 0;
+                rateShipments[i] = 0;
+                averageStorage[i] = 0;
+            }
+            
+            if (!Directory.Exists(Root))
+            {
+                return;
+            }
+
+            if (!Directory.Exists($"{Root}/{Trials}"))
+            {
+                return;
+            }
+
+            string path = $"{Root}/{Results}";
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            if (!Directory.Exists(path))
+            {
+                return;
+            }
+            
+            List<string>[] outboundData = new List<string>[workerCases.Length];
+            List<string>[] inboundData = new List<string>[workerCases.Length];
+            List<string>[] storageData = new List<string>[workerCases.Length];
+            int len = 0;
+            for (int i = 0; i < workerCases.Length; i++)
+            {
+                int runLen = 0;
+                
+                outboundData[i] = new();
+                inboundData[i] = new();
+                storageData[i] = new();
+                
+                if (!TrialExists(workerCases[i], currentLayout, usingWireless, usingRoles))
+                {
+                    continue;
+                }
+
+                using StreamReader sr = new($"{Root}/{Trials}/{DetermineFileTrial(workerCases[i], currentLayout, usingWireless, usingRoles)}.csv");
+                bool isHeader = true;
+                while (!sr.EndOfStream)
+                {
+                    string line = sr.ReadLine();
+                    if (line == null || isHeader)
+                    {
+                        isHeader = false;
+                        continue;
+                    }
+
+                    string[] values = line.Split(',');
+                    string s = values[0];
+                    for (int j = 1; j < values.Length; j++)
+                    {
+                        s += $",{values[j]}";
+                    }
+                    Debug.Log($"{line} | {s}");
+                    if (values.Length < 2)
+                    {
+                        continue;
+                    }
+
+                    runLen++;
+                    
+                    outboundData[i].Add(values[1]);
+                    if (values.Length < 3)
+                    {
+                        continue;
+                    }
+                        
+                    inboundData[i].Add(values[2]);
+                    if (values.Length < 4)
+                    {
+                        continue;
+                    }
+                        
+                    storageData[i].Add(values[3]);
+                }
+
+                if (runLen > len)
+                {
+                    len = runLen;
+                }
+            }
+
+            string header = workerCases.Aggregate("Seconds", (current, workerCase) => current + $",{workerCase}");
+
+            string outbounds = header;
+            string inbounds = header;
+            string storages = header;
+            
+            int[] previousOutbound = new int[workerCases.Length];
+            int[] previousInbound = new int[workerCases.Length];
+            int[] previousStorage = new int[workerCases.Length];
+            for (int i = 0; i < workerCases.Length; i++)
+            {
+                previousOutbound[i] = 0;
+                previousInbound[i] = 0;
+                previousStorage[i] = 0;
+            }
+            
+            for (int i = 0; i < len; i++)
+            {
+                outbounds += $"\n{i}";
+                inbounds += $"\n{i}";
+                storages += $"\n{i}";
+                for (int j = 0; j < workerCases.Length; j++)
+                {
+                    if (i < outboundData[j].Count)
+                    {
+                        outbounds += $",{outboundData[j][i]}";
+                        if (int.TryParse(outboundData[j][i], out int c))
+                        {
+                            previousOutbound[j] = c;
+                            rateOrders[j] = c;
+                        }
+                    }
+                    else
+                    {
+                        outbounds += $",{previousOutbound[j]}";
+                    }
+                    
+                    if (i < inboundData[j].Count)
+                    {
+                        inbounds += $",{inboundData[j][i]}";
+                        if (int.TryParse(inboundData[j][i], out int c))
+                        {
+                            previousInbound[j] = c;
+                            rateShipments[j] = c;
+                        }
+                    }
+                    else
+                    {
+                        inbounds += $",{previousInbound[j]}";
+                    }
+                    
+                    if (i < storageData[j].Count)
+                    {
+                        storages += $",{storageData[j][i]}";
+                        if (int.TryParse(storageData[j][i], out int c))
+                        {
+                            previousStorage[j] = c;
+                            averageStorage[j] += c;
+                        }
+                    }
+                    else
+                    {
+                        storages += $",{previousStorage[j]}";
+                        averageStorage[j] += previousStorage[j];
+                    }
+                }
+            }
+
+            double minutes = len / 60.0;
+
+            for (int i = 0; i < workerCases.Length; i++)
+            {
+                rateOrders[i] /= minutes;
+                rateShipments[i] /= minutes;
+                averageStorage[i] /= len;
+            }
+
+            string title = DetermineFileCore(currentLayout, usingWireless, usingRoles);
+            
+            StreamWriter writer = new($"{path}/Orders Completed {title}.csv", false);
+            writer.Write(outbounds);
+            writer.Close();
+            
+            writer = new($"{path}/Shipments Unloaded {title}.csv", false);
+            writer.Write(inbounds);
+            writer.Close();
+            
+            writer = new($"{path}/Storages Used {title}.csv", false);
+            writer.Write(storages);
+            writer.Close();
+        }
+
+        private static string DetermineFileTrial(int workerCount, StorageLayout currentLayout, bool usingWireless, bool usingRoles)
+        {
+            return $"{workerCount} {DetermineFileCore(currentLayout, usingWireless, usingRoles)}";
+        }
+
+        private static string DetermineFileCore(StorageLayout currentLayout, bool usingWireless, bool usingRoles)
         {
             string w = usingWireless ? "Wireless" : "Terminals";
             string r = usingRoles ? "Roles" : "No Roles";
-            return $"Workers = {workerCount} - Layout = {LayoutString(currentLayout)} - {w} - {r}";
+            return $"{LayoutString(currentLayout)} {w} {r}";
         }
 #endif
     }
