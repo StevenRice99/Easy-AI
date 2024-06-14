@@ -36,17 +36,20 @@ namespace Warehouse.States
                 return;
             }
 
+            // Cannot pick if they have a part.
             if (w.HasPart)
             {
                 return;
             }
             
+            // If there is no target to pick up from, look for one.
             if (!w.HasTarget)
             {
-                agent.Log("No target to pick up at, looking for one.");
+                agent.Log("No target to pick up from, looking for one.");
                 w.SetTarget(w.Sense<PickSensor, MonoBehaviour>());
             }
 
+            // Try and pick up from the target if it has one.
             if (w.HasTarget)
             {
                 w.Act(w.Target);

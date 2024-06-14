@@ -21,18 +21,21 @@ namespace Warehouse.Actuators
                 return false;
             }
 
+            // No need to try and pick up a new part if already holding a part.
             if (w.HasPart)
             {
                 Log("Already have a part.");
                 return false;
             }
 
+            // Check if in range to interact.
             if (!w.CanInteract)
             {
                 Log("Not in range to pick up.");
                 return false;
             }
             
+            // Perform the pick.
             Log("Picking up.");
             return pick.Pick(w);
         }

@@ -57,7 +57,7 @@ namespace Warehouse
         /// <summary>
         /// How much it costs to access this.
         /// </summary>
-        public float Cost => (transform.position.y - offset) * WarehouseManager.InteractTimeScale;
+        private float Cost => (transform.position.y - offset) * WarehouseManager.InteractTimeScale;
         
         /// <summary>
         /// The part currently being stored.
@@ -110,6 +110,7 @@ namespace Warehouse
         /// <param name="set">The new ID to set.</param>
         public void SetId(int set)
         {
+            // Remove the previous ID from the lookup table.
             if (PlaceOptions.ContainsKey(ID) && PlaceOptions[ID].Contains(this))
             {
                 PlaceOptions[ID].Remove(this);
@@ -119,8 +120,10 @@ namespace Warehouse
                 }
             }
 
+            // Set the new ID.
             ID = set;
 
+            // If this has a part which does not match the new ID, destroy it.
             if (!Empty && ID != _part.ID)
             {
                 if (PickOptions.TryGetValue(_part.ID, out HashSet<Storage> option))
@@ -135,10 +138,8 @@ namespace Warehouse
                 Destroy(_part.gameObject);
             }
 
-            if (Empty)
-            {
-                UpdatePlaceable();
-            }
+            // Update information about what is placeable here.
+            UpdatePlaceable();
         }
 
         /// <summary>
@@ -268,37 +269,48 @@ namespace Warehouse
         /// <returns>True if the part was added, false otherwise.</returns>
         public bool Place(WarehouseAgent agent)
         {
+            // If the agent does not have a part or this cannot hold this part do nothing.
             if (!agent.HasPart || !PlaceAvailable(agent, agent.Id))
             {
                 return false;
             }
 
+            // If not done the process of storing, up the time.
             if (!InteractionComplete)
             {
                 _interactingTime += Time.deltaTime;
                 return false;
             }
 
+            // Otherwise, placement is complete to get the agent's part.
             Part part = agent.Remove();
             if (part == null)
             {
+                ReleaseClaim(agent);
                 return false;
             }
 
+            // Add score to the agent for storing the part.
             agent.AddStoreScore();
+            
+            // Add the part to the storage.
             _part = part;
             _part.transform.parent = transform;
             _part.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            
+            // The agent is no longer using this so release the claim.
             ReleaseClaim(agent);
 
+            // Remove from placement options.
             if (PlaceOptions.TryGetValue(ID, out HashSet<Storage> placeOption))
             {
                 placeOption.Remove(this);
             }
             
-            if (PickOptions.TryGetValue(_part.ID, out HashSet<Storage> option))
+            // Add to pick options.
+            if (PickOptions.TryGetValue(_part.ID, out HashSet<Storage> pickOption))
             {
-                option.Add(this);
+                pickOption.Add(this);
             }
             else
             {
@@ -315,27 +327,32 @@ namespace Warehouse
         /// <returns>True if it was picked up, false otherwise.</returns>
         public bool Pick(WarehouseAgent agent)
         {
+            // If there is no part at this storage or the agent has a part or this is not the part they want they cannot pick.
             if (Empty || agent.HasPart || (agent.Id >= 0 && _part.ID != agent.Id))
             {
                 return false;
             }
             
+            // If nothing is interacting with this, attach the agent to it.
             if (_interacting == null)
             {
                 _interacting = agent;
                 _interactingTime = 0;
             }
+            // Otherwise if a different agent is already interacting, cannot place.
             else if (_interacting != agent)
             {
                 return false;
             }
             
+            // If not done the process of picking, up the time.
             if (!InteractionComplete)
             {
                 _interactingTime += Time.deltaTime;
                 return false;
             }
 
+            // Remove from pick options.
             if (PickOptions.TryGetValue(_part.ID, out HashSet<Storage> option))
             {
                 option.Remove(this);
@@ -345,11 +362,15 @@ namespace Warehouse
                 }
             }
             
+            // Add the part into storage.
             _part.transform.parent = agent.HoldLocation;
             _part.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             _part = null;
+            
+            // The agent is no longer using this so release the claim.
             ReleaseClaim(agent);
 
+            // Set that this can be placed at.
             UpdatePlaceable();
             
             return true;

@@ -107,6 +107,7 @@ namespace Warehouse
                 Vector2 p;
                 if (Target is Storage s)
                 {
+                    // Compare with the move target of storages.
                     Vector3 moveTarget = s.MoveTarget;
                     p = new(moveTarget.x, moveTarget.z);
                 }
@@ -135,12 +136,14 @@ namespace Warehouse
         /// <param name="target">The target to pick up from or place down at.</param>
         public void SetTarget(MonoBehaviour target = null)
         {
+            // Can't stop interacting with a storage.
             if (Target != null && target is Storage s0 && s0.IsInteracting(this))
             {
                 Log($"Cannot stop interaction with {s0.name}.");
                 return;
             }
             
+            // Removing the target.
             if (target == null)
             {
                 Log("No target, stopping moving.");
@@ -151,8 +154,10 @@ namespace Warehouse
 
             Vector3 pos;
             
+            // If the agent has a part...
             if (HasPart)
             {
+                // And they are trying to not go to a place or the place is claimed, cannot move there.
                 if (target is not IPlace place || !place.PlaceClaim(this, Id))
                 {
                     Log("Cannot go to a picking only position with a part.");
@@ -161,6 +166,7 @@ namespace Warehouse
                     return;
                 }
 
+                // Otherwise move there.
                 Target = target;
                 if (target is Storage s1)
                 {
@@ -175,6 +181,7 @@ namespace Warehouse
                 return;
             }
 
+            // Otherwise the agent does not have a part, so they must pick and the pick must be available, so do nothing if it is not.
             if (target is not IPick pick || !pick.PickClaim(this, Id))
             {
                 Log("Cannot go to a placing only position without a part.");
@@ -183,6 +190,7 @@ namespace Warehouse
                 return;
             }
 
+            // Otherwise move there.
             Target = target;
             if (target is Storage s2)
             {
@@ -218,11 +226,13 @@ namespace Warehouse
         {
             SetTarget();
             
+            // If already have a part, cannot attach another part.
             if (HasPart)
             {
                 return false;
             }
 
+            // Lock the part to the agent.
             _part = part;
             Transform t = _part.transform;
             t.parent = HoldLocation;
@@ -239,11 +249,13 @@ namespace Warehouse
         {
             SetTarget();
             
+            // If do not have a part, cannot remove a part.
             if (!HasPart)
             {
                 return null;
             }
 
+            // Remove the part from the agent.
             Part part = _part;
             part.transform.parent = null;
             _part = null;
@@ -259,11 +271,13 @@ namespace Warehouse
         {
             SetTarget();
             
+            // Cannot destroy a part if one does not exist.
             if (!HasPart)
             {
                 return -1;
             }
             
+            // Get information about the part that was destroyed.
             int id = Id;
             Destroy(_part.gameObject);
             _part = null;

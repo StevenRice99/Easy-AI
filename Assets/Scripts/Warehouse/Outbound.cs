@@ -60,13 +60,14 @@ namespace Warehouse
         /// <returns>True if it can be claimed, false otherwise.</returns>
         public bool PlaceClaim(WarehouseAgent agent, int id)
         {
+            // Ensure this is available for the agent.
             if (!PlaceAvailable(agent, id))
             {
                 return false;
             }
             
+            // Remove the part from the list so other agents don't try to get it.
             _available[id]--;
-
             if (_available[id] < 1)
             {
                 _available.Remove(id);
@@ -82,12 +83,16 @@ namespace Warehouse
         /// <returns>True if the part was added, false otherwise.</returns>
         public bool Place(WarehouseAgent agent)
         {
+            // If the agent does not have a part or this does not require this part do nothing.
             if (!agent.HasPart || !_requirements.ContainsKey(agent.Id))
             {
                 return false;
             }
             
+            // Destroy the part the agent was carrying to indicate it was used for this order.
             int id = agent.Destroy();
+            
+            // Remove this from the requirements.
             if (id >= 0)
             {
                 _requirements[id]--;
@@ -97,11 +102,13 @@ namespace Warehouse
                 }
             }
 
+            // If the order has been completed, add the score for it.
             if (_requirements.Count < 1)
             {
                 WarehouseManager.OrderCompleted();
             }
             
+            // Agent's have individual score which is incremented.
             agent.AddOrderScore();
             return true;
         }
@@ -138,11 +145,13 @@ namespace Warehouse
         /// </summary>
         private void FixedUpdate()
         {
+            // Still need items so do nothing.
             if (_requirements.Count > 0)
             {
                 return;
             }
 
+            // Order completed so wait before requesting a new one.
             _elapsedTime += Time.deltaTime;
             if (_elapsedTime >= WarehouseManager.OutboundDelay)
             {
@@ -155,23 +164,37 @@ namespace Warehouse
         /// </summary>
         private void CreateOrder()
         {
+            // Cleanup the previous order.
             _requirements.Clear();
             _available.Clear();
 
+            // Get all parts the warehouse can spawn.
             WarehouseManager.PartInfo[] options = WarehouseManager.Parts;
+            
+            // Sum the total weight of all parts for random chance calculations.
             float sum = options.Sum(option => option.demand);
+            
+            // Determine the size of this order.
             int2 orderSize = WarehouseManager.OrderSize;
             int number = Random.Range(orderSize.x, orderSize.y + 1);
+            
+            // Loop for the size of the order.
             for (int i = 0; i < number; i++)
             {
+                // Get the random value to determine what part is needed.
                 float rand = Random.Range(0, sum);
+                
+                // Start with the first part.
                 int option = 0;
                 float current = options[0].demand;
+                
+                // Loop until the part which meets the weight threshold is met.
                 while (current < rand)
                 {
                     current += options[++option].demand;
                 }
                 
+                // Store the new requirement.
                 if (!_requirements.TryAdd(option, 1))
                 {
                     _requirements[option]++;
@@ -183,6 +206,7 @@ namespace Warehouse
                 }
             }
 
+            // Reset the timer.
             _elapsedTime = 0;
         }
 

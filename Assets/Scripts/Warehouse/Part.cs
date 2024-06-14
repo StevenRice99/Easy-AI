@@ -33,6 +33,9 @@ namespace Warehouse
             Visuals.material.color = WarehouseManager.Parts[id].color;
         }
 
+        /// <summary>
+        /// Editor-only function that Unity calls when the script is loaded or a value changes in the Inspector.
+        /// </summary>
         private void OnValidate()
         {
             if (Visuals != null)

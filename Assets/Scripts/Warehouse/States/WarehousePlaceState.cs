@@ -36,23 +36,27 @@ namespace Warehouse.States
                 return;
             }
 
+            // Cannot place if they don't have a part.
             if (!w.HasPart)
             {
                 return;
             }
             
+            // If there is no target to place down at, look for one.
             if (!w.HasTarget)
             {
                 w.Log("No target to put down at, looking for one.");
                 w.SetTarget(w.Sense<PlaceSensor, MonoBehaviour>());
             }
 
+            // Try and place down at the target if it has one.
             if (w.HasTarget)
             {
                 w.Act(w.Target);
                 return;
             }
 
+            // If there is nowhere to place the part, destroy it so the simulation does not get deadlocked.
             w.Log("Nowhere to place this item. Destroying it to ensure the simulation does not get locked.");
             w.Destroy();
         }

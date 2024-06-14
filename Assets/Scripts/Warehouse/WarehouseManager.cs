@@ -22,9 +22,15 @@ namespace Warehouse
         [Serializable]
         public struct PartInfo
         {
+            /// <summary>
+            /// The color to display for this part.
+            /// </summary>
             [Tooltip("The color to display for this part.")]
             public Color color;
             
+            /// <summary>
+            /// The demand for ordering this part.
+            /// </summary>
             [Tooltip("The demand for ordering this part.")]
             [Min(float.Epsilon)]
             public float demand;
@@ -33,7 +39,7 @@ namespace Warehouse
         /// <summary>
         /// How to manage the layout of the warehouse.
         /// </summary>
-        public enum StorageLayout
+        private enum StorageLayout
         {
             Rows,
             NearInbound,
@@ -319,25 +325,34 @@ namespace Warehouse
         protected override float DisplayDetails(float x, float y, float w, float h, float p)
         {
             y = NextItem(y, h, p);
+            
+            // One more item to display if more than one agent, as there cannot be roles with one agent.
             int size = 7;
             if (workers > 1)
             {
                 size++;
             }
 #if UNITY_EDITOR
-            size++;
+            // Need an extra line in the editor to indicate if automatic tests are being run.
+            if (run)
+            {
+                size++;
+            }
 #endif
             GuiBox(x, y, w, h, p, size);
 
+            // Get how much time has elapsed.
             double seconds = Time.timeAsDouble - _startTime;
             int intSeconds = (int) seconds;
 #if UNITY_EDITOR
-            GuiLabel(x, y, w, h, p, "Running Tests");
-            y = NextItem(y, h, p);
-
+            // If running tests or not.
             string remaining;
             if (run)
             {
+                GuiLabel(x, y, w, h, p, "Running Tests");
+                y = NextItem(y, h, p);
+                
+                // Get how much time is left accounting for time scaling.
                 double difference = (_totalTime - _runsComplete * testTime - seconds) / testSpeed;
                 int minutesDifference = (int) difference / 60;
                 remaining = minutesDifference >= 60 ? $" | Remaining: {minutesDifference / 60}:{minutesDifference % 60:D2}:{(int) difference % 60:D2}" : $" | Remaining: {(int) difference / 60}:{(int) difference % 60:D2}";
@@ -351,22 +366,26 @@ namespace Warehouse
 #else
             GuiLabel(x, y, w, h, p, $"Time: {intSeconds / 60}:{intSeconds % 60:D2}");
 #endif      
+            // Display the number of workers.
             y = NextItem(y, h, p);
             GuiLabel(x, y, w, h, p, $"Workers: {workers}");
 
+            // If more than one worker, display if using roles or not.
             if (workers > 1)
             {
                 y = NextItem(y, h, p);
                 GuiLabel(x, y, w, h, p, roles ? "Roles" : "No Roles");
             }
-                
+            
+            // Display if accessing information wireless or via terminals.
             y = NextItem(y, h, p);
             GuiLabel(x, y, w, h, p, wireless ? "Wireless Information" : "Terminals Information");
 
-            
+            // Display the layout mode.
             y = NextItem(y, h, p);
             GuiLabel(x, y, w, h, p, $"Storage Layout: {LayoutString(layout)}");
 
+            // Calculate rates for order and shipment handling.
             double minutes = seconds / 60;
             double orderRate;
             double shipmentRate;
@@ -381,14 +400,18 @@ namespace Warehouse
                 shipmentRate = _shipmentsUnloaded / minutes;
             }
             
+            // Display the orders complete.
             y = NextItem(y, h, p);
             GuiLabel(x, y, w, h, p, $"Orders Completed: {_ordersCompleted} | {orderRate:0.00} / minute");
             
+            // Display the shipments unloaded.
             y = NextItem(y, h, p);
             GuiLabel(x, y, w, h, p, $"Shipments Unloaded: {_shipmentsUnloaded} | {shipmentRate:0.00} / minute");
 
+            // Get how many storages are being used.
             int storagesUsed = Storage.Instances.Count(i => !i.Empty);
             
+            // Display the storage utilization.
             y = NextItem(y, h, p);
             GuiLabel(x, y, w, h, p, $"Storage Utilization: {storagesUsed} / {Storage.Instances.Count} | {(float) storagesUsed / Storage.Instances.Count * 100:0.00}%");
             
@@ -407,11 +430,13 @@ namespace Warehouse
         protected override float CustomRendering(float x, float y, float w, float h, float p)
         {
 #if UNITY_EDITOR
+            // Don't display controls if running tests.
             if (run)
             {
                 return y;
             }
 #endif
+            // A button to reset the level.
             if (GuiButton(x, y, w, h, "Reset"))
             {
                 ResetLevel();
@@ -419,6 +444,7 @@ namespace Warehouse
             
             y = NextItem(y, h, p);
             
+            // A button to add a worker.
             if (GuiButton(x, y, w, h, "Add Worker"))
             {
                 workers++;
@@ -427,8 +453,10 @@ namespace Warehouse
                 
             y = NextItem(y, h, p);
 
+            // Can only remove workers or change roles if there are more than one worker.
             if (workers > 1)
             {
+                // A button to remove a worker.
                 if (GuiButton(x, y, w, h, "Remove Worker"))
                 {
                     workers--;
@@ -437,6 +465,7 @@ namespace Warehouse
                 
                 y = NextItem(y, h, p);
                 
+                // A button to toggle roles.
                 if (GuiButton(x, y, w, h, roles ? "Disable Roles" : "Enable Roles"))
                 {
                     roles = !roles;
@@ -449,13 +478,14 @@ namespace Warehouse
             {
                 roles = false;
             }
-                
+            
+            // A button to toggle using wireless.
             if (GuiButton(x, y, w, h, wireless ? "Disable Wireless" : "Enable Wireless"))
             {
                 wireless = !wireless;
                 ResetLevel();
             }
-                
+            
             y = NextItem(y, h, p);
 
             StorageLayout option = layout + 1;
@@ -463,7 +493,8 @@ namespace Warehouse
             {
                 option = StorageLayout.Rows;
             }
-                
+            
+            // A button to toggle the layout.
             if (GuiButton(x, y, w, h, $"Use {LayoutString(option)} Layout"))
             {
                 layout++;
@@ -474,7 +505,7 @@ namespace Warehouse
                 
                 ResetLevel();
             }
-                
+            
             y = NextItem(y, h, p);
 
             return y;
@@ -486,30 +517,38 @@ namespace Warehouse
         protected override void Start()
         {
             base.Start();
-            
 #if UNITY_EDITOR
+            // Configure the trials if running them.
             if (run)
             {
+                // Run at the desired rate.
                 Time.timeScale = testSpeed;
                 Time.fixedDeltaTime /= testSpeed;
                 
+                // Ensure worker cases are distinct.
                 workerCases = workerCases.Distinct().Where(x => x > 0).OrderBy(x => x).ToArray();
                 if (workerCases.Length == 0)
                 {
                     workerCases = new[] {1};
                 }
+                
+                // Determine how much time all cases will take.
                 _totalTime = 12 * workerCases.Length * testTime;
+                
+                // If the first case has only one worker, certain cases will not be run so account for that.
                 if (workerCases.Length > 0 && workerCases[0] < 2)
                 {
                     _totalTime -= 6 * testTime;
                 }
 
+                // Set initial values.
                 _currentWorkersCase = 0;
                 workers = workerCases[_currentWorkersCase];
                 roles = false;
                 wireless = false;
                 layout = StorageLayout.Rows;
 
+                // If all trials are already done, there is nothing to do.
                 if (TrialExists(workers, layout, wireless, roles) && !NextTrial())
                 {
                     return;
@@ -524,33 +563,38 @@ namespace Warehouse
         /// </summary>
         private void ResetLevel()
         {
-            _startTime = Time.timeAsDouble;
-            
+            // If only one worker, there cannot be roles.
             if (workers < 2)
             {
                 roles = false;
             }
             
+            // Destroy all current agents.
             WarehouseAgent[] agents = WarehouseAgent.Instances.ToArray();
             for (int i = 0; i < agents.Length; i++)
             {
                 Destroy(agents[i].gameObject);
             }
 
+            // Reset details.
             _ordersCompleted = 0;
             _shipmentsUnloaded = 0;
             _startTime = Time.timeAsDouble;
 
+            // Set the layout.
             switch (layout)
             {
                 case StorageLayout.NearInbound:
+                    // Most in-demand parts are towards the inbounds.
                     ConfigureStorageNearest(Inbound.Instances.Select(x => x.transform).ToArray());
                     break;
                 case StorageLayout.NearOutbound:
+                    // Most in-demand parts are towards the outbounds.
                     ConfigureStorageNearest(Outbound.Instances.Select(x => x.transform).ToArray());
                     break;
                 case StorageLayout.Rows:
                 default:
+                    // Assign racks by demand, with most in-demand parts being towards the center.
                     Rack[] ordered = Rack.Instances.OrderBy(x => x.transform.position.magnitude).ThenBy(x => x.transform.position.z).ToArray();
                     int id = 0;
                     foreach (Rack rack in ordered)
@@ -564,36 +608,44 @@ namespace Warehouse
                     break;
             }
             
+            // Reset all storages options.
             Storage.PickOptions.Clear();
+            Storage.PlaceOptions.Clear();
             foreach (Storage storage in Storage.Instances)
             {
                 storage.ResetObject();
             }
             
+            // Reset all inbounds.
             foreach (Inbound inbound in Inbound.Instances)
             {
                 inbound.ResetObject();
             }
 
+            // Reset all outbounds.
             foreach (Outbound outbound in Outbound.Instances)
             {
                 outbound.ResetObject();
             }
 
+            // Reset all info stations.
             foreach (InfoStation infoStation in InfoStation.Instances)
             {
                 infoStation.ResetObject();
             }
 
+            // Track what location to spawn agents at.
             int inboundLocation = 0;
             int outboundLocation = 0;
 
+            // Spawn the required number of workers.
             for (int i = 0; i < workers; i++)
             {
+                // If not using roles or every other agent, spawn them at an inbound.
                 bool inbound = !roles || i % 2 == 0;
                 
+                // Get the spawn position needed.
                 Vector3 spawnPosition;
-                
                 if (inbound)
                 {
                     spawnPosition = inboundSpawns[inboundLocation++].position;
@@ -611,12 +663,14 @@ namespace Warehouse
                     }
                 }
                 
+                // Spawn the agent.
                 WarehouseAgent agent = Instantiate(warehouseAgentPrefab, spawnPosition, quaternion.identity);
                 string role = roles ? inbound ? " - Inbound" : " - Outbound" : string.Empty;
                 agent.name = $"Worker {i + 1:D2}{role}";
                 agent.Inbound = inbound;
             }
 #if UNITY_EDITOR
+            // If doing automatic runs, set up the variables to hold the data.
             if (!run)
             {
                 return;
@@ -641,8 +695,10 @@ namespace Warehouse
         /// <param name="close">The transforms to be close to.</param>
         private void ConfigureStorageNearest(Transform[] close)
         {
+            // Get the point to order storages by.
             Vector3 p = close.Aggregate(Vector3.zero, (current, t) => current + t.position) / close.Length;
 
+            // Order by distance, then height, then offset.
             Storage[] storages = Storage.Instances.OrderBy(x => math.abs(x.transform.position.x - p.x)).ThenBy(x => math.abs(x.transform.position.y - p.y)).ThenBy(x => math.abs(x.transform.position.z - p.z)).ToArray();
 
             int step = storages.Length / parts.Length;
@@ -668,11 +724,13 @@ namespace Warehouse
         /// </summary>
         private void OnValidate()
         {
+            // Ensure parts are in order.
             if (parts is { Length: > 0 })
             {
                 parts = parts.OrderByDescending(x => x.demand).ToArray();
             }
             
+            // Ensure order sizes are valid.
             if (orderSize.x < 1)
             {
                 orderSize.x = 1;
@@ -689,36 +747,44 @@ namespace Warehouse
             }
         }
 #if UNITY_EDITOR
+        /// <summary>
+        /// Frame-rate independent MonoBehaviour. FixedUpdate message for physics calculations.
+        /// </summary>
         private void FixedUpdate()
         {
+            // Nothing to do if not running trials.
             if (!run)
             {
                 return;
             }
 
+            // If there are no agents, this means the trials are done so exit.
             if (WarehouseAgent.Instances.Count < 1)
             {
                 EditorApplication.ExitPlaymode();
                 return;
             }
             
+            // Get the elapsed time.
             double seconds = Time.timeAsDouble - _startTime;
             int intSeconds = (int) seconds;
 
+            // Store the results at the current time step.
             _testOrdersComplete[intSeconds] = _ordersCompleted;
             _testShipmentsUnloaded[intSeconds] = _shipmentsUnloaded;
-            
             int storagesUsed = Storage.Instances.Count(i => !i.Empty);
             if (storagesUsed > _testStoragesUsed[intSeconds])
             {
                 _testStoragesUsed[intSeconds] = storagesUsed;
             }
 
+            // If this test still has time, return.
             if (intSeconds < testTime)
             {
                 return;
             }
 
+            // Otherwise, save data by ensuring the folder exists.
             if (!Directory.Exists(Root))
             {
                 Directory.CreateDirectory(Root);
@@ -746,13 +812,20 @@ namespace Warehouse
                 }
             }
 
+            // Go to the next trial.
             NextTrial();
         }
 
+        /// <summary>
+        /// Go to the next trial.
+        /// </summary>
+        /// <returns>True if the next trial was configured, false if all trials are done.</returns>
         private bool NextTrial()
         {
+            // Up the number of runs that have been completed.
             _runsComplete++;
 
+            // Test the layout options.
             for (StorageLayout next = layout + 1; next <= StorageLayout.NearOutbound; next++)
             {
                 if (TrialExists(workers, next, wireless, roles))
@@ -767,28 +840,39 @@ namespace Warehouse
 
             layout = StorageLayout.Rows;
             
+            // If not wireless communication, try switching to wireless.
+            if (!wireless && !TrialExists(workers, layout, true, roles))
+            {
+                wireless = true;
+                ResetLevel();
+                return true;
+            }
+
+            wireless = false;
+            
+            // If more than one worker...
             if (workers > 1)
             {
-                if (!wireless && !TrialExists(workers, layout, true, roles))
-                {
-                    wireless = true;
-                    ResetLevel();
-                    return true;
-                }
-
-                wireless = false;
-
+                // If not using roles, try switching to roles.
                 if (!roles && !TrialExists(workers, layout, wireless, true))
                 {
                     roles = true;
                     ResetLevel();
                     return true;
                 }
+
+                roles = false;
+            }
+            // Always no roles when only one agent.
+            else
+            {
+                roles = false;
             }
             
+            // Check all worker options.
             for (int i = _currentWorkersCase + 1; i < workerCases.Length; i++)
             {
-                if (TrialExists(workerCases[i], layout, wireless, true))
+                if (TrialExists(workerCases[i], layout, wireless, roles))
                 {
                     continue;
                 }
@@ -799,6 +883,7 @@ namespace Warehouse
                 return true;
             }
             
+            // All trials are done so aggregate the data.
             SaveData(StorageLayout.Rows, false, false, out double[] outRowsTerminalsNo, out double[] inRowsTerminalsNo, out double[] storeRowsTerminalsNo);
             SaveData(StorageLayout.Rows, false, true, out double[] outRowsTerminalsYes, out double[] inRowsTerminalsYes, out double[] storeRowsTerminalsYes);
             SaveData(StorageLayout.Rows, true, false, out double[] outRowsWirelessNo, out double[] inRowsWirelessNo, out double[] storeRowsWirelessNo);
@@ -812,6 +897,7 @@ namespace Warehouse
             SaveData(StorageLayout.NearOutbound, true, false, out double[] outOutboundWirelessNo, out double[] inOutboundWirelessNo, out double[] storeOutboundWirelessNo);
             SaveData(StorageLayout.NearOutbound, true, true, out double[] outOutboundWirelessYes, out double[] inOutboundWirelessYes, out double[] storeOutboundWirelessYes);
 
+            // Save the averages for the data.
             string path = $"{Root}/{Averages}";
 
             if (!Directory.Exists(path))
@@ -979,6 +1065,14 @@ namespace Warehouse
             return false;
         }
 
+        /// <summary>
+        /// Check if a trial for a particular configuration is done.
+        /// </summary>
+        /// <param name="workerCount">The number of workers.</param>
+        /// <param name="currentLayout">The layout.</param>
+        /// <param name="usingWireless">If using wireless.</param>
+        /// <param name="usingRoles">If using roles.</param>
+        /// <returns>True if the file for this trial exists, false otherwise.</returns>
         private static bool TrialExists(int workerCount, StorageLayout currentLayout, bool usingWireless, bool usingRoles)
         {
             if (!Directory.Exists(Root))
@@ -998,6 +1092,7 @@ namespace Warehouse
 
         private void SaveData(StorageLayout currentLayout, bool usingWireless, bool usingRoles, out double[] rateOrders, out double[] rateShipments, out double[] averageStorage)
         {
+            // Store data for all worker numbers.
             rateOrders = new double[workerCases.Length];
             rateShipments = new double[workerCases.Length];
             averageStorage = new double[workerCases.Length];
@@ -1008,16 +1103,13 @@ namespace Warehouse
                 averageStorage[i] = 0;
             }
             
-            if (!Directory.Exists(Root))
+            // Nothing to do if there are no trials.
+            if (!Directory.Exists(Root) || !Directory.Exists($"{Root}/{Trials}"))
             {
                 return;
             }
 
-            if (!Directory.Exists($"{Root}/{Trials}"))
-            {
-                return;
-            }
-
+            // Create the results' folder.
             string path = $"{Root}/{Results}";
             if (!Directory.Exists(path))
             {
@@ -1029,41 +1121,49 @@ namespace Warehouse
                 return;
             }
             
+            // Read trials data.
             List<string>[] outboundData = new List<string>[workerCases.Length];
             List<string>[] inboundData = new List<string>[workerCases.Length];
             List<string>[] storageData = new List<string>[workerCases.Length];
+            
+            // The length of the trials.
             int len = 0;
+            
+            // Try for every worker configuration.
             for (int i = 0; i < workerCases.Length; i++)
             {
-                int runLen = 0;
-                
                 outboundData[i] = new();
                 inboundData[i] = new();
                 storageData[i] = new();
                 
+                // If the file does not exist then do nothing.
                 if (!TrialExists(workerCases[i], currentLayout, usingWireless, usingRoles))
                 {
                     continue;
                 }
+                
+                int runLen = 0;
 
+                // Load the file.
                 using StreamReader sr = new($"{Root}/{Trials}/{DetermineFileTrial(workerCases[i], currentLayout, usingWireless, usingRoles)}.csv");
                 bool isHeader = true;
+                
+                // Read the entire file.
                 while (!sr.EndOfStream)
                 {
+                    // Read the line.
                     string line = sr.ReadLine();
+                    
+                    // Skip the header.
                     if (line == null || isHeader)
                     {
                         isHeader = false;
                         continue;
                     }
 
+                    // Parse the CSV.
                     string[] values = line.Split(',');
-                    string s = values[0];
-                    for (int j = 1; j < values.Length; j++)
-                    {
-                        s += $",{values[j]}";
-                    }
-                    Debug.Log($"{line} | {s}");
+                    
                     if (values.Length < 2)
                     {
                         continue;
@@ -1092,12 +1192,15 @@ namespace Warehouse
                 }
             }
 
+            // Construct the header for the CSV files.
             string header = workerCases.Aggregate("Seconds", (current, workerCase) => current + $",{workerCase}");
 
+            // Set the header to start each file.
             string outbounds = header;
             string inbounds = header;
             string storages = header;
             
+            // Store previous values in case of errors.
             int[] previousOutbound = new int[workerCases.Length];
             int[] previousInbound = new int[workerCases.Length];
             int[] previousStorage = new int[workerCases.Length];
@@ -1108,11 +1211,15 @@ namespace Warehouse
                 previousStorage[i] = 0;
             }
             
+            // Loop for the longest time.
             for (int i = 0; i < len; i++)
             {
+                // Shift to new lines for each file and add in the second this is for.
                 outbounds += $"\n{i}";
                 inbounds += $"\n{i}";
                 storages += $"\n{i}";
+                
+                // Loop for all worker numbers and parse in data..
                 for (int j = 0; j < workerCases.Length; j++)
                 {
                     if (i < outboundData[j].Count)
@@ -1160,8 +1267,10 @@ namespace Warehouse
                 }
             }
 
+            // Get the time in minutes for rates.
             double minutes = len / 60.0;
 
+            // Convert to rate or average.
             for (int i = 0; i < workerCases.Length; i++)
             {
                 rateOrders[i] /= minutes;
@@ -1169,13 +1278,14 @@ namespace Warehouse
                 averageStorage[i] /= len;
             }
 
+            // Get the core of the title for each file and then save them.
             string title = DetermineFileCore(currentLayout, usingWireless, usingRoles);
             
-            StreamWriter writer = new($"{path}/Orders Completed {title}.csv", false);
+            StreamWriter writer = new($"{path}/Orders Completed per Minute {title}.csv", false);
             writer.Write(outbounds);
             writer.Close();
             
-            writer = new($"{path}/Shipments Unloaded {title}.csv", false);
+            writer = new($"{path}/Shipments Unloaded per Minute {title}.csv", false);
             writer.Write(inbounds);
             writer.Close();
             
@@ -1184,11 +1294,26 @@ namespace Warehouse
             writer.Close();
         }
 
+        /// <summary>
+        /// Determine the file name for a trial.
+        /// </summary>
+        /// <param name="workerCount">The number of workers.</param>
+        /// <param name="currentLayout">The layout.</param>
+        /// <param name="usingWireless">If using wireless.</param>
+        /// <param name="usingRoles">If using roles.</param>
+        /// <returns>The name for this trial file.</returns>
         private static string DetermineFileTrial(int workerCount, StorageLayout currentLayout, bool usingWireless, bool usingRoles)
         {
             return $"{workerCount} {DetermineFileCore(currentLayout, usingWireless, usingRoles)}";
         }
 
+        /// <summary>
+        /// Determine the core of the naming for files without the worker number.
+        /// </summary>
+        /// <param name="currentLayout">The layout.</param>
+        /// <param name="usingWireless">If using wireless.</param>
+        /// <param name="usingRoles">If using roles.</param>
+        /// <returns>The core of the name for this file.</returns>
         private static string DetermineFileCore(StorageLayout currentLayout, bool usingWireless, bool usingRoles)
         {
             string w = usingWireless ? "Wireless" : "Terminals";

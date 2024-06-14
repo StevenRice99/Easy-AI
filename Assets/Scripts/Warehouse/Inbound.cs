@@ -55,6 +55,7 @@ namespace Warehouse
         /// <returns>The highest demand item that is available.</returns>
         public int GetNext()
         {
+            // Parts in the manager are ordered by demand, so get the first one we have a key of.
             int count = WarehouseManager.Parts.Length;
             for (int i = 0; i < count; i++)
             {
@@ -64,6 +65,7 @@ namespace Warehouse
                 }
             }
 
+            // -1 means this is empty.
             return -1;
         }
 
@@ -83,13 +85,14 @@ namespace Warehouse
         /// <returns>True if it can be claimed, false otherwise.</returns>
         public bool PickClaim(WarehouseAgent agent, int id)
         {
+            // Ensure this is available for the agent.
             if (!PickAvailable(agent, id))
             {
                 return false;
             }
 
+            // Remove the part from the list so other agents don't try to get it.
             _available[id]--;
-
             if (_available[id] < 1)
             {
                 _available.Remove(id);
@@ -105,17 +108,20 @@ namespace Warehouse
         /// <returns>True if it was picked up, false otherwise.</returns>
         public bool Pick(WarehouseAgent agent)
         {
+            // If there is no part at this inbound or the agent has a part they cannot pick.
             if (_all.Count < 1 || agent.HasPart)
             {
                 return false;
             }
 
+            // Get the part for the agent to pick up.
             Part part = agent.Id < 0 ? _parts[0] : _parts.FirstOrDefault(x => x.ID == agent.Id);
             if (part == null || !agent.Attach(part))
             {
                 return false;
             }
             
+            // Detach the part from this.
             _parts.Remove(part);
             if (_all.ContainsKey(part.ID))
             {
@@ -126,6 +132,7 @@ namespace Warehouse
                 }
             }
 
+            // If all items have been unloaded, up the score.
             if (_all.Count < 1)
             {
                 WarehouseManager.ShipmentsUnloaded();
@@ -155,11 +162,13 @@ namespace Warehouse
         /// </summary>
         private void FixedUpdate()
         {
+            // Still have items so do nothing.
             if (_all.Count > 0)
             {
                 return;
             }
 
+            // No items so count until a new shipment arrives.
             ElapsedTime += Time.deltaTime;
             if (ElapsedTime >= WarehouseManager.InboundDelay)
             {
@@ -172,6 +181,7 @@ namespace Warehouse
         /// </summary>
         private void SpawnParts()
         {
+            // Cleanup any previous parts.
             for (int i = 0; i < _parts.Count; i++)
             {
                 Destroy(_parts[i].gameObject);
@@ -181,38 +191,51 @@ namespace Warehouse
             _all.Clear();
             _available.Clear();
 
+            // Track if at least one item is placed.
             bool placed = false;
             
+            // The number of part types there are.
             int count = WarehouseManager.Parts.Length;
+            
+            // Store how many options we can spawn.
             int[] options = new int[count];
             for (int i = 0; i < count; i++)
             {
                 options[i] = 0;
             }
 
+            // Every open storage space means we can spawn an item.
             foreach (Storage storage in Storage.Instances.Where(x => !x.Claimed && x.Empty))
             {
                 options[storage.ID]++;
             }
 
+            // But, if this item exists at an inbound, it has priority for storage so this takes away from our limit.
             foreach (KeyValuePair<int, int> ids in Instances.SelectMany(inbound => inbound._all))
             {
                 options[ids.Key] -= ids.Value;
             }
             
+            // Spawn at most how many parts we can fit.
             for (int i = 0; i < locations.Length; i++)
             {
-                Part part = Instantiate(WarehouseManager.PartPrefab, locations[i], true);
+                // Get a random ID for the part.
                 int id = Random.Range(0, count);
+                
+                // We can only attempt to change the ID as many times as there are ID options.
                 int attempts = 0;
+                
+                // Ensure there is space in the warehouse to take this item.
                 while (options[id] <= 0)
                 {
+                    // Increment the number of attempts and exit if all have been exhausted and thus no part can be added.
                     attempts++;
                     if (attempts >= count)
                     {
                         return;
                     }
                     
+                    // Check the next ID, cycling back to zero if needed.
                     id++;
                     if (id >= count)
                     {
@@ -220,10 +243,14 @@ namespace Warehouse
                     }
                 }
                 
+                // Spawn and configure the part prefab as the warehouse can store it.
+                Part part = Instantiate(WarehouseManager.PartPrefab, locations[i], true);
                 part.SetId(id);
                 _parts.Add(part);
                 part.name = $"Part {id}";
                 part.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+                
+                // Update the information for this.
                 if (!_available.TryAdd(id, 1))
                 {
                     _available[id]++;
@@ -234,10 +261,14 @@ namespace Warehouse
                     _all.Add(id, 1);
                 }
 
+                // Claim a spot in the warehouse for this part.
                 options[id]--;
+                
+                // At least one has been placed.
                 placed = true;
             }
 
+            // If something has been placed, restart the timer.
             if (placed)
             {
                 ElapsedTime = 0;

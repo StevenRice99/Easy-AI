@@ -21,29 +21,34 @@ namespace Warehouse.Actuators
                 return false;
             }
 
+            // Cannot place if not holding a part.
             if (!w.HasPart)
             {
                 Log("Does not have a part to place.");
                 return false;
             }
 
+            // Check if in range to interact.
             if (!w.CanInteract)
             {
                 Log("Not in range to place down.");
                 return false;
             }
 
+            // Try and place the item down.
             Log("Placing down.");
             if (!place.Place(w))
             {
                 return false;
             }
 
+            // If in wireless communication, we are able to get info to make the next decision immediately.
             if (WarehouseManager.Wireless)
             {
                 return true;
             }
 
+            // Otherwise, flag that the agent must visit a terminal to get new information.
             w.NeedsInfo = true;
             return true;
         }

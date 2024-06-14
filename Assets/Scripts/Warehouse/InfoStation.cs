@@ -39,10 +39,12 @@ namespace Warehouse
         {
             Instances.Add(this);
             
+            // Collect visuals.
             List<MeshRenderer> meshes = GetComponents<MeshRenderer>().ToList();
             meshes.AddRange(GetComponentsInChildren<MeshRenderer>());
             _meshes = meshes.ToArray();
 
+            // Get the main element for movement and visual purposes.
             Transform t = transform;
             
             if (t.childCount > 0)
