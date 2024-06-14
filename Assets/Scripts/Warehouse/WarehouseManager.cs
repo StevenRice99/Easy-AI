@@ -177,7 +177,7 @@ namespace Warehouse
         [Tooltip("The time to run tests in seconds.")]
         [Min(1)]
         [SerializeField]
-        private int testTime = 300;
+        private int testTime = 600;
 
         /// <summary>
         /// How quickly to run the simulation for tests.
