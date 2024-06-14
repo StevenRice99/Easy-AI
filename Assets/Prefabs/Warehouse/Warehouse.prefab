@@ -213,6 +213,13 @@ MonoBehaviour:
   orderSize:
     x: 3
     y: 3
+  inboundDelay: 3
+  outboundDelay: 10
+  interactTimeScale: 1
+  run: 0
+  testTime: 300
+  testSpeed: 2
+  workerCases: 020000000400000006000000080000000a000000
 --- !u!1 &5582997014087754285
 GameObject:
   m_ObjectHideFlags: 0
