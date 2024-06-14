@@ -219,7 +219,7 @@ MonoBehaviour:
   run: 0
   testTime: 600
   testSpeed: 2
-  workerCases: 020000000400000006000000080000000a000000
+  workerCases: 020000000400000006000000080000000a0000000c000000
 --- !u!1 &5582997014087754285
 GameObject:
   m_ObjectHideFlags: 0

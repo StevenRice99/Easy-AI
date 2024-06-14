@@ -192,7 +192,7 @@ namespace Warehouse
         /// </summary>
         [Tooltip("The numbers of workers to test with.")]
         [SerializeField]
-        private int[] workerCases = { 2, 4, 6, 8, 10 };
+        private int[] workerCases = { 2, 4, 6, 8, 10, 12 };
 #endif
         /// <summary>
         /// The prefab to use for parts.
