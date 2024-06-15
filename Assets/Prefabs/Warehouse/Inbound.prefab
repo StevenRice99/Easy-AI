@@ -51,12 +51,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b6063c4d4fa4bc0a01718d9ede8e7c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefabs:
-  - {fileID: 4548620234909160911, guid: dbc684888385e9643bb91dcae980020c, type: 3}
-  - {fileID: 4548620234909160911, guid: a696baffe2e444d4590f516304a9ee72, type: 3}
-  - {fileID: 4548620234909160911, guid: f83752ff5d8716b4ab09b227a9a62f42, type: 3}
-  - {fileID: 4548620234909160911, guid: f4cb8e59baf4388449469b91c630f10c, type: 3}
-  - {fileID: 4548620234909160911, guid: 9ae0c7d56beea8f4da598715c971f5bf, type: 3}
   locations:
   - {fileID: 8368299939283441773}
   - {fileID: 2050539950280286763}
@@ -64,7 +58,6 @@ MonoBehaviour:
   - {fileID: 3691324787594799073}
   - {fileID: 5028925772699923375}
   - {fileID: 5894692253227724354}
-  delay: 3
 --- !u!1 &930809171305050595
 GameObject:
   m_ObjectHideFlags: 0
@@ -188,7 +181,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f75ce002c241c40458aedf8da5271291, type: 2}
+  - {fileID: 2100000, guid: e791b9002174a32479f595195851bbd6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
