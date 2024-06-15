@@ -9,6 +9,9 @@ namespace Editor
     /// </summary>
     public abstract class ScreenshotHandler
     {
+        /// <summary>
+        /// The folder to save screenshots in.
+        /// </summary>
         private const string Folder = "Screenshots";
         
         /// <summary>
@@ -56,6 +59,10 @@ namespace Editor
             TakeScreenshot(5);
         }
 
+        /// <summary>
+        /// Base method to take screenshots.
+        /// </summary>
+        /// <param name="superSize">By what factor should image sizing be done with.</param>
         private static void TakeScreenshot(int superSize = 1)
         {
             // Ensure the screenshots folder exists.
