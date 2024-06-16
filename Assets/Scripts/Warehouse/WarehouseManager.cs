@@ -1281,11 +1281,11 @@ namespace Warehouse
             // Get the core of the title for each file and then save them.
             string title = DetermineFileCore(currentLayout, usingWireless, usingRoles);
             
-            StreamWriter writer = new($"{path}/Orders Completed per Minute {title}.csv", false);
+            StreamWriter writer = new($"{path}/Orders Completed {title}.csv", false);
             writer.Write(outbounds);
             writer.Close();
             
-            writer = new($"{path}/Shipments Unloaded per Minute {title}.csv", false);
+            writer = new($"{path}/Shipments Unloaded {title}.csv", false);
             writer.Write(inbounds);
             writer.Close();
             
