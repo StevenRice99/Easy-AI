@@ -205,7 +205,7 @@ namespace Warehouse
             }
 
             // Every open storage space means we can spawn an item.
-            foreach (Storage storage in Storage.Instances.Where(x => !x.Claimed && x.Empty))
+            foreach (Storage storage in Storage.Instances.Where(x => x.Empty))
             {
                 options[storage.ID]++;
             }
@@ -214,6 +214,12 @@ namespace Warehouse
             foreach (KeyValuePair<int, int> ids in Instances.SelectMany(inbound => inbound._all))
             {
                 options[ids.Key] -= ids.Value;
+            }
+
+            // Additionally, remove items that are being carried from the count.
+            foreach (WarehouseAgent agent in WarehouseAgent.Instances.Where(agent => agent.HasPart))
+            {
+                options[agent.Id]--;
             }
             
             // Spawn at most how many parts we can fit.

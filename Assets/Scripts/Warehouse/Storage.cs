@@ -293,13 +293,24 @@ namespace Warehouse
             // Add score to the agent for storing the part.
             agent.AddStoreScore();
             
+            Set(part);
+            
+            // The agent is no longer using this so release the claim.
+            ReleaseClaim(agent);
+            
+            return true;
+        }
+
+        /// <summary>
+        /// Set the part.
+        /// </summary>
+        /// <param name="part">The part to set</param>
+        public void Set(Part part)
+        {
             // Add the part to the storage.
             _part = part;
             _part.transform.parent = transform;
             _part.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-            
-            // The agent is no longer using this so release the claim.
-            ReleaseClaim(agent);
 
             // Remove from placement options.
             if (PlaceOptions.TryGetValue(ID, out HashSet<Storage> placeOption))
@@ -316,8 +327,6 @@ namespace Warehouse
             {
                 PickOptions[_part.ID] = new() { this };
             }
-            
-            return true;
         }
 
         /// <summary>

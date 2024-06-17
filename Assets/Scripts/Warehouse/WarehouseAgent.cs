@@ -137,9 +137,10 @@ namespace Warehouse
         public void SetTarget(MonoBehaviour target = null)
         {
             // Can't stop interacting with a storage.
-            if (Target != null && target is Storage s0 && s0.IsInteracting(this))
+            if (Target != null && Target is Storage s0 && s0.IsInteracting(this))
             {
-                Log($"Cannot stop interaction with {s0.name}.");
+                //Log($"Cannot stop interaction with {s0.name}.");
+                s0.ReleaseClaim(this);
                 return;
             }
             

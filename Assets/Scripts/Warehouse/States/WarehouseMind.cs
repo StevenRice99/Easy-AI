@@ -52,7 +52,7 @@ namespace Warehouse.States
                 w.Move(infoStation.transform.position);
                 
                 // If close enough, get the information.
-                if (Vector3.Distance(p, infoStation.MainVisual.position) <= w.InteractDistance && Inbound.Instances.Any(x => x.GetNext() >= 0))
+                if (Vector3.Distance(p, infoStation.MainVisual.position) <= w.InteractDistance)
                 {
                     w.NeedsInfo = false;
                 }

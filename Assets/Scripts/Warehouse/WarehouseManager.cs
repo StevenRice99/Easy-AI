@@ -162,6 +162,14 @@ namespace Warehouse
         [Min(0)]
         [SerializeField]
         private float interactTimeScale = 1;
+
+        /// <summary>
+        /// What percentage of storage units should start full.
+        /// </summary>
+        [Tooltip("What percentage of storage units should start full.")]
+        [Range(0, 1)]
+        [SerializeField]
+        private float startStorage;
 #if UNITY_EDITOR
         /// <summary>
         /// Whether to run tests.
@@ -632,6 +640,22 @@ namespace Warehouse
             foreach (InfoStation infoStation in InfoStation.Instances)
             {
                 infoStation.ResetObject();
+            }
+
+            // Create initial storage inventory if needed.
+            if (startStorage > 0)
+            {
+                for (int i = 0; i < parts.Length; i++)
+                {
+                    Storage[] storages = Storage.Instances.Where(x => x.ID == i).OrderBy(x => x.transform.position.y).ThenBy(x => x.transform.position.x).ThenBy(x => x.transform.position.z).ToArray();
+                    int fill = (int) (storages.Length * startStorage);
+                    for (int j = 0; j < fill; j++)
+                    {
+                        Part part = Instantiate(partPrefab, storages[j].transform.position, Quaternion.identity);
+                        part.SetId(i);
+                        storages[j].Set(part);
+                    }
+                }
             }
 
             // Track what location to spawn agents at.
