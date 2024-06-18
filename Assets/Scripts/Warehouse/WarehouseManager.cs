@@ -45,6 +45,15 @@ namespace Warehouse
             NearInbound,
             NearOutbound
         }
+
+        /// <summary>
+        /// How to predict the next shipment order.
+        /// </summary>
+        private enum Forecast
+        {
+            Linear,
+            Quadratic
+        }
         
         /// <summary>
         /// Root of where to save data.
@@ -62,9 +71,9 @@ namespace Warehouse
         private const string Results = "Results";
 
         /// <summary>
-        /// The folder to save the averages of the results.
+        /// The folder to save the statistics of the results.
         /// </summary>
-        private const string Averages = "Averages";
+        private const string Statistics = "Statistics";
         
         /// <summary>
         /// The prefab for the warehouse agent.
@@ -170,6 +179,90 @@ namespace Warehouse
         [Range(0, 1)]
         [SerializeField]
         private float startStorage;
+
+        /// <summary>
+        /// Whether to use supply chain simulation.
+        /// </summary>
+        [Header("Scheduling")]
+        [Tooltip("Whether to use supply chain simulation.")]
+        [SerializeField]
+        private bool supplyChain;
+        
+        /// <summary>
+        /// The lead time for placed orders.
+        /// </summary>
+        [Tooltip("The lead time for placed orders.")]
+        [Min(0)]
+        [SerializeField]
+        private int leadTime;
+
+        /// <summary>
+        /// How to forecast orders.
+        /// </summary>
+        [Tooltip("How to forecast orders.")]
+        [SerializeField]
+        private Forecast forecast;
+
+        /// <summary>
+        /// The order curves the warehouse can follow.
+        /// </summary>
+        [Tooltip("The order curves the warehouse can follow.")]
+        [SerializeField]
+        private OrderCurve[] orderCurves =
+        {
+            // Constant low.
+            new() {orders = new Order[]
+            {
+                new() {requirements = new [] {10, 10, 10, 10, 10}},
+                new() {requirements = new [] {10, 10, 10, 10, 10}},
+                new() {requirements = new [] {10, 10, 10, 10, 10}},
+                new() {requirements = new [] {10, 10, 10, 10, 10}},
+                new() {requirements = new [] {10, 10, 10, 10, 10}},
+                new() {requirements = new [] {10, 10, 10, 10, 10}},
+                new() {requirements = new [] {10, 10, 10, 10, 10}},
+                new() {requirements = new [] {10, 10, 10, 10, 10}},
+                new() {requirements = new [] {10, 10, 10, 10, 10}},
+                new() {requirements = new [] {10, 10, 10, 10, 10}}
+            }},
+            
+            // Large peak.
+            new() {orders = new Order[]
+            {
+                new() {requirements = new [] {20, 15, 20, 15, 10}},
+                new() {requirements = new [] {15, 20, 20, 15, 15}},
+                new() {requirements = new [] {25, 20, 20, 20, 25}},
+                new() {requirements = new [] {35, 30, 30, 30, 35}},
+                new() {requirements = new [] {55, 60, 50, 40, 45}},
+                new() {requirements = new [] {70, 65, 60, 50, 55}},
+                new() {requirements = new [] {75, 80, 70, 60, 65}},
+                new() {requirements = new [] {65, 50, 60, 50, 55}},
+                new() {requirements = new [] {50, 45, 50, 40, 50}},
+                new() {requirements = new [] {40, 40, 40, 30, 45}}
+            }},
+            
+            // Wave pattern.
+            new() {orders = new Order[]
+            {
+                new() {requirements = new [] {20, 15, 10, 10, 5}},
+                new() {requirements = new [] {25, 20, 10, 15, 15}},
+                new() {requirements = new [] {30, 25, 20, 20, 25}},
+                new() {requirements = new [] {35, 30, 25, 30, 25}},
+                new() {requirements = new [] {30, 25, 20, 20, 25}},
+                new() {requirements = new [] {25, 20, 10, 15, 15}},
+                new() {requirements = new [] {20, 15, 10, 10, 5}},
+                new() {requirements = new [] {25, 20, 10, 15, 15}},
+                new() {requirements = new [] {30, 25, 20, 20, 25}},
+                new() {requirements = new [] {35, 30, 25, 30, 25}}
+            }},
+        };
+
+        /// <summary>
+        /// The current curve to get demands off of.
+        /// </summary>
+        [Tooltip("The current curve to get demands off of.")]
+        [Min(0)]
+        [SerializeField]
+        private int currentCurve;
 #if UNITY_EDITOR
         /// <summary>
         /// Whether to run tests.
@@ -205,43 +298,63 @@ namespace Warehouse
         /// <summary>
         /// The prefab to use for parts.
         /// </summary>
-        public static Part PartPrefab => ((WarehouseManager)Singleton).partPrefab;
+        public static Part PartPrefab => WarehouseSingleton.partPrefab;
 
         /// <summary>
         /// The part options for the warehouse.
         /// </summary>
-        public static PartInfo[] Parts => ((WarehouseManager)Singleton).parts;
+        public static PartInfo[] Parts => WarehouseSingleton.parts;
         
         /// <summary>
         /// The minimum and maximum order size that can be required for an order.
         /// </summary>
-        public static int2 OrderSize => ((WarehouseManager)Singleton).orderSize;
+        public static int2 OrderSize => WarehouseSingleton.orderSize;
 
         /// <summary>
         /// Whether roles should be used for worker tasks or not.
         /// </summary>
-        public static bool Roles => ((WarehouseManager)Singleton).roles;
+        public static bool Roles => WarehouseSingleton.roles;
 
         /// <summary>
         /// Whether agents can always get information about the warehouse wireless, or terminals have to be used.
         /// </summary>
-        public static bool Wireless => ((WarehouseManager)Singleton).wireless;
+        public static bool Wireless => WarehouseSingleton.wireless;
         
         /// <summary>
         /// The amount of time before a new inbound shipment comes in.
         /// </summary>
-        public static float InboundDelay => ((WarehouseManager)Singleton).inboundDelay;
+        public static float InboundDelay => WarehouseSingleton.inboundDelay;
         
         /// <summary>
         /// The amount of time before a new order comes in.
         /// </summary>
-        public static float OutboundDelay => ((WarehouseManager)Singleton).outboundDelay;
+        public static float OutboundDelay => WarehouseSingleton.outboundDelay;
         
         /// <summary>
         /// How much does interacting take scaled with the Y position of this storage.
         /// </summary>
         /// <returns></returns>
-        public static float InteractTimeScale => ((WarehouseManager)Singleton).interactTimeScale;
+        public static float InteractTimeScale => WarehouseSingleton.interactTimeScale;
+
+        /// <summary>
+        /// Whether to use supply chain simulation.
+        /// </summary>
+        public static bool SupplyChain => WarehouseSingleton.supplyChain;
+        
+        /// <summary>
+        /// The current shipment being completed by the warehouse.
+        /// </summary>
+        public static Dictionary<int, int> CurrentShipment => WarehouseSingleton._currentShipment;
+
+        /// <summary>
+        /// The current order leaving the warehouse.
+        /// </summary>
+        public static Dictionary<int, int> CurrentOrder => WarehouseSingleton._currentOrder;
+        
+        /// <summary>
+        /// The singleton cast to a warehouse manager.
+        /// </summary>
+        private static WarehouseManager WarehouseSingleton => (WarehouseManager) Singleton;
         
         /// <summary>
         /// Keep track of the number of orders completed.
@@ -257,6 +370,36 @@ namespace Warehouse
         /// The time which has passed since the simulation began.
         /// </summary>
         private double _startTime;
+
+        /// <summary>
+        /// Shipments requested next for the warehouse.
+        /// </summary>
+        private readonly Queue<Dictionary<int, int>> _shipments = new();
+
+        /// <summary>
+        /// The current shipment being brought to the warehouse.
+        /// </summary>
+        private Dictionary<int, int> _currentShipment = new();
+
+        /// <summary>
+        /// The current order leaving the warehouse.
+        /// </summary>
+        private Dictionary<int, int> _currentOrder = new();
+
+        /// <summary>
+        /// The previous orders the warehouse has completed.
+        /// </summary>
+        private readonly List<Dictionary<int, int>> _previousOrders = new();
+
+        /// <summary>
+        /// How many time periods have passed to start the initial ordering.
+        /// </summary>
+        private int _periodsElapsed;
+
+        /// <summary>
+        /// Flag the next period just started so the simulation has a chance.
+        /// </summary>
+        private bool _nextPeriod;
 #if UNITY_EDITOR
         /// <summary>
         /// The number of test runs which have been complete.
@@ -293,7 +436,212 @@ namespace Warehouse
         /// </summary>
         public static void OrderCompleted()
         {
-            ((WarehouseManager)Singleton)._ordersCompleted++;
+            WarehouseSingleton._ordersCompleted++;
+        }
+
+        /// <summary>
+        /// Get the next time period to process.
+        /// </summary>
+        public void GetNextTimePeriod()
+        {
+            _nextPeriod = true;
+
+            foreach (Inbound inbound in Inbound.Instances)
+            {
+                inbound.ResetObject();
+            }
+
+            foreach (Outbound outbound in Outbound.Instances)
+            {
+                outbound.ResetObject();
+            }
+            
+            if (_periodsElapsed < leadTime || _shipments.Count < 1)
+            {
+                _currentShipment = new();
+            }
+            else
+            {
+                _currentShipment = _shipments.Dequeue();
+            }
+
+            _currentOrder = new();
+            Dictionary<int, int> copyForPrevious = new();
+            
+            if (currentCurve >= orderCurves.Length || orderCurves[currentCurve].orders.Length <= _periodsElapsed)
+            {
+                return;
+            }
+
+            int totalItems = 0;
+            int[] requirements = orderCurves[currentCurve].orders[_periodsElapsed++].requirements;
+            for (int i = 0; i < requirements.Length && i < parts.Length; i++)
+            {
+                _currentOrder.Add(i, requirements[i]);
+                copyForPrevious.Add(i, requirements[i]);
+                totalItems += requirements[i];
+            }
+
+            Outbound[] outbounds = Outbound.Instances.ToArray();
+            int capacity = totalItems / outbounds.Length;
+            if (totalItems % outbounds.Length != 0)
+            {
+                capacity++;
+            }
+
+            orderSize = new(capacity, capacity);
+            _previousOrders.Add(copyForPrevious);
+
+            Dictionary<int, int> requested = new();
+            for (int i = 0; i < parts.Length; i++)
+            {
+                int[] past = new int[_previousOrders.Count + leadTime];
+                for (int j = 0; j < past.Length; j++)
+                {
+                    if (j < _previousOrders.Count)
+                    {
+                        if (_previousOrders[j].ContainsKey(i))
+                        {
+                            past[j] = _previousOrders[j][i];
+                        }
+                        else
+                        {
+                            past[j] = 0;
+                        }
+                        continue;
+                    }
+
+                    int[] sub = new int[j];
+                    for (int k = 0; k < sub.Length; k++)
+                    {
+                        sub[k] = past[k];
+                    }
+                    
+                    switch (forecast)
+                    {
+                        case Forecast.Quadratic:
+                            past[j] = PredictQuadratic(sub);
+                            break;
+                        case Forecast.Linear:
+                        default:
+                            past[j] = PredictQuadratic(sub);
+                            break;
+                    }
+                }
+
+                switch (forecast)
+                {
+                    case Forecast.Quadratic:
+                        requested.Add(i, PredictQuadratic(past));
+                        break;
+                    case Forecast.Linear:
+                    default:
+                        requested.Add(i, PredictLinear(past));
+                        break;
+                }
+            }
+            
+            _shipments.Enqueue(requested);
+        }
+
+        private static int PredictLinear(int[] trend)
+        {
+            double slope = CalculateSlope(trend);
+            double intercept = CalculateIntercept(trend, slope);
+
+            int nextIndex = trend.Length;
+            int nextNumber = (int) (slope * nextIndex + intercept);
+            return nextNumber < 0 ? 0 : nextNumber;
+        }
+
+        private static double CalculateSlope(int[] numbers)
+        {
+            int n = numbers.Length;
+            double sumX = 0;
+            double sumY = numbers.Sum();
+            double sumXY = 0;
+            double sumX2 = 0;
+
+            for (int i = 0; i < n; i++)
+            {
+                sumX += i;
+                sumXY += i * numbers[i];
+                sumX2 += i * i;
+            }
+
+            return (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+        }
+
+        private static double CalculateIntercept(int[] numbers, double slope)
+        {
+            int n = numbers.Length;
+            double sumX = 0;
+            double sumY = numbers.Sum();
+
+            for (int i = 0; i < n; i++)
+            {
+                sumX += i;
+            }
+
+            return (sumY - slope * sumX) / n;
+        }
+
+        private static int PredictQuadratic(int[] trend)
+        {
+            (double a, double b, double c) = CalculateQuadraticCoefficients(trend);
+
+            int nextIndex = trend.Length;
+            int nextNumber = (int) (a * nextIndex * nextIndex + b * nextIndex + c);
+            return nextNumber < 0 ? 0 : nextNumber;
+        }
+        
+        private static (double a, double b, double c) CalculateQuadraticCoefficients(int[] numbers)
+        {
+            int n = numbers.Length;
+
+            double sumX = 0, sumY = numbers.Sum();
+            double sumX2 = 0, sumX3 = 0, sumX4 = 0;
+            double sumXY = 0, sumX2Y = 0;
+
+            for (int i = 0; i < n; i++)
+            {
+                double x = i;
+                double y = numbers[i];
+
+                sumX += x;
+                sumX2 += x * x;
+                sumX3 += x * x * x;
+                sumX4 += x * x * x * x;
+                sumXY += x * y;
+                sumX2Y += x * x * y;
+            }
+
+            // Form the augmented matrix
+            double[,] matrix = {
+                { n, sumX, sumX2, sumY },
+                { sumX, sumX2, sumX3, sumXY },
+                { sumX2, sumX3, sumX4, sumX2Y }
+            };
+
+            // Perform Gaussian elimination
+            for (int i = 0; i < 3; i++)
+            {
+                for (int k = i + 1; k < 3; k++)
+                {
+                    double t = matrix[k, i] / matrix[i, i];
+                    for (int j = 0; j <= 3; j++)
+                    {
+                        matrix[k, j] -= t * matrix[i, j];
+                    }
+                }
+            }
+
+            // Back substitution
+            double a = matrix[2, 3] / matrix[2, 2];
+            double b = (matrix[1, 3] - matrix[1, 2] * a) / matrix[1, 1];
+            double c = (matrix[0, 3] - matrix[0, 2] * a - matrix[0, 1] * b) / matrix[0, 0];
+
+            return (a, b, c);
         }
 
         /// <summary>
@@ -301,7 +649,7 @@ namespace Warehouse
         /// </summary>
         public static void ShipmentsUnloaded()
         {
-            ((WarehouseManager)Singleton)._shipmentsUnloaded++;
+            WarehouseSingleton._shipmentsUnloaded++;
         }
 
         /// <summary>
@@ -525,6 +873,7 @@ namespace Warehouse
         protected override void Start()
         {
             base.Start();
+            GetNextTimePeriod();
 #if UNITY_EDITOR
             // Configure the trials if running them.
             if (run)
@@ -571,6 +920,12 @@ namespace Warehouse
         /// </summary>
         private void ResetLevel()
         {
+            // Reset supply chain values.
+            _periodsElapsed = 0;
+            _previousOrders.Clear();
+            _shipments.Clear();
+            _nextPeriod = false;
+            
             // If only one worker, there cannot be roles.
             if (workers < 2)
             {
@@ -770,12 +1125,30 @@ namespace Warehouse
                 (orderSize.x, orderSize.y) = (orderSize.y, orderSize.x);
             }
         }
-#if UNITY_EDITOR
+
         /// <summary>
         /// Frame-rate independent MonoBehaviour. FixedUpdate message for physics calculations.
         /// </summary>
         private void FixedUpdate()
         {
+            if (supplyChain)
+            {
+                if (_nextPeriod)
+                {
+                    _nextPeriod = false;
+                }
+                else
+                {
+                    bool reset = WarehouseAgent.Instances.All(agent => !agent.NeedsInfo && !agent.Moving && !agent.HasTarget);
+                    if (reset)
+                    {
+                        // TODO - Save what orders failed and shipments were lost
+                        GetNextTimePeriod();
+                    }
+                }
+            }
+            
+#if UNITY_EDITOR
             // Nothing to do if not running trials.
             if (!run)
             {
@@ -838,8 +1211,9 @@ namespace Warehouse
 
             // Go to the next trial.
             NextTrial();
+#endif
         }
-
+#if UNITY_EDITOR
         /// <summary>
         /// Go to the next trial.
         /// </summary>
@@ -921,8 +1295,8 @@ namespace Warehouse
             SaveData(StorageLayout.NearOutbound, true, false, out double[] outOutboundWirelessNo, out double[] inOutboundWirelessNo, out double[] storeOutboundWirelessNo);
             SaveData(StorageLayout.NearOutbound, true, true, out double[] outOutboundWirelessYes, out double[] inOutboundWirelessYes, out double[] storeOutboundWirelessYes);
 
-            // Save the averages for the data.
-            string path = $"{Root}/{Averages}";
+            // Save the statistics for the data.
+            string path = $"{Root}/{Statistics}";
 
             if (!Directory.Exists(path))
             {
@@ -1114,16 +1488,16 @@ namespace Warehouse
             return File.Exists($"{trials}/{title}.csv");
         }
 
-        private void SaveData(StorageLayout currentLayout, bool usingWireless, bool usingRoles, out double[] rateOrders, out double[] rateShipments, out double[] averageStorage)
+        private void SaveData(StorageLayout currentLayout, bool usingWireless, bool usingRoles, out double[] orders, out double[] shipments, out double[] averageStorage)
         {
             // Store data for all worker numbers.
-            rateOrders = new double[workerCases.Length];
-            rateShipments = new double[workerCases.Length];
+            orders = new double[workerCases.Length];
+            shipments = new double[workerCases.Length];
             averageStorage = new double[workerCases.Length];
             for (int i = 0; i < workerCases.Length; i++)
             {
-                rateOrders[i] = 0;
-                rateShipments[i] = 0;
+                orders[i] = 0;
+                shipments[i] = 0;
                 averageStorage[i] = 0;
             }
             
@@ -1252,7 +1626,7 @@ namespace Warehouse
                         if (int.TryParse(outboundData[j][i], out int c))
                         {
                             previousOutbound[j] = c;
-                            rateOrders[j] = c;
+                            orders[j] = c;
                         }
                     }
                     else
@@ -1266,7 +1640,7 @@ namespace Warehouse
                         if (int.TryParse(inboundData[j][i], out int c))
                         {
                             previousInbound[j] = c;
-                            rateShipments[j] = c;
+                            shipments[j] = c;
                         }
                     }
                     else
@@ -1291,14 +1665,9 @@ namespace Warehouse
                 }
             }
 
-            // Get the time in minutes for rates.
-            double minutes = len / 60.0;
-
-            // Convert to rate or average.
+            // Convert storages to averages.
             for (int i = 0; i < workerCases.Length; i++)
             {
-                rateOrders[i] /= minutes;
-                rateShipments[i] /= minutes;
                 averageStorage[i] /= len;
             }
 

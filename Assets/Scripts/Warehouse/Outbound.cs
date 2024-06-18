@@ -151,6 +151,12 @@ namespace Warehouse
                 return;
             }
 
+            if (WarehouseManager.SupplyChain)
+            {
+                CreateOrder();
+                return;
+            }
+
             // Order completed so wait before requesting a new one.
             _elapsedTime += Time.deltaTime;
             if (_elapsedTime >= WarehouseManager.OutboundDelay)
@@ -181,28 +187,47 @@ namespace Warehouse
             // Loop for the size of the order.
             for (int i = 0; i < number; i++)
             {
-                // Get the random value to determine what part is needed.
-                float rand = Random.Range(0, sum);
-                
                 // Start with the first part.
-                int option = 0;
-                float current = options[0].demand;
-                
-                // Loop until the part which meets the weight threshold is met.
-                while (current < rand)
+                int id = 0;
+
+                if (WarehouseManager.SupplyChain)
                 {
-                    current += options[++option].demand;
-                }
-                
-                // Store the new requirement.
-                if (!_requirements.TryAdd(option, 1))
-                {
-                    _requirements[option]++;
-                    _available[option]++;
+                    Dictionary<int, int> required = WarehouseManager.CurrentOrder;
+                    if (required.Keys.Count < 1)
+                    {
+                        break;
+                    }
+
+                    id = required.OrderByDescending(x => x.Value).ThenBy(x => x.Key).First().Key;
+
+                    required[id]--;
+                    if (required[id] < 1)
+                    {
+                        required.Remove(id);
+                    }
                 }
                 else
                 {
-                    _available.Add(option, 1);
+                    // Get the random value to determine what part is needed.
+                    float rand = Random.Range(0, sum);
+                    float current = options[id].demand;
+                
+                    // Loop until the part which meets the weight threshold is met.
+                    while (current < rand)
+                    {
+                        current += options[++id].demand;
+                    }
+                }
+                
+                // Store the new requirement.
+                if (!_requirements.TryAdd(id, 1))
+                {
+                    _requirements[id]++;
+                    _available[id]++;
+                }
+                else
+                {
+                    _available.Add(id, 1);
                 }
             }
 

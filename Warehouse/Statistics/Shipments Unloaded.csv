@@ -1,0 +1,13 @@
+Layout,Wireless/Terminals,Roles/No Roles,2,4,6,8,10,12
+Rows,Terminals,No Roles,38,72,103,132,175,204
+Rows,Terminals,Roles,38,64,87,106,123,159
+Rows,Wireless,No Roles,50,94,131,213,257,264
+Rows,Wireless,Roles,41,73,98,116,149,238
+Near Inbound,Terminals,No Roles,40,70,105,154,192,220
+Near Inbound,Terminals,Roles,41,70,93,112,142,174
+Near Inbound,Wireless,No Roles,56,102,176,308,280,318
+Near Inbound,Wireless,Roles,48,82,105,126,215,230
+Near Outbound,Terminals,No Roles,38,74,105,145,191,222
+Near Outbound,Terminals,Roles,42,71,93,112,139,173
+Near Outbound,Wireless,No Roles,52,101,169,258,272,289
+Near Outbound,Wireless,Roles,51,84,107,124,198,233
