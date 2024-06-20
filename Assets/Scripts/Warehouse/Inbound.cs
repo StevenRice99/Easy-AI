@@ -168,12 +168,6 @@ namespace Warehouse
                 return;
             }
 
-            if (WarehouseManager.SupplyChain)
-            {
-                SpawnParts();
-                return;
-            }
-
             // No items so count until a new shipment arrives.
             ElapsedTime += Time.deltaTime;
             if (ElapsedTime >= WarehouseManager.InboundDelay)
@@ -231,101 +225,37 @@ namespace Warehouse
             // Spawn at most how many parts we can fit.
             for (int i = 0; i < locations.Length; i++)
             {
-                int id;
-                if (WarehouseManager.SupplyChain)
-                {
-                    id = 0;
-                    for (int j = 1; j < options.Length; j++)
-                    {
-                        if (options[j] > options[id])
-                        {
-                            id = j;
-                        }
-                    }
-
-                    if (options[id] == 0)
-                    {
-                        break;
-                    }
-
-                    int attempts = 0;
-
-                    Dictionary<int, int> order = WarehouseManager.CurrentOrder;
-
-                    bool canAdd = false;
-                    
-                    while (attempts <= count)
-                    {
-                        if (order.ContainsKey(id) && order[id] > 0)
-                        {
-                            canAdd = true;
-                            break;
-                        }
-
-                        attempts++;
+                // Get a random ID for the part.
+                int id = Random.Range(0, count);
                 
-                        // Check the next ID, cycling back to zero if needed.
-                        id++;
-                        if (id >= count)
-                        {
-                            id = 0;
-                        }
-                    }
-
-                    if (!canAdd)
+                // We can only attempt to change the ID as many times as there are ID options.
+                int attempts = 0;
+                
+                // Ensure there is space in the warehouse to take this item.
+                while (options[id] <= 0)
+                {
+                    // Increment the number of attempts and exit if all have been exhausted and thus no part can be added.
+                    attempts++;
+                    if (attempts >= count)
                     {
-                        break;
+                        return;
                     }
-
-                    order[id]--;
-                    if (order[id] < 1)
+                    
+                    // Check the next ID, cycling back to zero if needed.
+                    id++;
+                    if (id >= count)
                     {
-                        order.Remove(id);
+                        id = 0;
                     }
                 }
-                else
-                {
-                    // Get a random ID for the part.
-                    id = Random.Range(0, count);
-            
-                    // We can only attempt to change the ID as many times as there are ID options.
-                    int attempts = 0;
-
-                    // If the part can be added or not.
-                    bool canAdd = true;
-                    
-                    // Ensure there is space in the warehouse to take this item.
-                    while (options[id] <= 0)
-                    {
-                        // Increment the number of attempts and exit if all have been exhausted and thus no part can be added.
-                        attempts++;
-                        if (attempts >= count)
-                        {
-                            canAdd = false;
-                            break;
-                        }
                 
-                        // Check the next ID, cycling back to zero if needed.
-                        id++;
-                        if (id >= count)
-                        {
-                            id = 0;
-                        }
-                    }
-
-                    if (!canAdd)
-                    {
-                        break;
-                    }
-                }
-            
                 // Spawn and configure the part prefab as the warehouse can store it.
                 Part part = Instantiate(WarehouseManager.PartPrefab, locations[i], true);
                 part.SetId(id);
                 _parts.Add(part);
                 part.name = $"Part {id}";
                 part.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-            
+                
                 // Update the information for this.
                 if (!_available.TryAdd(id, 1))
                 {
@@ -339,7 +269,7 @@ namespace Warehouse
 
                 // Claim a spot in the warehouse for this part.
                 options[id]--;
-            
+                
                 // At least one has been placed.
                 placed = true;
             }
