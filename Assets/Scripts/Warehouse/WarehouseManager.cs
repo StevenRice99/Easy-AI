@@ -1114,16 +1114,16 @@ namespace Warehouse
             return File.Exists($"{trials}/{title}.csv");
         }
 
-        private void SaveData(StorageLayout currentLayout, bool usingWireless, bool usingRoles, out double[] rateOrders, out double[] rateShipments, out double[] averageStorage)
+        private void SaveData(StorageLayout currentLayout, bool usingWireless, bool usingRoles, out double[] totalOutbound, out double[] totalInbound, out double[] averageStorage)
         {
             // Store data for all worker numbers.
-            rateOrders = new double[workerCases.Length];
-            rateShipments = new double[workerCases.Length];
+            totalOutbound = new double[workerCases.Length];
+            totalInbound = new double[workerCases.Length];
             averageStorage = new double[workerCases.Length];
             for (int i = 0; i < workerCases.Length; i++)
             {
-                rateOrders[i] = 0;
-                rateShipments[i] = 0;
+                totalOutbound[i] = 0;
+                totalInbound[i] = 0;
                 averageStorage[i] = 0;
             }
             
@@ -1252,7 +1252,7 @@ namespace Warehouse
                         if (int.TryParse(outboundData[j][i], out int c))
                         {
                             previousOutbound[j] = c;
-                            rateOrders[j] = c;
+                            totalOutbound[j] = c;
                         }
                     }
                     else
@@ -1266,7 +1266,7 @@ namespace Warehouse
                         if (int.TryParse(inboundData[j][i], out int c))
                         {
                             previousInbound[j] = c;
-                            rateShipments[j] = c;
+                            totalInbound[j] = c;
                         }
                     }
                     else
@@ -1291,14 +1291,9 @@ namespace Warehouse
                 }
             }
 
-            // Get the time in minutes for rates.
-            double minutes = len / 60.0;
-
-            // Convert to rate or average.
+            // Convert storage utilization to the average.
             for (int i = 0; i < workerCases.Length; i++)
             {
-                rateOrders[i] /= minutes;
-                rateShipments[i] /= minutes;
                 averageStorage[i] /= len;
             }
 
