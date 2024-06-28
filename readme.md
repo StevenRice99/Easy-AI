@@ -10,6 +10,7 @@ Unity library to easily learn and prototype artificial intelligence for games.
   - [Tutorial 2](#tutorial-2 "Tutorial 2")
 - [Assignment 3](#assignment-3 "Assignment 3")
 - [Project](#project "Project")
+- [Warehouse](#warehouse "Warehouse")
 - [Assets](#assets "Assets")
 
 # Overview
@@ -83,6 +84,10 @@ Goal-Oriented Behaviour
 - Capture, attack, and defend roles have been provided for you which are assigned in the soldier class automatically. You may wish to expand or change how this method works with more roles or change how they are assigned to allow for more complex interactions and teamwork.
 - Flags, ammo pickups, and health pickups will automatically be picked up by soldiers close enough to them.
 - "Strategic points" have been placed around the map in positions that could be good for offence or defence. Consider building upon this idea.
+
+# Warehouse
+
+- This was an experiment for researching warehouse optimizations. To run experiments, select the "Warehouse Manager" and check the "Run" field. Otherwise, keep this field unchecked to manually control the simulation, and use buttons to change parameters.
 
 # Assets
 
