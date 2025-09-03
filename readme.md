@@ -3,6 +3,8 @@
 Unity library to easily learn and prototype artificial intelligence for games.
 -
 
+This library has been used to teach the course "COMP-4770 Artificial Intelligence for Games" at the [University of Windsor](https://uwindsor.ca "University of Windsor").
+
 - [Overview](#overview "Overview")
 - [Assignment 1](#assignment-1 "Assignment 1")
   - [Tutorial 1](#tutorial-1 "Tutorial 1")
